@@ -123,7 +123,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         ///     Extracts files from the file 'filename'.
         /// </summary>
         /// <returns> Extracted files </returns>
-        public IEnumerable<FileEntry> ExtractFile(string filename, bool parallel = false, PassFilter filter = null)
+        public IEnumerable<FileEntry> ExtractFile(string filename, bool parallel = false, PassFilter? filter = null)
         {
             if (!File.Exists(filename))
             {
@@ -256,8 +256,6 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
             }
         }
 
-        /// </summary> <param name="volume"></param> <param name="parentPath"></param> <param
-        /// name="parallel"></param> <param name="parent"></param> <returns></returns>
         private IEnumerable<FileEntry> DumpLogicalVolume(LogicalVolumeInfo volume, string parentPath, bool parallel, PassFilter filter, FileEntry? parent = null)
         {
             DiscUtils.FileSystemInfo[]? fsInfos = null;
