@@ -30,12 +30,12 @@ namespace Microsoft.CST.OpenSource.Tests
         [DataRow("Shared.tar.gz", true)]
         [DataRow("Shared.tar.xz", false)]
         [DataRow("Shared.tar.xz", true)]
-        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", true, 6)]
-        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", false, 6)]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", true, 8)]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", false, 8)]
         [DataRow("Shared.a", false, 1)]
         [DataRow("Shared.a", true, 1)]
-        [DataRow("Shared.deb", false)]
-        [DataRow("Shared.deb", true)]
+        [DataRow("Shared.deb", false, 27)]
+        [DataRow("Shared.deb", true, 27)]
         [DataRow("Shared.ar", false)]
         [DataRow("Shared.ar", true)]
         [DataRow("Shared.iso", false)]
@@ -75,12 +75,12 @@ namespace Microsoft.CST.OpenSource.Tests
         [DataRow("Shared.tar.gz", true)]
         [DataRow("Shared.tar.xz", false)]
         [DataRow("Shared.tar.xz", true)]
-        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", true, 6)]
-        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", false, 6)]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", true, 8)]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", false, 8)]
         [DataRow("Shared.a", false, 1)]
         [DataRow("Shared.a", true, 1)]
-        [DataRow("Shared.deb", false)]
-        [DataRow("Shared.deb", true)]
+        [DataRow("Shared.deb", false, 27)]
+        [DataRow("Shared.deb", true, 27)]
         [DataRow("Shared.ar", false)]
         [DataRow("Shared.ar", true)]
         [DataRow("Shared.iso", false)]
@@ -101,47 +101,47 @@ namespace Microsoft.CST.OpenSource.Tests
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
             using var stream = new FileStream(path, FileMode.Open);
             var results = extractor.ExtractStream(path, stream, parallel).ToList();
-            Assert.IsTrue(results.Count() == expectedNumFiles);
+            Assert.AreEqual(expectedNumFiles,results.Count);
             stream.Close();
         }
 
         [DataTestMethod]
-        //[DataRow("Shared.zip", false)]
-        //[DataRow("Shared.zip", true)]
-        //[DataRow("Shared.7z", false)]
-        //[DataRow("Shared.7z", true)]
-        //[DataRow("Shared.Tar", false)]
-        //[DataRow("Shared.Tar", true)]
-        //[DataRow("Shared.rar", false)]
-        //[DataRow("Shared.rar", true)]
-        //[DataRow("Shared.rar4", false, 24, 0)]
-        //[DataRow("Shared.rar4", true, 24, 0)]
-        //[DataRow("Shared.tar.bz2", false)]
-        //[DataRow("Shared.tar.bz2", true)]
-        //[DataRow("Shared.tar.gz", false)]
-        //[DataRow("Shared.tar.gz", true)]
-        //[DataRow("Shared.tar.xz", false)]
-        //[DataRow("Shared.tar.xz", true)]
-        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", true, 6, 0)]
-        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", false, 6, 0)]
-        //[DataRow("Shared.a", false, 1, 0)]
-        //[DataRow("Shared.a", true, 1, 0)]
-        [DataRow("Shared.deb", false)]
-        [DataRow("Shared.deb", true)]
-        //[DataRow("Shared.ar", false)]
-        //[DataRow("Shared.ar", true)]
-        //[DataRow("Shared.iso", false)]
-        //[DataRow("Shared.iso", true)]
-        //[DataRow("Shared.vhd", false, 24, 5)] // 26 + Some invisible system files
-        //[DataRow("Shared.vhd", true, 24, 5)]
-        //[DataRow("Shared.vhdx", false)]
-        //[DataRow("Shared.vhdx", true)]
-        //[DataRow("Shared.wim", false)]
-        //[DataRow("Shared.wim", true)]
-        //[DataRow("Empty.vmdk", false, 0, 0)]
-        //[DataRow("Empty.vmdk", true, 0, 0)]
-        //[DataRow("TextFile.md", false, 0, 1)]
-        //[DataRow("TextFile.md", true, 0, 1)]
+        [DataRow("Shared.zip", false)]
+        [DataRow("Shared.zip", true)]
+        [DataRow("Shared.7z", false)]
+        [DataRow("Shared.7z", true)]
+        [DataRow("Shared.Tar", false)]
+        [DataRow("Shared.Tar", true)]
+        [DataRow("Shared.rar", false)]
+        [DataRow("Shared.rar", true)]
+        [DataRow("Shared.rar4", false, 24, 0)]
+        [DataRow("Shared.rar4", true, 24, 0)]
+        [DataRow("Shared.tar.bz2", false)]
+        [DataRow("Shared.tar.bz2", true)]
+        [DataRow("Shared.tar.gz", false)]
+        [DataRow("Shared.tar.gz", true)]
+        [DataRow("Shared.tar.xz", false)]
+        [DataRow("Shared.tar.xz", true)]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", true, 3, 2)]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", false, 3, 2)]
+        [DataRow("Shared.a", false, 1, 0)]
+        [DataRow("Shared.a", true, 1, 0)]
+        [DataRow("Shared.deb", false, 24, 1)]
+        [DataRow("Shared.deb", true, 24, 1)]
+        [DataRow("Shared.ar", false, 23, 3)]
+        [DataRow("Shared.ar", true, 23, 3)]
+        [DataRow("Shared.iso", false)]
+        [DataRow("Shared.iso", true)]
+        [DataRow("Shared.vhd", false, 24, 5)] // 26 + Some invisible system files
+        [DataRow("Shared.vhd", true, 24, 5)]
+        [DataRow("Shared.vhdx", false)]
+        [DataRow("Shared.vhdx", true)]
+        [DataRow("Shared.wim", false)]
+        [DataRow("Shared.wim", true)]
+        [DataRow("Empty.vmdk", false, 0, 0)]
+        [DataRow("Empty.vmdk", true, 0, 0)]
+        [DataRow("TextFile.md", false, 1, 0)]
+        [DataRow("TextFile.md", true, 1, 0)]
         public void TestPassFilter(string fileName, bool parallel, int expectedHighPass = 24, int expectedLowPass = 2)
         {
             var extractor = new Extractor();
@@ -149,20 +149,20 @@ namespace Microsoft.CST.OpenSource.Tests
             using var stream = new FileStream(path, FileMode.Open);
             var results = extractor.ExtractStream(path, stream, parallel, (FileEntryInfo fei) => fei.Size > 1000).ToList();
             var invertResults = extractor.ExtractStream(path, stream, parallel, (FileEntryInfo fei) => fei.Size <= 1000).ToList();
-            Assert.IsTrue(results.Count == expectedHighPass);
-            Assert.IsTrue(invertResults.Count == expectedLowPass);
+            Assert.AreEqual(expectedHighPass, results.Count);
+            Assert.AreEqual(expectedLowPass, invertResults.Count);
             stream.Close();
         }
 
         [DataTestMethod]
-        [DataRow("Nested.Zip", false, 26 * 8)]
-        [DataRow("Nested.Zip", true, 26 * 8)]
+        [DataRow("Nested.Zip", false, 26 * 8 + 1)] // there's one extra metadata file in there
+        [DataRow("Nested.Zip", true, 26 * 8 + 1)]
         public void ExtractNestedArchive(string fileName, bool parallel, int expectedNumFiles)
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
             var results = extractor.ExtractFile(path, parallel);
-            Assert.IsTrue(results.Count() == expectedNumFiles);
+            Assert.AreEqual(expectedNumFiles,results.Count());
         }
 
         [DataTestMethod]

@@ -34,7 +34,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
             else
             {
                 ParentPath = parent.FullPath;
-                FullPath = $"{ParentPath}{Path.PathSeparator}{Name}";
+                FullPath = $"{ParentPath}{Path.DirectorySeparatorChar}{Name}";
             }
 
             if (inputStream == null)

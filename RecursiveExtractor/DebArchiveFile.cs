@@ -44,6 +44,10 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                         using var stream = new MemoryStream(entryContent);
                         yield return new FileEntry(filename, stream, fileEntry);
                     }
+                    else
+                    {
+                        fileEntry.Content.Position += fileSize;
+                    }
                 }
                 else
                 {

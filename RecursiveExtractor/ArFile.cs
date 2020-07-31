@@ -33,7 +33,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                 }
 
                 fileEntry.Content.Read(headerBuffer, 0, 60);
-
+                var headerString = Encoding.ASCII.GetString(headerBuffer);
                 if (long.TryParse(Encoding.ASCII.GetString(headerBuffer[48..58]), out long size))// header size in bytes
                 {
                     var filename = Encoding.ASCII.GetString(headerBuffer[0..16]).Trim();
@@ -55,7 +55,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                                 filenameLookup.Add(index, name.ToString());
                                 name.Clear();
                             }
-                            else if (fileNamesBytes[i] == '\n' || fileNamesBytes[i] == '\r')
+                            else if (fileNamesBytes[i] == '\n')
                             {
                                 // The next filename would start on the next line
                                 index = i + 1;

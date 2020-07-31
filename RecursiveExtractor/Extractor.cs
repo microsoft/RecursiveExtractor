@@ -1194,7 +1194,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                     {
                         var image = baseFile.GetImage(i);
                         var fileList = image.GetFiles(image.Root.FullName, "*.*", SearchOption.AllDirectories).ToList();
-                        while (fileList.Any())
+                        while (fileList.Count > 0)
                         {
                             int batchSize = Math.Min(options.BatchSize, fileList.Count);
                             var range = fileList.Take(batchSize);
@@ -1204,10 +1204,15 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                                 try
                                 {
                                     var info = image.GetFileInfo(file);
-                                    var fei = new FileEntryInfo(info.FullName, fileEntry.FullPath, info.Length);
+                                    var read = info.OpenRead();
+                                    var fei = new FileEntryInfo(info.FullName, fileEntry.FullPath, read.Length);
                                     if (filter(fei))
                                     {
-                                        streamsAndNames.Add((info, info.OpenRead()));
+                                        streamsAndNames.Add((info, read));
+                                    }
+                                    else
+                                    {
+                                        read.Dispose();
                                     }
                                 }
                                 catch (Exception e)
@@ -1240,15 +1245,20 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                     for (int i = 0; i < baseFile.ImageCount; i++)
                     {
                         var image = baseFile.GetImage(i);
-                        var files = image.GetFiles(image.Root.FullName, "*.*", SearchOption.AllDirectories);
-                        foreach (var file in files)
+                        foreach (var file in image.GetFiles(image.Root.FullName, "*.*", SearchOption.AllDirectories))
                         {
                             Stream? stream = null;
                             try
                             {
                                 var info = image.GetFileInfo(file);
-                                CheckResourceGovernor(info.Length);
                                 stream = info.OpenRead();
+                                CheckResourceGovernor(info.Length);
+                                var fei = new FileEntryInfo(info.FullName, fileEntry.FullPath, stream.Length);
+                                if (!filter(fei))
+                                {
+                                    stream.Dispose();
+                                    stream = null;
+                                }
                             }
                             catch (Exception e)
                             {
@@ -1257,8 +1267,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                             if (stream != null)
                             {
                                 var newFileEntry = new FileEntry($"{image.FriendlyName}\\{file}", stream, fileEntry);
-                                var entries = ExtractFile(newFileEntry, parallel, filter);
-                                foreach (var entry in entries)
+                                foreach (var entry in ExtractFile(newFileEntry, parallel, filter))
                                 {
                                     yield return entry;
                                 }
