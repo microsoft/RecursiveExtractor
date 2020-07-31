@@ -16,7 +16,7 @@ try {
 }
 catch(OverflowException)
 {
-    // This means you have passed in a Quine or Zip Bomb
+    // This means Recursive Extractor has detected a Quine or Zip Bomb
 }
 ```
 
