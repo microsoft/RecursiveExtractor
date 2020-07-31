@@ -154,10 +154,10 @@ namespace Microsoft.CST.OpenSource.Tests
             stream.Close();
         }
 
-private bool SizeGreaterThan1000(FileEntryInfo fei)
-{
-    return fei.Size > 1000;
-}
+        private bool SizeGreaterThan1000(FileEntryInfo fei)
+        {
+            return fei.Size > 1000;
+        }
 
         [DataTestMethod]
         [DataRow("Nested.Zip", false, 26 * 8 + 1)] // there's one extra metadata file in there
