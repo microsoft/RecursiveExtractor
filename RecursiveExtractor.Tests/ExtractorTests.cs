@@ -147,12 +147,17 @@ namespace Microsoft.CST.OpenSource.Tests
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
             using var stream = new FileStream(path, FileMode.Open);
-            var results = extractor.ExtractStream(path, stream, parallel, (FileEntryInfo fei) => fei.Size > 1000).ToList();
+            var results = extractor.ExtractStream(path, stream, parallel, SizeGreaterThan1000).ToList();
             var invertResults = extractor.ExtractStream(path, stream, parallel, (FileEntryInfo fei) => fei.Size <= 1000).ToList();
             Assert.AreEqual(expectedHighPass, results.Count);
             Assert.AreEqual(expectedLowPass, invertResults.Count);
             stream.Close();
         }
+
+private bool SizeGreaterThan1000(FileEntryInfo fei)
+{
+    return fei.Size > 1000;
+}
 
         [DataTestMethod]
         [DataRow("Nested.Zip", false, 26 * 8 + 1)] // there's one extra metadata file in there

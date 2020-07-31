@@ -15,7 +15,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
     {
         // Simple method which returns a the file entries. We can't make this a continuation because we're
         // using spans.
-        public static IEnumerable<FileEntry> GetFileEntries(FileEntry fileEntry, Func<FileEntryInfo, bool> filter)
+        public static IEnumerable<FileEntry> GetFileEntries(FileEntry fileEntry, PassFilter filter)
         {
             if (fileEntry == null)
             {

@@ -120,11 +120,12 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
             return true; 
         }
 
+
         /// <summary>
         ///     Extracts files from the file 'filename'.
         /// </summary>
         /// <returns> Extracted files </returns>
-        public IEnumerable<FileEntry> ExtractFile(string filename, bool parallel = false, Func<FileEntryInfo,bool>? filter = null)
+        public IEnumerable<FileEntry> ExtractFile(string filename, bool parallel = false, PassFilter filter = null)
         {
             if (!File.Exists(filename))
             {
@@ -163,7 +164,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// <param name="stream">The Stream to parse.</param>
         /// <param name="parallel">Should we operate in parallel?</param>
         /// <returns></returns>
-        public IEnumerable<FileEntry> ExtractStream(string filename, Stream stream, bool parallel = false, Func<FileEntryInfo, bool>? filter = null)
+        public IEnumerable<FileEntry> ExtractStream(string filename, Stream stream, bool parallel = false, PassFilter? filter = null)
         {
             FileEntry? fileEntry = null;
             try
@@ -202,7 +203,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        public IEnumerable<FileEntry> ExtractFile(string filename, byte[] archiveBytes, bool parallel = false, Func<FileEntryInfo, bool>? filter = null)
+        public IEnumerable<FileEntry> ExtractFile(string filename, byte[] archiveBytes, bool parallel = false, PassFilter? filter = null)
         {
             using var ms = new MemoryStream(archiveBytes);
             ResetResourceGovernor(ms);
@@ -259,7 +260,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
 
         /// </summary> <param name="volume"></param> <param name="parentPath"></param> <param
         /// name="parallel"></param> <param name="parent"></param> <returns></returns>
-        private IEnumerable<FileEntry> DumpLogicalVolume(LogicalVolumeInfo volume, string parentPath, bool parallel, Func<FileEntryInfo, bool> filter, FileEntry? parent = null)
+        private IEnumerable<FileEntry> DumpLogicalVolume(LogicalVolumeInfo volume, string parentPath, bool parallel, PassFilter filter, FileEntry? parent = null)
         {
             DiscUtils.FileSystemInfo[]? fsInfos = null;
             try
@@ -357,7 +358,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        private IEnumerable<FileEntry> Extract7ZipFile(FileEntry fileEntry, bool parallel, Func<FileEntryInfo, bool> filter)
+        private IEnumerable<FileEntry> Extract7ZipFile(FileEntry fileEntry, bool parallel, PassFilter filter)
         {
             SevenZipArchive? sevenZipArchive = null;
             try
@@ -462,7 +463,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        private IEnumerable<FileEntry> ExtractBZip2File(FileEntry fileEntry, bool parallel, Func<FileEntryInfo, bool> filter)
+        private IEnumerable<FileEntry> ExtractBZip2File(FileEntry fileEntry, bool parallel, PassFilter filter)
         {
             BZip2Stream? bzip2Stream = null;
             try
@@ -506,7 +507,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        private IEnumerable<FileEntry> ExtractDebFile(FileEntry fileEntry, bool parallel, Func<FileEntryInfo, bool> filter)
+        private IEnumerable<FileEntry> ExtractDebFile(FileEntry fileEntry, bool parallel, PassFilter filter)
         {
             IEnumerable<FileEntry>? entries = null;
             try
@@ -570,7 +571,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        private IEnumerable<FileEntry> ExtractFile(FileEntry fileEntry, bool parallel, Func<FileEntryInfo,bool> filter)
+        private IEnumerable<FileEntry> ExtractFile(FileEntry fileEntry, bool parallel, PassFilter filter)
         {
             Logger.Trace("ExtractFile({0})", fileEntry.FullPath);
             CurrentOperationProcessedBytesLeft -= fileEntry.Content.Length;
@@ -675,7 +676,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
-        private IEnumerable<FileEntry> ExtractGnuArFile(FileEntry fileEntry, bool parallel, Func<FileEntryInfo, bool> filter)
+        private IEnumerable<FileEntry> ExtractGnuArFile(FileEntry fileEntry, bool parallel, PassFilter filter)
         {
             IEnumerable<FileEntry>? fileEntries = null;
             try
@@ -733,7 +734,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        private IEnumerable<FileEntry> ExtractGZipFile(FileEntry fileEntry, bool parallel, Func<FileEntryInfo, bool> filter)
+        private IEnumerable<FileEntry> ExtractGZipFile(FileEntry fileEntry, bool parallel, PassFilter filter)
         {
             GZipArchive? gzipArchive = null;
             try
@@ -795,7 +796,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
-        private IEnumerable<FileEntry> ExtractIsoFile(FileEntry fileEntry, bool parallel, Func<FileEntryInfo, bool> filter)
+        private IEnumerable<FileEntry> ExtractIsoFile(FileEntry fileEntry, bool parallel, PassFilter filter)
         {
             using CDReader cd = new CDReader(fileEntry.Content, true);
             var entries = cd.GetFiles(cd.Root.FullName, "*.*", SearchOption.AllDirectories);
@@ -889,7 +890,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        private IEnumerable<FileEntry> ExtractRarFile(FileEntry fileEntry, bool parallel, Func<FileEntryInfo, bool> filter)
+        private IEnumerable<FileEntry> ExtractRarFile(FileEntry fileEntry, bool parallel, PassFilter filter)
         {
             RarArchive? rarArchive = null;
             try
@@ -990,7 +991,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        private IEnumerable<FileEntry> ExtractTarFile(FileEntry fileEntry, bool parallel, Func<FileEntryInfo, bool> filter)
+        private IEnumerable<FileEntry> ExtractTarFile(FileEntry fileEntry, bool parallel, PassFilter filter)
         {
             TarEntry tarEntry;
             TarInputStream? tarStream = null;
@@ -1054,7 +1055,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
-        private IEnumerable<FileEntry> ExtractVHDFile(FileEntry fileEntry, bool parallel, Func<FileEntryInfo, bool> filter)
+        private IEnumerable<FileEntry> ExtractVHDFile(FileEntry fileEntry, bool parallel, PassFilter filter)
         {
             using var disk = new DiscUtils.Vhd.Disk(fileEntry.Content, Ownership.None);
             LogicalVolumeInfo[]? logicalVolumes = null;
@@ -1093,7 +1094,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
-        private IEnumerable<FileEntry> ExtractVHDXFile(FileEntry fileEntry, bool parallel, Func<FileEntryInfo, bool> filter)
+        private IEnumerable<FileEntry> ExtractVHDXFile(FileEntry fileEntry, bool parallel, PassFilter filter)
         {
             using var disk = new DiscUtils.Vhdx.Disk(fileEntry.Content, Ownership.None);
             LogicalVolumeInfo[]? logicalVolumes = null;
@@ -1134,7 +1135,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
-        private IEnumerable<FileEntry> ExtractVMDKFile(FileEntry fileEntry, bool parallel, Func<FileEntryInfo, bool> filter)
+        private IEnumerable<FileEntry> ExtractVMDKFile(FileEntry fileEntry, bool parallel, PassFilter filter)
         {
             using var disk = new DiscUtils.Vmdk.Disk(fileEntry.Content, Ownership.None);
             LogicalVolumeInfo[]? logicalVolumes = null;
@@ -1173,7 +1174,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
-        private IEnumerable<FileEntry> ExtractWimFile(FileEntry fileEntry, bool parallel, Func<FileEntryInfo, bool> filter)
+        private IEnumerable<FileEntry> ExtractWimFile(FileEntry fileEntry, bool parallel, PassFilter filter)
         {
             DiscUtils.Wim.WimFile? baseFile = null;
             try
@@ -1291,7 +1292,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        private IEnumerable<FileEntry> ExtractXZFile(FileEntry fileEntry, bool parallel, Func<FileEntryInfo, bool> filter)
+        private IEnumerable<FileEntry> ExtractXZFile(FileEntry fileEntry, bool parallel, PassFilter filter)
         {
             XZStream? xzStream = null;
             try
@@ -1346,7 +1347,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        private IEnumerable<FileEntry> ExtractZipFile(FileEntry fileEntry, bool parallel, Func<FileEntryInfo, bool> filter)
+        private IEnumerable<FileEntry> ExtractZipFile(FileEntry fileEntry, bool parallel, PassFilter filter)
         {
             ZipFile? zipFile = null;
             try

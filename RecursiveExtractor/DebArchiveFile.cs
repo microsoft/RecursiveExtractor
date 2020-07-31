@@ -14,7 +14,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
 
     public static class DebArchiveFile
     {
-        public static IEnumerable<FileEntry> GetFileEntries(FileEntry fileEntry, Func<FileEntryInfo, bool> filter)
+        public static IEnumerable<FileEntry> GetFileEntries(FileEntry fileEntry, PassFilter filter)
         {
             if (fileEntry == null)
             {
