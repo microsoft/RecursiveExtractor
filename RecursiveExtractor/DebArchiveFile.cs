@@ -1,7 +1,4 @@
-﻿using NLog.Filters;
-using SharpCompress.Common;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -34,7 +31,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                 fileEntry.Content.Read(headerBytes, 0, 60);
                 var filename = Encoding.ASCII.GetString(headerBytes[0..16]).Trim();  // filename is 16 bytes
                 var fileSizeBytes = headerBytes[48..58]; // File size is decimal-encoded, 10 bytes long
-                if (int.TryParse(Encoding.ASCII.GetString(fileSizeBytes).Trim(), out int fileSize))
+                if (int.TryParse(Encoding.ASCII.GetString(fileSizeBytes).Trim(), out var fileSize))
                 {
                     var fei = new FileEntryInfo(filename, fileEntry.FullPath, fileSize);
                     if (filter(fei))

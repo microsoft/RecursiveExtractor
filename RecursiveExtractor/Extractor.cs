@@ -16,7 +16,6 @@ using ICSharpCode.SharpZipLib.Zip;
 using SharpCompress.Archives.GZip;
 using SharpCompress.Archives.Rar;
 using SharpCompress.Archives.SevenZip;
-using SharpCompress.Common;
 using SharpCompress.Compressors.BZip2;
 using SharpCompress.Compressors.Xz;
 using System;
@@ -25,7 +24,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace Microsoft.CST.OpenSource.RecursiveExtractor
 {
@@ -62,8 +60,8 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                     if (stream1.CanRead && stream2.CanRead && stream1.Length == stream2.Length && fileEntry1.Name == fileEntry2.Name)
                     {
                         var bufferSize = 1024;
-                        byte[] buffer1 = new byte[bufferSize];
-                        byte[] buffer2 = new byte[bufferSize];
+                        var buffer1 = new byte[bufferSize];
+                        var buffer2 = new byte[bufferSize];
 
                         var position1 = fileEntry1.Content.Position;
                         var position2 = fileEntry2.Content.Position;
@@ -72,7 +70,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                         var bytesRemaining = stream2.Length;
                         while (bytesRemaining > 0)
                         {
-                            stream1.Read(buffer1,0, bufferSize);
+                            stream1.Read(buffer1, 0, bufferSize);
                             stream2.Read(buffer2, 0, bufferSize);
                             if (!buffer1.SequenceEqual(buffer2))
                             {
@@ -115,9 +113,9 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
             return false;
         }
 
-        private bool DefaultFilter(FileEntryInfo _) 
-        { 
-            return true; 
+        private bool DefaultFilter(FileEntryInfo _)
+        {
+            return true;
         }
 
 
@@ -278,11 +276,11 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                 var diskFiles = fs.GetFiles(fs.Root.FullName, "*.*", SearchOption.AllDirectories).ToList();
                 if (parallel)
                 {
-                    ConcurrentStack<FileEntry> files = new ConcurrentStack<FileEntry>();
+                    var files = new ConcurrentStack<FileEntry>();
 
                     while (diskFiles.Any())
                     {
-                        int batchSize = Math.Min(options.BatchSize, diskFiles.Count);
+                        var batchSize = Math.Min(options.BatchSize, diskFiles.Count);
                         var range = diskFiles.GetRange(0, batchSize);
                         var fileinfos = new List<(DiscFileInfo, Stream)>();
                         long totalLength = 0;
@@ -317,7 +315,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                         });
                         diskFiles.RemoveRange(0, batchSize);
 
-                        while (files.TryPop(out FileEntry? result))
+                        while (files.TryPop(out var result))
                         {
                             if (result != null)
                                 yield return result;
@@ -375,11 +373,11 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
 
                 if (parallel)
                 {
-                    ConcurrentStack<FileEntry> files = new ConcurrentStack<FileEntry>();
+                    var files = new ConcurrentStack<FileEntry>();
 
                     while (entries.Count() > 0)
                     {
-                        int batchSize = Math.Min(options.BatchSize, entries.Count());
+                        var batchSize = Math.Min(options.BatchSize, entries.Count());
                         var selectedEntries = entries.GetRange(0, batchSize).Select(entry => (entry, entry.OpenEntryStream()));
                         CheckResourceGovernor(selectedEntries.Sum(x => x.entry.Size));
 
@@ -423,7 +421,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                         CheckResourceGovernor(0);
                         entries.RemoveRange(0, batchSize);
 
-                        while (files.TryPop(out FileEntry? result))
+                        while (files.TryPop(out var result))
                         {
                             if (result != null)
                                 yield return result;
@@ -435,7 +433,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                     foreach (var entry in entries)
                     {
                         CheckResourceGovernor(entry.Size);
-                        FileEntry newFileEntry = new FileEntry(entry.Key, entry.OpenEntryStream(), fileEntry);
+                        var newFileEntry = new FileEntry(entry.Key, entry.OpenEntryStream(), fileEntry);
 
                         if (IsQuine(newFileEntry))
                         {
@@ -522,11 +520,11 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
             {
                 if (parallel)
                 {
-                    ConcurrentStack<FileEntry> files = new ConcurrentStack<FileEntry>();
+                    var files = new ConcurrentStack<FileEntry>();
 
                     while (entries.Any())
                     {
-                        int batchSize = Math.Min(options.BatchSize, entries.Count());
+                        var batchSize = Math.Min(options.BatchSize, entries.Count());
                         var selectedEntries = entries.Take(batchSize);
 
                         CheckResourceGovernor(selectedEntries.Sum(x => x.Content.Length));
@@ -538,7 +536,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
 
                         entries = entries.Skip(batchSize);
 
-                        while (files.TryPop(out FileEntry? result))
+                        while (files.TryPop(out var result))
                         {
                             if (result != null)
                                 yield return result;
@@ -577,7 +575,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
             CurrentOperationProcessedBytesLeft -= fileEntry.Content.Length;
             CheckResourceGovernor();
             IEnumerable<FileEntry> result = Array.Empty<FileEntry>();
-            bool useRaw = false;
+            var useRaw = false;
 
             try
             {
@@ -701,7 +699,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
 
                     fileEntries = fileEntries.Skip(selectedEntries.Count());
 
-                    while (tempStore.TryPop(out FileEntry? result))
+                    while (tempStore.TryPop(out var result))
                     {
                         if (result != null)
                             yield return result;
@@ -798,15 +796,15 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// <returns> </returns>
         private IEnumerable<FileEntry> ExtractIsoFile(FileEntry fileEntry, bool parallel, PassFilter filter)
         {
-            using CDReader cd = new CDReader(fileEntry.Content, true);
+            using var cd = new CDReader(fileEntry.Content, true);
             var entries = cd.GetFiles(cd.Root.FullName, "*.*", SearchOption.AllDirectories);
             if (entries != null)
             {
                 if (parallel)
                 {
-                    ConcurrentStack<FileEntry> files = new ConcurrentStack<FileEntry>();
+                    var files = new ConcurrentStack<FileEntry>();
 
-                    int batchSize = Math.Min(options.BatchSize, entries.Length);
+                    var batchSize = Math.Min(options.BatchSize, entries.Length);
                     var selectedFileNames = entries[0..batchSize];
                     var fileInfoTuples = new List<(DiscFileInfo, Stream)>();
 
@@ -840,7 +838,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
 
                     entries = entries[batchSize..];
 
-                    while (files.TryPop(out FileEntry? result))
+                    while (files.TryPop(out var result))
                     {
                         if (result != null)
                             yield return result;
@@ -908,11 +906,11 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                 var entries = rarArchive.Entries.Where(x => x.IsComplete && !x.IsDirectory && !x.IsEncrypted && filter(new FileEntryInfo(x.Key, fileEntry.FullPath, x.Size)));
                 if (parallel)
                 {
-                    ConcurrentStack<FileEntry> files = new ConcurrentStack<FileEntry>();
+                    var files = new ConcurrentStack<FileEntry>();
 
                     while (entries.Any())
                     {
-                        int batchSize = Math.Min(options.BatchSize, entries.Count());
+                        var batchSize = Math.Min(options.BatchSize, entries.Count());
 
                         var streams = entries.Take(batchSize).Select(entry => (entry, entry.OpenEntryStream())).ToList();
 
@@ -942,7 +940,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
 
                         entries = entries.Skip(streams.Count);
 
-                        while (files.TryPop(out FileEntry? result))
+                        while (files.TryPop(out var result))
                         {
                             if (result != null)
                                 yield return result;
@@ -1190,15 +1188,15 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
             {
                 if (parallel)
                 {
-                    ConcurrentStack<FileEntry> files = new ConcurrentStack<FileEntry>();
+                    var files = new ConcurrentStack<FileEntry>();
 
-                    for (int i = 0; i < baseFile.ImageCount; i++)
+                    for (var i = 0; i < baseFile.ImageCount; i++)
                     {
                         var image = baseFile.GetImage(i);
                         var fileList = image.GetFiles(image.Root.FullName, "*.*", SearchOption.AllDirectories).ToList();
                         while (fileList.Count > 0)
                         {
-                            int batchSize = Math.Min(options.BatchSize, fileList.Count);
+                            var batchSize = Math.Min(options.BatchSize, fileList.Count);
                             var range = fileList.Take(batchSize);
                             var streamsAndNames = new List<(DiscFileInfo, Stream)>();
                             foreach (var file in range)
@@ -1234,7 +1232,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                             });
                             fileList.RemoveRange(0, batchSize);
 
-                            while (files.TryPop(out FileEntry? result))
+                            while (files.TryPop(out var result))
                             {
                                 if (result != null)
                                     yield return result;
@@ -1244,7 +1242,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                 }
                 else
                 {
-                    for (int i = 0; i < baseFile.ImageCount; i++)
+                    for (var i = 0; i < baseFile.ImageCount; i++)
                     {
                         var image = baseFile.GetImage(i);
                         foreach (var file in image.GetFiles(image.Root.FullName, "*.*", SearchOption.AllDirectories))
@@ -1363,7 +1361,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
             {
                 if (parallel)
                 {
-                    ConcurrentStack<FileEntry> files = new ConcurrentStack<FileEntry>();
+                    var files = new ConcurrentStack<FileEntry>();
 
                     var zipEntries = new List<ZipEntry>();
                     foreach (ZipEntry? zipEntry in zipFile)
@@ -1384,7 +1382,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
 
                     while (zipEntries.Count > 0)
                     {
-                        int batchSize = Math.Min(options.BatchSize, zipEntries.Count);
+                        var batchSize = Math.Min(options.BatchSize, zipEntries.Count);
                         var selectedEntries = zipEntries.GetRange(0, batchSize);
                         CheckResourceGovernor(selectedEntries.Sum(x => x.Size));
                         try
@@ -1428,7 +1426,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                         CheckResourceGovernor(0);
                         zipEntries.RemoveRange(0, batchSize);
 
-                        while (files.TryPop(out FileEntry? result))
+                        while (files.TryPop(out var result))
                         {
                             if (result != null)
                                 yield return result;
@@ -1452,7 +1450,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                         using var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
                         try
                         {
-                            byte[] buffer = new byte[BUFFER_SIZE];
+                            var buffer = new byte[BUFFER_SIZE];
                             var zipStream = zipFile.GetInputStream(zipEntry);
                             StreamUtils.Copy(zipStream, fs, buffer);
                         }

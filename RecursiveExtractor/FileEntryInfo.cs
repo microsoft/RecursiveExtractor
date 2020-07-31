@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Microsoft.CST.OpenSource
+﻿namespace Microsoft.CST.OpenSource
 {
     public class FileEntryInfo
     {
