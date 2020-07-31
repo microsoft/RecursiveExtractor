@@ -15,7 +15,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
     {
         // Simple method which returns a the file entries. We can't make this a continuation because we're
         // using spans.
-        public static IEnumerable<FileEntry> GetFileEntries(FileEntry fileEntry)
+        public static IEnumerable<FileEntry> GetFileEntries(FileEntry fileEntry, Func<FileEntryInfo, bool> filter)
         {
             if (fileEntry == null)
             {
@@ -55,7 +55,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                                 filenameLookup.Add(index, name.ToString());
                                 name.Clear();
                             }
-                            else if (fileNamesBytes[i] == '\n')
+                            else if (fileNamesBytes[i] == '\n' || fileNamesBytes[i] == '\r')
                             {
                                 // The next filename would start on the next line
                                 index = i + 1;
@@ -74,13 +74,20 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                             byte[] nameSpan = new byte[nameLength];
                             // This should move us right to the file
                             fileEntry.Content.Read(nameSpan,0,nameLength);
+                            var fei = new FileEntryInfo(Encoding.ASCII.GetString(nameSpan), fileEntry.FullPath, size - nameLength);
+                            if (filter(fei))
+                            {
+                                var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
 
-                            var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+                                // The name length is included in the total size reported in the header
+                                CopyStreamBytes(fileEntry.Content, entryStream, size - nameLength);
 
-                            // The name length is included in the total size reported in the header
-                            CopyStreamBytes(fileEntry.Content, entryStream, size - nameLength);
-
-                            yield return new FileEntry(Encoding.ASCII.GetString(nameSpan), entryStream, fileEntry, true);
+                                yield return new FileEntry(Encoding.ASCII.GetString(nameSpan), entryStream, fileEntry, true);
+                            }
+                            else
+                            {
+                                fileEntry.Content.Position += size - nameLength;
+                            }
                         }
                     }
                     else if (filename.Equals('/'))
@@ -143,10 +150,13 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                                 {
                                     filename = entry.Item2;
                                 }
-
-                                var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
-                                CopyStreamBytes(fileEntry.Content, entryStream, innerSize);
-                                yield return new FileEntry(filename, entryStream, fileEntry);
+                                var fei = new FileEntryInfo(filename, fileEntry.FullPath, innerSize);
+                                if (filter(fei))
+                                {
+                                    var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+                                    CopyStreamBytes(fileEntry.Content, entryStream, innerSize);
+                                    yield return new FileEntry(filename, entryStream, fileEntry);
+                                }
                             }
                         }
                         fileEntry.Content.Position = fileEntry.Content.Length - 1;
@@ -214,9 +224,13 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                                 {
                                     filename = innerEntry.Item2;
                                 }
-                                var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
-                                CopyStreamBytes(fileEntry.Content, entryStream, innerSize);
-                                yield return new FileEntry(filename, entryStream, fileEntry);
+                                var fei = new FileEntryInfo(filename, fileEntry.FullPath, innerSize);
+                                if (filter(fei))
+                                {
+                                    var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+                                    CopyStreamBytes(fileEntry.Content, entryStream, innerSize);
+                                    yield return new FileEntry(filename, entryStream, fileEntry);
+                                }
                             }
                         }
                         fileEntry.Content.Position = fileEntry.Content.Length - 1;
@@ -234,18 +248,32 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                                 Logger.Debug("Expected to find a filename at index {0}", index);
                             }
                         }
+                        var fei = new FileEntryInfo(filename, fileEntry.FullPath, size);
+                        if (filter(fei))
+                        {
+                            var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+                            CopyStreamBytes(fileEntry.Content, entryStream, size);
+                            yield return new FileEntry(filename, entryStream, fileEntry);
+                        }
+                        else
+                        {
+                            fileEntry.Content.Position += size;
+                        }
 
-                        var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
-                        CopyStreamBytes(fileEntry.Content, entryStream, size);
-
-                        yield return new FileEntry(filename, entryStream, fileEntry, true);
                     }
                     else
                     {
-                        var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
-                        CopyStreamBytes(fileEntry.Content, entryStream, size);
-
-                        yield return new FileEntry(filename, entryStream, fileEntry, true);
+                        var fei = new FileEntryInfo(filename, fileEntry.FullPath, size);
+                        if (filter(fei))
+                        {
+                            var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+                            CopyStreamBytes(fileEntry.Content, entryStream, size);
+                            yield return new FileEntry(filename, entryStream, fileEntry, true);
+                        }
+                        else
+                        {
+                            fileEntry.Content.Position += size;
+                        }
                     }
                 }
                 else

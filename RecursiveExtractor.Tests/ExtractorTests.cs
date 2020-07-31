@@ -106,6 +106,55 @@ namespace Microsoft.CST.OpenSource.Tests
         }
 
         [DataTestMethod]
+        //[DataRow("Shared.zip", false)]
+        //[DataRow("Shared.zip", true)]
+        //[DataRow("Shared.7z", false)]
+        //[DataRow("Shared.7z", true)]
+        //[DataRow("Shared.Tar", false)]
+        //[DataRow("Shared.Tar", true)]
+        //[DataRow("Shared.rar", false)]
+        //[DataRow("Shared.rar", true)]
+        //[DataRow("Shared.rar4", false, 24, 0)]
+        //[DataRow("Shared.rar4", true, 24, 0)]
+        //[DataRow("Shared.tar.bz2", false)]
+        //[DataRow("Shared.tar.bz2", true)]
+        //[DataRow("Shared.tar.gz", false)]
+        //[DataRow("Shared.tar.gz", true)]
+        //[DataRow("Shared.tar.xz", false)]
+        //[DataRow("Shared.tar.xz", true)]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", true, 6, 0)]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", false, 6, 0)]
+        //[DataRow("Shared.a", false, 1, 0)]
+        //[DataRow("Shared.a", true, 1, 0)]
+        [DataRow("Shared.deb", false)]
+        [DataRow("Shared.deb", true)]
+        //[DataRow("Shared.ar", false)]
+        //[DataRow("Shared.ar", true)]
+        //[DataRow("Shared.iso", false)]
+        //[DataRow("Shared.iso", true)]
+        //[DataRow("Shared.vhd", false, 24, 5)] // 26 + Some invisible system files
+        //[DataRow("Shared.vhd", true, 24, 5)]
+        //[DataRow("Shared.vhdx", false)]
+        //[DataRow("Shared.vhdx", true)]
+        //[DataRow("Shared.wim", false)]
+        //[DataRow("Shared.wim", true)]
+        //[DataRow("Empty.vmdk", false, 0, 0)]
+        //[DataRow("Empty.vmdk", true, 0, 0)]
+        //[DataRow("TextFile.md", false, 0, 1)]
+        //[DataRow("TextFile.md", true, 0, 1)]
+        public void TestPassFilter(string fileName, bool parallel, int expectedHighPass = 24, int expectedLowPass = 2)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            using var stream = new FileStream(path, FileMode.Open);
+            var results = extractor.ExtractStream(path, stream, parallel, (FileEntryInfo fei) => fei.Size > 1000).ToList();
+            var invertResults = extractor.ExtractStream(path, stream, parallel, (FileEntryInfo fei) => fei.Size <= 1000).ToList();
+            Assert.IsTrue(results.Count == expectedHighPass);
+            Assert.IsTrue(invertResults.Count == expectedLowPass);
+            stream.Close();
+        }
+
+        [DataTestMethod]
         [DataRow("Nested.Zip", false, 26 * 8)]
         [DataRow("Nested.Zip", true, 26 * 8)]
         public void ExtractNestedArchive(string fileName, bool parallel, int expectedNumFiles)

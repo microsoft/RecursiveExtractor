@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using NLog.Filters;
+using SharpCompress.Common;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -11,7 +14,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
 
     public static class DebArchiveFile
     {
-        public static IEnumerable<FileEntry> GetFileEntries(FileEntry fileEntry)
+        public static IEnumerable<FileEntry> GetFileEntries(FileEntry fileEntry, Func<FileEntryInfo, bool> filter)
         {
             if (fileEntry == null)
             {
@@ -33,10 +36,14 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                 var fileSizeBytes = headerBytes[48..58]; // File size is decimal-encoded, 10 bytes long
                 if (int.TryParse(Encoding.ASCII.GetString(fileSizeBytes).Trim(), out int fileSize))
                 {
-                    var entryContent = new byte[fileSize];
-                    fileEntry.Content.Read(entryContent, 0, fileSize);
-                    using var stream = new MemoryStream(entryContent);
-                    yield return new FileEntry(filename, stream, fileEntry);
+                    var fei = new FileEntryInfo(filename, fileEntry.FullPath, fileSize);
+                    if (filter(fei))
+                    {
+                        var entryContent = new byte[fileSize];
+                        fileEntry.Content.Read(entryContent, 0, fileSize);
+                        using var stream = new MemoryStream(entryContent);
+                        yield return new FileEntry(filename, stream, fileEntry);
+                    }
                 }
                 else
                 {

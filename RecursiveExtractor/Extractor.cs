@@ -16,6 +16,7 @@ using ICSharpCode.SharpZipLib.Zip;
 using SharpCompress.Archives.GZip;
 using SharpCompress.Archives.Rar;
 using SharpCompress.Archives.SevenZip;
+using SharpCompress.Common;
 using SharpCompress.Compressors.BZip2;
 using SharpCompress.Compressors.Xz;
 using System;
@@ -24,6 +25,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Microsoft.CST.OpenSource.RecursiveExtractor
 {
@@ -113,11 +115,16 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
             return false;
         }
 
+        private bool DefaultFilter(FileEntryInfo _) 
+        { 
+            return true; 
+        }
+
         /// <summary>
         ///     Extracts files from the file 'filename'.
         /// </summary>
         /// <returns> Extracted files </returns>
-        public IEnumerable<FileEntry> ExtractFile(string filename, bool parallel = false)
+        public IEnumerable<FileEntry> ExtractFile(string filename, bool parallel = false, Func<FileEntryInfo,bool>? filter = null)
         {
             if (!File.Exists(filename))
             {
@@ -139,7 +146,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
 
             if (fileEntry != null)
             {
-                foreach (var result in ExtractFile(fileEntry, parallel))
+                foreach (var result in ExtractFile(fileEntry, parallel, filter ?? DefaultFilter))
                 {
                     GovernorStopwatch.Stop();
                     yield return result;
@@ -156,7 +163,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// <param name="stream">The Stream to parse.</param>
         /// <param name="parallel">Should we operate in parallel?</param>
         /// <returns></returns>
-        public IEnumerable<FileEntry> ExtractStream(string filename, Stream stream, bool parallel = false)
+        public IEnumerable<FileEntry> ExtractStream(string filename, Stream stream, bool parallel = false, Func<FileEntryInfo, bool>? filter = null)
         {
             FileEntry? fileEntry = null;
             try
@@ -178,7 +185,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
 
             if (fileEntry != null)
             {
-                foreach (var result in ExtractFile(fileEntry, parallel))
+                foreach (var result in ExtractFile(fileEntry, parallel, filter ?? DefaultFilter))
                 {
                     GovernorStopwatch.Stop();
                     yield return result;
@@ -195,12 +202,11 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        public IEnumerable<FileEntry> ExtractFile(string filename, byte[] archiveBytes, bool parallel = false)
+        public IEnumerable<FileEntry> ExtractFile(string filename, byte[] archiveBytes, bool parallel = false, Func<FileEntryInfo, bool>? filter = null)
         {
             using var ms = new MemoryStream(archiveBytes);
             ResetResourceGovernor(ms);
-            var result = ExtractFile(new FileEntry(filename, ms), parallel);
-            return result;
+            return ExtractFile(new FileEntry(filename, ms), parallel, filter ?? DefaultFilter);
         }
 
         /// <summary>
@@ -253,7 +259,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
 
         /// </summary> <param name="volume"></param> <param name="parentPath"></param> <param
         /// name="parallel"></param> <param name="parent"></param> <returns></returns>
-        private IEnumerable<FileEntry> DumpLogicalVolume(LogicalVolumeInfo volume, string parentPath, bool parallel, FileEntry? parent = null)
+        private IEnumerable<FileEntry> DumpLogicalVolume(LogicalVolumeInfo volume, string parentPath, bool parallel, Func<FileEntryInfo, bool> filter, FileEntry? parent = null)
         {
             DiscUtils.FileSystemInfo[]? fsInfos = null;
             try
@@ -285,7 +291,11 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                             {
                                 var fi = fs.GetFileInfo(r);
                                 totalLength += fi.Length;
-                                fileinfos.Add((fi, fi.OpenRead()));
+                                var fei = new FileEntryInfo(fi.FullName, parentPath, fi.Length);
+                                if (filter(fei))
+                                {
+                                    fileinfos.Add((fi, fi.OpenRead()));
+                                }
                             }
                             catch (Exception e)
                             {
@@ -300,7 +310,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                             if (file.Item2 != null)
                             {
                                 var newFileEntry = new FileEntry($"{volume.Identity}\\{file.Item1.FullName}", file.Item2, parent);
-                                var entries = ExtractFile(newFileEntry, true);
+                                var entries = ExtractFile(newFileEntry, true, filter);
                                 files.PushRange(entries.ToArray());
                             }
                         });
@@ -331,7 +341,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                         if (fileStream != null)
                         {
                             var newFileEntry = new FileEntry($"{volume.Identity}\\{file}", fileStream, parent);
-                            var entries = ExtractFile(newFileEntry, parallel);
+                            var entries = ExtractFile(newFileEntry, parallel, filter);
                             foreach (var entry in entries)
                             {
                                 yield return entry;
@@ -347,7 +357,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        private IEnumerable<FileEntry> Extract7ZipFile(FileEntry fileEntry, bool parallel)
+        private IEnumerable<FileEntry> Extract7ZipFile(FileEntry fileEntry, bool parallel, Func<FileEntryInfo, bool> filter)
         {
             SevenZipArchive? sevenZipArchive = null;
             try
@@ -360,7 +370,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
             }
             if (sevenZipArchive != null)
             {
-                var entries = sevenZipArchive.Entries.Where(x => !x.IsDirectory && !x.IsEncrypted && x.IsComplete).ToList();
+                var entries = sevenZipArchive.Entries.Where(x => !x.IsDirectory && !x.IsEncrypted && x.IsComplete && filter(new FileEntryInfo(x.Key, fileEntry.FullPath, x.Size))).ToList();
 
                 if (parallel)
                 {
@@ -386,7 +396,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                                     }
                                     else
                                     {
-                                        files.PushRange(ExtractFile(newFileEntry, true).ToArray());
+                                        files.PushRange(ExtractFile(newFileEntry, true, filter).ToArray());
                                     }
                                 }
                                 catch (Exception e) when (e is OverflowException)
@@ -431,7 +441,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                             Logger.Info(IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
                             throw new OverflowException();
                         }
-                        foreach (var extractedFile in ExtractFile(newFileEntry, parallel))
+                        foreach (var extractedFile in ExtractFile(newFileEntry, parallel, filter))
                         {
                             yield return extractedFile;
                         }
@@ -452,7 +462,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        private IEnumerable<FileEntry> ExtractBZip2File(FileEntry fileEntry, bool parallel)
+        private IEnumerable<FileEntry> ExtractBZip2File(FileEntry fileEntry, bool parallel, Func<FileEntryInfo, bool> filter)
         {
             BZip2Stream? bzip2Stream = null;
             try
@@ -476,7 +486,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                     throw new OverflowException();
                 }
 
-                foreach (var extractedFile in ExtractFile(newFileEntry, parallel))
+                foreach (var extractedFile in ExtractFile(newFileEntry, parallel, filter))
                 {
                     yield return extractedFile;
                 }
@@ -496,12 +506,12 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        private IEnumerable<FileEntry> ExtractDebFile(FileEntry fileEntry, bool parallel)
+        private IEnumerable<FileEntry> ExtractDebFile(FileEntry fileEntry, bool parallel, Func<FileEntryInfo, bool> filter)
         {
             IEnumerable<FileEntry>? entries = null;
             try
             {
-                entries = DebArchiveFile.GetFileEntries(fileEntry).Where(x => x.Name != "control.tar.xz");
+                entries = DebArchiveFile.GetFileEntries(fileEntry, filter);
             }
             catch (Exception e)
             {
@@ -522,7 +532,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
 
                         selectedEntries.AsParallel().ForAll(entry =>
                         {
-                            files.PushRange(ExtractFile(entry, parallel).ToArray());
+                            files.PushRange(ExtractFile(entry, parallel, filter).ToArray());
                         });
 
                         entries = entries.Skip(batchSize);
@@ -539,7 +549,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                     foreach (var entry in entries)
                     {
                         CheckResourceGovernor(entry.Content.Length);
-                        foreach (var extractedFile in ExtractFile(entry, parallel))
+                        foreach (var extractedFile in ExtractFile(entry, parallel, filter))
                         {
                             yield return extractedFile;
                         }
@@ -560,81 +570,84 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        private IEnumerable<FileEntry> ExtractFile(FileEntry fileEntry, bool parallel = false)
+        private IEnumerable<FileEntry> ExtractFile(FileEntry fileEntry, bool parallel, Func<FileEntryInfo,bool> filter)
         {
             Logger.Trace("ExtractFile({0})", fileEntry.FullPath);
             CurrentOperationProcessedBytesLeft -= fileEntry.Content.Length;
             CheckResourceGovernor();
-            IEnumerable<FileEntry> result;
+            IEnumerable<FileEntry> result = Array.Empty<FileEntry>();
             bool useRaw = false;
 
             try
             {
-                var fileEntryType = MiniMagic.DetectFileType(fileEntry);
-                switch (fileEntryType)
+                switch (MiniMagic.DetectFileType(fileEntry))
                 {
                     case ArchiveFileType.ZIP:
-                        result = ExtractZipFile(fileEntry, parallel);
+                        result = ExtractZipFile(fileEntry, parallel, filter);
                         break;
 
                     case ArchiveFileType.RAR:
-                        result = ExtractRarFile(fileEntry, parallel);
+                        result = ExtractRarFile(fileEntry, parallel, filter);
                         break;
 
                     case ArchiveFileType.P7ZIP:
-                        result = Extract7ZipFile(fileEntry, parallel);
+                        result = Extract7ZipFile(fileEntry, parallel, filter);
                         break;
 
                     case ArchiveFileType.DEB:
-                        result = ExtractDebFile(fileEntry, parallel);
+                        result = ExtractDebFile(fileEntry, parallel, filter);
                         break;
 
                     case ArchiveFileType.GZIP:
-                        result = ExtractGZipFile(fileEntry, parallel);
+                        result = ExtractGZipFile(fileEntry, parallel, filter);
                         break;
 
                     case ArchiveFileType.TAR:
-                        result = ExtractTarFile(fileEntry, parallel);
+                        result = ExtractTarFile(fileEntry, parallel, filter);
                         break;
 
                     case ArchiveFileType.XZ:
-                        result = ExtractXZFile(fileEntry, parallel);
+                        result = ExtractXZFile(fileEntry, parallel, filter);
                         break;
 
                     case ArchiveFileType.BZIP2:
-                        result = ExtractBZip2File(fileEntry, parallel);
+                        result = ExtractBZip2File(fileEntry, parallel, filter);
                         break;
 
                     case ArchiveFileType.AR:
-                        result = ExtractGnuArFile(fileEntry, parallel);
+                        result = ExtractGnuArFile(fileEntry, parallel, filter);
                         break;
 
                     case ArchiveFileType.ISO_9660:
-                        result = ExtractIsoFile(fileEntry, parallel);
+                        result = ExtractIsoFile(fileEntry, parallel, filter);
                         break;
 
                     case ArchiveFileType.VHDX:
-                        result = ExtractVHDXFile(fileEntry, parallel);
+                        result = ExtractVHDXFile(fileEntry, parallel, filter);
                         break;
 
                     case ArchiveFileType.VHD:
-                        result = ExtractVHDFile(fileEntry, parallel);
+                        result = ExtractVHDFile(fileEntry, parallel, filter);
                         break;
 
                     case ArchiveFileType.WIM:
-                        result = ExtractWimFile(fileEntry, parallel);
+                        result = ExtractWimFile(fileEntry, parallel, filter);
                         break;
 
                     case ArchiveFileType.VMDK:
-                        result = ExtractVMDKFile(fileEntry, parallel);
+                        result = ExtractVMDKFile(fileEntry, parallel, filter);
                         break;
 
                     default:
                         useRaw = true;
-                        result = new[]
+                        var fei = new FileEntryInfo(fileEntry.Name, fileEntry.FullPath, fileEntry.Content.Length);
+                        if (filter(fei))
                         {
+                            result = new[]
+                            {
                             fileEntry.Passthrough ? new FileEntry(fileEntry.Name,fileEntry.Content,fileEntry.Parent) : fileEntry
                         };
+                        }
                         break;
                 }
             }
@@ -662,12 +675,12 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
-        private IEnumerable<FileEntry> ExtractGnuArFile(FileEntry fileEntry, bool parallel)
+        private IEnumerable<FileEntry> ExtractGnuArFile(FileEntry fileEntry, bool parallel, Func<FileEntryInfo, bool> filter)
         {
             IEnumerable<FileEntry>? fileEntries = null;
             try
             {
-                fileEntries = ArFile.GetFileEntries(fileEntry);
+                fileEntries = ArFile.GetFileEntries(fileEntry, filter);
             }
             catch (Exception e)
             {
@@ -682,7 +695,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                     CheckResourceGovernor(selectedEntries.Sum(x => x.Content.Length));
                     selectedEntries.AsParallel().ForAll(arEntry =>
                     {
-                        tempStore.PushRange(ExtractFile(arEntry, parallel).ToArray());
+                        tempStore.PushRange(ExtractFile(arEntry, parallel, filter).ToArray());
                     });
 
                     fileEntries = fileEntries.Skip(selectedEntries.Count());
@@ -698,7 +711,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                     foreach (var entry in fileEntries)
                     {
                         CheckResourceGovernor(entry.Content.Length);
-                        foreach (var extractedFile in ExtractFile(entry, parallel))
+                        foreach (var extractedFile in ExtractFile(entry, parallel, filter))
                         {
                             yield return extractedFile;
                         }
@@ -720,7 +733,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        private IEnumerable<FileEntry> ExtractGZipFile(FileEntry fileEntry, bool parallel)
+        private IEnumerable<FileEntry> ExtractGZipFile(FileEntry fileEntry, bool parallel, Func<FileEntryInfo, bool> filter)
         {
             GZipArchive? gzipArchive = null;
             try
@@ -739,6 +752,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                     {
                         continue;
                     }
+
                     CheckResourceGovernor(entry.Size);
 
                     var newFilename = Path.GetFileNameWithoutExtension(fileEntry.Name);
@@ -759,7 +773,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                     }
                     if (newFileEntry != null)
                     {
-                        foreach (var extractedFile in ExtractFile(newFileEntry, parallel))
+                        foreach (var extractedFile in ExtractFile(newFileEntry, parallel, filter))
                         {
                             yield return extractedFile;
                         }
@@ -781,7 +795,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
-        private IEnumerable<FileEntry> ExtractIsoFile(FileEntry fileEntry, bool parallel)
+        private IEnumerable<FileEntry> ExtractIsoFile(FileEntry fileEntry, bool parallel, Func<FileEntryInfo, bool> filter)
         {
             using CDReader cd = new CDReader(fileEntry.Content, true);
             var entries = cd.GetFiles(cd.Root.FullName, "*.*", SearchOption.AllDirectories);
@@ -800,8 +814,13 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                         try
                         {
                             var fileInfo = cd.GetFileInfo(selectedFileName);
-                            var stream = fileInfo.OpenRead();
-                            fileInfoTuples.Add((fileInfo, stream));
+                            var fei = new FileEntryInfo(fileInfo.FullName, fileEntry.FullPath, fileInfo.Length);
+                            if (filter(fei))
+                            {
+                                var stream = fileInfo.OpenRead();
+
+                                fileInfoTuples.Add((fileInfo, stream));
+                            }
                         }
                         catch (Exception e)
                         {
@@ -813,7 +832,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                     fileInfoTuples.AsParallel().ForAll(cdFile =>
                     {
                         var newFileEntry = new FileEntry(cdFile.Item1.Name, cdFile.Item2, fileEntry);
-                        var entries = ExtractFile(newFileEntry, true);
+                        var entries = ExtractFile(newFileEntry, true, filter);
                         files.PushRange(entries.ToArray());
                     });
 
@@ -834,7 +853,11 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                         Stream? stream = null;
                         try
                         {
-                            stream = fileInfo.OpenRead();
+                            var fei = new FileEntryInfo(fileInfo.Name, Path.Combine(fileEntry.FullPath, fileInfo.FullName), fileInfo.Length);
+                            if (filter(fei))
+                            {
+                                stream = fileInfo.OpenRead();
+                            }
                         }
                         catch (Exception e)
                         {
@@ -843,7 +866,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                         if (stream != null)
                         {
                             var newFileEntry = new FileEntry(fileInfo.Name, stream, fileEntry);
-                            var innerEntries = ExtractFile(newFileEntry, parallel);
+                            var innerEntries = ExtractFile(newFileEntry, parallel, filter);
                             foreach (var entry in innerEntries)
                             {
                                 yield return entry;
@@ -866,7 +889,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        private IEnumerable<FileEntry> ExtractRarFile(FileEntry fileEntry, bool parallel)
+        private IEnumerable<FileEntry> ExtractRarFile(FileEntry fileEntry, bool parallel, Func<FileEntryInfo, bool> filter)
         {
             RarArchive? rarArchive = null;
             try
@@ -880,7 +903,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
 
             if (rarArchive != null)
             {
-                var entries = rarArchive.Entries.Where(x => x.IsComplete && !x.IsDirectory && !x.IsEncrypted);
+                var entries = rarArchive.Entries.Where(x => x.IsComplete && !x.IsDirectory && !x.IsEncrypted && filter(new FileEntryInfo(x.Key, fileEntry.FullPath, x.Size)));
                 if (parallel)
                 {
                     ConcurrentStack<FileEntry> files = new ConcurrentStack<FileEntry>();
@@ -905,7 +928,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                                 }
                                 else
                                 {
-                                    files.PushRange(ExtractFile(newFileEntry, true).ToArray());
+                                    files.PushRange(ExtractFile(newFileEntry, true, filter).ToArray());
                                 }
                             }
                             catch (Exception e)
@@ -945,7 +968,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                                 Logger.Info(IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
                                 throw new OverflowException();
                             }
-                            foreach (var extractedFile in ExtractFile(newFileEntry, parallel))
+                            foreach (var extractedFile in ExtractFile(newFileEntry, parallel, filter))
                             {
                                 yield return extractedFile;
                             }
@@ -967,7 +990,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        private IEnumerable<FileEntry> ExtractTarFile(FileEntry fileEntry, bool parallel)
+        private IEnumerable<FileEntry> ExtractTarFile(FileEntry fileEntry, bool parallel, Func<FileEntryInfo, bool> filter)
         {
             TarEntry tarEntry;
             TarInputStream? tarStream = null;
@@ -987,28 +1010,32 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                     {
                         continue;
                     }
-                    var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
-                    CheckResourceGovernor(tarStream.Length);
-                    try
+                    var fei = new FileEntryInfo(tarEntry.Name, fileEntry.FullPath, tarEntry.Size);
+                    if (filter(fei))
                     {
-                        tarStream.CopyEntryContents(fs);
-                    }
-                    catch (Exception e)
-                    {
-                        Logger.Debug(DEBUG_STRING, ArchiveFileType.TAR, fileEntry.FullPath, tarEntry.Name, e.GetType());
-                    }
+                        var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+                        CheckResourceGovernor(tarStream.Length);
+                        try
+                        {
+                            tarStream.CopyEntryContents(fs);
+                        }
+                        catch (Exception e)
+                        {
+                            Logger.Debug(DEBUG_STRING, ArchiveFileType.TAR, fileEntry.FullPath, tarEntry.Name, e.GetType());
+                        }
 
-                    var newFileEntry = new FileEntry(tarEntry.Name, fs, fileEntry, true);
+                        var newFileEntry = new FileEntry(tarEntry.Name, fs, fileEntry, true);
 
-                    if (IsQuine(newFileEntry))
-                    {
-                        Logger.Info(IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                        throw new OverflowException();
-                    }
+                        if (IsQuine(newFileEntry))
+                        {
+                            Logger.Info(IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
+                            throw new OverflowException();
+                        }
 
-                    foreach (var extractedFile in ExtractFile(newFileEntry, parallel))
-                    {
-                        yield return extractedFile;
+                        foreach (var extractedFile in ExtractFile(newFileEntry, parallel, filter))
+                        {
+                            yield return extractedFile;
+                        }
                     }
                 }
                 tarStream.Dispose();
@@ -1027,7 +1054,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
-        private IEnumerable<FileEntry> ExtractVHDFile(FileEntry fileEntry, bool parallel)
+        private IEnumerable<FileEntry> ExtractVHDFile(FileEntry fileEntry, bool parallel, Func<FileEntryInfo, bool> filter)
         {
             using var disk = new DiscUtils.Vhd.Disk(fileEntry.Content, Ownership.None);
             LogicalVolumeInfo[]? logicalVolumes = null;
@@ -1046,7 +1073,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
             {
                 foreach (var volume in logicalVolumes)
                 {
-                    foreach (var entry in DumpLogicalVolume(volume, fileEntry.FullPath, parallel, fileEntry))
+                    foreach (var entry in DumpLogicalVolume(volume, fileEntry.FullPath, parallel, filter, fileEntry))
                     {
                         yield return entry;
                     }
@@ -1066,7 +1093,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
-        private IEnumerable<FileEntry> ExtractVHDXFile(FileEntry fileEntry, bool parallel)
+        private IEnumerable<FileEntry> ExtractVHDXFile(FileEntry fileEntry, bool parallel, Func<FileEntryInfo, bool> filter)
         {
             using var disk = new DiscUtils.Vhdx.Disk(fileEntry.Content, Ownership.None);
             LogicalVolumeInfo[]? logicalVolumes = null;
@@ -1087,7 +1114,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                 {
                     var fsInfos = FileSystemManager.DetectFileSystems(volume);
 
-                    foreach (var entry in DumpLogicalVolume(volume, fileEntry.FullPath, parallel, fileEntry))
+                    foreach (var entry in DumpLogicalVolume(volume, fileEntry.FullPath, parallel, filter, fileEntry))
                     {
                         yield return entry;
                     }
@@ -1107,7 +1134,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
-        private IEnumerable<FileEntry> ExtractVMDKFile(FileEntry fileEntry, bool parallel)
+        private IEnumerable<FileEntry> ExtractVMDKFile(FileEntry fileEntry, bool parallel, Func<FileEntryInfo, bool> filter)
         {
             using var disk = new DiscUtils.Vmdk.Disk(fileEntry.Content, Ownership.None);
             LogicalVolumeInfo[]? logicalVolumes = null;
@@ -1126,7 +1153,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
             {
                 foreach (var volume in logicalVolumes)
                 {
-                    foreach (var entry in DumpLogicalVolume(volume, fileEntry.FullPath, parallel, fileEntry))
+                    foreach (var entry in DumpLogicalVolume(volume, fileEntry.FullPath, parallel, filter, fileEntry))
                     {
                         yield return entry;
                     }
@@ -1146,7 +1173,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
-        private IEnumerable<FileEntry> ExtractWimFile(FileEntry fileEntry, bool parallel)
+        private IEnumerable<FileEntry> ExtractWimFile(FileEntry fileEntry, bool parallel, Func<FileEntryInfo, bool> filter)
         {
             DiscUtils.Wim.WimFile? baseFile = null;
             try
@@ -1177,7 +1204,11 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                                 try
                                 {
                                     var info = image.GetFileInfo(file);
-                                    streamsAndNames.Add((info, info.OpenRead()));
+                                    var fei = new FileEntryInfo(info.FullName, fileEntry.FullPath, info.Length);
+                                    if (filter(fei))
+                                    {
+                                        streamsAndNames.Add((info, info.OpenRead()));
+                                    }
                                 }
                                 catch (Exception e)
                                 {
@@ -1188,8 +1219,11 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                             streamsAndNames.AsParallel().ForAll(file =>
                             {
                                 var newFileEntry = new FileEntry($"{image.FriendlyName}\\{file.Item1.FullName}", file.Item2, fileEntry);
-                                var entries = ExtractFile(newFileEntry, true);
-                                files.PushRange(entries.ToArray());
+                                var entries = ExtractFile(newFileEntry, true, filter);
+                                if (entries.Any())
+                                {
+                                    files.PushRange(entries.ToArray());
+                                }
                             });
                             fileList.RemoveRange(0, batchSize);
 
@@ -1223,7 +1257,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                             if (stream != null)
                             {
                                 var newFileEntry = new FileEntry($"{image.FriendlyName}\\{file}", stream, fileEntry);
-                                var entries = ExtractFile(newFileEntry, parallel);
+                                var entries = ExtractFile(newFileEntry, parallel, filter);
                                 foreach (var entry in entries)
                                 {
                                     yield return entry;
@@ -1248,7 +1282,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        private IEnumerable<FileEntry> ExtractXZFile(FileEntry fileEntry, bool parallel)
+        private IEnumerable<FileEntry> ExtractXZFile(FileEntry fileEntry, bool parallel, Func<FileEntryInfo, bool> filter)
         {
             XZStream? xzStream = null;
             try
@@ -1283,7 +1317,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                     throw new OverflowException();
                 }
 
-                foreach (var extractedFile in ExtractFile(newFileEntry, parallel))
+                foreach (var extractedFile in ExtractFile(newFileEntry, parallel, filter))
                 {
                     yield return extractedFile;
                 }
@@ -1303,7 +1337,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        private IEnumerable<FileEntry> ExtractZipFile(FileEntry fileEntry, bool parallel)
+        private IEnumerable<FileEntry> ExtractZipFile(FileEntry fileEntry, bool parallel, Func<FileEntryInfo, bool> filter)
         {
             ZipFile? zipFile = null;
             try
@@ -1330,7 +1364,11 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                         {
                             continue;
                         }
-                        zipEntries.Add(zipEntry);
+                        var fei = new FileEntryInfo(zipEntry.Name, fileEntry.FullPath, zipEntry.Size);
+                        if (filter(fei))
+                        {
+                            zipEntries.Add(zipEntry);
+                        }
                     }
 
                     while (zipEntries.Count > 0)
@@ -1353,7 +1391,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                                     }
                                     else
                                     {
-                                        files.PushRange(ExtractFile(newFileEntry, true).ToArray());
+                                        files.PushRange(ExtractFile(newFileEntry, true, filter).ToArray());
                                     }
                                 }
                                 catch (Exception e) when (e is OverflowException)
@@ -1420,20 +1458,13 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                             throw new OverflowException();
                         }
 
-                        foreach (var extractedFile in ExtractFile(newFileEntry, parallel))
+                        foreach (var extractedFile in ExtractFile(newFileEntry, parallel, filter))
                         {
                             yield return extractedFile;
                         }
                     }
                 }
             }
-        }
-
-        private void ResetResourceGovernor()
-        {
-            Logger.Trace("ResetResourceGovernor()");
-            GovernorStopwatch.Reset();
-            CurrentOperationProcessedBytesLeft = -1;
         }
 
         private void ResetResourceGovernor(Stream stream)
