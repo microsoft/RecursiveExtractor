@@ -3,12 +3,16 @@
 Recursive Extractor is a .NET Standard 2.0/2.1 Library for parsing archive files and disk images, including nested archives and disk images.
 
 # Using
-
+This example will print out the paths of all the files in the archive.
 ```csharp
 var path = "/Path/To/Your/Archive"
 var extractor = new Extractor();
 try {
-    var results = extractor.ExtractFile(path, parallel);
+    IEnumerable<FileEntry> results = extractor.ExtractFile(path, parallel);
+    foreach(var found in results)
+    {
+        Console.WriteLine(found.FullPath);
+    }
 }
 catch(OverflowException)
 {
