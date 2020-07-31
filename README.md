@@ -1,8 +1,6 @@
 # About
 
-Recursive Extractor is a .NET Standard 2.0/2.1 Library for parsing archive files and disk images, including nested archives and images.
-
-RecursiveExtractor can process many archive and disk image formats.
+Recursive Extractor is a .NET Standard 2.0/2.1 Library for parsing archive files and disk images, including nested archives and disk images.
 
 # Using
 
