@@ -828,6 +828,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                             Logger.Debug("Failed to get FileInfo or OpenStream from {0} in ISO {1} ({2}:{3})", selectedFileName, fileEntry.FullPath, e.GetType(), e.Message);
                         }
                     }
+
                     CheckResourceGovernor(fileInfoTuples.Sum(x => x.Item1.Length));
 
                     fileInfoTuples.AsParallel().ForAll(cdFile =>

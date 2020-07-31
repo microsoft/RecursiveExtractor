@@ -20,6 +20,43 @@ catch(OverflowException)
 }
 ```
 
+## Advanced Usage
+
+You can pass a delegate to only process selected files.
+
+```csharp
+public delegate bool PassFilter(FileEntryInfo fileEntryInfo);
+```
+For example, to only get files larger than 1000 bytes:
+```csharp
+var path = "/Path/To/Your/Archive"
+var extractor = new Extractor();
+try {
+    IEnumerable<FileEntry> results = extractor.ExtractFile(path, parallel, SizeGreaterThan1000);
+    foreach(var found in results)
+    {
+        Console.WriteLine(found.FullPath);
+    }
+}
+catch(OverflowException)
+{
+    // This means Recursive Extractor has detected a Quine or Zip Bomb
+}
+
+private bool SizeGreaterThan1000(FileEntryInfo fei)
+{
+    return fei.Size > 1000;
+}
+```
+
+## FileEntryInfo
+The FileEntryInfo object has these fields:
+```csharp
+public string Name { get; }
+public string ParentPath { get; }
+public long Size { get; }
+```
+
 ## Exceptions
 
 `ExtractFile` will throw an overflow exception when a quine or zip bomb is detected.
