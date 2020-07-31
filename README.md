@@ -2,7 +2,23 @@
 
 Recursive Extractor is a .NET Standard 2.0/2.1 Library for parsing archive files and disk images, including nested archives and disk images.
 
-# Using
+# Supported File Types (alphabetical)
+* 7zip
+* ar
+* bzip2
+* deb
+* gzip
+* iso
+* rar
+* tar
+* vhd
+* vhdx
+* vmdk
+* wim
+* xzip
+* zip
+
+# Usage
 This example will print out the paths of all the files in the archive.
 ```csharp
 var path = "/Path/To/Your/Archive"
@@ -22,7 +38,7 @@ catch(OverflowException)
 
 ## Advanced Usage
 
-You can pass a delegate to only process selected files.
+You can pass a delegate to process only filtered files.
 
 ```csharp
 public delegate bool PassFilter(FileEntryInfo fileEntryInfo);
@@ -61,23 +77,7 @@ public long Size { get; }
 
 `ExtractFile` will throw an overflow exception when a quine or zip bomb is detected.
 
-Otherwise, invalid files found while crawling will emit a logger message.
-
-# Supported File Types
-* 7zip
-* ar
-* bzip2
-* deb
-* gzip
-* iso
-* rar
-* tar
-* vhd
-* vhdx
-* vmdk
-* wim
-* xzip
-* zip
+Otherwise, invalid files found while crawling will emit a logger message and be skipped.  RecursiveExtractor uses NLog for logging.
 
 # Feedback
 
