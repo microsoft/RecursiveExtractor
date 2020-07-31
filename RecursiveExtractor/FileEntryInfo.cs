@@ -6,10 +6,10 @@ namespace Microsoft.CST.OpenSource
 {
     public class FileEntryInfo
     {
-        public FileEntryInfo(string name, string parentpath, long size)
+        public FileEntryInfo(string name, string parentPath, long size)
         {
             Name = name;
-            ParentPath = parentpath;
+            ParentPath = parentPath;
             Size = size;
         }
         public string Name { get; }
