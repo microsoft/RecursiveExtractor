@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace Microsoft.CST.OpenSource.RecursiveExtractor
+namespace Microsoft.CST.RecursiveExtractor
 {
     /// <summary>
     ///     ArchiveTypes are the kinds of archive files that this module can process.

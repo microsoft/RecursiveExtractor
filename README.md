@@ -2,6 +2,8 @@
 
 Recursive Extractor is a .NET Standard 2.0/2.1 Library for parsing archive files and disk images, including nested archives and disk images.
 
+Recursive Extractor is available on NuGet as [Microsoft.CST.RecursiveExtractor](https://www.nuget.org/packages/Microsoft.CST.RecursiveExtractor/).
+
 # Supported File Types (alphabetical)
 * 7zip
 * ar

@@ -3,7 +3,7 @@
 using System;
 using System.IO;
 
-namespace Microsoft.CST.OpenSource.RecursiveExtractor
+namespace Microsoft.CST.RecursiveExtractor
 {
     public class FileEntry
     {

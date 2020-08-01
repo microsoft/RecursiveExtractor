@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Microsoft.CST.OpenSource.RecursiveExtractor
+namespace Microsoft.CST.RecursiveExtractor
 {
     public class ExtractorOptions
     {
