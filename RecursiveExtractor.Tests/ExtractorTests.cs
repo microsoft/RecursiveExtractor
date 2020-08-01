@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 
-using Microsoft.CST.OpenSource.RecursiveExtractor;
+using Microsoft.CST.RecursiveExtractor;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NLog;
 using System;
