@@ -26,7 +26,7 @@ This example will print out the paths of all the files in the archive.
 var path = "/Path/To/Your/Archive"
 var extractor = new Extractor();
 try {
-    IEnumerable<FileEntry> results = extractor.ExtractFile(path, parallel);
+    IEnumerable<FileEntry> results = extractor.ExtractFile(path);
     foreach(var found in results)
     {
         Console.WriteLine(found.FullPath);
@@ -50,7 +50,7 @@ For example, to only get files larger than 1000 bytes:
 var path = "/Path/To/Your/Archive"
 var extractor = new Extractor();
 try {
-    IEnumerable<FileEntry> results = extractor.ExtractFile(path, parallel, SizeGreaterThan1000);
+    IEnumerable<FileEntry> results = extractor.ExtractFile(path, new ExtractorOptions() { Filter = SizeGreaterThan1000 });
     foreach(var found in results)
     {
         Console.WriteLine(found.FullPath);
