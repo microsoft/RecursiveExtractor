@@ -1,6 +1,5 @@
 ﻿// Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 
-using Microsoft.CST.RecursiveExtractor;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NLog;
 using System;
@@ -101,7 +100,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
             using var stream = new FileStream(path, FileMode.Open);
             var results = extractor.ExtractStream(path, stream, new ExtractorOptions() { Parallel = parallel }).ToList();
-            Assert.AreEqual(expectedNumFiles,results.Count);
+            Assert.AreEqual(expectedNumFiles, results.Count);
             stream.Close();
         }
 
@@ -177,7 +176,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
             var results = extractor.ExtractFile(path, new ExtractorOptions() { Parallel = parallel });
-            Assert.AreEqual(expectedNumFiles,results.Count());
+            Assert.AreEqual(expectedNumFiles, results.Count());
         }
 
         [DataTestMethod]
@@ -202,7 +201,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         public void TestMiniMagic(string fileName, ArchiveFileType expectedArchiveFileType)
         {
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
-            using FileStream fs = new FileStream(path, FileMode.Open);
+            using var fs = new FileStream(path, FileMode.Open);
             // Test just based on the content
             var fileEntry = new FileEntry("NoName", fs);
 

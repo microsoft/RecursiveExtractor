@@ -1,5 +1,4 @@
-﻿using Microsoft.CST.RecursiveExtractor;
-using System;
+﻿using System;
 
 namespace Microsoft.CST.RecursiveExtractor
 {

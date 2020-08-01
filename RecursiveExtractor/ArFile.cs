@@ -1,6 +1,5 @@
 ﻿// Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 
-using Microsoft.CST.RecursiveExtractor;
 using System;
 using System.Collections.Generic;
 using System.IO;
