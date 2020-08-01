@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
-    <RootNamespace>Microsoft.CST.OpenSource</RootNamespace>
+    <RootNamespace>Microsoft.CST.RecursiveExtractor</RootNamespace>
     <Version>0.0.0-placeholder</Version>
     <Company>Microsoft</Company>
     <Authors>Microsoft</Authors>

@@ -1,4 +1,6 @@
-﻿namespace Microsoft.CST.RecursiveExtractor
+﻿using Microsoft.CST.RecursiveExtractor;
+
+namespace Microsoft.CST.RecursiveExtractor
 {
     public delegate bool PassFilter(FileEntryInfo fileEntryInfo);
 }

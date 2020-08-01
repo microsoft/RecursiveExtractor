@@ -11,7 +11,7 @@ namespace Microsoft.CST.RecursiveExtractor
 
     public static class DebArchiveFile
     {
-        public static IEnumerable<FileEntry> GetFileEntries(FileEntry fileEntry, PassFilter filter)
+        public static IEnumerable<FileEntry> GetFileEntries(FileEntry fileEntry, ExtractorOptions options)
         {
             if (fileEntry == null)
             {
@@ -34,7 +34,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 if (int.TryParse(Encoding.ASCII.GetString(fileSizeBytes).Trim(), out var fileSize))
                 {
                     var fei = new FileEntryInfo(filename, fileEntry.FullPath, fileSize);
-                    if (filter(fei))
+                    if (options.Filter(fei))
                     {
                         var entryContent = new byte[fileSize];
                         fileEntry.Content.Read(entryContent, 0, fileSize);

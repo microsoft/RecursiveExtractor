@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.CST.RecursiveExtractor;
+using System;
 
 namespace Microsoft.CST.RecursiveExtractor
 {
@@ -36,5 +37,12 @@ namespace Microsoft.CST.RecursiveExtractor
         ///     (zip bombs and the like).
         /// </summary>
         public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(300);
+
+        /// <summary>
+        /// If parallelization is enabled
+        /// </summary>
+        public bool Parallel { get; set; }
+
+        public PassFilter Filter = (FileEntryInfo _) => true;
     }
 }

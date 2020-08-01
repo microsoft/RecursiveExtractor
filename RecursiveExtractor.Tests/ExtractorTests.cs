@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Microsoft.CST.OpenSource.Tests
+namespace Microsoft.CST.RecursiveExtractor.Tests
 {
     [TestClass]
     public class ExtractorTests
@@ -54,7 +54,7 @@ namespace Microsoft.CST.OpenSource.Tests
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
-            var results = extractor.ExtractFile(path, parallel).ToList();
+            var results = extractor.ExtractFile(path, new ExtractorOptions() { Parallel = parallel }).ToList();
             Assert.IsTrue(results.Count() == expectedNumFiles);
         }
 
@@ -100,7 +100,7 @@ namespace Microsoft.CST.OpenSource.Tests
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
             using var stream = new FileStream(path, FileMode.Open);
-            var results = extractor.ExtractStream(path, stream, parallel).ToList();
+            var results = extractor.ExtractStream(path, stream, new ExtractorOptions() { Parallel = parallel }).ToList();
             Assert.AreEqual(expectedNumFiles,results.Count);
             stream.Close();
         }
@@ -147,8 +147,18 @@ namespace Microsoft.CST.OpenSource.Tests
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
             using var stream = new FileStream(path, FileMode.Open);
-            var results = extractor.ExtractStream(path, stream, parallel, SizeGreaterThan1000).ToList();
-            var invertResults = extractor.ExtractStream(path, stream, parallel, (FileEntryInfo fei) => fei.Size <= 1000).ToList();
+            var extractorOptions = new ExtractorOptions()
+            {
+                Parallel = parallel,
+                Filter = SizeGreaterThan1000
+            };
+            var extractorOptionsLambda = new ExtractorOptions()
+            {
+                Parallel = parallel,
+                Filter = (FileEntryInfo fei) => fei.Size <= 1000
+            };
+            var results = extractor.ExtractStream(path, stream, extractorOptions).ToList();
+            var invertResults = extractor.ExtractStream(path, stream, extractorOptionsLambda).ToList();
             Assert.AreEqual(expectedHighPass, results.Count);
             Assert.AreEqual(expectedLowPass, invertResults.Count);
             stream.Close();
@@ -166,7 +176,7 @@ namespace Microsoft.CST.OpenSource.Tests
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
-            var results = extractor.ExtractFile(path, parallel);
+            var results = extractor.ExtractFile(path, new ExtractorOptions() { Parallel = parallel });
             Assert.AreEqual(expectedNumFiles,results.Count());
         }
 
@@ -235,7 +245,7 @@ namespace Microsoft.CST.OpenSource.Tests
             IEnumerable<FileEntry> results;
             try
             {
-                results = extractor.ExtractFile(path, parallel).ToList();
+                results = extractor.ExtractFile(path, new ExtractorOptions() { Parallel = parallel }).ToList();
                 // Getting here means we didnt catch the bomb
             }
             // We should throw an overflow exception when we detect a quine or bomb

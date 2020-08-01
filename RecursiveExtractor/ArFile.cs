@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 
+using Microsoft.CST.RecursiveExtractor;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,7 +16,7 @@ namespace Microsoft.CST.RecursiveExtractor
     {
         // Simple method which returns a the file entries. We can't make this a continuation because we're
         // using spans.
-        public static IEnumerable<FileEntry> GetFileEntries(FileEntry fileEntry, PassFilter filter)
+        public static IEnumerable<FileEntry> GetFileEntries(FileEntry fileEntry, ExtractorOptions options)
         {
             if (fileEntry == null)
             {
@@ -75,7 +76,7 @@ namespace Microsoft.CST.RecursiveExtractor
                             // This should move us right to the file
                             fileEntry.Content.Read(nameSpan, 0, nameLength);
                             var fei = new FileEntryInfo(Encoding.ASCII.GetString(nameSpan), fileEntry.FullPath, size - nameLength);
-                            if (filter(fei))
+                            if (options.Filter(fei))
                             {
                                 var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
 
@@ -151,7 +152,7 @@ namespace Microsoft.CST.RecursiveExtractor
                                     filename = entry.Item2;
                                 }
                                 var fei = new FileEntryInfo(filename, fileEntry.FullPath, innerSize);
-                                if (filter(fei))
+                                if (options.Filter(fei))
                                 {
                                     var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
                                     CopyStreamBytes(fileEntry.Content, entryStream, innerSize);
@@ -225,7 +226,7 @@ namespace Microsoft.CST.RecursiveExtractor
                                     filename = innerEntry.Item2;
                                 }
                                 var fei = new FileEntryInfo(filename, fileEntry.FullPath, innerSize);
-                                if (filter(fei))
+                                if (options.Filter(fei))
                                 {
                                     var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
                                     CopyStreamBytes(fileEntry.Content, entryStream, innerSize);
@@ -249,7 +250,7 @@ namespace Microsoft.CST.RecursiveExtractor
                             }
                         }
                         var fei = new FileEntryInfo(filename, fileEntry.FullPath, size);
-                        if (filter(fei))
+                        if (options.Filter(fei))
                         {
                             var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
                             CopyStreamBytes(fileEntry.Content, entryStream, size);
@@ -264,7 +265,7 @@ namespace Microsoft.CST.RecursiveExtractor
                     else
                     {
                         var fei = new FileEntryInfo(filename, fileEntry.FullPath, size);
-                        if (filter(fei))
+                        if (options.Filter(fei))
                         {
                             var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
                             CopyStreamBytes(fileEntry.Content, entryStream, size);

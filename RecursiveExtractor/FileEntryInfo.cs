@@ -1,4 +1,4 @@
-﻿namespace Microsoft.CST.OpenSource
+﻿namespace Microsoft.CST.RecursiveExtractor
 {
     public class FileEntryInfo
     {
