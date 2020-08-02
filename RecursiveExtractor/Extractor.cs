@@ -453,6 +453,10 @@ namespace Microsoft.CST.RecursiveExtractor
             catch (Exception e)
             {
                 Logger.Debug(DEBUG_STRING, ArchiveFileType.DEB, fileEntry.FullPath, string.Empty, e.GetType());
+                if (e is OverflowException)
+                {
+                    throw;
+                }
             }
             if (entries != null)
             {
@@ -621,6 +625,10 @@ namespace Microsoft.CST.RecursiveExtractor
             catch (Exception e)
             {
                 Logger.Debug(DEBUG_STRING, ArchiveFileType.AR, fileEntry.FullPath, string.Empty, e.GetType());
+                if (e is OverflowException)
+                {
+                    throw;
+                }
             }
             if (fileEntries != null)
             {
