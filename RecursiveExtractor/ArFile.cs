@@ -15,7 +15,7 @@ namespace Microsoft.CST.RecursiveExtractor
     {
         // Simple method which returns a the file entries. We can't make this a continuation because we're
         // using spans.
-        public static IEnumerable<FileEntry> GetFileEntries(FileEntry fileEntry, ExtractorOptions options)
+        public static IEnumerable<FileEntry> GetFileEntries(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
             if (fileEntry == null)
             {
@@ -36,6 +36,8 @@ namespace Microsoft.CST.RecursiveExtractor
                 var headerString = Encoding.ASCII.GetString(headerBuffer);
                 if (long.TryParse(Encoding.ASCII.GetString(headerBuffer[48..58]), out var size))// header size in bytes
                 {
+                    governor.CheckResourceGovernor(size);
+                    governor.CurrentOperationProcessedBytesLeft -= size;
                     var filename = Encoding.ASCII.GetString(headerBuffer[0..16]).Trim();
 
                     // Header with list of file names

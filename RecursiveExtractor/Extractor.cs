@@ -448,7 +448,7 @@ namespace Microsoft.CST.RecursiveExtractor
             IEnumerable<FileEntry>? entries = null;
             try
             {
-                entries = DebArchiveFile.GetFileEntries(fileEntry, options);
+                entries = DebArchiveFile.GetFileEntries(fileEntry, options, governor);
             }
             catch (Exception e)
             {
@@ -464,8 +464,6 @@ namespace Microsoft.CST.RecursiveExtractor
                     {
                         var batchSize = Math.Min(options.BatchSize, entries.Count());
                         var selectedEntries = entries.Take(batchSize);
-
-                        governor.CheckResourceGovernor(selectedEntries.Sum(x => x.Content.Length));
 
                         selectedEntries.AsParallel().ForAll(entry =>
                         {
@@ -485,7 +483,6 @@ namespace Microsoft.CST.RecursiveExtractor
                 {
                     foreach (var entry in entries)
                     {
-                        governor.CheckResourceGovernor(entry.Content.Length);
                         foreach (var extractedFile in ExtractFile(entry, options, governor))
                         {
                             yield return extractedFile;
@@ -603,7 +600,7 @@ namespace Microsoft.CST.RecursiveExtractor
             // After we are done with an archive subtract its bytes. Contents have been counted now separately
             if (!useRaw)
             {
-                governor.CurrentOperationProcessedBytesLeft += fileEntry.Content.Length;
+                Governor.CurrentOperationProcessedBytesLeft += fileEntry.Content.Length;
             }
 
             return result;
@@ -619,7 +616,7 @@ namespace Microsoft.CST.RecursiveExtractor
             IEnumerable<FileEntry>? fileEntries = null;
             try
             {
-                fileEntries = ArFile.GetFileEntries(fileEntry, options);
+                fileEntries = ArFile.GetFileEntries(fileEntry, options, governor);
             }
             catch (Exception e)
             {
@@ -631,7 +628,6 @@ namespace Microsoft.CST.RecursiveExtractor
                 {
                     var tempStore = new ConcurrentStack<FileEntry>();
                     var selectedEntries = fileEntries.Take(options.BatchSize);
-                    governor.CheckResourceGovernor(selectedEntries.Sum(x => x.Content.Length));
                     selectedEntries.AsParallel().ForAll(arEntry =>
                     {
                         tempStore.PushRange(ExtractFile(arEntry, options, governor).ToArray());
@@ -649,7 +645,6 @@ namespace Microsoft.CST.RecursiveExtractor
                 {
                     foreach (var entry in fileEntries)
                     {
-                        governor.CheckResourceGovernor(entry.Content.Length);
                         foreach (var extractedFile in ExtractFile(entry, options, governor))
                         {
                             yield return extractedFile;
