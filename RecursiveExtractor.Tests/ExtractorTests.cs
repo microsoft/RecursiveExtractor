@@ -159,7 +159,9 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var results = extractor.ExtractStream(path, stream, extractorOptions).ToList();
             var invertResults = extractor.ExtractStream(path, stream, extractorOptionsLambda).ToList();
             Assert.AreEqual(expectedHighPass, results.Count);
+            Assert.IsTrue(results.All(x => x.Content.Length > 1000));
             Assert.AreEqual(expectedLowPass, invertResults.Count);
+            Assert.IsTrue(invertResults.All(x => x.Content.Length <= 1000));
             stream.Close();
         }
 
