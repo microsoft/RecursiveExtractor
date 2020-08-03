@@ -3,31 +3,8 @@
 Recursive Extractor is a .NET Standard 2.0/2.1 Library for parsing archive files and disk images, including nested archives and disk images.
 
 Recursive Extractor is available on NuGet as [Microsoft.CST.RecursiveExtractor](https://www.nuget.org/packages/Microsoft.CST.RecursiveExtractor/).
-# Using
-This example will print out the paths of all the files in the archive.
-```csharp
-var path = "/Path/To/Your/Archive"
-var extractor = new Extractor();
-try {
-    IEnumerable<FileEntry> results = extractor.ExtractFile(path, parallel);
-    foreach(var found in results)
-    {
-        Console.WriteLine(found.FullPath);
-    }
-}
-catch(OverflowException)
-{
-    // This means Recursive Extractor has detected a Quine or Zip Bomb
-}
-```
 
-## Exceptions
-
-`ExtractFile` will throw an overflow exception when a quine or zip bomb is detected.
-
-Otherwise, invalid files found while crawling will emit a logger message.
-
-# Supported File Types
+# Supported File Types (alphabetical)
 * 7zip
 * ar
 * bzip2
@@ -42,6 +19,67 @@ Otherwise, invalid files found while crawling will emit a logger message.
 * wim
 * xzip
 * zip
+
+# Usage
+This example will print out the paths of all the files in the archive.
+```csharp
+var path = "/Path/To/Your/Archive"
+var extractor = new Extractor();
+try {
+    IEnumerable<FileEntry> results = extractor.ExtractFile(path);
+    foreach(var found in results)
+    {
+        Console.WriteLine(found.FullPath);
+    }
+}
+catch(OverflowException)
+{
+    // This means Recursive Extractor has detected a Quine or Zip Bomb
+}
+```
+
+## Advanced Usage
+
+You can pass a delegate to process only filtered files.
+
+```csharp
+public delegate bool PassFilter(FileEntryInfo fileEntryInfo);
+```
+For example, to only get files larger than 1000 bytes:
+```csharp
+var path = "/Path/To/Your/Archive"
+var extractor = new Extractor();
+try {
+    IEnumerable<FileEntry> results = extractor.ExtractFile(path, new ExtractorOptions() { Filter = SizeGreaterThan1000 });
+    foreach(var found in results)
+    {
+        Console.WriteLine(found.FullPath);
+    }
+}
+catch(OverflowException)
+{
+    // This means Recursive Extractor has detected a Quine or Zip Bomb
+}
+
+private bool SizeGreaterThan1000(FileEntryInfo fei)
+{
+    return fei.Size > 1000;
+}
+```
+
+## FileEntryInfo
+The FileEntryInfo object has these fields:
+```csharp
+public string Name { get; }
+public string ParentPath { get; }
+public long Size { get; }
+```
+
+## Exceptions
+
+`ExtractFile` will throw an overflow exception when a quine or zip bomb is detected.
+
+Otherwise, invalid files found while crawling will emit a logger message and be skipped.  RecursiveExtractor uses NLog for logging.
 
 # Feedback
 

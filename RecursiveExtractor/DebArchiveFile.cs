@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text;
 
-namespace Microsoft.CST.OpenSource.RecursiveExtractor
+namespace Microsoft.CST.RecursiveExtractor
 {
     /**
      * Very simple implementation of an .Deb format parser, needed for Debian .deb archives.
@@ -11,7 +11,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
 
     public static class DebArchiveFile
     {
-        public static IEnumerable<FileEntry> GetFileEntries(FileEntry fileEntry)
+        public static IEnumerable<FileEntry> GetFileEntries(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
             if (fileEntry == null)
             {
@@ -31,12 +31,22 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                 fileEntry.Content.Read(headerBytes, 0, 60);
                 var filename = Encoding.ASCII.GetString(headerBytes[0..16]).Trim();  // filename is 16 bytes
                 var fileSizeBytes = headerBytes[48..58]; // File size is decimal-encoded, 10 bytes long
-                if (int.TryParse(Encoding.ASCII.GetString(fileSizeBytes).Trim(), out int fileSize))
+                if (int.TryParse(Encoding.ASCII.GetString(fileSizeBytes).Trim(), out var fileSize))
                 {
-                    var entryContent = new byte[fileSize];
-                    fileEntry.Content.Read(entryContent, 0, fileSize);
-                    using var stream = new MemoryStream(entryContent);
-                    yield return new FileEntry(filename, stream, fileEntry);
+                    governor.CheckResourceGovernor(fileSize);
+                    governor.CurrentOperationProcessedBytesLeft -= fileSize;
+                    var fei = new FileEntryInfo(filename, fileEntry.FullPath, fileSize);
+                    if (options.Filter(fei))
+                    {
+                        var entryContent = new byte[fileSize];
+                        fileEntry.Content.Read(entryContent, 0, fileSize);
+                        using var stream = new MemoryStream(entryContent);
+                        yield return new FileEntry(filename, stream, fileEntry);
+                    }
+                    else
+                    {
+                        fileEntry.Content.Position += fileSize;
+                    }
                 }
                 else
                 {

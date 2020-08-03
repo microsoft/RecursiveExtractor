@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace Microsoft.CST.OpenSource.RecursiveExtractor
+namespace Microsoft.CST.RecursiveExtractor
 {
     /// <summary>
     ///     ArchiveTypes are the kinds of archive files that this module can process.
@@ -101,11 +101,11 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                 return ArchiveFileType.UNKNOWN;
             }
             var initialPosition = fileEntry.Content.Position;
-            byte[] buffer = new byte[9];
+            var buffer = new byte[9];
             if (fileEntry.Content.Length >= 9)
             {
                 fileEntry.Content.Position = 0;
-                fileEntry.Content.Read(buffer,0,9);
+                fileEntry.Content.Read(buffer, 0, 9);
                 fileEntry.Content.Position = initialPosition;
 
                 if (buffer[0] == 0x50 && buffer[1] == 0x4B && buffer[2] == 0x03 && buffer[3] == 0x04)
@@ -142,8 +142,8 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                 if (Encoding.ASCII.GetString(buffer[0..4]) == "KDMV")
                 {
                     fileEntry.Content.Position = 512;
-                    byte[] secondToken = new byte[21];
-                    fileEntry.Content.Read(secondToken,0,21);
+                    var secondToken = new byte[21];
+                    fileEntry.Content.Read(secondToken, 0, 21);
                     fileEntry.Content.Position = initialPosition;
 
                     if (Encoding.ASCII.GetString(secondToken) == "# Disk DescriptorFile")
@@ -156,7 +156,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                 {
                     // .deb https://manpages.debian.org/unstable/dpkg-dev/deb.5.en.html
                     fileEntry.Content.Position = 68;
-                    fileEntry.Content.Read(buffer,0,4);
+                    fileEntry.Content.Read(buffer, 0, 4);
                     fileEntry.Content.Position = initialPosition;
 
                     var encoding = new ASCIIEncoding();
@@ -166,11 +166,11 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
                     }
                     else
                     {
-                        byte[] headerBuffer = new byte[60];
+                        var headerBuffer = new byte[60];
 
                         // Created by GNU ar https://en.wikipedia.org/wiki/Ar_(Unix)#System_V_(or_GNU)_variant
                         fileEntry.Content.Position = 8;
-                        fileEntry.Content.Read(headerBuffer,0,60);
+                        fileEntry.Content.Read(headerBuffer, 0, 60);
                         fileEntry.Content.Position = initialPosition;
 
                         var size = int.Parse(Encoding.ASCII.GetString(headerBuffer[48..58])); // header size in bytes
@@ -195,7 +195,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
             if (fileEntry.Content.Length >= 262)
             {
                 fileEntry.Content.Position = 257;
-                fileEntry.Content.Read(buffer,0,5);
+                fileEntry.Content.Read(buffer, 0, 5);
                 fileEntry.Content.Position = initialPosition;
 
                 if (buffer[0] == 0x75 && buffer[1] == 0x73 && buffer[2] == 0x74 && buffer[3] == 0x61 && buffer[4] == 0x72)
@@ -208,7 +208,7 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
             if (fileEntry.Content.Length > 32768 + 2048)
             {
                 fileEntry.Content.Position = 32769;
-                fileEntry.Content.Read(buffer,0,5);
+                fileEntry.Content.Read(buffer, 0, 5);
                 fileEntry.Content.Position = initialPosition;
 
                 if (buffer[0] == 'C' && buffer[1] == 'D' && buffer[2] == '0' && buffer[3] == '0' && buffer[4] == '1')
@@ -222,10 +222,10 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
             // The magic string is Magic string "conectix" (63 6F 6E 65 63 74 69 78)
             if (fileEntry.Content.Length > 512)
             {
-                byte[] vhdFooterCookie = new byte[] { 0x63, 0x6F, 0x6E, 0x65, 0x63, 0x74, 0x69, 0x78 };
+                var vhdFooterCookie = new byte[] { 0x63, 0x6F, 0x6E, 0x65, 0x63, 0x74, 0x69, 0x78 };
 
                 fileEntry.Content.Position = fileEntry.Content.Length - 0x200; // Footer position
-                fileEntry.Content.Read(buffer,0,8);
+                fileEntry.Content.Read(buffer, 0, 8);
                 fileEntry.Content.Position = initialPosition;
 
                 if (vhdFooterCookie.SequenceEqual(buffer[0..8]))
@@ -244,13 +244,13 @@ namespace Microsoft.CST.OpenSource.RecursiveExtractor
             }
 
             // Fall back to file extensions
-            string fileExtension = Path.GetExtension(fileEntry.Name.ToUpperInvariant());
+            var fileExtension = Path.GetExtension(fileEntry.Name.ToUpperInvariant());
 
             if (fileExtension.StartsWith("."))
             {
                 fileExtension = fileExtension.Substring(1);
             }
-            if (!FileExtensionMap.TryGetValue(fileExtension, out ArchiveFileType fileType))
+            if (!FileExtensionMap.TryGetValue(fileExtension, out var fileType))
             {
                 fileType = ArchiveFileType.UNKNOWN;
             }

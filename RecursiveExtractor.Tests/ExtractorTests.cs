@@ -1,6 +1,5 @@
 ﻿// Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 
-using Microsoft.CST.OpenSource.RecursiveExtractor;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NLog;
 using System;
@@ -8,7 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Microsoft.CST.OpenSource.Tests
+namespace Microsoft.CST.RecursiveExtractor.Tests
 {
     [TestClass]
     public class ExtractorTests
@@ -30,12 +29,12 @@ namespace Microsoft.CST.OpenSource.Tests
         [DataRow("Shared.tar.gz", true)]
         [DataRow("Shared.tar.xz", false)]
         [DataRow("Shared.tar.xz", true)]
-        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", true, 6)]
-        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", false, 6)]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", true, 8)]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", false, 8)]
         [DataRow("Shared.a", false, 1)]
         [DataRow("Shared.a", true, 1)]
-        [DataRow("Shared.deb", false)]
-        [DataRow("Shared.deb", true)]
+        [DataRow("Shared.deb", false, 27)]
+        [DataRow("Shared.deb", true, 27)]
         [DataRow("Shared.ar", false)]
         [DataRow("Shared.ar", true)]
         [DataRow("Shared.iso", false)]
@@ -54,7 +53,7 @@ namespace Microsoft.CST.OpenSource.Tests
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
-            var results = extractor.ExtractFile(path, parallel).ToList();
+            var results = extractor.ExtractFile(path, new ExtractorOptions() { Parallel = parallel }).ToList();
             Assert.IsTrue(results.Count() == expectedNumFiles);
         }
 
@@ -75,12 +74,12 @@ namespace Microsoft.CST.OpenSource.Tests
         [DataRow("Shared.tar.gz", true)]
         [DataRow("Shared.tar.xz", false)]
         [DataRow("Shared.tar.xz", true)]
-        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", true, 6)]
-        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", false, 6)]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", true, 8)]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", false, 8)]
         [DataRow("Shared.a", false, 1)]
         [DataRow("Shared.a", true, 1)]
-        [DataRow("Shared.deb", false)]
-        [DataRow("Shared.deb", true)]
+        [DataRow("Shared.deb", false, 27)]
+        [DataRow("Shared.deb", true, 27)]
         [DataRow("Shared.ar", false)]
         [DataRow("Shared.ar", true)]
         [DataRow("Shared.iso", false)]
@@ -100,20 +99,86 @@ namespace Microsoft.CST.OpenSource.Tests
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
             using var stream = new FileStream(path, FileMode.Open);
-            var results = extractor.ExtractStream(path, stream, parallel).ToList();
-            Assert.IsTrue(results.Count() == expectedNumFiles);
+            var results = extractor.ExtractStream(path, stream, new ExtractorOptions() { Parallel = parallel }).ToList();
+            Assert.AreEqual(expectedNumFiles, results.Count);
             stream.Close();
         }
 
         [DataTestMethod]
-        [DataRow("Nested.Zip", false, 26 * 8)]
-        [DataRow("Nested.Zip", true, 26 * 8)]
+        [DataRow("Shared.zip", false)]
+        [DataRow("Shared.zip", true)]
+        [DataRow("Shared.7z", false)]
+        [DataRow("Shared.7z", true)]
+        [DataRow("Shared.Tar", false)]
+        [DataRow("Shared.Tar", true)]
+        [DataRow("Shared.rar", false)]
+        [DataRow("Shared.rar", true)]
+        [DataRow("Shared.rar4", false, 24, 0)]
+        [DataRow("Shared.rar4", true, 24, 0)]
+        [DataRow("Shared.tar.bz2", false)]
+        [DataRow("Shared.tar.bz2", true)]
+        [DataRow("Shared.tar.gz", false)]
+        [DataRow("Shared.tar.gz", true)]
+        [DataRow("Shared.tar.xz", false)]
+        [DataRow("Shared.tar.xz", true)]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", true, 3, 2)]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", false, 3, 2)]
+        [DataRow("Shared.a", false, 1, 0)]
+        [DataRow("Shared.a", true, 1, 0)]
+        [DataRow("Shared.deb", false, 24, 1)]
+        [DataRow("Shared.deb", true, 24, 1)]
+        [DataRow("Shared.ar", false, 23, 3)]
+        [DataRow("Shared.ar", true, 23, 3)]
+        [DataRow("Shared.iso", false)]
+        [DataRow("Shared.iso", true)]
+        [DataRow("Shared.vhd", false, 24, 5)] // 26 + Some invisible system files
+        [DataRow("Shared.vhd", true, 24, 5)]
+        [DataRow("Shared.vhdx", false)]
+        [DataRow("Shared.vhdx", true)]
+        [DataRow("Shared.wim", false)]
+        [DataRow("Shared.wim", true)]
+        [DataRow("Empty.vmdk", false, 0, 0)]
+        [DataRow("Empty.vmdk", true, 0, 0)]
+        [DataRow("TextFile.md", false, 1, 0)]
+        [DataRow("TextFile.md", true, 1, 0)]
+        public void TestPassFilter(string fileName, bool parallel, int expectedHighPass = 24, int expectedLowPass = 2)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            using var stream = new FileStream(path, FileMode.Open);
+            var extractorOptions = new ExtractorOptions()
+            {
+                Parallel = parallel,
+                Filter = SizeGreaterThan1000
+            };
+            var extractorOptionsLambda = new ExtractorOptions()
+            {
+                Parallel = parallel,
+                Filter = (FileEntryInfo fei) => fei.Size <= 1000
+            };
+            var results = extractor.ExtractStream(path, stream, extractorOptions).ToList();
+            var invertResults = extractor.ExtractStream(path, stream, extractorOptionsLambda).ToList();
+            Assert.AreEqual(expectedHighPass, results.Count);
+            Assert.IsTrue(results.All(x => x.Content.Length > 1000));
+            Assert.AreEqual(expectedLowPass, invertResults.Count);
+            Assert.IsTrue(invertResults.All(x => x.Content.Length <= 1000));
+            stream.Close();
+        }
+
+        private bool SizeGreaterThan1000(FileEntryInfo fei)
+        {
+            return fei.Size > 1000;
+        }
+
+        [DataTestMethod]
+        [DataRow("Nested.Zip", false, 26 * 8 + 1)] // there's one extra metadata file in there
+        [DataRow("Nested.Zip", true, 26 * 8 + 1)]
         public void ExtractNestedArchive(string fileName, bool parallel, int expectedNumFiles)
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
-            var results = extractor.ExtractFile(path, parallel);
-            Assert.IsTrue(results.Count() == expectedNumFiles);
+            var results = extractor.ExtractFile(path, new ExtractorOptions() { Parallel = parallel });
+            Assert.AreEqual(expectedNumFiles, results.Count());
         }
 
         [DataTestMethod]
@@ -138,7 +203,7 @@ namespace Microsoft.CST.OpenSource.Tests
         public void TestMiniMagic(string fileName, ArchiveFileType expectedArchiveFileType)
         {
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
-            using FileStream fs = new FileStream(path, FileMode.Open);
+            using var fs = new FileStream(path, FileMode.Open);
             // Test just based on the content
             var fileEntry = new FileEntry("NoName", fs);
 
@@ -181,7 +246,7 @@ namespace Microsoft.CST.OpenSource.Tests
             IEnumerable<FileEntry> results;
             try
             {
-                results = extractor.ExtractFile(path, parallel).ToList();
+                results = extractor.ExtractFile(path, new ExtractorOptions() { Parallel = parallel }).ToList();
                 // Getting here means we didnt catch the bomb
             }
             // We should throw an overflow exception when we detect a quine or bomb
