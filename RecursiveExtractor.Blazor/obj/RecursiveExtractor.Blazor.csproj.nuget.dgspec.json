@@ -1,0 +1,315 @@
+{
+  "format": 1,
+  "restore": {
+    "/Users/gabe/Documents/GitHub/RecursiveExtractor/RecursiveExtractor.Blazor/RecursiveExtractor.Blazor.csproj": {}
+  },
+  "projects": {
+    "/Users/gabe/Documents/GitHub/RecursiveExtractor/RecursiveExtractor.Blazor/RecursiveExtractor.Blazor.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/gabe/Documents/GitHub/RecursiveExtractor/RecursiveExtractor.Blazor/RecursiveExtractor.Blazor.csproj",
+        "projectName": "RecursiveExtractor.Blazor",
+        "projectPath": "/Users/gabe/Documents/GitHub/RecursiveExtractor/RecursiveExtractor.Blazor/RecursiveExtractor.Blazor.csproj",
+        "packagesPath": "/Users/gabe/.nuget/packages/",
+        "outputPath": "/Users/gabe/Documents/GitHub/RecursiveExtractor/RecursiveExtractor.Blazor/obj/",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "/Users/gabe/.config/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "netstandard2.1"
+        ],
+        "sources": {
+          "/Users/gabe/Documents/GitHub/ApplicationInspector/AppInspector/bin/Debug": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netstandard2.1": {
+            "projectReferences": {
+              "/Users/gabe/Documents/GitHub/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.csproj": {
+                "projectPath": "/Users/gabe/Documents/GitHub/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netstandard2.1": {
+          "dependencies": {
+            "Blazored.LocalStorage": {
+              "target": "Package",
+              "version": "[3.0.0, )"
+            },
+            "Microsoft.AspNetCore.Components.WebAssembly": {
+              "target": "Package",
+              "version": "[3.2.1, )"
+            },
+            "Microsoft.AspNetCore.Components.WebAssembly.Build": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.2.1, )"
+            },
+            "Microsoft.AspNetCore.Components.WebAssembly.DevServer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.2.1, )"
+            },
+            "Nerdbank.GitVersioning": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.2.31, )"
+            },
+            "System.Net.Http.Json": {
+              "target": "Package",
+              "version": "[3.2.1, )"
+            },
+            "Tewr.Blazor.FileReader": {
+              "target": "Package",
+              "version": "[2.0.0.20200, )"
+            },
+            "morelinq": {
+              "target": "Package",
+              "version": "[3.3.2, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "NETStandard.Library": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/3.1.302/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/gabe/Documents/GitHub/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.csproj": {
+      "version": "0.0.0-placeholder",
+      "restore": {
+        "projectUniqueName": "/Users/gabe/Documents/GitHub/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.csproj",
+        "projectName": "Microsoft.CST.RecursiveExtractor",
+        "projectPath": "/Users/gabe/Documents/GitHub/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.csproj",
+        "packagesPath": "/Users/gabe/.nuget/packages/",
+        "outputPath": "/Users/gabe/Documents/GitHub/RecursiveExtractor/RecursiveExtractor/obj/",
+        "projectStyle": "PackageReference",
+        "crossTargeting": true,
+        "fallbackFolders": [
+          "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "/Users/gabe/.config/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "netstandard2.0",
+          "netstandard2.1"
+        ],
+        "sources": {
+          "/Users/gabe/Documents/GitHub/ApplicationInspector/AppInspector/bin/Debug": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netstandard2.0": {
+            "projectReferences": {}
+          },
+          "netstandard2.1": {
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netstandard2.0": {
+          "dependencies": {
+            "DiscUtils.Btrfs": {
+              "target": "Package",
+              "version": "[0.15.1-ci0002, )"
+            },
+            "DiscUtils.Core": {
+              "target": "Package",
+              "version": "[0.15.1-ci0002, )"
+            },
+            "DiscUtils.Ext": {
+              "target": "Package",
+              "version": "[0.15.1-ci0002, )"
+            },
+            "DiscUtils.Fat": {
+              "target": "Package",
+              "version": "[0.15.1-ci0002, )"
+            },
+            "DiscUtils.HfsPlus": {
+              "target": "Package",
+              "version": "[0.15.1-ci0002, )"
+            },
+            "DiscUtils.Iso9660": {
+              "target": "Package",
+              "version": "[0.15.1-ci0002, )"
+            },
+            "DiscUtils.Ntfs": {
+              "target": "Package",
+              "version": "[0.15.1-ci0002, )"
+            },
+            "DiscUtils.Vhd": {
+              "target": "Package",
+              "version": "[0.15.1-ci0002, )"
+            },
+            "DiscUtils.Vhdx": {
+              "target": "Package",
+              "version": "[0.15.1-ci0002, )"
+            },
+            "DiscUtils.Vmdk": {
+              "target": "Package",
+              "version": "[0.15.1-ci0002, )"
+            },
+            "DiscUtils.Wim": {
+              "target": "Package",
+              "version": "[0.15.1-ci0002, )"
+            },
+            "DiscUtils.Xfs": {
+              "target": "Package",
+              "version": "[0.15.1-ci0002, )"
+            },
+            "NETStandard.Library": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.0.3, )",
+              "autoReferenced": true
+            },
+            "NLog": {
+              "target": "Package",
+              "version": "[4.7.2, )"
+            },
+            "Nerdbank.GitVersioning": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.1.91, )"
+            },
+            "SharpCompress": {
+              "target": "Package",
+              "version": "[0.25.1, )"
+            },
+            "SharpZipLib": {
+              "target": "Package",
+              "version": "[1.2.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/3.1.302/RuntimeIdentifierGraph.json"
+        },
+        "netstandard2.1": {
+          "dependencies": {
+            "DiscUtils.Btrfs": {
+              "target": "Package",
+              "version": "[0.15.1-ci0002, )"
+            },
+            "DiscUtils.Core": {
+              "target": "Package",
+              "version": "[0.15.1-ci0002, )"
+            },
+            "DiscUtils.Ext": {
+              "target": "Package",
+              "version": "[0.15.1-ci0002, )"
+            },
+            "DiscUtils.Fat": {
+              "target": "Package",
+              "version": "[0.15.1-ci0002, )"
+            },
+            "DiscUtils.HfsPlus": {
+              "target": "Package",
+              "version": "[0.15.1-ci0002, )"
+            },
+            "DiscUtils.Iso9660": {
+              "target": "Package",
+              "version": "[0.15.1-ci0002, )"
+            },
+            "DiscUtils.Ntfs": {
+              "target": "Package",
+              "version": "[0.15.1-ci0002, )"
+            },
+            "DiscUtils.Vhd": {
+              "target": "Package",
+              "version": "[0.15.1-ci0002, )"
+            },
+            "DiscUtils.Vhdx": {
+              "target": "Package",
+              "version": "[0.15.1-ci0002, )"
+            },
+            "DiscUtils.Vmdk": {
+              "target": "Package",
+              "version": "[0.15.1-ci0002, )"
+            },
+            "DiscUtils.Wim": {
+              "target": "Package",
+              "version": "[0.15.1-ci0002, )"
+            },
+            "DiscUtils.Xfs": {
+              "target": "Package",
+              "version": "[0.15.1-ci0002, )"
+            },
+            "NLog": {
+              "target": "Package",
+              "version": "[4.7.2, )"
+            },
+            "Nerdbank.GitVersioning": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.1.91, )"
+            },
+            "SharpCompress": {
+              "target": "Package",
+              "version": "[0.25.1, )"
+            },
+            "SharpZipLib": {
+              "target": "Package",
+              "version": "[1.2.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "NETStandard.Library": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/3.1.302/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

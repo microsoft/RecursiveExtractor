@@ -1,0 +1,47 @@
+@page "/ViewFile/{Guid}"
+@using System.Text;
+@using Microsoft.CST.RecursiveExtractor;
+@using System.IO;
+@using System;
+@inject Blazored.LocalStorage.ILocalStorageService localStorage;
+@inject IJSRuntime JSRuntime;
+@inject RecursiveExtractor.Blazor.Services.AppData appData;
+
+
+<div>
+    @if (appData.GuidToFileEntryMap.ContainsKey(Guid))
+    {
+        <code>
+            @Contents
+        </code>
+    }
+    else
+    {
+        <p>Could not fetch file information given @Guid</p>
+    }
+</div>
+
+
+@code {
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JSRuntime.InvokeVoidAsync("highlightCode");
+    }
+
+    [Parameter]
+    public string Guid { get; set; } = "Not Provided";
+
+    public string? Contents { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (appData.GuidToFileEntryMap.ContainsKey(Guid))
+        {
+            var sr = new StreamReader(appData.GuidToFileEntryMap[Guid].Content);
+            Contents = await sr.ReadToEndAsync();
+        }
+
+        this.StateHasChanged();
+    }
+}
