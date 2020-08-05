@@ -3,9 +3,8 @@
 @using Microsoft.CST.RecursiveExtractor;
 @using System.IO;
 @using System;
-@inject Blazored.LocalStorage.ILocalStorageService localStorage;
 @inject IJSRuntime JSRuntime;
-@inject RecursiveExtractor.Blazor.Services.AppData appData;
+@inject Microsoft.CST.RecursiveExtractor.Blazor.Services.AppData appData;
 
 
 <div>
@@ -24,10 +23,10 @@
 
 @code {
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        await JSRuntime.InvokeVoidAsync("highlightCode");
-    }
+    //protected override async Task OnAfterRenderAsync(bool firstRender)
+    //{
+    //    await JSRuntime.InvokeVoidAsync("highlightCode");
+    //}
 
     [Parameter]
     public string Guid { get; set; } = "Not Provided";

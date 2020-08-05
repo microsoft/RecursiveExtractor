@@ -8,7 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Tewr.Blazor.FileReader;
-using Blazored.LocalStorage;
+using Microsoft.CST.RecursiveExtractor.Blazor.Services;
 
 namespace Microsoft.CST.RecursiveExtractor.Blazor
 {
@@ -18,8 +18,9 @@ namespace Microsoft.CST.RecursiveExtractor.Blazor
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
-            builder.Services.AddBlazoredLocalStorage();
             builder.Services.AddFileReaderService(options => options.UseWasmSharedBuffer = true);
+            builder.Services.AddSingleton<AppData>();
+
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
             await builder.Build().RunAsync();

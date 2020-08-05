@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecursiveExtractor.Blazor", "RecursiveExtractor.Blazor\RecursiveExtractor.Blazor.csproj", "{49B0E8A4-6391-4310-81E1-666DB0B7BF8F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RecursiveExtractor.Blazor", "RecursiveExtractor.Wasm\RecursiveExtractor.Blazor.csproj", "{8F65579A-A62A-4450-AAB4-5E8FC6553DC7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,10 +28,10 @@ Global
 		{BB4A44C9-47E4-4BF5-A04A-D3A65E46D115}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BB4A44C9-47E4-4BF5-A04A-D3A65E46D115}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BB4A44C9-47E4-4BF5-A04A-D3A65E46D115}.Release|Any CPU.Build.0 = Release|Any CPU
-		{49B0E8A4-6391-4310-81E1-666DB0B7BF8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{49B0E8A4-6391-4310-81E1-666DB0B7BF8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{49B0E8A4-6391-4310-81E1-666DB0B7BF8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{49B0E8A4-6391-4310-81E1-666DB0B7BF8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F65579A-A62A-4450-AAB4-5E8FC6553DC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F65579A-A62A-4450-AAB4-5E8FC6553DC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F65579A-A62A-4450-AAB4-5E8FC6553DC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F65579A-A62A-4450-AAB4-5E8FC6553DC7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

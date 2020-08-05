@@ -1,18 +1,17 @@
 ﻿@page "/Browse"
 @using System.Text;
-@using MoreLinq;
 @using System.Text.RegularExpressions;
-@inject Blazored.LocalStorage.ILocalStorageService localStorage;
-@inject RecursiveExtractor.Blazor.Services.AppData appData;
-
-Regex to match File Paths against<br/>
+@inject Microsoft.CST.RecursiveExtractor.Blazor.Services.AppData appData;
+Regex to match File Paths against
+<br />
 <input @bind="CurrentString" />
 
-Files matching filter:<br/>
+Files matching filter:
+<br />
 
 @foreach (var file in appData.GuidToFileEntryMap.Where(x => filter.IsMatch(x.Value.FullPath)))
 {
-    <span>Found: <a href="/ViewFile/@file.Key">@file.Value.FullPath</a></span>
+    <p>Found: <a href="/ViewFile/@file.Key">@file.Value.FullPath</a></p>
 }
 
 @code {
@@ -38,11 +37,4 @@ Files matching filter:<br/>
             }
         }
     }
-    @*protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-
-        }
-    }*@
 }
