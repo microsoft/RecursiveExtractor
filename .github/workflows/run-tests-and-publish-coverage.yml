@@ -27,8 +27,6 @@ jobs:
       uses: coverallsapp/github-action@v1.1.1
       with:
         # 
-        github-token: 
+        github-token: ${{ secrets.GITHUB_TOKEN }}
         # Path to lcov file
-        path-to-lcov: # default is ./RecursiveExtractor.Tests/TestResults/coverage.info
-        # The root folder of the project that originally ran the tests
-        base-path: # optional
+        path-to-lcov: ./RecursiveExtractor.Tests/TestResults/coverage.info
