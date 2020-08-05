@@ -1,3 +1,4 @@
+@page "/ViewFile"
 @page "/ViewFile/{Guid}"
 @using System.Text;
 @using Microsoft.CST.RecursiveExtractor;
@@ -7,18 +8,28 @@
 @inject Microsoft.CST.RecursiveExtractor.Blazor.Services.AppData appData;
 
 
-<div>
-    @if (appData.GuidToFileEntryMap.ContainsKey(Guid))
-    {
-        <code>
+    <div>
+        @if (Guid != "Not Provided")
+        {
+            @if (appData.GuidToFileEntryMap.ContainsKey(Guid))
+            {
+                <pre>
+                <code>
             @Contents
-        </code>
-    }
-    else
-    {
-        <p>Could not fetch file information given @Guid</p>
-    }
-</div>
+    </code>
+    </pre>
+            }
+            else
+            {
+                <p>Could not fetch file information given @Guid</p>
+            }
+        }
+        else
+        {
+            <p>No Guid was provided.  Please visit the BrowseArchive page to select files to view.</p>
+        }
+
+    </div>
 
 
 @code {
@@ -37,7 +48,9 @@
     {
         if (appData.GuidToFileEntryMap.ContainsKey(Guid))
         {
-            var sr = new StreamReader(appData.GuidToFileEntryMap[Guid].Content);
+            var entry = appData.GuidToFileEntryMap[Guid].Content;
+            entry.Position = 0;
+            using var sr = new System.IO.StreamReader(entry, Encoding.UTF8, true, 4096, true);
             Contents = await sr.ReadToEndAsync();
         }
 
