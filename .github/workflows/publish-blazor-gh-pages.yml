@@ -3,7 +3,7 @@ name: Publish Blazor
 on:
   push:
     branches: [ main ]
-  pr:
+  pull_request:
     branches: [ main ]
 jobs:
   build:
