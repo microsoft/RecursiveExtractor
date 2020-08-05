@@ -1,7 +1,4 @@
-﻿using DiscUtils.Ntfs.Internals;
-using Microsoft.CST.RecursiveExtractor;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Microsoft.CST.RecursiveExtractor.Blazor.Services
 {
