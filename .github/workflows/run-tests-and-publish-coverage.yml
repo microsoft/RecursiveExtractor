@@ -18,7 +18,8 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.301
-    - name: dotnet build ./RecursiveExtractor.Tests/
+    - name: Ensure test data is present
+      run: dotnet build ./RecursiveExtractor.Tests/
     - name: Generate coverage report
       run: dotnet test ./RecursiveExtractor.Tests/ /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=lcov
     - name: Coveralls GitHub Action
