@@ -1,4 +1,4 @@
-name: Publish Blazor
+name: Run Tests
 
 on:
   push:

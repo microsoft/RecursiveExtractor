@@ -1,9 +1,7 @@
-name: Run Tests
+name: Publish Blazor
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
     branches: [ main ]
 jobs:
   build:
