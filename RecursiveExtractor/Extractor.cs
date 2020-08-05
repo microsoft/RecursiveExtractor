@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace Microsoft.CST.RecursiveExtractor
 {
@@ -48,8 +49,11 @@ namespace Microsoft.CST.RecursiveExtractor
                 new VmdkExtractor(this),
                 new ZipExtractor(this),
                 new XzExtractor(this),
-                new WimExtractor(this)
             };
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                defaultExtractors.Add(new WimExtractor(this));
+            }
 
             foreach (var extractor in defaultExtractors)
             {
