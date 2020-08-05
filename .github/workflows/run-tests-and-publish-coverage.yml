@@ -1,0 +1,32 @@
+name: Publish Blazor
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.301
+    - name: Generate coverage report
+      run: |
+        cd ./RecursiveExtractor.Tests/
+        dotnet test /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=lcov
+        
+    - name: Coveralls GitHub Action
+      uses: coverallsapp/github-action@v1.1.1
+      with:
+        # 
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        # Path to lcov file
+        path-to-lcov: ./RecursiveExtractor.Tests/TestResults/coverage.info
