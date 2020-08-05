@@ -18,14 +18,17 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.301
-    - name: Tests
-      run: 
     - name: Generate coverage report
       run: |
         cd ./RecursiveExtractor.Tests/
         dotnet test /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=lcov
-    # - name: Publish coverage report to coveralls.io
-    #   uses: coverallsapp/github-action@master
-    #   with:
-    #     github-token: ${{ secrets.GITHUB_TOKEN }}
-    #     path-to-lcov: ./MyLibrary.Tests/TestResults/coverage.info 
+        
+    - name: Coveralls GitHub Action
+      uses: coverallsapp/github-action@v1.1.1
+      with:
+        # 
+        github-token: 
+        # Path to lcov file
+        path-to-lcov: # default is ./RecursiveExtractor.Tests/TestResults/coverage.info
+        # The root folder of the project that originally ran the tests
+        base-path: # optional
