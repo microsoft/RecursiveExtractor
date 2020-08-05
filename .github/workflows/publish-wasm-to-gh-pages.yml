@@ -25,5 +25,4 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_branch: gh-pages
-        # Set an input directory for deployment.
         publish_dir: RecursiveExtractor.Blazor/bin/Release/netstandard2.1/publish/wwwroot
