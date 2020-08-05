@@ -5,11 +5,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>RecursiveExtractor.Wasm</title>
-    <base href="/RecursiveExtractor/" />
+    <base href="/" />
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
     <link href="css/app.css" rel="stylesheet" />
     <link href="manifest.json" rel="manifest" />
     <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png" />
+    <link href="css/prism.css" rel="stylesheet" />
 </head>
 
 <body>
@@ -22,7 +23,9 @@
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
     <script>navigator.serviceWorker.register('service-worker.js');</script>
-    <script src="SaveFile.js"></script>
+    <script src="js/SaveFile.js"></script>
+    <script src="js/prism.js"></script>
+    <script src="js/prism-bridge.js"></script>
 </body>
 
 </html>
