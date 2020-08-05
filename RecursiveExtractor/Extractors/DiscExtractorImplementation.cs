@@ -1,0 +1,110 @@
+﻿using DiscUtils;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+
+namespace Microsoft.CST.RecursiveExtractor.Extractors
+{
+    public abstract class DiscExtractorImplementation : ExtractorImplementation
+    {
+        private readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+        internal abstract Extractor GetContext();
+
+        internal IEnumerable<FileEntry> DumpLogicalVolume(LogicalVolumeInfo volume, string parentPath, ExtractorOptions options, ResourceGovernor governor, FileEntry? parent = null)
+        {
+            DiscUtils.FileSystemInfo[]? fsInfos = null;
+            try
+            {
+                fsInfos = FileSystemManager.DetectFileSystems(volume);
+            }
+            catch (Exception e)
+            {
+                Logger.Debug("Failed to get file systems from logical volume {0} Image {1} ({2}:{3})", volume.Identity, parentPath, e.GetType(), e.Message);
+            }
+
+            foreach (var fsInfo in fsInfos ?? Array.Empty<DiscUtils.FileSystemInfo>())
+            {
+                using var fs = fsInfo.Open(volume);
+                var diskFiles = fs.GetFiles(fs.Root.FullName, "*.*", SearchOption.AllDirectories).ToList();
+                if (options.Parallel)
+                {
+                    var files = new ConcurrentStack<FileEntry>();
+
+                    while (diskFiles.Any())
+                    {
+                        var batchSize = Math.Min(options.BatchSize, diskFiles.Count);
+                        var range = diskFiles.GetRange(0, batchSize);
+                        var fileinfos = new List<(DiscFileInfo, Stream)>();
+                        long totalLength = 0;
+                        foreach (var r in range)
+                        {
+                            try
+                            {
+                                var fi = fs.GetFileInfo(r);
+                                totalLength += fi.Length;
+                                var fei = new FileEntryInfo(fi.FullName, parentPath, fi.Length);
+                                if (options.Filter(fei))
+                                {
+                                    fileinfos.Add((fi, fi.OpenRead()));
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                Logger.Debug("Failed to get FileInfo from {0} in Volume {1} @ {2} ({3}:{4})", r, volume.Identity, parentPath, e.GetType(), e.Message);
+                            }
+                        }
+
+                        governor.CheckResourceGovernor(totalLength);
+
+                        fileinfos.AsParallel().ForAll(file =>
+                        {
+                            if (file.Item2 != null)
+                            {
+                                var newFileEntry = new FileEntry($"{volume.Identity}\\{file.Item1.FullName}", file.Item2, parent);
+                                var entries = GetContext().ExtractFile(newFileEntry, options, governor);
+                                files.PushRange(entries.ToArray());
+                            }
+                        });
+                        diskFiles.RemoveRange(0, batchSize);
+
+                        while (files.TryPop(out var result))
+                        {
+                            if (result != null)
+                                yield return result;
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var file in diskFiles)
+                    {
+                        Stream? fileStream = null;
+                        try
+                        {
+                            var fi = fs.GetFileInfo(file);
+                            governor.CheckResourceGovernor(fi.Length);
+                            fileStream = fi.OpenRead();
+                        }
+                        catch (Exception e)
+                        {
+                            Logger.Debug(e, "Failed to open {0} in volume {1}", file, volume.Identity);
+                        }
+                        if (fileStream != null)
+                        {
+                            var newFileEntry = new FileEntry($"{volume.Identity}\\{file}", fileStream, parent);
+                            var entries = GetContext().ExtractFile(newFileEntry, options, governor);
+                            foreach (var entry in entries)
+                            {
+                                yield return entry;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+}
