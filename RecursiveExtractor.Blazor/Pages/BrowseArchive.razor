@@ -1,0 +1,58 @@
+﻿@page "/Browse"
+@using System.Text;
+@using System.Text.RegularExpressions;
+@inject Microsoft.CST.RecursiveExtractor.Blazor.Services.AppData appData;
+@inject IJSRuntime JSRuntime
+    <b>Regex to match File Paths against</b>
+    <br />
+    <input @bind="CurrentString" />
+    <br />
+    <h2>Files matching filter:</h2>
+
+    @foreach (var file in appData.GuidToFileEntryMap.Where(x => filter.IsMatch(x.Value.FullPath)))
+    {
+        <p>Found: @file.Value.FullPath <a href="/ViewFile/@file.Key">View</a> <button @onclick="@(e => DownloadFile(file.Key))">Download</button></p>
+    }
+
+    @code {
+        protected static Regex DefaultRegex = new Regex(".*", RegexOptions.Compiled);
+        protected Regex filter = DefaultRegex;
+        private string _string = "";
+
+
+        public async void DownloadFile(string Guid)
+        {
+            if (!string.IsNullOrEmpty(Guid))
+            {
+                var entry = appData.GuidToFileEntryMap[Guid];
+                entry.Content.Position = 0;
+                using var sr = new System.IO.StreamReader(entry.Content, Encoding.UTF8, true, 4096, true);
+                await JSRuntime.InvokeAsync<object>(
+                    "FileSaveAs",
+                    entry.Name,
+                    "data:text/plain;charset=utf-8,",
+                    await sr.ReadToEndAsync()
+                );
+            }
+        }
+
+        private string CurrentString
+        {
+            get
+            {
+                return _string;
+            }
+            set
+            {
+                _string = value;
+                if (_string != string.Empty)
+                {
+                    filter = new Regex(_string);
+                }
+                else
+                {
+                    filter = DefaultRegex;
+                }
+            }
+        }
+    }

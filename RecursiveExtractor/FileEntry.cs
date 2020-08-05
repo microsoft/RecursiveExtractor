@@ -33,7 +33,7 @@ namespace Microsoft.CST.RecursiveExtractor
             else
             {
                 ParentPath = parent.FullPath;
-                FullPath = $"{ParentPath}{Path.DirectorySeparatorChar}{Name}";
+                FullPath = $"{ParentPath}/{Name}";
             }
 
             if (inputStream == null)
@@ -79,10 +79,12 @@ namespace Microsoft.CST.RecursiveExtractor
                 {
                     try
                     {
-                        inputStream.CopyToAsync(Content).RunSynchronously();
+                        System.Threading.Tasks.Task.Run(() => inputStream.CopyToAsync(Content)).Wait();
                     }
                     catch (Exception f)
                     {
+                        var message = f.Message;
+                        var type = f.GetType();
                         Logger.Debug("Failed to copy stream from {0} ({1}:{2})", FullPath, f.GetType(), f.Message);
                     }
                 }

@@ -1,0 +1,59 @@
+@page "/ViewFile"
+@page "/ViewFile/{Guid}"
+@using System.Text;
+@using Microsoft.CST.RecursiveExtractor;
+@using System.IO;
+@using System;
+@inject IJSRuntime JSRuntime;
+@inject Microsoft.CST.RecursiveExtractor.Blazor.Services.AppData appData;
+
+
+    <div>
+        @if (Guid != "Not Provided")
+        {
+            @if (appData.GuidToFileEntryMap.ContainsKey(Guid))
+            {
+                <pre>
+                <code>
+            @Contents
+    </code>
+    </pre>
+            }
+            else
+            {
+                <p>Could not fetch file information given @Guid</p>
+            }
+        }
+        else
+        {
+            <p>No Guid was provided.  Please visit the BrowseArchive page to select files to view.</p>
+        }
+
+    </div>
+
+
+@code {
+
+    //protected override async Task OnAfterRenderAsync(bool firstRender)
+    //{
+    //    await JSRuntime.InvokeVoidAsync("highlightCode");
+    //}
+
+    [Parameter]
+    public string Guid { get; set; } = "Not Provided";
+
+    public string? Contents { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (appData.GuidToFileEntryMap.ContainsKey(Guid))
+        {
+            var entry = appData.GuidToFileEntryMap[Guid].Content;
+            entry.Position = 0;
+            using var sr = new System.IO.StreamReader(entry, Encoding.UTF8, true, 4096, true);
+            Contents = await sr.ReadToEndAsync();
+        }
+
+        this.StateHasChanged();
+    }
+}
