@@ -8,50 +8,54 @@
 @inject Microsoft.CST.RecursiveExtractor.Blazor.Services.AppData appData;
 
 
-    <div>
-        @if (Guid != "Not Provided")
-        {
-            @if (appData.GuidToFileEntryMap.ContainsKey(Guid))
-            {
-                <pre>
-                <code>
-            @Contents
-    </code>
+<div>
+@if (Guid != "Not Provided")
+{
+    @if (appData.GuidToFileEntryMap.ContainsKey(Guid))
+    {
+    <h1>Showing code for: @fileEntry.Name</h1>
+    <pre class="match-braces rainbow-braces line-numbers lang-@Microsoft.DevSkim.Language.FromFileName(fileEntry.Name)" >
+        <code style="display:block; white-space:pre-wrap">
+@Contents
+        </code>
     </pre>
-            }
-            else
-            {
-                <p>Could not fetch file information given @Guid</p>
-            }
-        }
-        else
-        {
-            <p>No Guid was provided.  Please visit the BrowseArchive page to select files to view.</p>
-        }
+    }
+    else
+    {
+        <p>Could not fetch file information given @Guid</p>
+    }
+}
+else
+{
+    <p>No Guid was provided.  Please visit the BrowseArchive page to select files to view.</p>
+}
 
-    </div>
+</div>
 
 
 @code {
 
-    //protected override async Task OnAfterRenderAsync(bool firstRender)
-    //{
-    //    await JSRuntime.InvokeVoidAsync("highlightCode");
-    //}
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JSRuntime.InvokeVoidAsync("highlightCode");
+    }
 
     [Parameter]
     public string Guid { get; set; } = "Not Provided";
 
     public string? Contents { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    private FileEntry fileEntry { get; set; }
+
+    protected override void OnInitialized()
     {
         if (appData.GuidToFileEntryMap.ContainsKey(Guid))
         {
-            var entry = appData.GuidToFileEntryMap[Guid].Content;
+            fileEntry = appData.GuidToFileEntryMap[Guid];
+            var entry = fileEntry.Content;
             entry.Position = 0;
             using var sr = new System.IO.StreamReader(entry, Encoding.UTF8, true, 4096, true);
-            Contents = await sr.ReadToEndAsync();
+            Contents = sr.ReadToEnd();
         }
 
         this.StateHasChanged();
