@@ -19,9 +19,7 @@ jobs:
       with:
         dotnet-version: 3.1.301
     - name: Generate coverage report
-      run: |
-        cd ./RecursiveExtractor.Tests/
-        dotnet test /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=lcov
+      run: dotnet test ./RecursiveExtractor.Tests/ /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=lcov
         
     - name: Coveralls GitHub Action
       uses: coverallsapp/github-action@v1.1.1
