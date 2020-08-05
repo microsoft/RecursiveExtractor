@@ -11,7 +11,7 @@
 
     @foreach (var file in appData.GuidToFileEntryMap.Where(x => filter.IsMatch(x.Value.FullPath)))
     {
-        <p>Found: @file.Value.FullPath <a href="/ViewFile/@file.Key">View</a> <button @onclick="@(e => DownloadFile(file.Key))">Download</button></p>
+        <p>Found: @file.Value.FullPath <a href="ViewFile/@file.Key">View</a> <button @onclick="@(e => DownloadFile(file.Key))">Download</button></p>
     }
 
     @code {
