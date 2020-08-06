@@ -83,7 +83,9 @@
 
     private async Task ClearAsync()
     {
-
+        appData.GuidToFileEntryMap.Clear();
+        Output = string.Empty;
+        IpFileList.Clear();
     }
     private class FileWithStream { public IFileInfo FileInfo { get; set; } public AsyncDisposableStream Stream { get; set; } }
 
@@ -101,7 +103,6 @@
 
     private async Task RefreshFileList()
     {
-
         await this.ClearAsync();
         foreach (var file in await ipReference.EnumerateFilesAsync())
         {
@@ -114,6 +115,7 @@
 
     public async Task ReadFile(IFileReaderRef list)
     {
+        appData.GuidToFileEntryMap.Clear();
         Output = string.Empty;
         this.StateHasChanged();
         var extractor = new Extractor();
@@ -135,12 +137,26 @@
             };
             var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
             await pair.Stream.CopyToAsync(entryStream);
-            var entries = extractor.ExtractStreamAsync(pair.FileInfo.Name, entryStream, options);
-            await foreach (var entry in entries)
+
+            var entry = await FileEntry.FromStreamAsync(pair.FileInfo.Name, entryStream);
+            var type = MiniMagic.DetectFileType(entry);
+            switch (type)
             {
-                appData.GuidToFileEntryMap[Guid.NewGuid().ToString()] = entry;
-                NumFilesExtracted++;
-                this.StateHasChanged();
+                case ArchiveFileType.RAR:
+                case ArchiveFileType.P7ZIP:
+                case ArchiveFileType.GZIP:
+                case ArchiveFileType.VHD:
+                    Output += $"{type} is not supported in the GUI, but is supported in the full RecursiveExtractor library.";
+                    break;
+                default:
+                    var entries = extractor.ExtractStreamAsync(entry., entryStream, options);
+                    await foreach (var entry in entries)
+                    {
+                        appData.GuidToFileEntryMap[Guid.NewGuid().ToString()] = foundEntry;
+                        NumFilesExtracted++;
+                        this.StateHasChanged();
+                    }
+                    break;
             }
         }
     }

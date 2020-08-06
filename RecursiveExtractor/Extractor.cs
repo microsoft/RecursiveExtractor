@@ -203,6 +203,7 @@ namespace Microsoft.CST.RecursiveExtractor
         {
             var options = opts ?? new ExtractorOptions();
             var governor = new ResourceGovernor(options);
+            governor.ResetResourceGovernor(stream);
             FileEntry? fileEntry = null;
             try
             {
@@ -302,7 +303,12 @@ namespace Microsoft.CST.RecursiveExtractor
         public IEnumerable<FileEntry> ExtractFile(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null)
         {
             var options = opts ?? new ExtractorOptions();
-            var Governor = governor ?? new ResourceGovernor(options);
+            var Governor = governor;
+            if (Governor == null)
+            {
+                Governor = new ResourceGovernor(options);
+                Governor.ResetResourceGovernor(fileEntry.Content);
+            }
             Logger.Trace("ExtractFile({0})", fileEntry.FullPath);
             Governor.CurrentOperationProcessedBytesLeft -= fileEntry.Content.Length;
             Governor.CheckResourceGovernor();
