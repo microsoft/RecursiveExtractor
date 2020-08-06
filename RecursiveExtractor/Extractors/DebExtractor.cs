@@ -50,10 +50,10 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                         selectedEntries.AsParallel().ForAll(entry =>
                         {
-                            var entries = Context.ExtractFile(entry, options, governor);
+                            var entries = Context.ExtractFile(entry, options, governor).ToArray();
                             if (entries.Any())
                             {
-                                files.PushRange(entries.ToArray());
+                                files.PushRange(entries);
                             }
                         });
 

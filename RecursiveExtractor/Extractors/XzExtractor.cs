@@ -41,7 +41,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 // SharpCompress does not expose metadata without a full read, so we need to decompress first,
                 // and then abort if the bytes exceeded the governor's capacity.
 
-                var streamLength = xzStream.Index.Records?.Select(r => r.UncompressedSize)
+                var streamLength = xzStream.Index?.Records?.Select(r => r.UncompressedSize)
                                           .Aggregate((ulong?)0, (a, b) => a + b);
 
                 // BUG: Technically, we're casting a ulong to a long, but we don't expect 9 exabyte steams, so
