@@ -841,7 +841,7 @@ namespace Microsoft.CST.RecursiveExtractor
             }
             catch (Exception e)
             {
-                Logger.Debug(DEBUG_STRING, ArchiveFileType.RAR, fileEntry.FullPath, string.Empty, e.GetType());
+                Logger.Debug(DEBUG_STRING, ArchiveFileType.RAR, fileEntry.FullPath, e.Message, e.GetType());
             }
 
             if (rarArchive != null)
