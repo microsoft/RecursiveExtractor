@@ -135,8 +135,8 @@
             };
             var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
             await pair.Stream.CopyToAsync(entryStream);
-            var entries = extractor.ExtractStream(pair.FileInfo.Name, entryStream, options);
-            foreach (var entry in entries)
+            var entries = extractor.ExtractStreamAsync(pair.FileInfo.Name, entryStream, options);
+            await foreach (var entry in entries)
             {
                 appData.GuidToFileEntryMap[Guid.NewGuid().ToString()] = entry;
                 NumFilesExtracted++;
