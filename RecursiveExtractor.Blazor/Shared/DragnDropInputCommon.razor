@@ -119,7 +119,7 @@
         Output = string.Empty;
         this.StateHasChanged();
         var extractor = new Extractor();
-        var options = new ExtractorOptions() { Parallel = false, EnableTiming = false, ExtractSelfOnFail = false };
+        var options = new ExtractorOptions() { EnableTiming = false, ExtractSelfOnFail = false };
         foreach (var pair in IpFileList)
         {
             var fileInfo = pair.FileInfo;
