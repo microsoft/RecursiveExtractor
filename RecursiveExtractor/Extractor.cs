@@ -508,7 +508,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        private IEnumerable<FileEntry> ExtractFile(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null)
+        public IEnumerable<FileEntry> ExtractFile(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null)
         {
             var options = opts ?? new ExtractorOptions();
             var Governor = governor ?? new ResourceGovernor(options);
