@@ -5,24 +5,38 @@ using System.Linq;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
-    public class DebExtractor : ExtractorImplementation
+    public class DebExtractor : AsyncExtractorInterface
     {
         public DebExtractor(Extractor context)
         {
             Context = context;
-            TargetType = ArchiveFileType.DEB;
         }
         private readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         internal Extractor Context { get; }
-
 
         /// <summary>
         ///     Extracts a .deb file contained in fileEntry.
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        public override IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        {
+            await foreach (var entry in DebArchiveFile.GetFileEntriesAsync(fileEntry, options, governor))
+            {
+                await foreach (var extractedFile in Context.ExtractFileAsync(entry, options, governor))
+                {
+                    yield return extractedFile;
+                }
+            }   
+        }
+
+        /// <summary>
+        ///     Extracts a .deb file contained in fileEntry.
+        /// </summary>
+        /// <param name="fileEntry"> FileEntry to extract </param>
+        /// <returns> Extracted files </returns>
+        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
             IEnumerable<FileEntry>? entries = null;
             try

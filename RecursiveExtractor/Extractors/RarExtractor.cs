@@ -6,12 +6,11 @@ using System.Linq;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
-    public class RarExtractor : ExtractorImplementation
+    public class RarExtractor : AsyncExtractorInterface
     {
         public RarExtractor(Extractor context)
         {
             Context = context;
-            TargetType = ArchiveFileType.RAR;
         }
         private readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -22,7 +21,54 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
-        public override IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        {
+            RarArchive? rarArchive = null;
+            try
+            {
+                rarArchive = RarArchive.Open(fileEntry.Content);
+            }
+            catch (Exception e)
+            {
+                Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.RAR, fileEntry.FullPath, string.Empty, e.GetType());
+            }
+
+            if (rarArchive != null)
+            {
+                var entries = rarArchive.Entries.Where(x => x.IsComplete && !x.IsDirectory && !x.IsEncrypted);
+                foreach (var entry in entries)
+                {
+                    governor.CheckResourceGovernor(entry.Size);
+                    FileEntry newFileEntry = await FileEntry.FromStreamAsync(entry.Key, entry.OpenEntryStream(), fileEntry);
+                    if (newFileEntry != null)
+                    {
+                        if (Extractor.IsQuine(newFileEntry))
+                        {
+                            Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
+                            throw new OverflowException();
+                        }
+                        await foreach (var extractedFile in Context.ExtractFileAsync(newFileEntry, options, governor))
+                        {
+                            yield return extractedFile;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (options.ExtractSelfOnFail)
+                {
+                    yield return fileEntry;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Extracts an a RAR archive
+        /// </summary>
+        /// <param name="fileEntry"> </param>
+        /// <returns> </returns>
+        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
             RarArchive? rarArchive = null;
             try

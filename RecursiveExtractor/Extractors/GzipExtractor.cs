@@ -5,12 +5,11 @@ using System.IO;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
-    public class GzipExtractor : ExtractorImplementation
+    public class GzipExtractor : AsyncExtractorInterface
     {
         public GzipExtractor(Extractor context)
         {
             Context = context;
-            TargetType = ArchiveFileType.GZIP;
         }
         private readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -22,7 +21,64 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        public override IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        {
+            GZipArchive? gzipArchive = null;
+            try
+            {
+                gzipArchive = GZipArchive.Open(fileEntry.Content);
+            }
+            catch (Exception e)
+            {
+                Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.GZIP, fileEntry.FullPath, string.Empty, e.GetType());
+            }
+            if (gzipArchive != null)
+            {
+                foreach (var entry in gzipArchive.Entries)
+                {
+                    if (entry.IsDirectory)
+                    {
+                        continue;
+                    }
+
+                    governor.CheckResourceGovernor(entry.Size);
+
+                    var newFilename = Path.GetFileNameWithoutExtension(fileEntry.Name);
+                    if (fileEntry.Name.EndsWith(".tgz", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        newFilename = newFilename[0..^4] + ".tar";
+                    }
+
+                    FileEntry? newFileEntry = null;
+                    using var stream = entry.OpenEntryStream();
+                    newFileEntry = await FileEntry.FromStreamAsync(newFilename, stream, fileEntry);
+                    
+                    if (newFileEntry != null)
+                    {
+                        await foreach (var extractedFile in Context.ExtractFileAsync(newFileEntry, options, governor))
+                        {
+                            yield return extractedFile;
+                        }
+                    }
+                }
+                gzipArchive.Dispose();
+            }
+            else
+            {
+                if (options.ExtractSelfOnFail)
+                {
+                    yield return fileEntry;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Extracts an Gzip file contained in fileEntry. Since this function is recursive, even though
+        ///     Gzip only supports a single compressed file, that inner file could itself contain multiple others.
+        /// </summary>
+        /// <param name="fileEntry"> FileEntry to extract </param>
+        /// <returns> Extracted files </returns>
+        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
             GZipArchive? gzipArchive = null;
             try

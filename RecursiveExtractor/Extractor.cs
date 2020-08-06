@@ -30,40 +30,32 @@ namespace Microsoft.CST.RecursiveExtractor
         }
 
         public bool EnableTiming { get; }
-        internal Dictionary<ArchiveFileType, ExtractorImplementation> Extractors { get; } = new Dictionary<ArchiveFileType, ExtractorImplementation>();
+        internal Dictionary<ArchiveFileType, AsyncExtractorInterface> Extractors { get; } = new Dictionary<ArchiveFileType, AsyncExtractorInterface>();
 
         public void SetDefaultExtractors()
         {
-            var defaultExtractors = new List<ExtractorImplementation>()
-            {
-                new BZip2Extractor(this),
-                new DebExtractor(this),
-                new GnuArExtractor(this),
-                new GzipExtractor(this),
-                new IsoExtractor(this),
-                new RarExtractor(this),
-                new SevenZipExtractor(this),
-                new TarExtractor(this),
-                new VhdExtractor(this),
-                new VhdxExtractor(this),
-                new VmdkExtractor(this),
-                new ZipExtractor(this),
-                new XzExtractor(this),
-            };
+            SetExtractor(ArchiveFileType.BZIP2, new BZip2Extractor(this));
+            SetExtractor(ArchiveFileType.DEB, new DebExtractor(this));
+            SetExtractor(ArchiveFileType.AR, new GnuArExtractor(this));
+            SetExtractor(ArchiveFileType.GZIP, new GzipExtractor(this));
+            SetExtractor(ArchiveFileType.ISO_9660, new IsoExtractor(this));
+            SetExtractor(ArchiveFileType.RAR, new RarExtractor(this));
+            SetExtractor(ArchiveFileType.P7ZIP, new SevenZipExtractor(this));
+            SetExtractor(ArchiveFileType.TAR, new TarExtractor(this));
+            SetExtractor(ArchiveFileType.VHD, new VhdExtractor(this));
+            SetExtractor(ArchiveFileType.VHDX, new VhdxExtractor(this));
+            SetExtractor(ArchiveFileType.VMDK, new VmdkExtractor(this));
+            SetExtractor(ArchiveFileType.XZ, new XzExtractor(this));
+            SetExtractor(ArchiveFileType.ZIP, new ZipExtractor(this));
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                defaultExtractors.Add(new WimExtractor(this));
-            }
-
-            foreach (var extractor in defaultExtractors)
-            {
-                SetExtractor(extractor);
+                SetExtractor(ArchiveFileType.WIM, new WimExtractor(this));
             }
         }
 
-        public void SetExtractor(ExtractorImplementation implementation)
+        public void SetExtractor(ArchiveFileType targetType, AsyncExtractorInterface implementation)
         {
-            Extractors[implementation.TargetType] = implementation;
+            Extractors[targetType] = implementation;
         }
 
         public void ClearExtractors()
@@ -166,6 +158,47 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="stream">The Stream to parse.</param>
         /// <param name="parallel">Should we operate in parallel?</param>
         /// <returns></returns>
+        public async IAsyncEnumerable<FileEntry> ExtractStreamAsync(string filename, Stream stream, ExtractorOptions? opts = null)
+        {
+            var options = opts ?? new ExtractorOptions();
+            var governor = new ResourceGovernor(options);
+            FileEntry? fileEntry = null;
+            try
+            {
+                var file = Path.GetFileName(filename);
+                var directory = Path.GetDirectoryName(filename);
+                if (file == directory)
+                {
+                    directory = string.Empty;
+                }
+                // We give it a parent so we can give it a shortname. This is useful for Quine detection later.
+                fileEntry = new FileEntry(file, stream, new FileEntry(directory, new MemoryStream()));
+                governor.ResetResourceGovernor(stream);
+            }
+            catch (Exception ex)
+            {
+                Logger.Debug(ex, "Failed to extract file {0}", filename);
+            }
+
+            if (fileEntry != null)
+            {
+                await foreach (var result in ExtractFileAsync(fileEntry, opts, governor))
+                {
+                    governor.GovernorStopwatch.Stop();
+                    yield return result;
+                    governor.GovernorStopwatch.Start();
+                }
+            }
+            governor.GovernorStopwatch.Stop();
+        }
+
+        /// <summary>
+        /// Extract a stream into FileEntries
+        /// </summary>
+        /// <param name="filename">The filename (with parent path) to call this root file.</param>
+        /// <param name="stream">The Stream to parse.</param>
+        /// <param name="parallel">Should we operate in parallel?</param>
+        /// <returns></returns>
         public IEnumerable<FileEntry> ExtractStream(string filename, Stream stream, ExtractorOptions? opts = null)
         {
             var options = opts ?? new ExtractorOptions();
@@ -226,6 +259,39 @@ namespace Microsoft.CST.RecursiveExtractor
         ///     Logger for interesting events.
         /// </summary>
         private readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+        /// <summary>
+        ///     Extracts files from the given FileEntry, using the appropriate extractors, recursively.
+        /// </summary>
+        /// <param name="fileEntry"> FileEntry to extract </param>
+        /// <returns> Extracted files </returns>
+        public async IAsyncEnumerable<FileEntry> ExtractFileAsync(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null)
+        {
+            var options = opts ?? new ExtractorOptions();
+            var Governor = governor ?? new ResourceGovernor(options);
+            Logger.Trace("ExtractFile({0})", fileEntry.FullPath);
+            Governor.CurrentOperationProcessedBytesLeft -= fileEntry.Content.Length;
+            Governor.CheckResourceGovernor();
+            var useRaw = false;
+            var type = MiniMagic.DetectFileType(fileEntry);
+            if (type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type))
+            {
+                useRaw = true;
+                var fei = new FileEntryInfo(fileEntry.Name, fileEntry.FullPath, fileEntry.Content.Length);
+                if (options.Filter(fei))
+                {
+                    yield return await FileEntry.FromStreamAsync(fileEntry.Name, fileEntry.Content, fileEntry.Parent);
+                }
+            }
+            else
+            {
+                Governor.CurrentOperationProcessedBytesLeft += fileEntry.Content.Length;
+                await foreach (var result in Extractors[type].ExtractAsync(fileEntry, options, Governor))
+                {
+                    yield return result;
+                }
+            }
+        }
 
 
         /// <summary>

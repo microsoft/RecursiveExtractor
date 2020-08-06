@@ -5,12 +5,11 @@ using System.IO;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
-    public class TarExtractor : ExtractorImplementation
+    public class TarExtractor : AsyncExtractorInterface
     {
         public TarExtractor(Extractor context)
         {
             Context = context;
-            TargetType = ArchiveFileType.TAR;
         }
         private readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -21,7 +20,68 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
-        public override IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        {
+            TarEntry tarEntry;
+            TarInputStream? tarStream = null;
+            try
+            {
+                tarStream = new TarInputStream(fileEntry.Content);
+            }
+            catch (Exception e)
+            {
+                Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.TAR, fileEntry.FullPath, string.Empty, e.GetType());
+            }
+            if (tarStream != null)
+            {
+                while ((tarEntry = tarStream.GetNextEntry()) != null)
+                {
+                    if (tarEntry.IsDirectory)
+                    {
+                        continue;
+                    }
+
+                    var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+                    governor.CheckResourceGovernor(tarStream.Length);
+                    try
+                    {
+                        tarStream.CopyEntryContents(fs);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.TAR, fileEntry.FullPath, tarEntry.Name, e.GetType());
+                    }
+
+                    var newFileEntry = new FileEntry(tarEntry.Name, fs, fileEntry, true);
+
+                    if (Extractor.IsQuine(newFileEntry))
+                    {
+                        Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
+                        throw new OverflowException();
+                    }
+
+                    await foreach (var extractedFile in Context.ExtractFileAsync(newFileEntry, options, governor))
+                    {
+                        yield return extractedFile;
+                    }
+                }
+                tarStream.Dispose();
+            }
+            else
+            {
+                if (options.ExtractSelfOnFail)
+                {
+                    yield return fileEntry;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Extracts an a Tar archive
+        /// </summary>
+        /// <param name="fileEntry"> </param>
+        /// <returns> </returns>
+        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
             TarEntry tarEntry;
             TarInputStream? tarStream = null;
