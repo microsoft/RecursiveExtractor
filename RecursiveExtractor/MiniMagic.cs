@@ -27,7 +27,8 @@ namespace Microsoft.CST.RecursiveExtractor
         VHDX,
         VHD,
         WIM,
-        VMDK
+        VMDK,
+        INVALID
     }
 
     /// <summary>
