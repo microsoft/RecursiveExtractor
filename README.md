@@ -4,6 +4,8 @@ Recursive Extractor is a .NET Standard 2.0/2.1 Library for parsing archive files
 
 Recursive Extractor is available on NuGet as [Microsoft.CST.RecursiveExtractor](https://www.nuget.org/packages/Microsoft.CST.RecursiveExtractor/).
 
+You can try out Recursive Extractor [in your browser](https://microsoft.github.io/RecursiveExtractor/) as a Web Assembly app.
+
 # Supported File Types (alphabetical)
 * 7zip
 * ar
