@@ -36,17 +36,11 @@ namespace Microsoft.CST.RecursiveExtractor
                     governor.CheckResourceGovernor(fileSize);
                     governor.CurrentOperationProcessedBytesLeft -= fileSize;
                     var fei = new FileEntryInfo(filename, fileEntry.FullPath, fileSize);
-                    if (options.Filter(fei))
-                    {
-                        var entryContent = new byte[fileSize];
-                        fileEntry.Content.Read(entryContent, 0, fileSize);
-                        using var stream = new MemoryStream(entryContent);
-                        yield return new FileEntry(filename, stream, fileEntry);
-                    }
-                    else
-                    {
-                        fileEntry.Content.Position += fileSize;
-                    }
+                    
+                    var entryContent = new byte[fileSize];
+                    fileEntry.Content.Read(entryContent, 0, fileSize);
+                    using var stream = new MemoryStream(entryContent);
+                    yield return new FileEntry(filename, stream, fileEntry);
                 }
                 else
                 {

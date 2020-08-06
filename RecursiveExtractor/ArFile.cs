@@ -77,19 +77,13 @@ namespace Microsoft.CST.RecursiveExtractor
                             // This should move us right to the file
                             fileEntry.Content.Read(nameSpan, 0, nameLength);
                             var fei = new FileEntryInfo(Encoding.ASCII.GetString(nameSpan), fileEntry.FullPath, size - nameLength);
-                            if (options.Filter(fei))
-                            {
-                                var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+                            
+                            var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
 
-                                // The name length is included in the total size reported in the header
-                                CopyStreamBytes(fileEntry.Content, entryStream, size - nameLength);
+                            // The name length is included in the total size reported in the header
+                            CopyStreamBytes(fileEntry.Content, entryStream, size - nameLength);
 
-                                yield return new FileEntry(Encoding.ASCII.GetString(nameSpan), entryStream, fileEntry, true);
-                            }
-                            else
-                            {
-                                fileEntry.Content.Position += size - nameLength;
-                            }
+                            yield return new FileEntry(Encoding.ASCII.GetString(nameSpan), entryStream, fileEntry, true);
                         }
                     }
                     else if (filename.Equals('/'))
@@ -153,12 +147,9 @@ namespace Microsoft.CST.RecursiveExtractor
                                     filename = entry.Item2;
                                 }
                                 var fei = new FileEntryInfo(filename, fileEntry.FullPath, innerSize);
-                                if (options.Filter(fei))
-                                {
-                                    var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
-                                    CopyStreamBytes(fileEntry.Content, entryStream, innerSize);
-                                    yield return new FileEntry(filename, entryStream, fileEntry);
-                                }
+                                var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+                                CopyStreamBytes(fileEntry.Content, entryStream, innerSize);
+                                yield return new FileEntry(filename, entryStream, fileEntry);
                             }
                         }
                         fileEntry.Content.Position = fileEntry.Content.Length - 1;
@@ -227,12 +218,10 @@ namespace Microsoft.CST.RecursiveExtractor
                                     filename = innerEntry.Item2;
                                 }
                                 var fei = new FileEntryInfo(filename, fileEntry.FullPath, innerSize);
-                                if (options.Filter(fei))
-                                {
-                                    var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
-                                    CopyStreamBytes(fileEntry.Content, entryStream, innerSize);
-                                    yield return new FileEntry(filename, entryStream, fileEntry);
-                                }
+                                
+                                var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+                                CopyStreamBytes(fileEntry.Content, entryStream, innerSize);
+                                yield return new FileEntry(filename, entryStream, fileEntry);
                             }
                         }
                         fileEntry.Content.Position = fileEntry.Content.Length - 1;
@@ -250,32 +239,18 @@ namespace Microsoft.CST.RecursiveExtractor
                                 Logger.Debug("Expected to find a filename at index {0}", index);
                             }
                         }
-                        var fei = new FileEntryInfo(filename, fileEntry.FullPath, size);
-                        if (options.Filter(fei))
-                        {
-                            var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
-                            CopyStreamBytes(fileEntry.Content, entryStream, size);
-                            yield return new FileEntry(filename, entryStream, fileEntry);
-                        }
-                        else
-                        {
-                            fileEntry.Content.Position += size;
-                        }
-
+                        var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+                        CopyStreamBytes(fileEntry.Content, entryStream, size);
+                        yield return new FileEntry(filename, entryStream, fileEntry);
                     }
                     else
                     {
                         var fei = new FileEntryInfo(filename, fileEntry.FullPath, size);
-                        if (options.Filter(fei))
-                        {
-                            var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
-                            CopyStreamBytes(fileEntry.Content, entryStream, size);
-                            yield return new FileEntry(filename, entryStream, fileEntry, true);
-                        }
-                        else
-                        {
-                            fileEntry.Content.Position += size;
-                        }
+                        
+                        var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+                        CopyStreamBytes(fileEntry.Content, entryStream, size);
+                        yield return new FileEntry(filename, entryStream, fileEntry, true);
+                        
                     }
                 }
                 else
