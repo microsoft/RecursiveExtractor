@@ -36,7 +36,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
             if (rarArchive != null)
             {
-                var entries = rarArchive.Entries.Where(x => x.IsComplete && !x.IsDirectory && !x.IsEncrypted && options.Filter(new FileEntryInfo(x.Key, fileEntry.FullPath, x.Size)));
+                var entries = rarArchive.Entries.Where(x => x.IsComplete && !x.IsDirectory && !x.IsEncrypted);
                 if (options.Parallel)
                 {
                     var files = new ConcurrentStack<FileEntry>();

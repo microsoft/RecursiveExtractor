@@ -45,7 +45,11 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     var selectedEntries = fileEntries.Take(options.BatchSize);
                     selectedEntries.AsParallel().ForAll(arEntry =>
                     {
-                        tempStore.PushRange(Context.ExtractFile(arEntry, options, governor).ToArray());
+                        var entries = Context.ExtractFile(arEntry, options, governor);
+                        if (entries.Any())
+                        {
+                            tempStore.PushRange(entries.ToArray());
+                        }
                     });
 
                     fileEntries = fileEntries.Skip(selectedEntries.Count());

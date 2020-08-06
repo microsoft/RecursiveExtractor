@@ -41,32 +41,29 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         continue;
                     }
-                    var fei = new FileEntryInfo(tarEntry.Name, fileEntry.FullPath, tarEntry.Size);
-                    if (options.Filter(fei))
+                    
+                    var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+                    governor.CheckResourceGovernor(tarStream.Length);
+                    try
                     {
-                        var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
-                        governor.CheckResourceGovernor(tarStream.Length);
-                        try
-                        {
-                            tarStream.CopyEntryContents(fs);
-                        }
-                        catch (Exception e)
-                        {
-                            Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.TAR, fileEntry.FullPath, tarEntry.Name, e.GetType());
-                        }
+                        tarStream.CopyEntryContents(fs);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.TAR, fileEntry.FullPath, tarEntry.Name, e.GetType());
+                    }
 
-                        var newFileEntry = new FileEntry(tarEntry.Name, fs, fileEntry, true);
+                    var newFileEntry = new FileEntry(tarEntry.Name, fs, fileEntry, true);
 
-                        if (Extractor.IsQuine(newFileEntry))
-                        {
-                            Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                            throw new OverflowException();
-                        }
+                    if (Extractor.IsQuine(newFileEntry))
+                    {
+                        Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
+                        throw new OverflowException();
+                    }
 
-                        foreach (var extractedFile in Context.ExtractFile(newFileEntry, options, governor))
-                        {
-                            yield return extractedFile;
-                        }
+                    foreach (var extractedFile in Context.ExtractFile(newFileEntry, options, governor))
+                    {
+                        yield return extractedFile;
                     }
                 }
                 tarStream.Dispose();

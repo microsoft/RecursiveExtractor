@@ -50,7 +50,11 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                         selectedEntries.AsParallel().ForAll(entry =>
                         {
-                            files.PushRange(Context.ExtractFile(entry, options, governor).ToArray());
+                            var entries = Context.ExtractFile(entry, options, governor);
+                            if (entries.Any())
+                            {
+                                files.PushRange(entries.ToArray());
+                            }
                         });
 
                         entries = entries.Skip(batchSize);

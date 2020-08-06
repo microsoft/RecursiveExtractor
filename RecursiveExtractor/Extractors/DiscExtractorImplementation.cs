@@ -62,7 +62,10 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             {
                                 var newFileEntry = new FileEntry($"{volume.Identity}\\{file.Item1.FullName}", file.Item2, parent);
                                 var entries = GetContext().ExtractFile(newFileEntry, options, governor);
-                                files.PushRange(entries.ToArray());
+                                if (entries.Any())
+                                {
+                                    files.PushRange(entries.ToArray());
+                                }
                             }
                         });
                         diskFiles.RemoveRange(0, batchSize);

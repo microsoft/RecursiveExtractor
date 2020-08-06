@@ -43,13 +43,10 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         try
                         {
                             var fileInfo = cd.GetFileInfo(selectedFileName);
-                            var fei = new FileEntryInfo(fileInfo.FullName, fileEntry.FullPath, fileInfo.Length);
-                            if (options.Filter(fei))
-                            {
-                                var stream = fileInfo.OpenRead();
+                            
+                            var stream = fileInfo.OpenRead();
 
-                                fileInfoTuples.Add((fileInfo, stream));
-                            }
+                            fileInfoTuples.Add((fileInfo, stream));
                         }
                         catch (Exception e)
                         {
@@ -63,7 +60,10 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         var newFileEntry = new FileEntry(cdFile.Item1.Name, cdFile.Item2, fileEntry);
                         var entries = Context.ExtractFile(newFileEntry, options, governor);
-                        files.PushRange(entries.ToArray());
+                        if (entries.Any())
+                        {
+                            files.PushRange(entries.ToArray());
+                        }
                     });
 
                     entries = entries[batchSize..];
@@ -84,10 +84,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         try
                         {
                             var fei = new FileEntryInfo(fileInfo.Name, Path.Combine(fileEntry.FullPath, fileInfo.FullName), fileInfo.Length);
-                            if (options.Filter(fei))
-                            {
-                                stream = fileInfo.OpenRead();
-                            }
+                            stream = fileInfo.OpenRead();
                         }
                         catch (Exception e)
                         {

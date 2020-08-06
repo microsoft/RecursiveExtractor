@@ -38,7 +38,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             if (sevenZipArchive != null)
             {
-                var entries = sevenZipArchive.Entries.Where(x => !x.IsDirectory && !x.IsEncrypted && x.IsComplete && options.Filter(new FileEntryInfo(x.Key, fileEntry.FullPath, x.Size))).ToList();
+                var entries = sevenZipArchive.Entries.Where(x => !x.IsDirectory && !x.IsEncrypted && x.IsComplete).ToList();
 
                 if (options.Parallel)
                 {
