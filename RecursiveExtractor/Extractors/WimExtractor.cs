@@ -55,15 +55,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                                 {
                                     var info = image.GetFileInfo(file);
                                     var read = info.OpenRead();
-                                    var fei = new FileEntryInfo(info.FullName, fileEntry.FullPath, read.Length);
-                                    if (options.Filter(fei))
-                                    {
-                                        streamsAndNames.Add((info, read));
-                                    }
-                                    else
-                                    {
-                                        read.Dispose();
-                                    }
+                                    streamsAndNames.Add((info, read));
                                 }
                                 catch (Exception e)
                                 {
@@ -103,12 +95,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                                 var info = image.GetFileInfo(file);
                                 stream = info.OpenRead();
                                 governor.CheckResourceGovernor(info.Length);
-                                var fei = new FileEntryInfo(info.FullName, fileEntry.FullPath, stream.Length);
-                                if (!options.Filter(fei))
-                                {
-                                    stream.Dispose();
-                                    stream = null;
-                                }
                             }
                             catch (Exception e)
                             {

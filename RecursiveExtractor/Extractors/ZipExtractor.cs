@@ -53,10 +53,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             continue;
                         }
                         var fei = new FileEntryInfo(zipEntry.Name, fileEntry.FullPath, zipEntry.Size);
-                        if (options.Filter(fei))
-                        {
-                            zipEntries.Add(zipEntry);
-                        }
+                        zipEntries.Add(zipEntry);
                     }
 
                     while (zipEntries.Count > 0)

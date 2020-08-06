@@ -45,11 +45,8 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             {
                                 var fi = fs.GetFileInfo(r);
                                 totalLength += fi.Length;
-                                var fei = new FileEntryInfo(fi.FullName, parentPath, fi.Length);
-                                if (options.Filter(fei))
-                                {
-                                    fileinfos.Add((fi, fi.OpenRead()));
-                                }
+                                
+                                fileinfos.Add((fi, fi.OpenRead()));
                             }
                             catch (Exception e)
                             {
