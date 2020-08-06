@@ -4,10 +4,6 @@ namespace Microsoft.CST.RecursiveExtractor
 {
     public class ExtractorOptions
     {
-        /// <summary>
-        ///     The maximum number of items to take at once if parallelization is enabled
-        /// </summary>
-        public int BatchSize { get; set; } = 50;
 
         /// <summary>
         ///     Enable timing limit for processing.
@@ -36,11 +32,6 @@ namespace Microsoft.CST.RecursiveExtractor
         ///     (zip bombs and the like).
         /// </summary>
         public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(300);
-
-        /// <summary>
-        /// If parallelization is enabled
-        /// </summary>
-        public bool Parallel { get; set; }
 
         public PassFilter Filter = (FileEntryInfo _) => true;
     }

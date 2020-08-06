@@ -38,115 +38,41 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             if (zipFile != null)
             {
-                if (options.Parallel)
+                foreach (ZipEntry? zipEntry in zipFile)
                 {
-                    var files = new ConcurrentStack<FileEntry>();
-
-                    var zipEntries = new List<ZipEntry>();
-                    foreach (ZipEntry? zipEntry in zipFile)
+                    if (zipEntry is null ||
+                        zipEntry.IsDirectory ||
+                        zipEntry.IsCrypted ||
+                        !zipEntry.CanDecompress)
                     {
-                        if (zipEntry is null ||
-                            zipEntry.IsDirectory ||
-                            zipEntry.IsCrypted ||
-                            !zipEntry.CanDecompress)
-                        {
-                            continue;
-                        }
-                        var fei = new FileEntryInfo(zipEntry.Name, fileEntry.FullPath, zipEntry.Size);
-                        zipEntries.Add(zipEntry);
+                        continue;
                     }
 
-                    while (zipEntries.Count > 0)
+                    governor.CheckResourceGovernor(zipEntry.Size);
+
+                    using var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+                    try
                     {
-                        var batchSize = Math.Min(options.BatchSize, zipEntries.Count);
-                        var selectedEntries = zipEntries.GetRange(0, batchSize);
-                        governor.CheckResourceGovernor(selectedEntries.Sum(x => x.Size));
-                        try
-                        {
-                            selectedEntries.AsParallel().ForAll(zipEntry =>
-                            {
-                                try
-                                {
-                                    var zipStream = zipFile.GetInputStream(zipEntry);
-                                    var newFileEntry = new FileEntry(zipEntry.Name, zipStream, fileEntry);
-                                    if (Extractor.IsQuine(newFileEntry))
-                                    {
-                                        Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                                        governor.CurrentOperationProcessedBytesLeft = -1;
-                                    }
-                                    else
-                                    {
-                                        files.PushRange(Context.ExtractFile(newFileEntry, options, governor).ToArray());
-                                    }
-                                }
-                                catch (Exception e) when (e is OverflowException)
-                                {
-                                    Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.ZIP, fileEntry.FullPath, zipEntry.Name, e.GetType());
-                                    throw;
-                                }
-                                catch (Exception e)
-                                {
-                                    Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.ZIP, fileEntry.FullPath, zipEntry.Name, e.GetType());
-                                }
-                            });
-                        }
-                        catch (Exception e) when (e is AggregateException)
-                        {
-                            if (e.InnerException?.GetType() == typeof(OverflowException))
-                            {
-                                throw e.InnerException;
-                            }
-                            throw;
-                        }
-
-                        governor.CheckResourceGovernor(0);
-                        zipEntries.RemoveRange(0, batchSize);
-
-                        while (files.TryPop(out var result))
-                        {
-                            if (result != null)
-                                yield return result;
-                        }
+                        var buffer = new byte[BUFFER_SIZE];
+                        var zipStream = zipFile.GetInputStream(zipEntry);
+                        StreamUtils.Copy(zipStream, fs, buffer);
                     }
-                }
-                else
-                {
-                    foreach (ZipEntry? zipEntry in zipFile)
+                    catch (Exception e)
                     {
-                        if (zipEntry is null ||
-                            zipEntry.IsDirectory ||
-                            zipEntry.IsCrypted ||
-                            !zipEntry.CanDecompress)
-                        {
-                            continue;
-                        }
+                        Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.ZIP, fileEntry.FullPath, zipEntry.Name, e.GetType());
+                    }
 
-                        governor.CheckResourceGovernor(zipEntry.Size);
+                    var newFileEntry = new FileEntry(zipEntry.Name, fs, fileEntry);
 
-                        using var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
-                        try
-                        {
-                            var buffer = new byte[BUFFER_SIZE];
-                            var zipStream = zipFile.GetInputStream(zipEntry);
-                            StreamUtils.Copy(zipStream, fs, buffer);
-                        }
-                        catch (Exception e)
-                        {
-                            Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.ZIP, fileEntry.FullPath, zipEntry.Name, e.GetType());
-                        }
+                    if (Extractor.IsQuine(newFileEntry))
+                    {
+                        Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
+                        throw new OverflowException();
+                    }
 
-                        var newFileEntry = new FileEntry(zipEntry.Name, fs, fileEntry);
-
-                        if (Extractor.IsQuine(newFileEntry))
-                        {
-                            Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                            throw new OverflowException();
-                        }
-
-                        foreach (var extractedFile in Context.ExtractFile(newFileEntry, options, governor))
-                        {
-                            yield return extractedFile;
-                        }
+                    foreach (var extractedFile in Context.ExtractFile(newFileEntry, options, governor))
+                    {
+                        yield return extractedFile;
                     }
                 }
             }

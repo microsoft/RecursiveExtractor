@@ -37,74 +37,28 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             if (rarArchive != null)
             {
                 var entries = rarArchive.Entries.Where(x => x.IsComplete && !x.IsDirectory && !x.IsEncrypted);
-                if (options.Parallel)
+                foreach (var entry in entries)
                 {
-                    var files = new ConcurrentStack<FileEntry>();
-
-                    while (entries.Any())
+                    governor.CheckResourceGovernor(entry.Size);
+                    FileEntry? newFileEntry = null;
+                    try
                     {
-                        var batchSize = Math.Min(options.BatchSize, entries.Count());
-
-                        var streams = entries.Take(batchSize).Select(entry => (entry, entry.OpenEntryStream())).ToList();
-
-                        governor.CheckResourceGovernor(streams.Sum(x => x.Item2.Length));
-
-                        streams.AsParallel().ForAll(streampair =>
-                        {
-                            try
-                            {
-                                var newFileEntry = new FileEntry(streampair.entry.Key, streampair.Item2, fileEntry);
-                                if (Extractor.IsQuine(newFileEntry))
-                                {
-                                    Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                                    governor.CurrentOperationProcessedBytesLeft = -1;
-                                }
-                                else
-                                {
-                                    files.PushRange(Context.ExtractFile(newFileEntry, options, governor).ToArray());
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.RAR, fileEntry.FullPath, streampair.entry.Key, e.GetType());
-                            }
-                        });
-                        governor.CheckResourceGovernor(0);
-
-                        entries = entries.Skip(streams.Count);
-
-                        while (files.TryPop(out var result))
-                        {
-                            if (result != null)
-                                yield return result;
-                        }
+                        newFileEntry = new FileEntry(entry.Key, entry.OpenEntryStream(), fileEntry);
                     }
-                }
-                else
-                {
-                    foreach (var entry in entries)
+                    catch (Exception e)
                     {
-                        governor.CheckResourceGovernor(entry.Size);
-                        FileEntry? newFileEntry = null;
-                        try
+                        Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.RAR, fileEntry.FullPath, entry.Key, e.GetType());
+                    }
+                    if (newFileEntry != null)
+                    {
+                        if (Extractor.IsQuine(newFileEntry))
                         {
-                            newFileEntry = new FileEntry(entry.Key, entry.OpenEntryStream(), fileEntry);
+                            Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
+                            throw new OverflowException();
                         }
-                        catch (Exception e)
+                        foreach (var extractedFile in Context.ExtractFile(newFileEntry, options, governor))
                         {
-                            Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.RAR, fileEntry.FullPath, entry.Key, e.GetType());
-                        }
-                        if (newFileEntry != null)
-                        {
-                            if (Extractor.IsQuine(newFileEntry))
-                            {
-                                Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                                throw new OverflowException();
-                            }
-                            foreach (var extractedFile in Context.ExtractFile(newFileEntry, options, governor))
-                            {
-                                yield return extractedFile;
-                            }
+                            yield return extractedFile;
                         }
                     }
                 }

@@ -39,29 +39,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             if (fileEntries != null)
             {
-                if (options.Parallel)
-                {
-                    var tempStore = new ConcurrentStack<FileEntry>();
-                    var selectedEntries = fileEntries.Take(options.BatchSize);
-                    selectedEntries.AsParallel().ForAll(arEntry =>
-                    {
-                        var entries = Context.ExtractFile(arEntry, options, governor);
-                        if (entries.Any())
-                        {
-                            tempStore.PushRange(entries.ToArray());
-                        }
-                    });
-
-                    fileEntries = fileEntries.Skip(selectedEntries.Count());
-
-                    while (tempStore.TryPop(out var result))
-                    {
-                        if (result != null)
-                            yield return result;
-                    }
-                }
-                else
-                {
+                
                     foreach (var entry in fileEntries)
                     {
                         foreach (var extractedFile in Context.ExtractFile(entry, options, governor))
@@ -69,7 +47,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             yield return extractedFile;
                         }
                     }
-                }
             }
             else
             {

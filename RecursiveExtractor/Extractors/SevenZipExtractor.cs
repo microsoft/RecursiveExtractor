@@ -40,79 +40,19 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             {
                 var entries = sevenZipArchive.Entries.Where(x => !x.IsDirectory && !x.IsEncrypted && x.IsComplete).ToList();
 
-                if (options.Parallel)
+                foreach (var entry in entries)
                 {
-                    var files = new ConcurrentStack<FileEntry>();
+                    governor.CheckResourceGovernor(entry.Size);
+                    var newFileEntry = new FileEntry(entry.Key, entry.OpenEntryStream(), fileEntry);
 
-                    while (entries.Count() > 0)
+                    if (Extractor.IsQuine(newFileEntry))
                     {
-                        var batchSize = Math.Min(options.BatchSize, entries.Count());
-                        var selectedEntries = entries.GetRange(0, batchSize).Select(entry => (entry, entry.OpenEntryStream()));
-                        governor.CheckResourceGovernor(selectedEntries.Sum(x => x.entry.Size));
-
-                        try
-                        {
-                            selectedEntries.AsParallel().ForAll(entry =>
-                            {
-                                try
-                                {
-                                    var newFileEntry = new FileEntry(entry.entry.Key, entry.Item2, fileEntry);
-                                    if (Extractor.IsQuine(newFileEntry))
-                                    {
-                                        Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                                        governor.CurrentOperationProcessedBytesLeft = -1;
-                                    }
-                                    else
-                                    {
-                                        files.PushRange(Extractor.ExtractFile(newFileEntry, options, governor).ToArray());
-                                    }
-                                }
-                                catch (Exception e) when (e is OverflowException)
-                                {
-                                    Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.P7ZIP, fileEntry.FullPath, entry.entry.Key, e.GetType());
-                                    throw;
-                                }
-                                catch (Exception e)
-                                {
-                                    Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.P7ZIP, fileEntry.FullPath, entry.entry.Key, e.GetType());
-                                }
-                            });
-                        }
-                        catch (Exception e) when (e is AggregateException)
-                        {
-                            if (e.InnerException?.GetType() == typeof(OverflowException))
-                            {
-                                throw e.InnerException;
-                            }
-                            throw;
-                        }
-
-                        governor.CheckResourceGovernor(0);
-                        entries.RemoveRange(0, batchSize);
-
-                        while (files.TryPop(out var result))
-                        {
-                            if (result != null)
-                                yield return result;
-                        }
+                        Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
+                        throw new OverflowException();
                     }
-                }
-                else
-                {
-                    foreach (var entry in entries)
+                    foreach (var extractedFile in Extractor.ExtractFile(newFileEntry, options, governor))
                     {
-                        governor.CheckResourceGovernor(entry.Size);
-                        var newFileEntry = new FileEntry(entry.Key, entry.OpenEntryStream(), fileEntry);
-
-                        if (Extractor.IsQuine(newFileEntry))
-                        {
-                            Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                            throw new OverflowException();
-                        }
-                        foreach (var extractedFile in Extractor.ExtractFile(newFileEntry, options, governor))
-                        {
-                            yield return extractedFile;
-                        }
+                        yield return extractedFile;
                     }
                 }
             }

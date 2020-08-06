@@ -30,52 +30,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             var entries = cd.GetFiles(cd.Root.FullName, "*.*", SearchOption.AllDirectories);
             if (entries != null)
             {
-                if (options.Parallel)
-                {
-                    var files = new ConcurrentStack<FileEntry>();
-
-                    var batchSize = Math.Min(options.BatchSize, entries.Length);
-                    var selectedFileNames = entries[0..batchSize];
-                    var fileInfoTuples = new List<(DiscFileInfo, Stream)>();
-
-                    foreach (var selectedFileName in selectedFileNames)
-                    {
-                        try
-                        {
-                            var fileInfo = cd.GetFileInfo(selectedFileName);
-                            
-                            var stream = fileInfo.OpenRead();
-
-                            fileInfoTuples.Add((fileInfo, stream));
-                        }
-                        catch (Exception e)
-                        {
-                            Logger.Debug("Failed to get FileInfo or OpenStream from {0} in ISO {1} ({2}:{3})", selectedFileName, fileEntry.FullPath, e.GetType(), e.Message);
-                        }
-                    }
-
-                    governor.CheckResourceGovernor(fileInfoTuples.Sum(x => x.Item1.Length));
-
-                    fileInfoTuples.AsParallel().ForAll(cdFile =>
-                    {
-                        var newFileEntry = new FileEntry(cdFile.Item1.Name, cdFile.Item2, fileEntry);
-                        var entries = Context.ExtractFile(newFileEntry, options, governor);
-                        if (entries.Any())
-                        {
-                            files.PushRange(entries.ToArray());
-                        }
-                    });
-
-                    entries = entries[batchSize..];
-
-                    while (files.TryPop(out var result))
-                    {
-                        if (result != null)
-                            yield return result;
-                    }
-                }
-                else
-                {
                     foreach (var file in entries)
                     {
                         var fileInfo = cd.GetFileInfo(file);
@@ -100,7 +54,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             }
                         }
                     }
-                }
             }
             else
             {

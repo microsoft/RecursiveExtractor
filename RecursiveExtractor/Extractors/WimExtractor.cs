@@ -36,79 +36,30 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             if (baseFile != null)
             {
-                if (options.Parallel)
+                for (var i = 0; i < baseFile.ImageCount; i++)
                 {
-                    var files = new ConcurrentStack<FileEntry>();
-
-                    for (var i = 0; i < baseFile.ImageCount; i++)
+                    var image = baseFile.GetImage(i);
+                    foreach (var file in image.GetFiles(image.Root.FullName, "*.*", SearchOption.AllDirectories))
                     {
-                        var image = baseFile.GetImage(i);
-                        var fileList = image.GetFiles(image.Root.FullName, "*.*", SearchOption.AllDirectories).ToList();
-                        while (fileList.Count > 0)
+                        Stream? stream = null;
+                        try
                         {
-                            var batchSize = Math.Min(options.BatchSize, fileList.Count);
-                            var range = fileList.Take(batchSize);
-                            var streamsAndNames = new List<(DiscFileInfo, Stream)>();
-                            foreach (var file in range)
-                            {
-                                try
-                                {
-                                    var info = image.GetFileInfo(file);
-                                    var read = info.OpenRead();
-                                    streamsAndNames.Add((info, read));
-                                }
-                                catch (Exception e)
-                                {
-                                    Logger.Debug("Error reading {0} from WIM {1} ({2}:{3})", file, image.FriendlyName, e.GetType(), e.Message);
-                                }
-                            }
-                            governor.CheckResourceGovernor(streamsAndNames.Sum(x => x.Item1.Length));
-                            streamsAndNames.AsParallel().ForAll(file =>
-                            {
-                                var newFileEntry = new FileEntry($"{image.FriendlyName}\\{file.Item1.FullName}", file.Item2, fileEntry);
-                                var entries = Context.ExtractFile(newFileEntry, options, governor);
-                                if (entries.Any())
-                                {
-                                    files.PushRange(entries.ToArray());
-                                }
-                            });
-                            fileList.RemoveRange(0, batchSize);
-
-                            while (files.TryPop(out var result))
-                            {
-                                if (result != null)
-                                    yield return result;
-                            }
+                            var info = image.GetFileInfo(file);
+                            stream = info.OpenRead();
+                            governor.CheckResourceGovernor(info.Length);
                         }
-                    }
-                }
-                else
-                {
-                    for (var i = 0; i < baseFile.ImageCount; i++)
-                    {
-                        var image = baseFile.GetImage(i);
-                        foreach (var file in image.GetFiles(image.Root.FullName, "*.*", SearchOption.AllDirectories))
+                        catch (Exception e)
                         {
-                            Stream? stream = null;
-                            try
+                            Logger.Debug("Error reading {0} from WIM {1} ({2}:{3})", file, image.FriendlyName, e.GetType(), e.Message);
+                        }
+                        if (stream != null)
+                        {
+                            var newFileEntry = new FileEntry($"{image.FriendlyName}\\{file}", stream, fileEntry);
+                            foreach (var entry in Context.ExtractFile(newFileEntry, options, governor))
                             {
-                                var info = image.GetFileInfo(file);
-                                stream = info.OpenRead();
-                                governor.CheckResourceGovernor(info.Length);
+                                yield return entry;
                             }
-                            catch (Exception e)
-                            {
-                                Logger.Debug("Error reading {0} from WIM {1} ({2}:{3})", file, image.FriendlyName, e.GetType(), e.Message);
-                            }
-                            if (stream != null)
-                            {
-                                var newFileEntry = new FileEntry($"{image.FriendlyName}\\{file}", stream, fileEntry);
-                                foreach (var entry in Context.ExtractFile(newFileEntry, options, governor))
-                                {
-                                    yield return entry;
-                                }
-                                stream.Dispose();
-                            }
+                            stream.Dispose();
                         }
                     }
                 }
