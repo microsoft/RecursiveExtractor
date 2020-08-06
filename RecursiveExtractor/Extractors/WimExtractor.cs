@@ -53,7 +53,8 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         }
                         if (stream != null)
                         {
-                            var newFileEntry = await FileEntry.FromStreamAsync($"{image.FriendlyName}\\{file}", stream, fileEntry);
+                            var name = file.Replace('\\', Path.DirectorySeparatorChar);
+                            var newFileEntry = await FileEntry.FromStreamAsync($"{image.FriendlyName}{Path.DirectorySeparatorChar}{name}", stream, fileEntry);
                             await foreach (var entry in Context.ExtractFileAsync(newFileEntry, options, governor))
                             {
                                 yield return entry;
@@ -108,7 +109,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         }
                         if (stream != null)
                         {
-                            var newFileEntry = new FileEntry($"{image.FriendlyName}\\{file}", stream, fileEntry);
+                            var name = file.Replace('\\', Path.DirectorySeparatorChar);
+
+                            var newFileEntry = new FileEntry($"{image.FriendlyName}{Path.DirectorySeparatorChar}{name}", stream, fileEntry);
                             foreach (var entry in Context.ExtractFile(newFileEntry, options, governor))
                             {
                                 yield return entry;

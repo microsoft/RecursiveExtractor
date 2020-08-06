@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
@@ -39,7 +40,8 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 foreach (var entry in entries)
                 {
                     governor.CheckResourceGovernor(entry.Size);
-                    FileEntry newFileEntry = await FileEntry.FromStreamAsync(entry.Key, entry.OpenEntryStream(), fileEntry);
+                    var name = entry.Key.Replace('/', Path.DirectorySeparatorChar);
+                    FileEntry newFileEntry = await FileEntry.FromStreamAsync(name, entry.OpenEntryStream(), fileEntry);
                     if (newFileEntry != null)
                     {
                         if (Extractor.IsQuine(newFileEntry))
@@ -89,7 +91,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     FileEntry? newFileEntry = null;
                     try
                     {
-                        newFileEntry = new FileEntry(entry.Key, entry.OpenEntryStream(), fileEntry);
+                        var name = entry.Key.Replace('/', Path.DirectorySeparatorChar);
+
+                        newFileEntry = new FileEntry(name, entry.OpenEntryStream(), fileEntry);
                     }
                     catch (Exception e)
                     {

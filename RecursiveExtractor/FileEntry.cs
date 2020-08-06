@@ -36,7 +36,7 @@ namespace Microsoft.CST.RecursiveExtractor
             else
             {
                 ParentPath = parent.FullPath;
-                FullPath = $"{ParentPath}/{Name}";
+                FullPath = $"{ParentPath}{Path.DirectorySeparatorChar}{Name}";
             }
 
             if (inputStream == null)
@@ -137,7 +137,7 @@ namespace Microsoft.CST.RecursiveExtractor
             else
             {
                 ParentPath = parent.FullPath;
-                FullPath = $"{ParentPath}/{name}";
+                FullPath = $"{ParentPath}{Path.DirectorySeparatorChar}{name}";
             }
             // Back with a temporary filestream, this is optimized to be cached in memory when possible
             // automatically by .NET

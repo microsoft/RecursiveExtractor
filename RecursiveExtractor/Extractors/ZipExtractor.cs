@@ -61,7 +61,8 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.ZIP, fileEntry.FullPath, zipEntry.Name, e.GetType());
                     }
 
-                    var newFileEntry = new FileEntry(zipEntry.Name, fs, fileEntry);
+                    var name = zipEntry.Name.Replace('/', Path.DirectorySeparatorChar);
+                    var newFileEntry = new FileEntry(name, fs, fileEntry);
 
                     if (Extractor.IsQuine(newFileEntry))
                     {
@@ -118,8 +119,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.ZIP, fileEntry.FullPath, zipEntry.Name, e.GetType());
                     }
+                    var name = zipEntry.Name.Replace('/', Path.DirectorySeparatorChar);
 
-                    var newFileEntry = new FileEntry(zipEntry.Name, fs, fileEntry);
+                    var newFileEntry = new FileEntry(name, fs, fileEntry);
 
                     if (Extractor.IsQuine(newFileEntry))
                     {

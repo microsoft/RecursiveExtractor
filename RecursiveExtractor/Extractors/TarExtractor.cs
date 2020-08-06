@@ -52,7 +52,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.TAR, fileEntry.FullPath, tarEntry.Name, e.GetType());
                     }
 
-                    var newFileEntry = new FileEntry(tarEntry.Name, fs, fileEntry, true);
+                    var name = tarEntry.Name.Replace('/', Path.DirectorySeparatorChar);
+
+                    var newFileEntry = new FileEntry(name, fs, fileEntry, true);
 
                     if (Extractor.IsQuine(newFileEntry))
                     {
@@ -112,8 +114,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.TAR, fileEntry.FullPath, tarEntry.Name, e.GetType());
                     }
+                    var name = tarEntry.Name.Replace('/', Path.DirectorySeparatorChar);
 
-                    var newFileEntry = new FileEntry(tarEntry.Name, fs, fileEntry, true);
+                    var newFileEntry = new FileEntry(name, fs, fileEntry, true);
 
                     if (Extractor.IsQuine(newFileEntry))
                     {
