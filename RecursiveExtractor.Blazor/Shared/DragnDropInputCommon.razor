@@ -138,7 +138,7 @@
             var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
             await pair.Stream.CopyToAsync(entryStream);
 
-            var entry = await FileEntry.FromStreamAsync(pair.FileInfo.Name, entryStream);
+            var entry = await FileEntry.FromStreamAsync(pair.FileInfo.Name, entryStream, null);
             var type = MiniMagic.DetectFileType(entry);
             switch (type)
             {
@@ -149,8 +149,8 @@
                     Output += $"{type} is not supported in the GUI, but is supported in the full RecursiveExtractor library.";
                     break;
                 default:
-                    var entries = extractor.ExtractStreamAsync(entry., entryStream, options);
-                    await foreach (var entry in entries)
+                    var entries = extractor.ExtractStreamAsync(entry.FullPath, entryStream, options);
+                    await foreach (var foundEntry in entries)
                     {
                         appData.GuidToFileEntryMap[Guid.NewGuid().ToString()] = foundEntry;
                         NumFilesExtracted++;

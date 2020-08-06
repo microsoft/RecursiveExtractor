@@ -121,7 +121,7 @@ namespace Microsoft.CST.RecursiveExtractor
 
         public bool Passthrough { get; }
 
-        internal static async Task<FileEntry> FromStreamAsync(string name, Stream content, FileEntry? parent)
+        public static async Task<FileEntry> FromStreamAsync(string name, Stream content, FileEntry? parent)
         {
             if (!content.CanRead || content == null)
             {
