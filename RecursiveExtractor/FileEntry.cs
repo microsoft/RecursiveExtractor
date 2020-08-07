@@ -110,16 +110,15 @@ namespace Microsoft.CST.RecursiveExtractor
         public string Name { get; }
         public FileEntry? Parent { get; }
         public string? ParentPath { get; }
+        internal bool Passthrough { get; }
 
+        public bool DisposeOnFinalize { get; set; } = true;
         ~FileEntry()
         {
-            if (!Passthrough)
-            {
+            if (DisposeOnFinalize){
                 Content?.Dispose();
             }
         }
-
-        public bool Passthrough { get; }
 
         public static async Task<FileEntry> FromStreamAsync(string name, Stream content, FileEntry? parent)
         {
@@ -127,11 +126,10 @@ namespace Microsoft.CST.RecursiveExtractor
             {
                 content = new MemoryStream();
             }
-            string? ParentPath = null;
-            string FullPath = string.Empty;
+            string? ParentPath;
+            string FullPath;
             if (parent == null)
             {
-                ParentPath = null;
                 FullPath = name;
             }
             else
