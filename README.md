@@ -40,9 +40,21 @@ catch(OverflowException)
 }
 ```
 
+## FileEntry
+
+The Extractor returns `FileEntry` objects.  These objects contain a `Content` Stream of the file contents.
+
+```csharp
+public Stream Content { get; }
+public string FullPath { get; }
+public string Name { get; }
+public FileEntry? Parent { get; }
+public string? ParentPath { get; }
+```
+
 ## Advanced Usage
 
-You can pass a delegate to process only filtered files.
+You can pass a `delegate` to process only filtered files.
 
 ```csharp
 public delegate bool PassFilter(FileEntryInfo fileEntryInfo);
