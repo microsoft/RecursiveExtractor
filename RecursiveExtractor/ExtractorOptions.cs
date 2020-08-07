@@ -4,6 +4,10 @@ namespace Microsoft.CST.RecursiveExtractor
 {
     public class ExtractorOptions
     {
+        /// <summary>
+        /// Maximum number of bytes before using a FileStream
+        /// </summary>
+        public int MemoryStreamCutoff { get; set; } = 1024 * 1024;
 
         /// <summary>
         ///     Enable timing limit for processing.

@@ -1,10 +1,12 @@
 ﻿using DiscUtils;
 using DiscUtils.Iso9660;
+using SharpCompress.Common;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
@@ -26,12 +28,12 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
             using var cd = new CDReader(fileEntry.Content, true);
-            var entries = cd.GetFiles(cd.Root.FullName, "*.*", SearchOption.AllDirectories);
+            var entries = cd.Root.GetFiles("*.*", SearchOption.AllDirectories);
             if (entries != null)
             {
                 foreach (var file in entries)
                 {
-                    var fileInfo = cd.GetFileInfo(file);
+                    var fileInfo = file;
                     governor.CheckResourceGovernor(fileInfo.Length);
                     Stream? stream = null;
                     try
@@ -72,7 +74,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
             using var cd = new CDReader(fileEntry.Content, true);
-            var entries = cd.GetFiles(cd.Root.FullName, "*.*", SearchOption.AllDirectories);
+            var entries = cd.Root.GetFiles("*.*", SearchOption.AllDirectories);
             if (entries != null)
             {
                 if (options.Parallel)
@@ -121,31 +123,30 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 }
                 else
                 {
-                    foreach (var file in entries)
-                    {
-                        var fileInfo = cd.GetFileInfo(file);
-                        governor.CheckResourceGovernor(fileInfo.Length);
-                        Stream? stream = null;
-                        try
-                        {
-                            var fei = new FileEntryInfo(fileInfo.Name, Path.Combine(fileEntry.FullPath, fileInfo.FullName), fileInfo.Length);
-                            stream = fileInfo.OpenRead();
-                        }
-                        catch (Exception e)
-                        {
-                            Logger.Debug("Failed to extract {0} from ISO {1}. ({2}:{3})", fileInfo.Name, fileEntry.FullPath, e.GetType(), e.Message);
-                        }
-                        if (stream != null)
-                        {
-                            var name = fileInfo.Name.Replace('/', Path.DirectorySeparatorChar);
-                            var newFileEntry = new FileEntry(name, stream, fileEntry);
-                            var innerEntries = Context.ExtractFile(newFileEntry, options, governor);
-                            foreach (var entry in innerEntries)
-                            {
-                                yield return entry;
-                            }
-                        }
-                    }
+                  foreach (var file in entries)
+                  {
+                      var fileInfo = file;
+                      governor.CheckResourceGovernor(fileInfo.Length);
+                      Stream? stream = null;
+                      try
+                      {
+                          stream = fileInfo.OpenRead();
+                      }
+                      catch (Exception e)
+                      {
+                          Logger.Debug("Failed to extract {0} from ISO {1}. ({2}:{3})", fileInfo.Name, fileEntry.FullPath, e.GetType(), e.Message);
+                      }
+                      if (stream != null)
+                      {
+                          var name = fileInfo.Name.Replace('/', Path.DirectorySeparatorChar);
+                          var newFileEntry = new FileEntry(name, stream, fileEntry);
+                          var innerEntries = Context.ExtractFile(newFileEntry, options, governor);
+                          foreach (var entry in innerEntries)
+                          {
+                              yield return entry;
+                          }
+                      }
+                  }
                 }
             }
             else
