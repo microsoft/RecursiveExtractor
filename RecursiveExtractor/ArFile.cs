@@ -9,14 +9,19 @@ using System.Threading.Tasks;
 
 namespace Microsoft.CST.RecursiveExtractor
 {
-    /**
-     * Gnu Ar file parser.  Supports SystemV style lookup tables in both 32 and 64 bit mode as well as BSD and GNU formatted .ars.
-     */
 
+    /// <summary>
+    ///  Ar file parser.  Supports SystemV style lookup tables in both 32 and 64 bit mode as well as BSD and GNU formatted .ars.
+    /// </summary>
     public static class ArFile
     {
-        // Simple method which returns a the file entries. We can't make this a continuation because we're
-        // using spans.
+        /// <summary>
+        /// Get the FileEntries contained in the FileEntry representing an Ar file
+        /// </summary>
+        /// <param name="fileEntry">The FileEntry to parse</param>
+        /// <param name="options">The ExtractorOptions</param>
+        /// <param name="governor">The RsourceGovernor to use</param>
+        /// <returns>The FileEntries found.</returns>
         public static IEnumerable<FileEntry> GetFileEntries(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
             if (fileEntry == null)
@@ -271,7 +276,14 @@ namespace Microsoft.CST.RecursiveExtractor
             }
         }
 
-        internal static async IAsyncEnumerable<FileEntry> GetFileEntriesAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        /// <summary>
+        /// Get the FileEntries contained in the FileEntry representing an Ar file
+        /// </summary>
+        /// <param name="fileEntry">The FileEntry to parse</param>
+        /// <param name="options">The ExtractorOptions</param>
+        /// <param name="governor">The RsourceGovernor to use</param>
+        /// <returns>The FileEntries found.</returns>
+        public static async IAsyncEnumerable<FileEntry> GetFileEntriesAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
             if (fileEntry == null)
             {

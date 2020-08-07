@@ -5,8 +5,15 @@ using System.Linq;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
+    /// <summary>
+    /// The Deb Archive extractor implementation
+    /// </summary>
     public class DebExtractor : AsyncExtractorInterface
     {
+        /// <summary>
+        /// The constructor takes the Extractor context for recursion.
+        /// </summary>
+        /// <param name="context">The Extractor context.</param>
         public DebExtractor(Extractor context)
         {
             Context = context;

@@ -274,11 +274,7 @@ namespace Microsoft.CST.RecursiveExtractor
             var type = MiniMagic.DetectFileType(fileEntry);
             if (type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type))
             {
-                var fei = new FileEntryInfo(fileEntry.Name, fileEntry.FullPath, fileEntry.Content.Length);
-                if (options.Filter(fei))
-                {
-                    yield return await FileEntry.FromStreamAsync(fileEntry.Name, fileEntry.Content, fileEntry.Parent);
-                }
+                yield return fileEntry;
             }
             else
             {
@@ -317,14 +313,10 @@ namespace Microsoft.CST.RecursiveExtractor
                 if (type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type))
                 {
                     useRaw = true;
-                    var fei = new FileEntryInfo(fileEntry.Name, fileEntry.FullPath, fileEntry.Content.Length);
-                    if (options.Filter(fei))
+                    result = new[]
                     {
-                        result = new[]
-                        {
-                            fileEntry
-                        };
-                    }
+                        fileEntry
+                    };
                 }
                 else
                 {

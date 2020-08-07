@@ -7,8 +7,15 @@ using System.Linq;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
+    /// <summary>
+    /// The WIM Image Extractor Implementation
+    /// </summary>
     public class WimExtractor : AsyncExtractorInterface
     {
+        /// <summary>
+        /// The constructor takes the Extractor context for recursion.
+        /// </summary>
+        /// <param name="context">The Extractor context.</param>
         public WimExtractor(Extractor context)
         {
             Context = context;

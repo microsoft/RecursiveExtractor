@@ -5,8 +5,15 @@ using System.IO;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
+    /// <summary>
+    /// The Gzip extractor implementation
+    /// </summary>
     public class GzipExtractor : AsyncExtractorInterface
     {
+        /// <summary>
+        /// The constructor takes the Extractor context for recursion.
+        /// </summary>
+        /// <param name="context">The Extractor context.</param>
         public GzipExtractor(Extractor context)
         {
             Context = context;

@@ -94,7 +94,7 @@ namespace Microsoft.CST.RecursiveExtractor
         ///     Detects the type of a file.
         /// </summary>
         /// <param name="fileEntry"> FileEntry containing the file data. </param>
-        /// <returns> </returns>
+        /// <returns>The ArchiveFileType detected</returns>
         public static ArchiveFileType DetectFileType(FileEntry fileEntry)
         {
             if (fileEntry == null)

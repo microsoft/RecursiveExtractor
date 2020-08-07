@@ -140,6 +140,13 @@ namespace Microsoft.CST.RecursiveExtractor
             }
         }
 
+        /// <summary>
+        /// Construct a FileEntry from a Stream Asynchronously
+        /// </summary>
+        /// <param name="name">Name of the FileEntry</param>
+        /// <param name="content">The Stream to parse</param>
+        /// <param name="parent">The Parent FileEntry</param>
+        /// <returns>A FileEntry object holding a Copy of the Stream</returns>
         public static async Task<FileEntry> FromStreamAsync(string name, Stream content, FileEntry? parent)
         {
             if (!content.CanRead || content == null)

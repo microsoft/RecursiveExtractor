@@ -7,8 +7,15 @@ using System.Linq;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
+    /// <summary>
+    /// The RAR Archive extractor implementation
+    /// </summary>
     public class RarExtractor : AsyncExtractorInterface
     {
+        /// <summary>
+        /// The constructor takes the Extractor context for recursion.
+        /// </summary>
+        /// <param name="context">The Extractor context.</param>
         public RarExtractor(Extractor context)
         {
             Context = context;

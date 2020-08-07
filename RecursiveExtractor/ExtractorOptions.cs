@@ -2,6 +2,9 @@
 
 namespace Microsoft.CST.RecursiveExtractor
 {
+    /// <summary>
+    /// Holder of options for the Extractor.
+    /// </summary>
     public class ExtractorOptions
     {
         /// <summary>

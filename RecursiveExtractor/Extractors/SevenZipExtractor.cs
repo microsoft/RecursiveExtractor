@@ -8,8 +8,15 @@ using System.Linq;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
+    /// <summary>
+    /// The 7Zip extractor implementation
+    /// </summary>
     public class SevenZipExtractor : AsyncExtractorInterface
     {
+        /// <summary>
+        /// The constructor takes the Extractor context for recursion.
+        /// </summary>
+        /// <param name="context">The Extractor context.</param>
         public SevenZipExtractor(Extractor extractor)
         {
             Context = extractor;

@@ -10,8 +10,15 @@ using System.Threading.Tasks;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
+    /// <summary>
+    /// The ISO disc image extractor implementation.
+    /// </summary>
     public class IsoExtractor : AsyncExtractorInterface
     {
+        /// <summary>
+        /// The constructor takes the Extractor context for recursion.
+        /// </summary>
+        /// <param name="context">The Extractor context.</param>
         public IsoExtractor(Extractor context)
         {
             Context = context;

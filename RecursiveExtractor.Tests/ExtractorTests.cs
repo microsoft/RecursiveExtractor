@@ -135,52 +135,6 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         }
 
         [DataTestMethod]
-        [DataRow("Shared.zip")]
-        [DataRow("Shared.7z")]
-        [DataRow("Shared.Tar")]
-        [DataRow("Shared.rar")]
-        [DataRow("Shared.rar4")]
-        [DataRow("Shared.tar.bz2")]
-        [DataRow("Shared.tar.gz")]
-        [DataRow("Shared.tar.xz")]
-        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 3, 5)]
-        [DataRow("Shared.a", 1, 0)]
-        [DataRow("Shared.deb", 24, 3)]
-        [DataRow("Shared.ar", 23, 3)]
-        [DataRow("Shared.iso")]
-        [DataRow("Shared.vhd", 24, 5)] // 26 + Some invisible system files
-        [DataRow("Shared.vhdx")]
-        [DataRow("Shared.wim")]
-        [DataRow("Empty.vmdk", 0, 0)]
-        [DataRow("TextFile.md", 1, 0)]
-        public void TestPassFilter(string fileName, int expectedHighPass = 24, int expectedLowPass = 2)
-        {
-            var extractor = new Extractor();
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
-            using var stream = new FileStream(path, FileMode.Open);
-            var extractorOptions = new ExtractorOptions()
-            {
-                Filter = SizeGreaterThan1000
-            };
-            var extractorOptionsLambda = new ExtractorOptions()
-            {
-                Filter = (FileEntryInfo fei) => fei.Size <= 1000
-            };
-            var results = extractor.ExtractStream(path, stream, extractorOptions).ToList();
-            var invertResults = extractor.ExtractStream(path, stream, extractorOptionsLambda).ToList();
-            Assert.AreEqual(expectedHighPass, results.Count);
-            Assert.IsTrue(results.All(x => x.Content.Length > 1000));
-            Assert.AreEqual(expectedLowPass, invertResults.Count);
-            Assert.IsTrue(invertResults.All(x => x.Content.Length <= 1000));
-            stream.Close();
-        }
-
-        private bool SizeGreaterThan1000(FileEntryInfo fei)
-        {
-            return fei.Size > 1000;
-        }
-
-        [DataTestMethod]
         [DataRow("Shared.zip", ArchiveFileType.ZIP)]
         [DataRow("Shared.7z", ArchiveFileType.P7ZIP)]
         [DataRow("Shared.Tar", ArchiveFileType.TAR)]

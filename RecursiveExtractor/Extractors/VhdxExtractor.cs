@@ -5,8 +5,15 @@ using System.Collections.Generic;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
+    /// <summary>
+    /// The VHDX Extractor Implementation
+    /// </summary>
     public class VhdxExtractor : AsyncExtractorInterface
     {
+        /// <summary>
+        /// The constructor takes the Extractor context for recursion.
+        /// </summary>
+        /// <param name="context">The Extractor context.</param>
         public VhdxExtractor(Extractor context)
         {
             Context = context;

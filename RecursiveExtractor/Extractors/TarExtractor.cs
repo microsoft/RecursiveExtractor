@@ -5,8 +5,15 @@ using System.IO;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
+    /// <summary>
+    /// The Tar archive extractor implementation
+    /// </summary>
     public class TarExtractor : AsyncExtractorInterface
     {
+        /// <summary>
+        /// The constructor takes the Extractor context for recursion.
+        /// </summary>
+        /// <param name="context">The Extractor context.</param>
         public TarExtractor(Extractor context)
         {
             Context = context;

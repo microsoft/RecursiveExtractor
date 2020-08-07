@@ -8,10 +8,23 @@ using System.Text;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
+    /// <summary>
+    /// Common crawler for some disc formats
+    /// </summary>
     public static class DiscCommon
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
+        /// <summary>
+        /// Dump the FileEntries from a Logical Volume asynchronously
+        /// </summary>
+        /// <param name="volume">The Volume to dump</param>
+        /// <param name="parentPath">The Path to the parent Disc</param>
+        /// <param name="options">Extractor Options to use</param>
+        /// <param name="governor">Resource Governor to use</param>
+        /// <param name="Context">Extractor context to use</param>
+        /// <param name="parent">The Parent FilEntry</param>
+        /// <returns></returns>
         public static async IAsyncEnumerable<FileEntry> DumpLogicalVolumeAsync(LogicalVolumeInfo volume, string parentPath, ExtractorOptions options, ResourceGovernor governor, Extractor Context, FileEntry? parent = null)
         {
             DiscUtils.FileSystemInfo[]? fsInfos = null;
@@ -55,7 +68,16 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
         }
 
-
+        /// <summary>
+        /// Dump the FileEntries from a Logical Volume
+        /// </summary>
+        /// <param name="volume">The Volume to dump</param>
+        /// <param name="parentPath">The Path to the parent Disc</param>
+        /// <param name="options">Extractor Options to use</param>
+        /// <param name="governor">Resource Governor to use</param>
+        /// <param name="Context">Extractor context to use</param>
+        /// <param name="parent">The Parent FilEntry</param>
+        /// <returns></returns>
         public static IEnumerable<FileEntry> DumpLogicalVolume(LogicalVolumeInfo volume, string parentPath, ExtractorOptions options, ResourceGovernor governor, Extractor Context, FileEntry? parent = null)
         {
             DiscUtils.FileSystemInfo[]? fsInfos = null;
