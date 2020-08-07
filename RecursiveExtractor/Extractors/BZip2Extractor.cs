@@ -79,6 +79,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             if (bzip2Stream != null)
             {
                 var newFilename = Path.GetFileNameWithoutExtension(fileEntry.Name);
+                var entryStream = bzip2Stream.Length > options.MemoryStreamCutoff ?
+                    new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose) :
+                    (Stream)new MemoryStream((int)bzip2Stream.Length);
                 var newFileEntry = new FileEntry(newFilename, bzip2Stream, fileEntry);
 
                 if (Extractor.IsQuine(newFileEntry))

@@ -41,7 +41,7 @@ namespace Microsoft.CST.RecursiveExtractor
                     var entryContent = new byte[fileSize];
                     fileEntry.Content.Read(entryContent, 0, fileSize);
                     using var stream = new MemoryStream(entryContent);
-                    yield return new FileEntry(filename, stream, fileEntry);
+                    yield return new FileEntry(filename, stream, fileEntry, true);
                 }
                 else
                 {
@@ -79,7 +79,7 @@ namespace Microsoft.CST.RecursiveExtractor
                     var entryContent = new byte[fileSize];
                     await fileEntry.Content.ReadAsync(entryContent, 0, fileSize);
                     using var stream = new MemoryStream(entryContent);
-                    yield return new FileEntry(filename, stream, fileEntry);
+                    yield return new FileEntry(filename, stream, fileEntry, true);
                 }
                 else
                 {

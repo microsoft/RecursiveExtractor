@@ -194,7 +194,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             Assert.IsTrue(fileEntry.Content.Position == 10);
 
             // We should also detect just on file names if the content doesn't match
-            var nameOnlyEntry = new FileEntry(fileName, new MemoryStream());
+            var nameOnlyEntry = new FileEntry(fileName, new MemoryStream(), null, true);
             Assert.IsTrue(MiniMagic.DetectFileType(nameOnlyEntry) == expectedArchiveFileType);
         }
 
