@@ -105,14 +105,34 @@ namespace Microsoft.CST.RecursiveExtractor
             }
         }
 
+        /// <summary>
+        /// The Contents of the File
+        /// </summary>
         public Stream Content { get; }
+        /// <summary>
+        /// The Full Path to the File
+        /// </summary>
         public string FullPath { get; }
+        /// <summary>
+        /// The relative path of the file in the Archive.
+        /// </summary>
         public string Name { get; }
+        /// <summary>
+        /// The Parent entry of this File.  For example, the Archive it came from.
+        /// </summary>
         public FileEntry? Parent { get; }
+        /// <summary>
+        /// The Path to the parent.
+        /// </summary>
         public string? ParentPath { get; }
+        /// <summary>
+        /// Should the Content Stream be disposed when this object is finalized.
+        /// Default: true
+        /// </summary>
+        public bool DisposeOnFinalize { get; set; } = true;
+
         internal bool Passthrough { get; }
 
-        public bool DisposeOnFinalize { get; set; } = true;
         ~FileEntry()
         {
             if (DisposeOnFinalize){
