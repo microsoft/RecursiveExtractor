@@ -78,7 +78,6 @@ namespace Microsoft.CST.RecursiveExtractor
                             var nameSpan = new byte[nameLength];
                             // This should move us right to the file
                             fileEntry.Content.Read(nameSpan, 0, nameLength);
-                            var fei = new FileEntryInfo(Encoding.ASCII.GetString(nameSpan), fileEntry.FullPath, size - nameLength);
                             
                             var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
 
@@ -148,7 +147,6 @@ namespace Microsoft.CST.RecursiveExtractor
                                 {
                                     filename = entry.Item2;
                                 }
-                                var fei = new FileEntryInfo(filename, fileEntry.FullPath, innerSize);
                                 var entryStream = innerSize > options.MemoryStreamCutoff ?
                                     new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose) :
                                     (Stream)new MemoryStream((int)innerSize);
@@ -221,8 +219,6 @@ namespace Microsoft.CST.RecursiveExtractor
                                 {
                                     filename = innerEntry.Item2;
                                 }
-                                var fei = new FileEntryInfo(filename, fileEntry.FullPath, innerSize);
-
                                 var entryStream = innerSize > options.MemoryStreamCutoff ?
                                     new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose) :
                                     (Stream)new MemoryStream((int)innerSize);
@@ -478,7 +474,6 @@ namespace Microsoft.CST.RecursiveExtractor
                                 {
                                     filename = innerEntry.Item2;
                                 }
-                                var fei = new FileEntryInfo(filename, fileEntry.FullPath, innerSize);
 
                                 var entryStream = innerSize > options.MemoryStreamCutoff ?
                                     new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose) :

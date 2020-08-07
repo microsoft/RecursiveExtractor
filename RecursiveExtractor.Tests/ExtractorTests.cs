@@ -32,6 +32,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("Shared.wim")]
         [DataRow("Empty.vmdk", 0)]
         [DataRow("TextFile.md", 1)]
+        [DataRow("Nested.Zip", 26 * 8 + 1)] // there's one extra metadata file in there
         public void ExtractArchive(string fileName, int expectedNumFiles = 26)
         {
             var extractor = new Extractor();
@@ -59,6 +60,35 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("Shared.wim")]
         [DataRow("Empty.vmdk", 0)]
         [DataRow("TextFile.md", 1)]
+        [DataRow("Nested.Zip", 26 * 8 + 1)] // there's one extra metadata file in there
+        public void ExtractArchiveParallel(string fileName, int expectedNumFiles = 26)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            var results = extractor.ExtractFile(path, new ExtractorOptions() { Parallel = true }).ToList();
+            Assert.IsTrue(results.Count() == expectedNumFiles);
+        }
+
+        [DataTestMethod]
+        [DataRow("Shared.zip")]
+        [DataRow("Shared.7z")]
+        [DataRow("Shared.Tar")]
+        [DataRow("Shared.rar")]
+        [DataRow("Shared.rar4")]
+        [DataRow("Shared.tar.bz2")]
+        [DataRow("Shared.tar.gz")]
+        [DataRow("Shared.tar.xz")]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
+        [DataRow("Shared.a", 1)]
+        [DataRow("Shared.deb", 27)]
+        [DataRow("Shared.ar")]
+        [DataRow("Shared.iso")]
+        [DataRow("Shared.vhd", 29)] // 26 + Some invisible system files
+        [DataRow("Shared.vhdx")]
+        [DataRow("Shared.wim")]
+        [DataRow("Empty.vmdk", 0)]
+        [DataRow("TextFile.md", 1)]
+        [DataRow("Nested.Zip", 26 * 8 + 1)] // there's one extra metadata file in there
         public async Task ExtractArchiveFromStreamAsync(string fileName, int expectedNumFiles = 26)
         {
             var extractor = new Extractor();
@@ -93,6 +123,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("Shared.wim")]
         [DataRow("Empty.vmdk", 0)]
         [DataRow("TextFile.md", 1)]
+        [DataRow("Nested.Zip", 26 * 8 + 1)] // there's one extra metadata file in there
         public void ExtractArchiveFromStream(string fileName, int expectedNumFiles = 26)
         {
             var extractor = new Extractor();
@@ -147,16 +178,6 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         private bool SizeGreaterThan1000(FileEntryInfo fei)
         {
             return fei.Size > 1000;
-        }
-
-        [DataTestMethod]
-        [DataRow("Nested.Zip", 26 * 8 + 1)] // there's one extra metadata file in there
-        public void ExtractNestedArchive(string fileName, int expectedNumFiles)
-        {
-            var extractor = new Extractor();
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
-            var results = extractor.ExtractFile(path, new ExtractorOptions());
-            Assert.AreEqual(expectedNumFiles, results.Count());
         }
 
         [DataTestMethod]
