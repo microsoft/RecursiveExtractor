@@ -326,7 +326,7 @@ namespace Microsoft.CST.RecursiveExtractor
                     {
                         result = new[]
                         {
-                            fileEntry.Passthrough ? new FileEntry(fileEntry.Name,fileEntry.Content,fileEntry.Parent) : fileEntry
+                            fileEntry
                         };
                     }
                 }
@@ -341,7 +341,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 useRaw = true;
 
                 result = new[] {
-                    fileEntry.Passthrough ? new FileEntry(fileEntry.Name,fileEntry.Content,fileEntry.Parent) : fileEntry
+                    fileEntry
                 };
             }
 
