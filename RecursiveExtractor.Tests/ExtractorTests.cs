@@ -112,48 +112,6 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("Shared.tar.bz2")]
         [DataRow("Shared.tar.gz")]
         [DataRow("Shared.tar.xz")]
-        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
-        [DataRow("Shared.a", 1)]
-        [DataRow("Shared.deb", 27)]
-        [DataRow("Shared.ar")]
-        [DataRow("Shared.iso")]
-        [DataRow("Shared.vhd", 29)] // 26 + Some invisible system files
-        [DataRow("Shared.vhdx")]
-        [DataRow("Shared.wim")]
-        [DataRow("Empty.vmdk", 0)]
-        [DataRow("TextFile.md", 1)]
-        public void ExtractArchiveFromStreamParallel(string fileName, int expectedNumFiles = 26)
-        {
-            var extractor = new Extractor();
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
-            using var stream = new FileStream(path, FileMode.Open);
-            var results = extractor.ExtractStream(path, stream, new ExtractorOptions() { Parallel = true }).ToList();
-            Assert.AreEqual(expectedNumFiles, results.Count);
-            stream.Close();
-        }
-
-        [DataTestMethod]
-        [DataRow("ubcd538.iso", 1)]
-        public void ExtractArchiveFromStream2(string fileName, int expectedNumFiles = 26)
-        {
-            var extractor = new Extractor();
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
-            using var stream = new FileStream(path, FileMode.Open);
-            var entry = new FileEntry(path, stream, null, true);
-            var results = extractor.ExtractFile(entry, new ExtractorOptions() { Parallel = false }).ToList();
-            Assert.AreEqual(expectedNumFiles, results.Count);
-            stream.Close();
-        }
-
-        [DataTestMethod]
-        [DataRow("Shared.zip")]
-        [DataRow("Shared.7z")]
-        [DataRow("Shared.Tar")]
-        [DataRow("Shared.rar")]
-        [DataRow("Shared.rar4")]
-        [DataRow("Shared.tar.bz2")]
-        [DataRow("Shared.tar.gz")]
-        [DataRow("Shared.tar.xz")]
         [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 3, 5)]
         [DataRow("Shared.a", 1, 0)]
         [DataRow("Shared.deb", 24, 3)]

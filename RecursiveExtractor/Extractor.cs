@@ -156,7 +156,6 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         /// <param name="filename">The filename (with parent path) to call this root file.</param>
         /// <param name="stream">The Stream to parse.</param>
-        /// <param name="parallel">Should we operate in parallel?</param>
         /// <returns></returns>
         public async IAsyncEnumerable<FileEntry> ExtractStreamAsync(string filename, Stream stream, ExtractorOptions? opts = null)
         {
@@ -197,7 +196,6 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         /// <param name="filename">The filename (with parent path) to call this root file.</param>
         /// <param name="stream">The Stream to parse.</param>
-        /// <param name="parallel">Should we operate in parallel?</param>
         /// <returns></returns>
         public IEnumerable<FileEntry> ExtractStream(string filename, Stream stream, ExtractorOptions? opts = null)
         {

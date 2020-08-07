@@ -8,10 +8,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// Maximum number of bytes before using a FileStream
         /// </summary>
         public int MemoryStreamCutoff { get; set; } = 1024 * 1024;
-        /// <summary>
-        /// Batch Size for Parallel Processing
-        /// </summary>
-        public int BatchSize { get; set; } = 10;
+
         /// <summary>
         ///     Enable timing limit for processing.
         /// </summary>
@@ -39,7 +36,6 @@ namespace Microsoft.CST.RecursiveExtractor
         ///     (zip bombs and the like).
         /// </summary>
         public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(300);
-        public bool Parallel { get; set; }
 
         public PassFilter Filter = (FileEntryInfo _) => true;
     }
