@@ -53,11 +53,37 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             if (entries != null)
             {
-                foreach (var entry in entries)
+                if (options.Parallel)
                 {
-                    foreach (var extractedFile in Context.ExtractFile(entry, options, governor))
+                    var files = new ConcurrentStack<FileEntry>();
+
+                    while (entries.Any())
                     {
-                        yield return extractedFile;
+                        var batchSize = Math.Min(options.BatchSize, entries.Count());
+                        var selectedEntries = entries.Take(batchSize);
+
+                        selectedEntries.AsParallel().ForAll(entry =>
+                        {
+                            files.PushRange(Context.ExtractFile(entry, options, governor).ToArray());
+                        });
+
+                        entries = entries.Skip(batchSize);
+
+                        while (files.TryPop(out var result))
+                        {
+                            if (result != null)
+                                yield return result;
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var entry in entries)
+                    {
+                        foreach (var extractedFile in Context.ExtractFile(entry, options, governor))
+                        {
+                            yield return extractedFile;
+                        }
                     }
                 }
             }

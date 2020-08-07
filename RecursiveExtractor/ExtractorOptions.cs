@@ -33,6 +33,19 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(300);
 
+        /// <summary>
+        /// Batch size to use for parallel
+        /// </summary>
+        public int BatchSize { get; set; } = 50;
+
+        /// <summary>
+        /// Run in parallel when possible
+        /// </summary>
+        public bool Parallel { get; set; }
+
+        /// <summary>
+        /// Lambda filter to apply to raw files before returning
+        /// </summary>
         public PassFilter Filter = (FileEntryInfo _) => true;
     }
 }
