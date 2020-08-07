@@ -38,7 +38,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     Stream? stream = null;
                     try
                     {
-                        var fei = new FileEntryInfo(fileInfo.Name, Path.Combine(fileEntry.FullPath, fileInfo.FullName), fileInfo.Length);
                         stream = fileInfo.OpenRead();
                     }
                     catch (Exception e)
@@ -82,25 +81,20 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     var files = new ConcurrentStack<FileEntry>();
 
                     var batchSize = Math.Min(options.BatchSize, entries.Length);
-                    var selectedFileNames = entries[0..batchSize];
+                    var selectedFileEntries = entries[0..batchSize];
                     var fileInfoTuples = new List<(DiscFileInfo, Stream)>();
 
-                    foreach (var selectedFileName in selectedFileNames)
+                    foreach (var selectedFileEntry in selectedFileEntries)
                     {
                         try
                         {
-                            var fileInfo = cd.GetFileInfo(selectedFileName);
-                            var fei = new FileEntryInfo(fileInfo.FullName, fileEntry.FullPath, fileInfo.Length);
-                            if (options.Filter(fei))
-                            {
-                                var stream = fileInfo.OpenRead();
+                            var stream = selectedFileEntry.OpenRead();
 
-                                fileInfoTuples.Add((fileInfo, stream));
-                            }
+                            fileInfoTuples.Add((selectedFileEntry, stream));
                         }
                         catch (Exception e)
                         {
-                            Logger.Debug("Failed to get FileInfo or OpenStream from {0} in ISO {1} ({2}:{3})", selectedFileName, fileEntry.FullPath, e.GetType(), e.Message);
+                            Logger.Debug("Failed to get FileInfo or OpenStream from {0} in ISO {1} ({2}:{3})", selectedFileEntry, fileEntry.FullPath, e.GetType(), e.Message);
                         }
                     }
 

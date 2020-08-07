@@ -54,15 +54,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                                 {
                                     var info = image.GetFileInfo(file);
                                     var read = info.OpenRead();
-                                    var fei = new FileEntryInfo(info.FullName, fileEntry.FullPath, read.Length);
-                                    if (options.Filter(fei))
-                                    {
                                         streamsAndNames.Add((info, read));
-                                    }
-                                    else
-                                    {
-                                        read.Dispose();
-                                    }
                                 }
                                 catch (Exception e)
                                 {

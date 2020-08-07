@@ -271,11 +271,9 @@ namespace Microsoft.CST.RecursiveExtractor
             Logger.Trace("ExtractFile({0})", fileEntry.FullPath);
             Governor.CurrentOperationProcessedBytesLeft -= fileEntry.Content.Length;
             Governor.CheckResourceGovernor();
-            var useRaw = false;
             var type = MiniMagic.DetectFileType(fileEntry);
             if (type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type))
             {
-                useRaw = true;
                 var fei = new FileEntryInfo(fileEntry.Name, fileEntry.FullPath, fileEntry.Content.Length);
                 if (options.Filter(fei))
                 {
