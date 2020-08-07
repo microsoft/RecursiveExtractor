@@ -5,12 +5,11 @@ using System.Linq;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
-    public class GnuArExtractor : ExtractorImplementation
+    public class GnuArExtractor : AsyncExtractorInterface
     {
         public GnuArExtractor(Extractor context)
         {
             Context = context;
-            TargetType = ArchiveFileType.AR;
         }
         private readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -22,7 +21,24 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
         ///         
-        public override IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        {
+            await foreach (var entry in ArFile.GetFileEntriesAsync(fileEntry, options, governor))
+            {
+                await foreach (var extractedFile in Context.ExtractFileAsync(entry, options, governor))
+                {
+                    yield return extractedFile;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Extracts an archive file created with GNU ar
+        /// </summary>
+        /// <param name="fileEntry"> </param>
+        /// <returns> </returns>
+        ///         
+        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
             IEnumerable<FileEntry>? fileEntries = null;
             try

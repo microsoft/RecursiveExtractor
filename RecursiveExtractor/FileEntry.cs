@@ -2,11 +2,14 @@
 
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Microsoft.CST.RecursiveExtractor
 {
     public class FileEntry
     {
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         /// <summary>
         ///     Constructs a FileEntry object from a Stream. If passthroughStream is set to true, and the
         ///     stream is seekable, it will directly use inputStream. If passthroughStream is false or it is
@@ -33,7 +36,7 @@ namespace Microsoft.CST.RecursiveExtractor
             else
             {
                 ParentPath = parent.FullPath;
-                FullPath = $"{ParentPath}/{Name}";
+                FullPath = $"{ParentPath}{Path.DirectorySeparatorChar}{Name}";
             }
 
             if (inputStream == null)
@@ -107,7 +110,6 @@ namespace Microsoft.CST.RecursiveExtractor
         public string Name { get; }
         public FileEntry? Parent { get; }
         public string? ParentPath { get; }
-        private readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         ~FileEntry()
         {
@@ -118,5 +120,69 @@ namespace Microsoft.CST.RecursiveExtractor
         }
 
         public bool Passthrough { get; }
+
+        public static async Task<FileEntry> FromStreamAsync(string name, Stream content, FileEntry? parent)
+        {
+            if (!content.CanRead || content == null)
+            {
+                content = new MemoryStream();
+            }
+            string? ParentPath = null;
+            string FullPath = string.Empty;
+            if (parent == null)
+            {
+                ParentPath = null;
+                FullPath = name;
+            }
+            else
+            {
+                ParentPath = parent.FullPath;
+                FullPath = $"{ParentPath}{Path.DirectorySeparatorChar}{name}";
+            }
+            // Back with a temporary filestream, this is optimized to be cached in memory when possible
+            // automatically by .NET
+            var Content = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+            long? initialPosition = null;
+
+            if (content.CanSeek)
+            {
+                initialPosition = content.Position;
+                if (content.Position != 0)
+                {
+                    content.Position = 0;
+                }
+            }
+
+            try
+            {
+                await content.CopyToAsync(Content);
+            }
+            catch (NotSupportedException)
+            {
+                try
+                {
+                    content.CopyTo(Content);
+                }
+                catch (Exception f)
+                {
+                    var message = f.Message;
+                    var type = f.GetType();
+                    Logger.Debug("Failed to copy stream from {0} ({1}:{2})", FullPath, f.GetType(), f.Message);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Debug("Failed to copy stream from {0} ({1}:{2})", FullPath, e.GetType(), e.Message);
+            }
+
+            if (content.CanSeek && content.Position != 0)
+            {
+                content.Position = initialPosition ?? 0;
+            }
+
+            Content.Position = 0;
+
+            return new FileEntry(name, Content, parent, true);
+        }
     }
 }

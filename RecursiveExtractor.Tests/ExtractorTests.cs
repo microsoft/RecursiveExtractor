@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Microsoft.CST.RecursiveExtractor.Tests
 {
@@ -37,6 +38,40 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
             var results = extractor.ExtractFile(path, new ExtractorOptions()).ToList();
             Assert.IsTrue(results.Count() == expectedNumFiles);
+        }
+
+        [DataTestMethod]
+        [DataRow("Shared.zip")]
+        [DataRow("Shared.7z")]
+        [DataRow("Shared.Tar")]
+        [DataRow("Shared.rar")]
+        [DataRow("Shared.rar4")]
+        [DataRow("Shared.tar.bz2")]
+        [DataRow("Shared.tar.gz")]
+        [DataRow("Shared.tar.xz")]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
+        [DataRow("Shared.a", 1)]
+        [DataRow("Shared.deb", 27)]
+        [DataRow("Shared.ar")]
+        [DataRow("Shared.iso")]
+        [DataRow("Shared.vhd", 29)] // 26 + Some invisible system files
+        [DataRow("Shared.vhdx")]
+        [DataRow("Shared.wim")]
+        [DataRow("Empty.vmdk", 0)]
+        [DataRow("TextFile.md", 1)]
+        public async Task ExtractArchiveFromStreamAsync(string fileName, int expectedNumFiles = 26)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            using var stream = new FileStream(path, FileMode.Open);
+            var results = extractor.ExtractStreamAsync(path, stream, new ExtractorOptions());
+            var numFiles = 0;
+            await foreach(var result in results)
+            {
+                numFiles++;
+            }
+            Assert.AreEqual(expectedNumFiles, numFiles);
+            stream.Close();
         }
 
         [DataTestMethod]

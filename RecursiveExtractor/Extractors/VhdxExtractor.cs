@@ -5,19 +5,13 @@ using System.Collections.Generic;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
-    public class VhdxExtractor : DiscExtractorImplementation
+    public class VhdxExtractor : AsyncExtractorInterface
     {
         public VhdxExtractor(Extractor context)
         {
             Context = context;
-            TargetType = ArchiveFileType.VHDX;
         }
         private readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-
-        internal override Extractor GetContext()
-        {
-            return Context;
-        }
 
         internal Extractor Context { get; }
 
@@ -26,7 +20,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
-        public override IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
             using var disk = new DiscUtils.Vhdx.Disk(fileEntry.Content, Ownership.None);
             LogicalVolumeInfo[]? logicalVolumes = null;
@@ -47,7 +41,48 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 {
                     var fsInfos = FileSystemManager.DetectFileSystems(volume);
 
-                    foreach (var entry in DumpLogicalVolume(volume, fileEntry.FullPath, options, governor, fileEntry))
+                    await foreach (var entry in DiscCommon.DumpLogicalVolumeAsync(volume, fileEntry.FullPath, options, governor, Context, fileEntry))
+                    {
+                        yield return entry;
+                    }
+                }
+            }
+            else
+            {
+                if (options.ExtractSelfOnFail)
+                {
+                    yield return fileEntry;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Extracts an a VHDX file
+        /// </summary>
+        /// <param name="fileEntry"> </param>
+        /// <returns> </returns>
+        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        {
+            using var disk = new DiscUtils.Vhdx.Disk(fileEntry.Content, Ownership.None);
+            LogicalVolumeInfo[]? logicalVolumes = null;
+
+            try
+            {
+                var manager = new VolumeManager(disk);
+                logicalVolumes = manager.GetLogicalVolumes();
+            }
+            catch (Exception e)
+            {
+                Logger.Debug("Error reading {0} disk at {1} ({2}:{3})", disk.GetType(), fileEntry.FullPath, e.GetType(), e.Message);
+            }
+
+            if (logicalVolumes != null)
+            {
+                foreach (var volume in logicalVolumes)
+                {
+                    var fsInfos = FileSystemManager.DetectFileSystems(volume);
+
+                    foreach (var entry in DiscCommon.DumpLogicalVolume(volume, fileEntry.FullPath, options, governor, Context, fileEntry))
                     {
                         yield return entry;
                     }
