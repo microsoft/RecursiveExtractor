@@ -49,10 +49,5 @@ namespace Microsoft.CST.RecursiveExtractor
         /// Run in parallel when possible
         /// </summary>
         public bool Parallel { get; set; }
-
-        /// <summary>
-        /// Lambda filter to apply to raw files before returning
-        /// </summary>
-        public PassFilter Filter = (FileEntryInfo _) => true;
     }
 }
