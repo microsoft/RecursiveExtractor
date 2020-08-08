@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -43,7 +42,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 {
                     governor.CheckResourceGovernor(fileSize);
                     governor.CurrentOperationProcessedBytesLeft -= fileSize;
-                    
+
                     var entryContent = new byte[fileSize];
                     fileEntry.Content.Read(entryContent, 0, fileSize);
                     var stream = new MemoryStream(entryContent);

@@ -59,7 +59,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     FileEntry? newFileEntry = null;
                     using var stream = entry.OpenEntryStream();
                     newFileEntry = await FileEntry.FromStreamAsync(newFilename, stream, fileEntry);
-                    
+
                     if (newFileEntry != null)
                     {
                         await foreach (var extractedFile in Context.ExtractFileAsync(newFileEntry, options, governor))

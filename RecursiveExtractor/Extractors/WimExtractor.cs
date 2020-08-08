@@ -61,7 +61,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                                 {
                                     var info = image.GetFileInfo(file);
                                     var read = info.OpenRead();
-                                        streamsAndNames.Add((info, read));
+                                    streamsAndNames.Add((info, read));
                                 }
                                 catch (Exception e)
                                 {

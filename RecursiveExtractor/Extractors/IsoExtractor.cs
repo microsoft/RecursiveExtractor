@@ -1,12 +1,10 @@
 ﻿using DiscUtils;
 using DiscUtils.Iso9660;
-using SharpCompress.Common;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
@@ -124,30 +122,30 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 }
                 else
                 {
-                  foreach (var file in entries)
-                  {
-                      var fileInfo = file;
-                      governor.CheckResourceGovernor(fileInfo.Length);
-                      Stream? stream = null;
-                      try
-                      {
-                          stream = fileInfo.OpenRead();
-                      }
-                      catch (Exception e)
-                      {
-                          Logger.Debug("Failed to extract {0} from ISO {1}. ({2}:{3})", fileInfo.Name, fileEntry.FullPath, e.GetType(), e.Message);
-                      }
-                      if (stream != null)
-                      {
-                          var name = fileInfo.Name.Replace('/', Path.DirectorySeparatorChar);
-                          var newFileEntry = new FileEntry(name, stream, fileEntry);
-                          var innerEntries = Context.ExtractFile(newFileEntry, options, governor);
-                          foreach (var entry in innerEntries)
-                          {
-                              yield return entry;
-                          }
-                      }
-                  }
+                    foreach (var file in entries)
+                    {
+                        var fileInfo = file;
+                        governor.CheckResourceGovernor(fileInfo.Length);
+                        Stream? stream = null;
+                        try
+                        {
+                            stream = fileInfo.OpenRead();
+                        }
+                        catch (Exception e)
+                        {
+                            Logger.Debug("Failed to extract {0} from ISO {1}. ({2}:{3})", fileInfo.Name, fileEntry.FullPath, e.GetType(), e.Message);
+                        }
+                        if (stream != null)
+                        {
+                            var name = fileInfo.Name.Replace('/', Path.DirectorySeparatorChar);
+                            var newFileEntry = new FileEntry(name, stream, fileEntry);
+                            var innerEntries = Context.ExtractFile(newFileEntry, options, governor);
+                            foreach (var entry in innerEntries)
+                            {
+                                yield return entry;
+                            }
+                        }
+                    }
                 }
             }
             else

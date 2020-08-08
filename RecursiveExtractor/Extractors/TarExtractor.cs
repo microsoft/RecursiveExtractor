@@ -110,7 +110,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         continue;
                     }
-                    
+
                     var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
                     governor.CheckResourceGovernor(tarStream.Length);
                     try

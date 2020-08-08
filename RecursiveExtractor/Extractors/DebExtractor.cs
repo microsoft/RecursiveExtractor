@@ -35,7 +35,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 {
                     yield return extractedFile;
                 }
-            }   
+            }
         }
 
         /// <summary>

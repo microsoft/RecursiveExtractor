@@ -4,7 +4,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
@@ -42,29 +41,29 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 using var fs = fsInfo.Open(volume);
                 var diskFiles = fs.GetFiles(fs.Root.FullName, "*.*", SearchOption.AllDirectories).ToList();
 
-                    foreach (var file in diskFiles)
+                foreach (var file in diskFiles)
+                {
+                    Stream? fileStream = null;
+                    try
                     {
-                        Stream? fileStream = null;
-                        try
+                        var fi = fs.GetFileInfo(file);
+                        governor.CheckResourceGovernor(fi.Length);
+                        fileStream = fi.OpenRead();
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Debug(e, "Failed to open {0} in volume {1}", file, volume.Identity);
+                    }
+                    if (fileStream != null)
+                    {
+                        var newFileEntry = await FileEntry.FromStreamAsync($"{volume.Identity}{Path.DirectorySeparatorChar}{file}", fileStream, parent);
+                        var entries = Context.ExtractFileAsync(newFileEntry, options, governor);
+                        await foreach (var entry in entries)
                         {
-                            var fi = fs.GetFileInfo(file);
-                            governor.CheckResourceGovernor(fi.Length);
-                            fileStream = fi.OpenRead();
-                        }
-                        catch (Exception e)
-                        {
-                            Logger.Debug(e, "Failed to open {0} in volume {1}", file, volume.Identity);
-                        }
-                        if (fileStream != null)
-                        {
-                            var newFileEntry = await FileEntry.FromStreamAsync($"{volume.Identity}{Path.DirectorySeparatorChar}{file}", fileStream, parent);
-                            var entries = Context.ExtractFileAsync(newFileEntry, options, governor);
-                            await foreach (var entry in entries)
-                            {
-                                yield return entry;
-                            }
+                            yield return entry;
                         }
                     }
+                }
             }
         }
 

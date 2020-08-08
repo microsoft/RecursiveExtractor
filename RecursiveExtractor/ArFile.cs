@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -82,8 +81,19 @@ namespace Microsoft.CST.RecursiveExtractor
                         {
                             var nameSpan = new byte[nameLength];
                             // This should move us right to the file
+
+/* Unmerged change from project 'RecursiveExtractor (netstandard2.1)'
+Before:
                             fileEntry.Content.Read(nameSpan, 0, nameLength);
                             
+                            var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+After:
+                            fileEntry.Content.Read(nameSpan, 0, nameLength);
+
+                            var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+*/
+                            fileEntry.Content.Read(nameSpan, 0, nameLength);
+
                             var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
 
                             // The name length is included in the total size reported in the header
@@ -262,7 +272,7 @@ namespace Microsoft.CST.RecursiveExtractor
                         CopyStreamBytes(fileEntry.Content, entryStream, size);
 
                         yield return new FileEntry(filename, entryStream, fileEntry, true);
-                        
+
                     }
                 }
                 else

@@ -1,4 +1,5 @@
 # About
+![Nuget](https://img.shields.io/nuget/v/Microsoft.CST.RecursiveExtractor)![Nuget](https://img.shields.io/nuget/dt/Microsoft.CST.RecursiveExtractor)
 
 Recursive Extractor is a .NET Standard 2.0/2.1 Library for parsing archive files and disk images, including nested archives and disk images.
 
@@ -50,43 +51,6 @@ public string FullPath { get; }
 public string Name { get; }
 public FileEntry? Parent { get; }
 public string? ParentPath { get; }
-```
-
-## Advanced Usage
-
-You can pass a `delegate` to process only filtered files.
-
-```csharp
-public delegate bool PassFilter(FileEntryInfo fileEntryInfo);
-```
-For example, to only get files larger than 1000 bytes:
-```csharp
-var path = "/Path/To/Your/Archive"
-var extractor = new Extractor();
-try {
-    IEnumerable<FileEntry> results = extractor.ExtractFile(path, new ExtractorOptions() { Filter = SizeGreaterThan1000 });
-    foreach(var found in results)
-    {
-        Console.WriteLine(found.FullPath);
-    }
-}
-catch(OverflowException)
-{
-    // This means Recursive Extractor has detected a Quine or Zip Bomb
-}
-
-private bool SizeGreaterThan1000(FileEntryInfo fei)
-{
-    return fei.Size > 1000;
-}
-```
-
-## FileEntryInfo
-The FileEntryInfo object has these fields:
-```csharp
-public string Name { get; }
-public string ParentPath { get; }
-public long Size { get; }
 ```
 
 ## Exceptions

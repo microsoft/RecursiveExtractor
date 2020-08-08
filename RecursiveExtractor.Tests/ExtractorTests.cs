@@ -96,7 +96,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             using var stream = new FileStream(path, FileMode.Open);
             var results = extractor.ExtractStreamAsync(path, stream, new ExtractorOptions());
             var numFiles = 0;
-            await foreach(var result in results)
+            await foreach (var result in results)
             {
                 numFiles++;
             }
