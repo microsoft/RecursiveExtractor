@@ -6,8 +6,15 @@ using System.Linq;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
+    /// <summary>
+    /// The XZ Extractor Implementation
+    /// </summary>
     public class XzExtractor : AsyncExtractorInterface
     {
+        /// <summary>
+        /// The constructor takes the Extractor context for recursion.
+        /// </summary>
+        /// <param name="context">The Extractor context.</param>
         public XzExtractor(Extractor context)
         {
             Context = context;

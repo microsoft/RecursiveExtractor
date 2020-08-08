@@ -5,8 +5,15 @@ using System.Linq;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
+    /// <summary>
+    /// The Ar file extractor.
+    /// </summary>
     public class GnuArExtractor : AsyncExtractorInterface
     {
+        /// <summary>
+        /// The constructor takes the Extractor context for recursion.
+        /// </summary>
+        /// <param name="context">The Extractor context.</param>
         public GnuArExtractor(Extractor context)
         {
             Context = context;

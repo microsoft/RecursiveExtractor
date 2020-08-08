@@ -105,33 +105,58 @@ namespace Microsoft.CST.RecursiveExtractor
             }
         }
 
+        /// <summary>
+        /// The Contents of the File
+        /// </summary>
         public Stream Content { get; }
+        /// <summary>
+        /// The Full Path to the File
+        /// </summary>
         public string FullPath { get; }
+        /// <summary>
+        /// The relative path of the file in the Archive.
+        /// </summary>
         public string Name { get; }
+        /// <summary>
+        /// The Parent entry of this File.  For example, the Archive it came from.
+        /// </summary>
         public FileEntry? Parent { get; }
+        /// <summary>
+        /// The Path to the parent.
+        /// </summary>
         public string? ParentPath { get; }
+        /// <summary>
+        /// Should the Content Stream be disposed when this object is finalized.
+        /// Default: true
+        /// </summary>
+        public bool DisposeOnFinalize { get; set; } = true;
+
+        internal bool Passthrough { get; }
 
         ~FileEntry()
         {
-            if (!Passthrough)
-            {
+            if (DisposeOnFinalize){
                 Content?.Dispose();
             }
         }
 
-        public bool Passthrough { get; }
-
+        /// <summary>
+        /// Construct a FileEntry from a Stream Asynchronously
+        /// </summary>
+        /// <param name="name">Name of the FileEntry</param>
+        /// <param name="content">The Stream to parse</param>
+        /// <param name="parent">The Parent FileEntry</param>
+        /// <returns>A FileEntry object holding a Copy of the Stream</returns>
         public static async Task<FileEntry> FromStreamAsync(string name, Stream content, FileEntry? parent)
         {
             if (!content.CanRead || content == null)
             {
                 content = new MemoryStream();
             }
-            string? ParentPath = null;
-            string FullPath = string.Empty;
+            string? ParentPath;
+            string FullPath;
             if (parent == null)
             {
-                ParentPath = null;
                 FullPath = name;
             }
             else

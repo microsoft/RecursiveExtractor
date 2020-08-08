@@ -8,8 +8,15 @@ using System.Linq;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
+    /// <summary>
+    /// The Zip Archive Extraction Implementation
+    /// </summary>
     public class ZipExtractor : AsyncExtractorInterface
     {
+        /// <summary>
+        /// The constructor takes the Extractor context for recursion.
+        /// </summary>
+        /// <param name="context">The Extractor context.</param>
         public ZipExtractor(Extractor context)
         {
             Context = context;

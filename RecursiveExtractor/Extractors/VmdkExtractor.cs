@@ -5,8 +5,15 @@ using System.Collections.Generic;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
+    /// <summary>
+    /// The VMDK Extractor Implementation
+    /// </summary>
     public class VmdkExtractor : AsyncExtractorInterface
     {
+        /// <summary>
+        /// The constructor takes the Extractor context for recursion.
+        /// </summary>
+        /// <param name="context">The Extractor context.</param>
         public VmdkExtractor(Extractor context)
         {
             Context = context;

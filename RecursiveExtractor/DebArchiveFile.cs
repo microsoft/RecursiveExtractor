@@ -5,13 +5,20 @@ using System.Text;
 
 namespace Microsoft.CST.RecursiveExtractor
 {
-    /**
-     * Very simple implementation of an .Deb format parser, needed for Debian .deb archives.
-     * See: https://en.wikipedia.org/wiki/Deb_(file_format)#/media/File:Deb_File_Structure.svg
-     */
 
+    /// <summary>
+    /// Implementation of the Deb Archive format
+    /// See: https://en.wikipedia.org/wiki/Deb_(file_format)#/media/File:Deb_File_Structure.svg
+    /// </summary>
     public static class DebArchiveFile
     {
+        /// <summary>
+        /// Enumerate the FileEntries in the given Deb file
+        /// </summary>
+        /// <param name="fileEntry">The Deb file FileEntry</param>
+        /// <param name="options">The ExtractorOptions to use</param>
+        /// <param name="governor">The ResourceGovernor to use</param>
+        /// <returns>The FileEntries found</returns>
         public static IEnumerable<FileEntry> GetFileEntries(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
             if (fileEntry == null)
@@ -49,7 +56,14 @@ namespace Microsoft.CST.RecursiveExtractor
             }
         }
 
-        internal static async IAsyncEnumerable<FileEntry> GetFileEntriesAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        /// <summary>
+        /// Enumerate the FileEntries in the given Deb file asynchronously
+        /// </summary>
+        /// <param name="fileEntry">The Deb file FileEntry</param>
+        /// <param name="options">The ExtractorOptions to use</param>
+        /// <param name="governor">The ResourceGovernor to use</param>
+        /// <returns>The FileEntries found</returns>
+        public static async IAsyncEnumerable<FileEntry> GetFileEntriesAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
             if (fileEntry == null)
             {
