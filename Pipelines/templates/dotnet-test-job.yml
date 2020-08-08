@@ -41,4 +41,5 @@ jobs:
     displayName: Dotnet Test
     inputs:
       command: 'test'
-      projects: ${{ parameters.projectPath }}
+      publishTestResults: true
+      projects: ${{ parameters.projectPath }} --collect:"XPlat Code Coverage"
