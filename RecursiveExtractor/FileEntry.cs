@@ -135,7 +135,8 @@ namespace Microsoft.CST.RecursiveExtractor
 
         ~FileEntry()
         {
-            if (DisposeOnFinalize){
+            if (DisposeOnFinalize)
+            {
                 Content?.Dispose();
             }
         }

@@ -44,25 +44,25 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             if (rarArchive != null)
             {
                 var entries = rarArchive.Entries.Where(x => x.IsComplete && !x.IsDirectory && !x.IsEncrypted);
-                
-                    foreach (var entry in entries)
+
+                foreach (var entry in entries)
+                {
+                    governor.CheckResourceGovernor(entry.Size);
+                    var name = entry.Key.Replace('/', Path.DirectorySeparatorChar);
+                    FileEntry newFileEntry = await FileEntry.FromStreamAsync(name, entry.OpenEntryStream(), fileEntry);
+                    if (newFileEntry != null)
                     {
-                        governor.CheckResourceGovernor(entry.Size);
-                        var name = entry.Key.Replace('/', Path.DirectorySeparatorChar);
-                        FileEntry newFileEntry = await FileEntry.FromStreamAsync(name, entry.OpenEntryStream(), fileEntry);
-                        if (newFileEntry != null)
+                        if (Extractor.IsQuine(newFileEntry))
                         {
-                            if (Extractor.IsQuine(newFileEntry))
-                            {
-                                Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                                throw new OverflowException();
-                            }
-                            await foreach (var extractedFile in Context.ExtractFileAsync(newFileEntry, options, governor))
-                            {
-                                yield return extractedFile;
-                            }
+                            Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
+                            throw new OverflowException();
+                        }
+                        await foreach (var extractedFile in Context.ExtractFileAsync(newFileEntry, options, governor))
+                        {
+                            yield return extractedFile;
                         }
                     }
+                }
             }
             else
             {
