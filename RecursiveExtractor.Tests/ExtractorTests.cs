@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Microsoft.CST.RecursiveExtractor.Tests
@@ -39,6 +40,57 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
             var results = extractor.ExtractFile(path, new ExtractorOptions()).ToList();
             Assert.IsTrue(results.Count() == expectedNumFiles);
+        }
+
+        [DataTestMethod]
+        [DataRow("SharedEncrypted.zip")]
+        [DataRow("SharedEncrypted.7z")]
+        public void ExtractEncryptedArchive(string fileName, int expectedNumFiles = 52)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            var results = extractor.ExtractFile(path, new ExtractorOptions()
+            {
+                Passwords = new Dictionary<System.Text.RegularExpressions.Regex, List<string>>()
+                {
+                    {
+                        new Regex(".*"), 
+                        new List<string>()
+                        {
+                            "TheMagicWordIsPotato" 
+                        } 
+                    } 
+                }
+            }).ToList();
+            Assert.IsTrue(results.Count() == expectedNumFiles);
+        }
+
+        [DataTestMethod]
+        [DataRow("SharedEncrypted.zip")]
+        [DataRow("SharedEncrypted.7z")]
+        public async Task ExtractEncryptedArchiveAsync(string fileName, int expectedNumFiles = 52)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            var results = extractor.ExtractFileAsync(path, new ExtractorOptions()
+            {
+                Passwords = new Dictionary<System.Text.RegularExpressions.Regex, List<string>>()
+                {
+                    {
+                        new Regex(".*"),
+                        new List<string>()
+                        {
+                            "TheMagicWordIsPotato"
+                        }
+                    }
+                }
+            });
+            var numEntries = 0;
+            await foreach(var entry in results)
+            {
+                numEntries++;
+            }
+            Assert.IsTrue(numEntries == expectedNumFiles);
         }
 
         [DataTestMethod]

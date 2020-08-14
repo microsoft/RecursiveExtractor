@@ -56,6 +56,12 @@
     <None Update="TestData\Nested.zip">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="TestData\SharedEncrypted.7z">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\SharedEncrypted.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="TestData\TextFile.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
