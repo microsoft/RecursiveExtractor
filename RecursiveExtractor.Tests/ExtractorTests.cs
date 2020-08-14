@@ -45,7 +45,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataTestMethod]
         [DataRow("SharedEncrypted.zip")]
         [DataRow("SharedEncrypted.7z")]
-        public void ExtractEncryptedArchive(string fileName, int expectedNumFiles = 52)
+        public void ExtractEncryptedArchive(string fileName, int expectedNumFiles = 26)
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
@@ -68,13 +68,13 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataTestMethod]
         [DataRow("SharedEncrypted.zip")]
         [DataRow("SharedEncrypted.7z")]
-        public async Task ExtractEncryptedArchiveAsync(string fileName, int expectedNumFiles = 52)
+        public async Task ExtractEncryptedArchiveAsync(string fileName, int expectedNumFiles = 26)
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
             var results = extractor.ExtractFileAsync(path, new ExtractorOptions()
             {
-                Passwords = new Dictionary<System.Text.RegularExpressions.Regex, List<string>>()
+                Passwords = new Dictionary<Regex, List<string>>()
                 {
                     {
                         new Regex(".*"),
