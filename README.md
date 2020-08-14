@@ -7,21 +7,15 @@ Recursive Extractor is available on NuGet as [Microsoft.CST.RecursiveExtractor](
 
 You can try out Recursive Extractor [in your browser](https://microsoft.github.io/RecursiveExtractor/) as a Web Assembly app.
 
-# Supported File Types (alphabetical)
-* 7zip
-* ar
-* bzip2
-* deb
-* gzip
-* iso
-* rar
-* tar
-* vhd
-* vhdx
-* vmdk
-* wim
-* xzip
-* zip
+
+# Supported File Types
+| | | |
+|-|-|-|
+| 7zip | ar | bzip2 |
+| deb | gzip | iso |
+| rar | tar | vhd |
+| vhdx | vmdk | wim |
+| xzip | zip |  |
 
 # Usage
 This example will print out the paths of all the files in the archive.
@@ -40,7 +34,22 @@ catch(OverflowException)
     // This means Recursive Extractor has detected a Quine or Zip Bomb
 }
 ```
-
+If you'd prefer async
+```csharp
+var path = "/Path/To/Your/Archive"
+var extractor = new Extractor();
+try {
+    IEnumerable<FileEntry> results = extractor.ExtractFileAsync(path);
+    await foreach(var found in results)
+    {
+        Console.WriteLine(found.FullPath);
+    }
+}
+catch(OverflowException)
+{
+    // This means Recursive Extractor has detected a Quine or Zip Bomb
+}
+```
 ## FileEntry
 
 The Extractor returns `FileEntry` objects.  These objects contain a `Content` Stream of the file contents.
