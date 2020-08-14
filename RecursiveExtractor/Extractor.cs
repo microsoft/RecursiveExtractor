@@ -152,6 +152,24 @@ namespace Microsoft.CST.RecursiveExtractor
         }
 
         /// <summary>
+        ///     Extracts files from the file 'filename'.
+        /// </summary>
+        /// <returns> Extracted files </returns>
+        public async IAsyncEnumerable<FileEntry> ExtractFileAsync(string filename, ExtractorOptions? opts = null)
+        {
+            if (!File.Exists(filename))
+            {
+                Logger.Warn("ExtractFile called, but {0} does not exist.", filename);
+                yield break;
+            }
+            using var fs = new FileStream(filename, FileMode.Open);
+            await foreach (var entry in ExtractStreamAsync(filename, fs, opts))
+            {
+                yield return entry;
+            }
+        }
+
+        /// <summary>
         /// Extract a stream into FileEntries
         /// </summary>
         /// <param name="filename">The filename (with parent path) to call this root file.</param>
@@ -244,6 +262,23 @@ namespace Microsoft.CST.RecursiveExtractor
             using var ms = new MemoryStream(archiveBytes);
             return ExtractFile(new FileEntry(filename, ms), opts);
         }
+
+        /// <summary>
+        ///     Extracts files from the file, identified by 'filename', but with contents passed through
+        ///     'archiveBytes'. Note that 'filename' does not have to exist; it will only be used to identify
+        ///     files extracted.
+        /// </summary>
+        /// <param name="fileEntry"> FileEntry to extract </param>
+        /// <returns> Extracted files </returns>
+        public async IAsyncEnumerable<FileEntry> ExtractFileAsync(string filename, byte[] archiveBytes, ExtractorOptions? opts = null)
+        {
+            using var ms = new MemoryStream(archiveBytes);
+            await foreach (var entry in ExtractFileAsync(new FileEntry(filename, ms), opts))
+            {
+                yield return entry;
+            };
+        }
+
 
         /// <summary>
         ///     Internal buffer size for extraction
