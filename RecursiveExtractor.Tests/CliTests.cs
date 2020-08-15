@@ -36,10 +36,19 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("Nested.Zip", 26 * 8 + 1)] // there's one extra metadata file in there
         public void ExtractArchive(string fileName, int expectedNumFiles = 26)
         {
-            var directory = Path.Combine(Path.GetTempPath(),Guid.NewGuid().ToString());
-            RecursiveExtractorClient.Extract(new ExtractCommandOptions() { Input = fileName, Output = directory });
-            Assert.IsTrue(Directory.EnumerateFiles(directory).Count() == expectedNumFiles);
-            Directory.Delete(directory, true);
+            var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            RecursiveExtractorClient.Extract(new ExtractCommandOptions() { Input = path, Output = directory, Verbose = true });
+            if (Directory.Exists(directory))
+            {
+                var files = Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories).ToList();
+                Assert.IsTrue(files.Count == expectedNumFiles);
+                Directory.Delete(directory, true);
+            }
+            else
+            {
+                Assert.IsTrue(expectedNumFiles == 0);
+            }
         }
 
         protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
