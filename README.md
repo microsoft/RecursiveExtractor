@@ -29,8 +29,10 @@ var extractorOptions = new ExtractorOptions()
 };
 foreach(var result in extractor.ExtractFile(options.Input, extractorOptions))
 {
-    Directory.CreateDirectory(Path.Combine(options.Output,Path.GetDirectoryName(result.FullPath)?
-        .TrimStart(Path.DirectorySeparatorChar) ?? string.Empty));
+    Directory.CreateDirectory(Path.Combine(options.Output,
+        Path.GetDirectoryName(result.FullPath)?
+            .TrimStart(Path.DirectorySeparatorChar) ?? string.Empty));
+
     using var fs = new FileStream(Path.Combine(options.Output,result.FullPath), FileMode.Create);
     result.Content.CopyTo(fs);
     Console.WriteLine("Extracted {0}.", result.FullPath);
@@ -93,8 +95,8 @@ catch(OverflowException)
 ```
 
 ## Exceptions
-
-`ExtractFile` will throw an overflow exception when a quine or zip bomb is detected.
+RecursiveExtractor protects against [ZipSlip](https://snyk.io/research/zip-slip-vulnerability), [Quines, and Zip Bombs](https://en.wikipedia.org/wiki/Zip_bomb).
+Calls to Extract will throw an `OverflowException` when a Quine or Zip bomb is detected.
 
 Otherwise, invalid files found while crawling will emit a logger message and be skipped.  RecursiveExtractor uses NLog for logging.
 
