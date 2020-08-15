@@ -1,4 +1,5 @@
 ﻿using CommandLine;
+using System.Collections.Generic;
 
 namespace Microsoft.CST.RecursiveExtractor.Cli
 {
@@ -11,10 +12,10 @@ namespace Microsoft.CST.RecursiveExtractor.Cli
 		[Option(HelpText = "The directory to extract to.", Default = ".")]
 		public string Output { get; set; } = string.Empty;
 
-		//[Option("passwords", Required = false, HelpText = "Comma separated list of passwords to use.", Separator = ',')]
-		//public IEnumerable<string>? Passwords { get; set; }
+        [Option("passwords", Required = false, HelpText = "Comma separated list of passwords to use.", Separator = ',')]
+        public IEnumerable<string>? Passwords { get; set; }
 
-		[Option(HelpText = "List all files extracted.")]
+        [Option(HelpText = "List all files extracted.")]
 		public bool Verbose { get; set; }
 	}
 }

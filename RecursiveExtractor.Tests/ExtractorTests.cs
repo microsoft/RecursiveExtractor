@@ -57,8 +57,8 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
                 new List<string>()
                 {
                     "AnIncorrectPassword",
-                    "TheMagicWordIsTomato",
-                    "TheMagicWordIsLettuce"
+                    "TheMagicWordIsTomato", // SharedEncrypted.7z
+                    "TheMagicWordIsLettuce" // NestedEncrypted.7z
                 }
             },
             {

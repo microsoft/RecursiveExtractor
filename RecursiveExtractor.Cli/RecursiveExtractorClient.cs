@@ -26,28 +26,36 @@ namespace Microsoft.CST.RecursiveExtractor.Cli
 				ExtractSelfOnFail = true,
 				Parallel = true,
 			};
-			//if (options.Passwords.Any())
-   //         {
-			//	extractorOptions.Passwords = new Dictionary<Regex, List<string>>()
-			//	{
-			//		{
-			//			new Regex(".*",RegexOptions.Compiled),
-			//			options.Passwords.ToList()
-			//		}
-			//	};
-
-			//}
-			foreach(var result in extractor.ExtractFile(options.Input, extractorOptions))
+            if (options.Passwords.Any())
             {
-				Directory.CreateDirectory(Path.Combine(options.Output,Path.GetDirectoryName(result.FullPath)?.TrimStart(Path.DirectorySeparatorChar) ?? string.Empty));
-				using var fs = new FileStream(Path.Combine(options.Output,result.FullPath), FileMode.Create);
-				result.Content.CopyTo(fs);
-				if (options.Verbose)
-				{
-					Console.WriteLine("Extracted {0}.", result.FullPath);
-				}
-			}
+                extractorOptions.Passwords = new Dictionary<Regex, List<string>>()
+                {
+                    {
+                        new Regex(".*",RegexOptions.Compiled),
+                        options.Passwords.ToList()
+                    }
+                };
+            }
+            foreach (var result in extractor.ExtractFile(options.Input, extractorOptions))
+            {
+                var targetPath = Path.Combine(options.Output, result.FullPath);
+                try
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(targetPath));
+                    using var fs = new FileStream(targetPath, FileMode.Create);
+                    result.Content.CopyTo(fs);
+                    if (options.Verbose)
+                    {
+                        Console.WriteLine("Extracted {0}.", result.FullPath);
+                    }
+                }
+				catch(Exception e)
+                {
+                    Logger.Fatal(e, "Failed to create file at {0}", targetPath);
+                }
+            }
 			return 0;
         }
-	}
+        private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+    }
 }
