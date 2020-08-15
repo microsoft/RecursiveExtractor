@@ -25,18 +25,18 @@ namespace Microsoft.CST.RecursiveExtractor
         public FileEntry(string name, Stream inputStream, FileEntry? parent = null, bool passthroughStream = false)
         {
             Parent = parent;
-            Name = name;
+            Name = Path.GetFileName(name);
             Passthrough = passthroughStream;
 
             if (parent == null)
             {
                 ParentPath = null;
-                FullPath = Name;
+                FullPath = name;
             }
             else
             {
                 ParentPath = parent.FullPath;
-                FullPath = $"{ParentPath}{Path.DirectorySeparatorChar}{Name}";
+                FullPath = $"{ParentPath}{Path.DirectorySeparatorChar}{name}";
             }
 
             if (inputStream == null)
