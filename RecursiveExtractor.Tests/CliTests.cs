@@ -42,8 +42,8 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             if (Directory.Exists(directory))
             {
                 var files = Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories).ToList();
-                Assert.IsTrue(files.Count == expectedNumFiles);
                 Directory.Delete(directory, true);
+                Assert.IsTrue(files.Count == expectedNumFiles);
             }
             else
             {
