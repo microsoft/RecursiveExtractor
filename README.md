@@ -18,23 +18,27 @@ You can try out Recursive Extractor [in your browser](https://microsoft.github.i
 | xzip | zip  |       |
 
 # Usage
-This example will print out the paths of all the files in the archive.
+This this code from the Cli extracts the contents of given archive located at `options.Input` to a directory located at `options.Output`.
 ```csharp
-var path = "/Path/To/Your/Archive"
 var extractor = new Extractor();
-try {
-    IEnumerable<FileEntry> results = extractor.ExtractFile(path);
-    foreach(var found in results)
+var extractorOptions = new ExtractorOptions()
+{
+    ExtractSelfOnFail = true,
+    Parallel = true,
+};
+foreach(var result in extractor.ExtractFile(options.Input, extractorOptions))
+{
+    Directory.CreateDirectory(Path.Combine(options.Output,Path.GetDirectoryName(result.FullPath)?
+        .TrimStart(Path.DirectorySeparatorChar) ?? string.Empty));
+    using var fs = new FileStream(Path.Combine(options.Output,result.FullPath), FileMode.Create);
+    result.Content.CopyTo(fs);
+    if (options.Verbose)
     {
-        Console.WriteLine(found.FullPath);
+        Console.WriteLine("Extracted {0}.", result.FullPath);
     }
 }
-catch(OverflowException)
-{
-    // This means Recursive Extractor has detected a Quine or Zip Bomb
-}
 ```
-If you'd prefer async
+If you'd prefer async, this example prints out all the file names.
 ```csharp
 var path = "/Path/To/Your/Archive"
 var extractor = new Extractor();
