@@ -27,7 +27,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
         private string? GetZipPassword(FileEntry fileEntry, ZipFile zipFile, ZipEntry zipEntry, ExtractorOptions options)
         {
-            foreach (var passwords in options.Passwords.Where(x => x.Key.IsMatch(zipEntry.Name)))
+            foreach (var passwords in options.Passwords.Where(x => x.Key.IsMatch(fileEntry.Name)))
             {
                 foreach (var password in passwords.Value)
                 {
