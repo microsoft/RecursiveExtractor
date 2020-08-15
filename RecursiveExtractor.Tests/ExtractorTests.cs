@@ -45,13 +45,15 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataTestMethod]
         [DataRow("SharedEncrypted.zip")]
         [DataRow("SharedEncrypted.7z")]
+        [DataRow("SharedEncrypted.rar4")]
+        // [DataRow("SharedEncrypted.rar")] // RAR5 is not yet supported by SharpCompress: https://github.com/adamhathcock/sharpcompress/issues/517
         public void ExtractEncryptedArchive(string fileName, int expectedNumFiles = 26)
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
             var results = extractor.ExtractFile(path, new ExtractorOptions()
             {
-                Passwords = new Dictionary<System.Text.RegularExpressions.Regex, List<string>>()
+                Passwords = new Dictionary<Regex, List<string>>()
                 {
                     {
                         new Regex(".*"), 
@@ -69,6 +71,9 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataTestMethod]
         [DataRow("SharedEncrypted.zip")]
         [DataRow("SharedEncrypted.7z")]
+        [DataRow("SharedEncrypted.rar4")]
+        // [DataRow("SharedEncrypted.rar")] // RAR5 is not yet supported by SharpCompress: https://github.com/adamhathcock/sharpcompress/issues/517
+
         public async Task ExtractEncryptedArchiveAsync(string fileName, int expectedNumFiles = 26)
         {
             var extractor = new Extractor();

@@ -40,10 +40,43 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             {
                 Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.RAR, fileEntry.FullPath, string.Empty, e.GetType());
             }
-
+            var needsPassword = false;
+            try
+            {
+                needsPassword = rarArchive?.TotalUncompressSize == 0;
+            }
+            catch (Exception e)
+            {
+                needsPassword = true;
+            }
+            if (needsPassword is true)
+            {
+                var passwordFound = false;
+                foreach (var passwords in options.Passwords.Where(x => x.Key.IsMatch(fileEntry.Name)))
+                {
+                    if (passwordFound) { break; }
+                    foreach (var password in passwords.Value)
+                    {
+                        if (passwordFound) { break; }
+                        try
+                        {
+                            fileEntry.Content.Position = 0;
+                            rarArchive = RarArchive.Open(fileEntry.Content, new SharpCompress.Readers.ReaderOptions() { Password = password, LookForHeader = true });
+                            if (rarArchive.TotalUncompressSize > 0)
+                            {
+                                passwordFound = true;
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.P7ZIP, fileEntry.FullPath, string.Empty, e.GetType());
+                        }
+                    }
+                }
+            }
             if (rarArchive != null)
             {
-                var entries = rarArchive.Entries.Where(x => x.IsComplete && !x.IsDirectory && !x.IsEncrypted);
+                var entries = rarArchive.Entries.Where(x => x.IsComplete && !x.IsDirectory);
 
                 foreach (var entry in entries)
                 {
@@ -89,10 +122,43 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             {
                 Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.RAR, fileEntry.FullPath, string.Empty, e.GetType());
             }
-
+            var needsPassword = false;
+            try
+            {
+                needsPassword = rarArchive?.TotalUncompressSize == 0;
+            }
+            catch (Exception e)
+            {
+                needsPassword = true;
+            }
+            if (needsPassword is true)
+            {
+                var passwordFound = false;
+                foreach (var passwords in options.Passwords.Where(x => x.Key.IsMatch(fileEntry.Name)))
+                {
+                    if (passwordFound) { break; }
+                    foreach (var password in passwords.Value)
+                    {
+                        if (passwordFound) { break; }
+                        try
+                        {
+                            fileEntry.Content.Position = 0;
+                            rarArchive = RarArchive.Open(fileEntry.Content, new SharpCompress.Readers.ReaderOptions() { Password = password, LookForHeader = true });
+                            if (rarArchive.TotalUncompressSize > 0)
+                            {
+                                passwordFound = true;
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.P7ZIP, fileEntry.FullPath, string.Empty, e.GetType());
+                        }
+                    }
+                }
+            }
             if (rarArchive != null)
             {
-                var entries = rarArchive.Entries.Where(x => x.IsComplete && !x.IsDirectory && !x.IsEncrypted);
+                var entries = rarArchive.Entries.Where(x => x.IsComplete && !x.IsDirectory);
                 if (options.Parallel)
                 {
                     var files = new ConcurrentStack<FileEntry>();
