@@ -11,11 +11,11 @@ You can try out Recursive Extractor [in your browser](https://microsoft.github.i
 # Supported File Types
 | | | |
 |-|-|-|
-| 7zip | ar | bzip2 |
-| deb | gzip | iso |
-| rar | tar | vhd |
-| vhdx | vmdk | wim |
-| xzip | zip |  |
+| 7zip | ar   | bzip2 |
+| deb  | gzip | iso   |
+| rar  | tar  | vhd   |
+| vhdx | vmdk | wim   |
+| xzip | zip  |       |
 
 # Usage
 This example will print out the paths of all the files in the archive.
@@ -50,6 +50,7 @@ catch(OverflowException)
     // This means Recursive Extractor has detected a Quine or Zip Bomb
 }
 ```
+
 ## FileEntry
 
 The Extractor returns `FileEntry` objects.  These objects contain a `Content` Stream of the file contents.
@@ -60,6 +61,33 @@ public string FullPath { get; }
 public string Name { get; }
 public FileEntry? Parent { get; }
 public string? ParentPath { get; }
+```
+
+## Extracting Encrypted Archives
+You can provide passwords to use to decrypt archives, paired with a Regex that will operate against the Name of the Archive.
+```csharp
+var path = "/Path/To/Your/Archive"
+var extractor = new Extractor();
+try {
+    IEnumerable<FileEntry> results = extractor.ExtractFile(path, new ExtractorOptions()
+    {
+        Passwords = new Dictionary<Regex, List<string>>()
+        {
+            { new Regex("\.zip"), new List<string>(){ "PasswordForZipFiles" } },
+            { new Regex("\.7z"), new List<string>(){ "PasswordFor7zFiles" } },
+            { new Regex(".*"), new List<string>(){ "PasswordForAllFiles" } }
+
+        }
+    });
+    foreach(var found in results)
+    {
+        Console.WriteLine(found.FullPath);
+    }
+}
+catch(OverflowException)
+{
+    // This means Recursive Extractor has detected a Quine or Zip Bomb
+}
 ```
 
 ## Exceptions
