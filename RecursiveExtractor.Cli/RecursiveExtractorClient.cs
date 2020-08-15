@@ -20,6 +20,11 @@ namespace Microsoft.CST.RecursiveExtractor.Cli
 
 		public static int Extract(ExtractCommandOptions options)
         {
+
+			if (!Directory.Exists(options.Output))
+            {
+				Directory.CreateDirectory(options.Output);
+            }
 			var extractor = new Extractor();
 			var extractorOptions = new ExtractorOptions()
 			{
