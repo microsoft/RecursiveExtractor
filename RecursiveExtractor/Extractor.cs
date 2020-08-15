@@ -229,8 +229,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 {
                     directory = string.Empty;
                 }
-                // We give it a parent so we can give it a shortname. This is useful for Quine detection later.
-                fileEntry = new FileEntry(file, stream, new FileEntry(directory, new MemoryStream()));
+                fileEntry = new FileEntry(Path.GetFileName(file), stream);
                 governor.ResetResourceGovernor(stream);
             }
             catch (Exception ex)
