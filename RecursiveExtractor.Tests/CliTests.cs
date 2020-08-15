@@ -12,7 +12,7 @@ using Microsoft.CST.RecursiveExtractor.Cli;
 namespace Microsoft.CST.RecursiveExtractor.Tests
 {
     [TestClass]
-    public class ExtractorTests
+    public class ExtractorCliTests
     {
         [DataTestMethod]
         [DataRow("Shared.zip")]
