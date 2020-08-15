@@ -172,6 +172,11 @@ namespace Microsoft.CST.RecursiveExtractor
             else
             {
                 FullPath = $"{parent?.FullPath}{Path.DirectorySeparatorChar}{name}";
+                if (FullPath.Contains(".."))
+                {
+                    Logger.Info("ZipSlip detected in {0}", FullPath);
+                    FullPath = FullPath.Replace("..", "");
+                }
             }
 
             // Back with a temporary filestream, this is optimized to be cached in memory when possible
