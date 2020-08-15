@@ -263,6 +263,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             // Test just based on the content
             var fileEntry = new FileEntry("NoName", fs);
 
+            // We make sure the expected type matches and we have reset the stream
             Assert.IsTrue(MiniMagic.DetectFileType(fileEntry) == expectedArchiveFileType);
             Assert.IsTrue(fileEntry.Content.Position == 0);
 
@@ -270,10 +271,6 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             fileEntry.Content.Position = 10;
             Assert.IsTrue(MiniMagic.DetectFileType(fileEntry) == expectedArchiveFileType);
             Assert.IsTrue(fileEntry.Content.Position == 10);
-
-            // We should also detect just on file names if the content doesn't match
-            var nameOnlyEntry = new FileEntry(fileName, new MemoryStream(), null, true);
-            Assert.IsTrue(MiniMagic.DetectFileType(nameOnlyEntry) == expectedArchiveFileType);
         }
 
         [DataTestMethod]
