@@ -38,12 +38,35 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         {
             var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
-            RecursiveExtractorClient.Extract(new ExtractCommandOptions() { Input = path, Output = directory, Verbose = true });
+            RecursiveExtractorClient.ExtractCommand(new ExtractCommandOptions() { Input = path, Output = directory, Verbose = true });
             if (Directory.Exists(directory))
             {
                 var files = Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories).ToList();
                 Assert.IsTrue(files.Count == expectedNumFiles);
                 Directory.Delete(directory, true);
+            }
+            else
+            {
+                Assert.IsTrue(expectedNumFiles == 0);
+            }
+        }
+
+        [DataTestMethod]
+        [DataRow("SharedEncrypted.7z")]
+        [DataRow("SharedEncrypted.zip")]
+        [DataRow("SharedEncrypted.rar4")]
+        [DataRow("NestedEncrypted.7z", 26 * 3)] // there's one extra metadata file in there
+        public void ExtractEncryptedArchive(string fileName, int expectedNumFiles = 26)
+        {
+            var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            var passwords = ExtractorTests.TestArchivePasswords.Values.SelectMany(x => x);
+            RecursiveExtractorClient.ExtractCommand(new ExtractCommandOptions() { Input = path, Output = directory, Verbose = true, Passwords = passwords });
+            if (Directory.Exists(directory))
+            {
+                var files = Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories).ToList();
+                Directory.Delete(directory, true);
+                Assert.IsTrue(files.Count == expectedNumFiles);
             }
             else
             {

@@ -42,7 +42,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             Assert.IsTrue(results.Count() == expectedNumFiles);
         }
 
-        private Dictionary<Regex, List<string>> TestArchivePasswords = new Dictionary<Regex, List<string>>()
+        public static Dictionary<Regex, List<string>> TestArchivePasswords = new Dictionary<Regex, List<string>>()
         {
             {
                 new Regex("\\.zip"),

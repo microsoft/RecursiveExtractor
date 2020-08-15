@@ -18,7 +18,8 @@ You can try out Recursive Extractor [in your browser](https://microsoft.github.i
 | xzip | zip  |       |
 
 # Usage
-This this code from the Cli extracts the contents of given archive located at `options.Input` to a directory located at `options.Output`.
+This this code adapted from the Cli extracts the contents of given archive located at `options.Input`
+to a directory located at `options.Output` and prints the relative path of each file inside the archive.
 ```csharp
 var extractor = new Extractor();
 var extractorOptions = new ExtractorOptions()
@@ -32,10 +33,7 @@ foreach(var result in extractor.ExtractFile(options.Input, extractorOptions))
         .TrimStart(Path.DirectorySeparatorChar) ?? string.Empty));
     using var fs = new FileStream(Path.Combine(options.Output,result.FullPath), FileMode.Create);
     result.Content.CopyTo(fs);
-    if (options.Verbose)
-    {
-        Console.WriteLine("Extracted {0}.", result.FullPath);
-    }
+    Console.WriteLine("Extracted {0}.", result.FullPath);
 }
 ```
 If you'd prefer async, this example prints out all the file names.

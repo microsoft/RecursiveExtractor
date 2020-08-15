@@ -15,7 +15,13 @@ namespace Microsoft.CST.RecursiveExtractor.Cli
         [Option("passwords", Required = false, HelpText = "Comma separated list of passwords to use.", Separator = ',')]
         public IEnumerable<string>? Passwords { get; set; }
 
-        [Option(HelpText = "List all files extracted.")]
+        [Option(HelpText = "Set logging to Verbose.")]
 		public bool Verbose { get; set; }
-	}
+
+        [Option(HelpText = "Set logging to Debug.")]
+        public bool Debug { get; set; }
+
+        [Option(HelpText = "Print names of all extracted files.")]
+        public bool PrintNames { get; set; }
+    }
 }
