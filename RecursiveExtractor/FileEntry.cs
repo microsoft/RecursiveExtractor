@@ -37,7 +37,13 @@ namespace Microsoft.CST.RecursiveExtractor
             else
             {
                 ParentPath = parent.FullPath;
+                // Replace .. for ZipSlip - https://snyk.io/research/zip-slip-vulnerability
                 FullPath = $"{ParentPath}{Path.DirectorySeparatorChar}{name}";
+                if (FullPath.Contains(".."))
+                {
+                    Logger.Info("ZipSlip detected in {0}", FullPath);
+                    FullPath = FullPath.Replace("..", "");
+                }
             }
 
             if (inputStream == null)
