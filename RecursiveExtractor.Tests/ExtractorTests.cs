@@ -42,10 +42,40 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             Assert.IsTrue(results.Count() == expectedNumFiles);
         }
 
+        private Dictionary<Regex, List<string>> TestArchivePasswords = new Dictionary<Regex, List<string>>()
+        {
+            {
+                new Regex("\\.zip"),
+                new List<string>()
+                {
+                    "AnIncorrectPassword",
+                    "TheMagicWordIsCelery"
+                }
+            },
+            {
+                new Regex("\\.7z"),
+                new List<string>()
+                {
+                    "AnIncorrectPassword",
+                    "TheMagicWordIsTomato",
+                    "TheMagicWordIsLettuce"
+                }
+            },
+            {
+                new Regex("\\.rar"),
+                new List<string>()
+                {
+                    "AnIncorrectPassword",
+                    "TheMagicWordIsPotato"
+                }
+            }
+        };
+
         [DataTestMethod]
         [DataRow("SharedEncrypted.zip")]
         [DataRow("SharedEncrypted.7z")]
         [DataRow("SharedEncrypted.rar4")]
+        [DataRow("NestedEncrypted.7z", 26*3)]
         // [DataRow("SharedEncrypted.rar")] // RAR5 is not yet supported by SharpCompress: https://github.com/adamhathcock/sharpcompress/issues/517
         public void ExtractEncryptedArchive(string fileName, int expectedNumFiles = 26)
         {
@@ -53,25 +83,16 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
             var results = extractor.ExtractFile(path, new ExtractorOptions()
             {
-                Passwords = new Dictionary<Regex, List<string>>()
-                {
-                    {
-                        new Regex(".*"),
-                        new List<string>()
-                        {
-                            "AnIncorrectPassword",
-                            "TheMagicWordIsPotato"
-                        }
-                    }
-                }
-            });
-            Assert.IsTrue(results.Count() == expectedNumFiles);
+                Passwords = TestArchivePasswords
+            }).ToList(); // Make this a list so it fully populates
+            Assert.IsTrue(results.Count == expectedNumFiles);
         }
 
         [DataTestMethod]
         [DataRow("SharedEncrypted.zip")]
         [DataRow("SharedEncrypted.7z")]
         [DataRow("SharedEncrypted.rar4")]
+        [DataRow("NestedEncrypted.7z", 26 * 3)]
         // [DataRow("SharedEncrypted.rar")] // RAR5 is not yet supported by SharpCompress: https://github.com/adamhathcock/sharpcompress/issues/517
 
         public async Task ExtractEncryptedArchiveAsync(string fileName, int expectedNumFiles = 26)
@@ -80,17 +101,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
             var results = extractor.ExtractFileAsync(path, new ExtractorOptions()
             {
-                Passwords = new Dictionary<Regex, List<string>>()
-                {
-                    {
-                        new Regex(".*"),
-                        new List<string>()
-                        {
-                            "AnIncorrectPassword",
-                            "TheMagicWordIsPotato"
-                        }
-                    }
-                }
+                Passwords = TestArchivePasswords
             });
             var numEntries = 0;
             await foreach(var entry in results)
