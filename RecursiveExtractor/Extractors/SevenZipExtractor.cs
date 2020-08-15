@@ -33,51 +33,8 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
-            SevenZipArchive? sevenZipArchive = null;
-            try
-            {
-                sevenZipArchive = SevenZipArchive.Open(fileEntry.Content);
-            }
-            catch (Exception e)
-            {
-                Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.P7ZIP, fileEntry.FullPath, string.Empty, e.GetType());
-            }
-            var needsPassword = false;
-            try
-            {
-                needsPassword = sevenZipArchive?.TotalUncompressSize == 0;
-            }
-            catch (Exception e)
-            {
-                needsPassword = true;
-            }
-            if (needsPassword is true)
-            {
-                var passwordFound = false;
-                foreach (var passwords in options.Passwords.Where(x => x.Key.IsMatch(fileEntry.Name)))
-                {
-                    if (passwordFound) { break; }
-                    foreach (var password in passwords.Value)
-                    {
-                        if (passwordFound) { break; }
-                        try
-                        {
-                            sevenZipArchive = SevenZipArchive.Open(fileEntry.Content, new SharpCompress.Readers.ReaderOptions() { Password = password });
-                            if (sevenZipArchive.TotalUncompressSize > 0)
-                            {
-                                passwordFound = true;
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.P7ZIP, fileEntry.FullPath, string.Empty, e.GetType());
-                        }
-                    }
-                }
-            }
+            var sevenZipArchive = GetSevenZipArchive(fileEntry, options);
             if (sevenZipArchive != null)
-
-                if (sevenZipArchive != null)
             {
                 var entries = sevenZipArchive.Entries.Where(x => !x.IsDirectory && x.IsComplete).ToList();
 
@@ -108,13 +65,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
         }
 
-        /// <summary>
-        ///     Extracts a 7-Zip file contained in fileEntry.
-        /// </summary>
-        /// <param name="fileEntry"> FileEntry to extract </param>
-        /// <returns> Extracted files </returns>
-
-        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        private SevenZipArchive? GetSevenZipArchive(FileEntry fileEntry, ExtractorOptions options)
         {
             SevenZipArchive? sevenZipArchive = null;
             try
@@ -130,7 +81,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             {
                 needsPassword = sevenZipArchive?.TotalUncompressSize == 0;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 needsPassword = true;
             }
@@ -142,13 +93,13 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     if (passwordFound) { break; }
                     foreach (var password in passwords.Value)
                     {
-                        if (passwordFound) { break; }
                         try
                         {
                             sevenZipArchive = SevenZipArchive.Open(fileEntry.Content, new SharpCompress.Readers.ReaderOptions() { Password = password });
                             if (sevenZipArchive.TotalUncompressSize > 0)
                             {
                                 passwordFound = true;
+                                break;
                             }
                         }
                         catch (Exception e)
@@ -158,6 +109,18 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
                 }
             }
+            return sevenZipArchive;
+        }
+
+        /// <summary>
+        ///     Extracts a 7-Zip file contained in fileEntry.
+        /// </summary>
+        /// <param name="fileEntry"> FileEntry to extract </param>
+        /// <returns> Extracted files </returns>
+
+        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        {
+            var sevenZipArchive = GetSevenZipArchive(fileEntry, options);
             if (sevenZipArchive != null)
             {
                 var entries = sevenZipArchive.Entries.Where(x => !x.IsDirectory && x.IsComplete).ToList();

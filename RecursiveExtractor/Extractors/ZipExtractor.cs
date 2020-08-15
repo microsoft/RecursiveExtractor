@@ -25,6 +25,27 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         internal Extractor Context { get; }
         private const int BUFFER_SIZE = 32768;
 
+        private string? GetZipPassword(FileEntry fileEntry, ZipFile zipFile, ZipEntry zipEntry, ExtractorOptions options)
+        {
+            foreach (var passwords in options.Passwords.Where(x => x.Key.IsMatch(zipEntry.Name)))
+            {
+                foreach (var password in passwords.Value)
+                {
+                    zipFile.Password = password;
+                    try
+                    {
+                        using var zipStream = zipFile.GetInputStream(zipEntry);
+                        return password;
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.ZIP, fileEntry.FullPath, zipEntry.Name, e.GetType());
+                    }
+                }
+            }
+            return null;
+        }
+
         /// <summary>
         ///     Extracts an zip file contained in fileEntry.
         /// </summary>
@@ -56,24 +77,8 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                     if (zipEntry.IsCrypted && !passwordFound)
                     {
-                        foreach (var passwords in options.Passwords.Where(x => x.Key.IsMatch(zipEntry.Name)))
-                        {
-                            if (passwordFound) { break; }
-                            foreach (var password in passwords.Value)
-                            {
-                                if (passwordFound) { break; }
-                                zipFile.Password = password;
-                                try
-                                {
-                                    var zipStream = zipFile.GetInputStream(zipEntry);
-                                    passwordFound = true;
-                                }
-                                catch (Exception e)
-                                {
-                                    Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.ZIP, fileEntry.FullPath, zipEntry.Name, e.GetType());
-                                }
-                            }
-                        }
+                        zipFile.Password = GetZipPassword(fileEntry, zipFile, zipEntry, options) ?? string.Empty;
+                        passwordFound = true;
                     }
 
                     governor.CheckResourceGovernor(zipEntry.Size);
@@ -141,24 +146,8 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                     if (zipEntry.IsCrypted && !passwordFound)
                     {
-                        foreach(var passwords in options.Passwords.Where(x => x.Key.IsMatch(zipEntry.Name)))
-                        {
-                            if (passwordFound) { break; }
-                            foreach (var password in passwords.Value)
-                            {
-                                if (passwordFound) { break; }
-                                zipFile.Password = password;
-                                try
-                                {
-                                    var zipStream = zipFile.GetInputStream(zipEntry);
-                                    passwordFound = true;
-                                }
-                                catch (Exception e)
-                                {
-                                    Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.ZIP, fileEntry.FullPath, zipEntry.Name, e.GetType());
-                                }
-                            }
-                        }
+                        zipFile.Password = GetZipPassword(fileEntry, zipFile, zipEntry, options) ?? string.Empty;
+                        passwordFound = true;
                     }
 
                     try

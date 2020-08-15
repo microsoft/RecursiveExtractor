@@ -38,7 +38,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
-            var results = extractor.ExtractFile(path, new ExtractorOptions()).ToList();
+            var results = extractor.ExtractFile(path, new ExtractorOptions());
             Assert.IsTrue(results.Count() == expectedNumFiles);
         }
 
@@ -56,15 +56,15 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
                 Passwords = new Dictionary<Regex, List<string>>()
                 {
                     {
-                        new Regex(".*"), 
+                        new Regex(".*"),
                         new List<string>()
                         {
                             "AnIncorrectPassword",
                             "TheMagicWordIsPotato"
-                        } 
-                    } 
+                        }
+                    }
                 }
-            }).ToList();
+            });
             Assert.IsTrue(results.Count() == expectedNumFiles);
         }
 
@@ -157,7 +157,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
-            var results = extractor.ExtractFile(path, new ExtractorOptions() { Parallel = true }).ToList();
+            var results = extractor.ExtractFile(path, new ExtractorOptions() { Parallel = true });
             Assert.IsTrue(results.Count() == expectedNumFiles);
         }
 
@@ -221,8 +221,8 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
             using var stream = new FileStream(path, FileMode.Open);
-            var results = extractor.ExtractStream(path, stream, new ExtractorOptions()).ToList();
-            Assert.AreEqual(expectedNumFiles, results.Count);
+            var results = extractor.ExtractStream(path, stream, new ExtractorOptions());
+            Assert.AreEqual(expectedNumFiles, results.Count());
             stream.Close();
         }
 
