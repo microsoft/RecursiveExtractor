@@ -76,6 +76,14 @@ Otherwise, invalid files found while crawling will emit a logger message and be 
 
 If you have any issues or feature requests please open a new [Issue](https://github.com/microsoft/RecursiveExtractor/issues/new)
 
+# Libraries
+
+Recursive Extractor uses a number of libraries to parse archives.
+
+* [SharpZipLib](https://github.com/icsharpcode/SharpZipLib)
+* [SharpCompress](https://github.com/adamhathcock/sharpcompress)
+* [DiscUtils](https://github.com/discutils/discutils).
+
 # Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
