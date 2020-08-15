@@ -36,48 +36,6 @@ namespace Microsoft.CST.RecursiveExtractor
     /// </summary>
     public static class MiniMagic
     {
-        /// <summary>
-        ///     Fallback using file extensions in case the binary signature doesn't match.
-        /// </summary>
-        private static readonly Dictionary<string, ArchiveFileType> FileExtensionMap = new Dictionary<string, ArchiveFileType>()
-        {
-            {"ZIP", ArchiveFileType.ZIP },
-            {"APK", ArchiveFileType.ZIP },
-            {"IPA", ArchiveFileType.ZIP },
-            {"JAR", ArchiveFileType.ZIP },
-            {"EAR", ArchiveFileType.ZIP },
-            {"WAR", ArchiveFileType.ZIP },
-
-            {"GZ", ArchiveFileType.GZIP },
-            {"TGZ", ArchiveFileType.GZIP },
-
-            {"TAR", ArchiveFileType.TAR },
-            {"GEM", ArchiveFileType.TAR },
-
-            {"XZ", ArchiveFileType.XZ },
-
-            {"BZ2", ArchiveFileType.BZIP2 },
-
-            {"RAR", ArchiveFileType.RAR },
-            {"RAR4", ArchiveFileType.RAR },
-
-            {"7Z", ArchiveFileType.P7ZIP },
-
-            {"DEB", ArchiveFileType.DEB },
-
-            {"AR", ArchiveFileType.AR },
-
-            {"ISO", ArchiveFileType.ISO_9660 },
-
-            {"VHDX", ArchiveFileType.VHDX },
-
-            {"VHD", ArchiveFileType.VHD },
-
-            {"WIM", ArchiveFileType.WIM },
-
-            {"VMDK", ArchiveFileType.VMDK }
-        };
-
         public static ArchiveFileType DetectFileType(string filename)
         {
 #pragma warning disable SEC0116 // Path Tampering Unvalidated File Path
@@ -243,19 +201,7 @@ namespace Microsoft.CST.RecursiveExtractor
                     return ArchiveFileType.VHD;
                 }
             }
-
-            // Fall back to file extensions
-            var fileExtension = Path.GetExtension(fileEntry.Name.ToUpperInvariant());
-
-            if (fileExtension.StartsWith("."))
-            {
-                fileExtension = fileExtension.Substring(1);
-            }
-            if (!FileExtensionMap.TryGetValue(fileExtension, out var fileType))
-            {
-                fileType = ArchiveFileType.UNKNOWN;
-            }
-            return fileType;
+            return ArchiveFileType.UNKNOWN;
         }
     }
 }
