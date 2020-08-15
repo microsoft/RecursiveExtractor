@@ -47,7 +47,7 @@ namespace Microsoft.CST.RecursiveExtractor.Cli
 				ExtractSelfOnFail = true,
 				Parallel = true,
 			};
-            if (options.Passwords.Any())
+            if (options.Passwords?.Any() ?? false)
             {
                 extractorOptions.Passwords = new Dictionary<Regex, List<string>>()
                 {
