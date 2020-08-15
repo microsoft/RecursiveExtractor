@@ -40,7 +40,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 FullPath = $"{ParentPath}{Path.DirectorySeparatorChar}{name}";
                 if (FullPath.Contains(".."))
                 {
-                    Logger.Info("ZipSlip detected in {0}", FullPath);
+                    Logger.Info("ZipSlip detected in {0}. Removing unsafe path elements and extracting.", FullPath);
                     // Replace .. for ZipSlip - https://snyk.io/research/zip-slip-vulnerability
                     FullPath = FullPath.Replace("..", "");
                 }
@@ -174,7 +174,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 FullPath = $"{parent?.FullPath}{Path.DirectorySeparatorChar}{name}";
                 if (FullPath.Contains(".."))
                 {
-                    Logger.Info("ZipSlip detected in {0}", FullPath);
+                    Logger.Info("ZipSlip detected in {0}. Removing unsafe path elements and extracting.", FullPath);
                     // Replace .. for ZipSlip - https://snyk.io/research/zip-slip-vulnerability
                     FullPath = FullPath.Replace("..", "");
                 }
