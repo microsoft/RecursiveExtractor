@@ -57,7 +57,8 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
                         new Regex(".*"), 
                         new List<string>()
                         {
-                            "TheMagicWordIsPotato" 
+                            "AnIncorrectPassword",
+                            "TheMagicWordIsPotato"
                         } 
                     } 
                 }
@@ -80,6 +81,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
                         new Regex(".*"),
                         new List<string>()
                         {
+                            "AnIncorrectPassword",
                             "TheMagicWordIsPotato"
                         }
                     }
