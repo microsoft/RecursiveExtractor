@@ -25,8 +25,9 @@ namespace Microsoft.CST.RecursiveExtractor
         public FileEntry(string name, Stream inputStream, FileEntry? parent = null, bool passthroughStream = false)
         {
             Parent = parent;
-            Name = Path.GetFileName(name);
             Passthrough = passthroughStream;
+
+            Name = Path.GetFileName(name);
 
             if (parent == null)
             {
@@ -154,17 +155,19 @@ namespace Microsoft.CST.RecursiveExtractor
             {
                 content = new MemoryStream();
             }
-            string? ParentPath;
+
+            // Used for Debug statements
             string FullPath;
+
             if (parent == null)
             {
                 FullPath = name;
             }
             else
             {
-                ParentPath = parent.FullPath;
-                FullPath = $"{ParentPath}{Path.DirectorySeparatorChar}{name}";
+                FullPath = $"{parent?.FullPath}{Path.DirectorySeparatorChar}{name}";
             }
+
             // Back with a temporary filestream, this is optimized to be cached in memory when possible
             // automatically by .NET
             var Content = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
