@@ -48,10 +48,11 @@ stages:
       dotnetVersion: '3.1.x'
       projectPath: 'RecursiveExtractor/RecursiveExtractor.csproj'
       projectName: 'RecursiveExtractor'
-  - template: templates/nuget-build-job.yml
+  - template: templates/nuget-build-job-framework.yml
     parameters:
       jobName: 'pack_cli'
       dotnetVersion: '3.1.x'
+      publishFramework: 'netcoreapp3.1'
       projectPath: 'RecursiveExtractor.Cli/RecursiveExtractor.Cli.csproj'
       projectName: 'RecursiveExtractor_CLI
 
