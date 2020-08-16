@@ -62,7 +62,7 @@ Run "RecursiveExtractor --help" for more details.
 Recursive Extractor is available on NuGet as [Microsoft.CST.RecursiveExtractor](https://www.nuget.org/packages/Microsoft.CST.RecursiveExtractor/).
 
 This code adapted from the Cli extracts the contents of given archive located at `options.Input`
-to a directory located at `options.Output` and prints the relative path of each file inside the archive.
+to a directory located at `options.Output`.
 
 ```csharp
 var extractor = new Extractor();
@@ -71,16 +71,7 @@ var extractorOptions = new ExtractorOptions()
     ExtractSelfOnFail = true,
     Parallel = true,
 };
-foreach(var result in extractor.ExtractFile(options.Input, extractorOptions))
-{
-    Directory.CreateDirectory(Path.Combine(options.Output,
-        Path.GetDirectoryName(result.FullPath)?
-            .TrimStart(Path.DirectorySeparatorChar) ?? string.Empty));
-
-    using var fs = new FileStream(Path.Combine(options.Output,result.FullPath), FileMode.Create);
-    result.Content.CopyTo(fs);
-    Console.WriteLine("Extracted {0}.", result.FullPath);
-}
+extractor.ExtractToDirectory(options.Output, options.Input, extractorOptions);
 ```
 <details>
 <summary>Async Usage</summary>
@@ -125,6 +116,7 @@ You can provide passwords to use to decrypt archives, paired with a Regex that w
 
 ```csharp
 var path = "/Path/To/Your/Archive"
+var directory
 var extractor = new Extractor();
 try {
     IEnumerable<FileEntry> results = extractor.ExtractFile(path, new ExtractorOptions()
