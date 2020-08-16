@@ -36,6 +36,76 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("Empty.vmdk", 0)]
         [DataRow("TextFile.md", 1)]
         [DataRow("Nested.Zip", 26 * 8 + 1)] // there's one extra metadata file in there
+        public void ExtractArchiveToDirectory(string fileName, int expectedNumFiles = 26)
+        {
+            var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            var extractor = new Extractor();
+            extractor.ExtractToDirectory(directory, path);
+            var files = Array.Empty<string>();
+            if (Directory.Exists(directory))
+            {
+                files = Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories).ToArray();
+                Directory.Delete(directory, true);
+            }
+            Assert.AreEqual(expectedNumFiles, files.Length);
+        }
+
+        [DataTestMethod]
+        [DataRow("Shared.zip")]
+        [DataRow("Shared.7z")]
+        [DataRow("Shared.Tar")]
+        [DataRow("Shared.rar")]
+        [DataRow("Shared.rar4")]
+        [DataRow("Shared.tar.bz2")]
+        [DataRow("Shared.tar.gz")]
+        [DataRow("Shared.tar.xz")]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
+        [DataRow("Shared.a", 1)]
+        [DataRow("Shared.deb", 27)]
+        [DataRow("Shared.ar")]
+        [DataRow("Shared.iso")]
+        [DataRow("Shared.vhd", 29)] // 26 + Some invisible system files
+        [DataRow("Shared.vhdx")]
+        [DataRow("Shared.wim")]
+        [DataRow("Empty.vmdk", 0)]
+        [DataRow("TextFile.md", 1)]
+        [DataRow("Nested.Zip", 26 * 8 + 1)] // there's one extra metadata file in there
+        public void ExtractArchiveToDirectoryAsync(string fileName, int expectedNumFiles = 26)
+        {
+            var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            var extractor = new Extractor();
+            extractor.ExtractToDirectoryAsync(directory, path);
+            var files = Array.Empty<string>();
+            if (Directory.Exists(directory))
+            {
+                files = Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories).ToArray();
+                Directory.Delete(directory, true);
+            }
+            Assert.AreEqual(expectedNumFiles, files.Length);
+        }
+
+        [DataTestMethod]
+        [DataRow("Shared.zip")]
+        [DataRow("Shared.7z")]
+        [DataRow("Shared.Tar")]
+        [DataRow("Shared.rar")]
+        [DataRow("Shared.rar4")]
+        [DataRow("Shared.tar.bz2")]
+        [DataRow("Shared.tar.gz")]
+        [DataRow("Shared.tar.xz")]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
+        [DataRow("Shared.a", 1)]
+        [DataRow("Shared.deb", 27)]
+        [DataRow("Shared.ar")]
+        [DataRow("Shared.iso")]
+        [DataRow("Shared.vhd", 29)] // 26 + Some invisible system files
+        [DataRow("Shared.vhdx")]
+        [DataRow("Shared.wim")]
+        [DataRow("Empty.vmdk", 0)]
+        [DataRow("TextFile.md", 1)]
+        [DataRow("Nested.Zip", 26 * 8 + 1)] // there's one extra metadata file in there
         public void ExtractArchive(string fileName, int expectedNumFiles = 26)
         {
             var extractor = new Extractor();
