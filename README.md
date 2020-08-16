@@ -156,7 +156,9 @@ Otherwise, invalid files found while crawling will emit a logger message and be 
 
 # Feedback
 
-If you have any issues or feature requests please open a new [Issue](https://github.com/microsoft/RecursiveExtractor/issues/new)
+If you have any issues or feature requests you can open a new [Issue](https://github.com/microsoft/RecursiveExtractor/issues/new).  
+
+If you have an archive you are having trouble parsing, please include it in your feedback.
 
 # Dependencies
 
