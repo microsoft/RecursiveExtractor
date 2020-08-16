@@ -43,6 +43,11 @@ namespace Microsoft.CST.RecursiveExtractor
                     Logger.Info("ZipSlip detected in {0}. Removing unsafe path elements and extracting.", FullPath);
                     // Replace .. for ZipSlip - https://snyk.io/research/zip-slip-vulnerability
                     FullPath = FullPath.Replace("..", "");
+                    var doubleSeparator = $"{Path.DirectorySeparatorChar}{Path.DirectorySeparatorChar}";
+                    while (FullPath.Contains(doubleSeparator))
+                    {
+                        FullPath.Replace(doubleSeparator, $"{Path.DirectorySeparatorChar}");
+                    }
                 }
             }
 
