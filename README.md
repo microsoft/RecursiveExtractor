@@ -37,6 +37,7 @@ First ensure you have the latest [.NET SDK](https://dotnet.microsoft.com/downloa
 Then run `dotnet tool install -g Microsoft.CST.RecursiveExtractor.Cli`
 
 Then you can run: `RecursiveExtractor --input archive.ext --output outputDirectory`
+
 <details>
 <summary>Detailed Usage</summary>
 <br/>
