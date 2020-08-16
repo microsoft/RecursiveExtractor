@@ -14,6 +14,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
+using System.Text.RegularExpressions;
 
 namespace Microsoft.CST.RecursiveExtractor
 {
@@ -254,13 +255,7 @@ namespace Microsoft.CST.RecursiveExtractor
             try
             {
                 var file = Path.GetFileName(filename);
-                var directory = Path.GetDirectoryName(filename);
-                if (file == directory)
-                {
-                    directory = string.Empty;
-                }
-                // We give it a parent so we can give it a shortname. This is useful for Quine detection later.
-                fileEntry = new FileEntry(file, stream, new FileEntry(directory, new MemoryStream()));
+                fileEntry = new FileEntry(file, stream);
                 governor.ResetResourceGovernor(stream);
             }
             catch (Exception ex)
@@ -304,13 +299,7 @@ namespace Microsoft.CST.RecursiveExtractor
             FileEntry? fileEntry = null;
             try
             {
-                var file = Path.GetFileName(filename);
-                var directory = Path.GetDirectoryName(filename);
-                if (file == directory)
-                {
-                    directory = string.Empty;
-                }
-                fileEntry = new FileEntry(Path.GetFileName(file), stream);
+                fileEntry = new FileEntry(Path.GetFileName(filename), stream);
                 governor.ResetResourceGovernor(stream);
             }
             catch (Exception ex)
@@ -349,7 +338,7 @@ namespace Microsoft.CST.RecursiveExtractor
         public IEnumerable<FileEntry> Extract(string filename, byte[] archiveBytes, ExtractorOptions? opts = null)
         {
             using var ms = new MemoryStream(archiveBytes);
-            return ExtractFile(new FileEntry(filename, ms), opts);
+            return ExtractFile(new FileEntry(Path.GetFileName(filename), ms), opts);
         }
 
         /// <summary>
@@ -377,7 +366,7 @@ namespace Microsoft.CST.RecursiveExtractor
         public async IAsyncEnumerable<FileEntry> ExtractAsync(string filename, byte[] archiveBytes, ExtractorOptions? opts = null)
         {
             using var ms = new MemoryStream(archiveBytes);
-            await foreach (var entry in ExtractAsync(new FileEntry(filename, ms), opts))
+            await foreach (var entry in ExtractAsync(new FileEntry(Path.GetFileName(filename), ms), opts))
             {
                 yield return entry;
             };
@@ -436,6 +425,161 @@ namespace Microsoft.CST.RecursiveExtractor
             }
         }
 
+        private bool FileNamePasses(string fileName, IEnumerable<Regex>? acceptFilters = null, IEnumerable<Regex>? denyFilters = null)
+        {
+            foreach (var allowRegex in acceptFilters ?? Array.Empty<Regex>())
+            {
+                if (!allowRegex.IsMatch(fileName))
+                {
+                    return false;
+                }
+            }
+            foreach (var denyRegex in denyFilters ?? Array.Empty<Regex>())
+            {
+                if (denyRegex.IsMatch(fileName))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+
+
+        /// <summary>
+        /// Extract the given file to the given Directory.
+        /// </summary>
+        /// <param name="outputDirectory">The directory to extract under. (Will be created if it does not exist).</param>
+        /// <param name="filename">The filename to call the stream.</param>
+        /// <param name="opts">The ExtractorOptions to use.</param>
+        /// <param name="acceptFilters">An optional list of regexes, when set each entry's FullName must match at least one.</param>
+        /// <param name="denyFilters">An optional list of regexes, when set each entry's FullName must match none.</param>
+        /// <param name="printNames">If we should print the filename when when writing it out to disc.</param>
+        public void ExtractToDirectory(string outputDirectory, string filename, ExtractorOptions? opts = null, IEnumerable<Regex>? acceptFilters = null, IEnumerable<Regex>? denyFilters = null, bool printNames = false)
+        {
+            var fs = new FileStream(filename, FileMode.Open);
+            ExtractToDirectory(outputDirectory, filename, fs, opts, acceptFilters, denyFilters, printNames);
+        }
+
+        /// <summary>
+        /// Extract the given Stream to the given Directory.
+        /// </summary>
+        /// <param name="outputDirectory">The directory to extract under. (Will be created if it does not exist).</param>
+        /// <param name="filename">The filename to call the stream.</param>
+        /// <param name="stream">The Stream to extract.</param>
+        /// <param name="opts">The ExtractorOptions to use.</param>
+        /// <param name="acceptFilters">An optional list of regexes, when set each entry's FullName must match at least one.</param>
+        /// <param name="denyFilters">An optional list of regexes, when set each entry's FullName must match none.</param>
+        /// <param name="printNames">If we should print the filename when when writing it out to disc.</param>
+        public void ExtractToDirectory(string outputDirectory, string filename, Stream stream, ExtractorOptions? opts = null, IEnumerable<Regex>? acceptFilters = null, IEnumerable<Regex>? denyFilters = null, bool printNames = false)
+        {
+            var file = Path.GetFileName(filename);
+            var fileEntry = new FileEntry(Path.GetFileName(file), stream);
+            ExtractToDirectory(outputDirectory, fileEntry, opts, acceptFilters, denyFilters, printNames);
+        }
+
+        /// <summary>
+        /// Extract the given FileEntry to the given Directory.
+        /// </summary>
+        /// <param name="outputDirectory">The directory to extract under. (Will be created if it does not exist).</param>
+        /// <param name="filename">The filename to call the stream.</param>
+        /// <param name="opts">The ExtractorOptions to use.</param>
+        /// <param name="acceptFilters">An optional list of regexes, when set each entry's FullName must match at least one.</param>
+        /// <param name="denyFilters">An optional list of regexes, when set each entry's FullName must match none.</param>
+        /// <param name="printNames">If we should print the filename when when writing it out to disc.</param>
+        public void ExtractToDirectory(string outputDirectory, FileEntry fileEntry, ExtractorOptions? opts = null, IEnumerable<Regex>? acceptFilters = null, IEnumerable<Regex>? denyFilters = null, bool printNames = false)
+        { 
+            foreach (var entry in Extract(fileEntry, opts))
+            {
+                if (FileNamePasses(entry.FullPath, acceptFilters, denyFilters))
+                {
+                    var targetPath = Path.Combine(outputDirectory, entry.FullPath);
+                    try
+                    {
+                        Directory.CreateDirectory(Path.GetDirectoryName(targetPath));
+                        
+                        using var fs = new FileStream(targetPath, FileMode.Create);
+                        entry.Content.CopyTo(fs);
+                        if (printNames)
+                        {
+                            Console.WriteLine("Extracted {0}.", entry.FullPath);
+                        }
+                        Logger.Trace("Extracted {0}", entry.FullPath);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Fatal(e, "Failed to create file at {0}.", targetPath);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Extract the given file to the given Directory.
+        /// </summary>
+        /// <param name="outputDirectory">The directory to extract under. (Will be created if it does not exist).</param>
+        /// <param name="filename">The filename to call the stream.</param>
+        /// <param name="opts">The ExtractorOptions to use.</param>
+        /// <param name="acceptFilters">An optional list of regexes, when set each entry's FullName must match at least one.</param>
+        /// <param name="denyFilters">An optional list of regexes, when set each entry's FullName must match none.</param>
+        /// <param name="printNames">If we should print the filename when when writing it out to disc.</param>
+        public async void ExtractToDirectoryAsync(string outputDirectory, string filename, ExtractorOptions? opts = null, IEnumerable<Regex>? acceptFilters = null, IEnumerable<Regex>? denyFilters = null, bool printNames = false)
+        {
+            var fs = new FileStream(filename, FileMode.Open);
+            ExtractToDirectory(outputDirectory, filename, fs, opts, acceptFilters, denyFilters, printNames);
+        }
+
+        /// <summary>
+        /// Extract the given Stream to the given Directory asynchronously.
+        /// </summary>
+        /// <param name="outputDirectory">The directory to extract under. (Will be created if it does not exist).</param>
+        /// <param name="filename">The filename to call the stream.</param>
+        /// <param name="stream">The Stream to extract.</param>
+        /// <param name="opts">The ExtractorOptions to use.</param>
+        /// <param name="acceptFilters">An optional list of regexes, when set each entry's FullName must match at least one.</param>
+        /// <param name="denyFilters">An optional list of regexes, when set each entry's FullName must match none.</param>
+        /// <param name="printNames">If we should print the filename when when writing it out to disc.</param>
+        public async void ExtractToDirectoryAsync(string outputDirectory, string filename, Stream stream, ExtractorOptions? opts = null, IEnumerable<Regex>? acceptFilters = null, IEnumerable<Regex>? denyFilters = null, bool printNames = false)
+        {
+            var file = Path.GetFileName(filename);
+            var fileEntry = new FileEntry(Path.GetFileName(file), stream);
+            ExtractToDirectoryAsync(outputDirectory, fileEntry, opts, acceptFilters, denyFilters, printNames);
+        }
+
+        /// <summary>
+        /// Extract the given FileEntry to the given Directory asynchronously.
+        /// </summary>
+        /// <param name="outputDirectory">The directory to extract under. (Will be created if it does not exist).</param>
+        /// <param name="filename">The filename to call the stream.</param>
+        /// <param name="opts">The ExtractorOptions to use.</param>
+        /// <param name="acceptFilters">An optional list of regexes, when set each entry's FullName must match at least one.</param>
+        /// <param name="denyFilters">An optional list of regexes, when set each entry's FullName must match none.</param>
+        /// <param name="printNames">If we should print the filename when when writing it out to disc.</param>
+        public async void ExtractToDirectoryAsync(string outputDirectory, FileEntry fileEntry, ExtractorOptions? opts = null, IEnumerable<Regex>? acceptFilters = null, IEnumerable<Regex>? denyFilters = null, bool printNames = false)
+        {
+            await foreach (var entry in ExtractAsync(fileEntry, opts))
+            {
+                if (FileNamePasses(entry.FullPath, acceptFilters, denyFilters))
+                {
+                    var targetPath = Path.Combine(outputDirectory, entry.FullPath);
+                    try
+                    {
+                        Directory.CreateDirectory(Path.GetDirectoryName(targetPath));
+                        using var fs = new FileStream(targetPath, FileMode.Create);
+                        await entry.Content.CopyToAsync(fs);
+                        if (printNames)
+                        {
+                            Console.WriteLine("Extracted {0}.", entry.FullPath);
+                        }
+                        Logger.Trace("Extracted {0}", entry.FullPath);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Fatal(e, "Failed to create file at {0}.", targetPath);
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// Deprecated. Use Extract.
