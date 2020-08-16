@@ -11,11 +11,20 @@ You can try out Recursive Extractor [in your browser](https://microsoft.github.i
 # Supported File Types
 | | | |
 |-|-|-|
-| 7zip | ar   | bzip2 |
-| deb  | gzip | iso   |
-| rar  | tar  | vhd   |
-| vhdx | vmdk | wim*  |
-| xzip | zip  |       |
+| 7zip+ | ar    | bzip2 |
+| deb   | gzip  | iso   |
+| rar^ | tar   | vhd   |
+| vhdx  | vmdk  | wim*  |
+| xzip  | zip+  |       |
+
+<details>
+<summary>Details</summary>
+<br/>
+* Windows only<br/>
++ Encryption Supported<br/>
+^ Rar version 4 Encryption supported<br/>
+</details>
+
 
 # Variants
 
@@ -110,7 +119,7 @@ public string? ParentPath { get; }
 <details>
 <summary>Extracting Encrypted Archives</summary>
 <br/>
-The Extractor returns `FileEntry` objects.  These objects contain a `Content` Stream of the file contents.You can provide passwords to use to decrypt archives, paired with a Regex that will operate against the Name of the Archive.
+You can provide passwords to use to decrypt archives, paired with a Regex that will operate against the Name of the Archive.
 
 ```csharp
 var path = "/Path/To/Your/Archive"

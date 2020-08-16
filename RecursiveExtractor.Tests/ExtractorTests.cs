@@ -41,17 +41,25 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
             var results = extractor.ExtractFile(path, new ExtractorOptions());
-            Assert.IsTrue(results.Count() == expectedNumFiles);
+            Assert.AreEqual(expectedNumFiles, results.Count());
         }
 
         public static Dictionary<Regex, List<string>> TestArchivePasswords = new Dictionary<Regex, List<string>>()
         {
             {
-                new Regex("\\.zip"),
+                new Regex("Encrypted.zip"),
                 new List<string>()
                 {
                     "AnIncorrectPassword",
-                    "TheMagicWordIsCelery"
+                    "TheMagicWordIsCelery", // ZipCrypto Encrypted
+                }
+            },
+            {
+                new Regex("EncryptedAES.zip"),
+                new List<string>()
+                {
+                    "AnIncorrectPassword",
+                    "TheMagicWordIsRadish"  // AES Encrypted
                 }
             },
             {
@@ -75,6 +83,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
 
         [DataTestMethod]
         [DataRow("SharedEncrypted.zip")]
+        [DataRow("SharedEncryptedAES.zip")]
         [DataRow("SharedEncrypted.7z")]
         [DataRow("SharedEncrypted.rar4")]
         [DataRow("NestedEncrypted.7z", 26*3)]
@@ -87,11 +96,12 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             {
                 Passwords = TestArchivePasswords
             }).ToList(); // Make this a list so it fully populates
-            Assert.IsTrue(results.Count == expectedNumFiles);
+            Assert.AreEqual(expectedNumFiles, results.Count);
         }
 
         [DataTestMethod]
         [DataRow("SharedEncrypted.zip")]
+        [DataRow("SharedEncryptedAES.zip")]
         [DataRow("SharedEncrypted.7z")]
         [DataRow("SharedEncrypted.rar4")]
         [DataRow("NestedEncrypted.7z", 26 * 3)]
@@ -110,7 +120,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             {
                 numEntries++;
             }
-            Assert.IsTrue(numEntries == expectedNumFiles);
+            Assert.AreEqual(expectedNumFiles, numEntries);
         }
 
         [DataTestMethod]
@@ -143,7 +153,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             {
                 numFound++;
             }
-            Assert.IsTrue(numFound == expectedNumFiles);
+            Assert.AreEqual(expectedNumFiles, numFound);
         }
 
         [DataTestMethod]
@@ -171,7 +181,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
             var results = extractor.ExtractFile(path, new ExtractorOptions() { Parallel = true });
-            Assert.IsTrue(results.Count() == expectedNumFiles);
+            Assert.AreEqual(expectedNumFiles, results.Count());
         }
 
         [DataTestMethod]
@@ -266,13 +276,13 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var fileEntry = new FileEntry("NoName", fs);
 
             // We make sure the expected type matches and we have reset the stream
-            Assert.IsTrue(MiniMagic.DetectFileType(fileEntry) == expectedArchiveFileType);
-            Assert.IsTrue(fileEntry.Content.Position == 0);
+            Assert.AreEqual(expectedArchiveFileType, MiniMagic.DetectFileType(fileEntry));
+            Assert.AreEqual(0, fileEntry.Content.Position);
 
             // Should also work if the stream doesn't start at 0
             fileEntry.Content.Position = 10;
-            Assert.IsTrue(MiniMagic.DetectFileType(fileEntry) == expectedArchiveFileType);
-            Assert.IsTrue(fileEntry.Content.Position == 10);
+            Assert.AreEqual(expectedArchiveFileType, MiniMagic.DetectFileType(fileEntry));
+            Assert.AreEqual(10, fileEntry.Content.Position);
         }
 
         [DataTestMethod]

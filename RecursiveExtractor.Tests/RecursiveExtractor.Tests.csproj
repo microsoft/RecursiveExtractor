@@ -73,6 +73,9 @@
     <None Update="TestData\SharedEncrypted.zip">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="TestData\SharedEncryptedAES.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="TestData\TextFile.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
