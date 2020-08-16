@@ -71,12 +71,12 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("Empty.vmdk", 0)]
         [DataRow("TextFile.md", 1)]
         [DataRow("Nested.Zip", 26 * 8 + 1)] // there's one extra metadata file in there
-        public void ExtractArchiveToDirectoryAsync(string fileName, int expectedNumFiles = 26)
+        public async Task ExtractArchiveToDirectoryAsync(string fileName, int expectedNumFiles = 26)
         {
             var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
             var extractor = new Extractor();
-            extractor.ExtractToDirectoryAsync(directory, path);
+            Assert.AreEqual(ExtractionStatusCode.OKAY, await extractor.ExtractToDirectoryAsync(directory, path));
             var files = Array.Empty<string>();
             if (Directory.Exists(directory))
             {
