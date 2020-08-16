@@ -38,16 +38,17 @@ namespace Microsoft.CST.RecursiveExtractor
             {
                 ParentPath = parent.FullPath;
                 FullPath = $"{ParentPath}{Path.DirectorySeparatorChar}{name}";
-                if (FullPath.Contains(".."))
+            }
+
+            if (FullPath.Contains(".."))
+            {
+                Logger.Info("ZipSlip detected in {0}. Removing unsafe path elements and extracting.", FullPath);
+                // Replace .. for ZipSlip - https://snyk.io/research/zip-slip-vulnerability
+                FullPath = FullPath.Replace("..", "");
+                var doubleSeparator = $"{Path.DirectorySeparatorChar}{Path.DirectorySeparatorChar}";
+                while (FullPath.Contains(doubleSeparator))
                 {
-                    Logger.Info("ZipSlip detected in {0}. Removing unsafe path elements and extracting.", FullPath);
-                    // Replace .. for ZipSlip - https://snyk.io/research/zip-slip-vulnerability
-                    FullPath = FullPath.Replace("..", "");
-                    var doubleSeparator = $"{Path.DirectorySeparatorChar}{Path.DirectorySeparatorChar}";
-                    while (FullPath.Contains(doubleSeparator))
-                    {
-                        FullPath.Replace(doubleSeparator, $"{Path.DirectorySeparatorChar}");
-                    }
+                    FullPath = FullPath.Replace(doubleSeparator, $"{Path.DirectorySeparatorChar}");
                 }
             }
 
@@ -177,11 +178,17 @@ namespace Microsoft.CST.RecursiveExtractor
             else
             {
                 FullPath = $"{parent?.FullPath}{Path.DirectorySeparatorChar}{name}";
-                if (FullPath.Contains(".."))
+            }
+
+            if (FullPath.Contains(".."))
+            {
+                Logger.Info("ZipSlip detected in {0}. Removing unsafe path elements and extracting.", FullPath);
+                // Replace .. for ZipSlip - https://snyk.io/research/zip-slip-vulnerability
+                FullPath = FullPath.Replace("..", "");
+                var doubleSeparator = $"{Path.DirectorySeparatorChar}{Path.DirectorySeparatorChar}";
+                while (FullPath.Contains(doubleSeparator))
                 {
-                    Logger.Info("ZipSlip detected in {0}. Removing unsafe path elements and extracting.", FullPath);
-                    // Replace .. for ZipSlip - https://snyk.io/research/zip-slip-vulnerability
-                    FullPath = FullPath.Replace("..", "");
+                    FullPath = FullPath.Replace(doubleSeparator, $"{Path.DirectorySeparatorChar}");
                 }
             }
 
