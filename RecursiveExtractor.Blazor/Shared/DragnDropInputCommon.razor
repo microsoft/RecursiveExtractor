@@ -119,6 +119,14 @@
         Output = string.Empty;
         this.StateHasChanged();
         var extractor = new Extractor();
+
+        // These formats aren't supported in WASM
+        extractor.Unset(ArchiveFileType.P7ZIP);
+        extractor.Unset(ArchiveFileType.RAR);
+        extractor.Unset(ArchiveFileType.GZIP);
+        extractor.Unset(ArchiveFileType.VHD);
+        extractor.Unset(ArchiveFileType.WIM);
+
         var options = new ExtractorOptions() { EnableTiming = false, ExtractSelfOnFail = false };
         foreach (var pair in IpFileList)
         {
