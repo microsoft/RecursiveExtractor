@@ -44,9 +44,10 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 foreach (var file in diskFiles)
                 {
                     Stream? fileStream = null;
+                    DiscFileInfo? fi = null;
                     try
                     {
-                        var fi = fs.GetFileInfo(file);
+                        fi = fs.GetFileInfo(file);
                         governor.CheckResourceGovernor(fi.Length);
                         fileStream = fi.OpenRead();
                     }
@@ -54,9 +55,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         Logger.Debug(e, "Failed to open {0} in volume {1}", file, volume.Identity);
                     }
-                    if (fileStream != null)
+                    if (fileStream != null && fi != null)
                     {
-                        var newFileEntry = await FileEntry.FromStreamAsync($"{volume.Identity}{Path.DirectorySeparatorChar}{file}", fileStream, parent);
+                        var newFileEntry = await FileEntry.FromStreamAsync($"{volume.Identity}{Path.DirectorySeparatorChar}{fi.FullName}", fileStream, parent);
                         var entries = Context.ExtractFileAsync(newFileEntry, options, governor);
                         await foreach (var entry in entries)
                         {
@@ -123,7 +124,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         {
                             if (file.Item2 != null)
                             {
-                                var newFileEntry = new FileEntry($"{volume.Identity}\\{file.Item1.FullName}", file.Item2, parent);
+                                var newFileEntry = new FileEntry($"{volume.Identity}{Path.DirectorySeparatorChar}{file.Item1.FullName}", file.Item2, parent);
                                 var entries = Context.ExtractFile(newFileEntry, options, governor);
                                 files.PushRange(entries.ToArray());
                             }
