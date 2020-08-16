@@ -53,7 +53,7 @@ stages:
       jobName: 'pack_cli'
       dotnetVersion: '3.1.x'
       projectPath: 'RecursiveExtractor.Cli/RecursiveExtractor.Cli.csproj'
-      projectName: 'RecursiveExtractor_CLI
+      projectName: 'RecursiveExtractor_CLI'
 
 - stage: Release
   dependsOn:
