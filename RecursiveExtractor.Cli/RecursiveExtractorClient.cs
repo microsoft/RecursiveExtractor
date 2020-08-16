@@ -57,8 +57,29 @@ namespace Microsoft.CST.RecursiveExtractor.Cli
                     }
                 };
             }
+            var allowRegexes = options.AllowFilters?.Select(x => new Regex(x)) ?? Array.Empty<Regex>();
+            var denyRegexes = options.DenyFilters?.Select(x => new Regex(x)) ?? Array.Empty<Regex>();
             foreach (var result in extractor.ExtractFile(options.Input, extractorOptions))
             {
+                var skip = false;
+                foreach(var allowRegex in allowRegexes)
+                {
+                    if (!allowRegex.IsMatch(result.FullPath))
+                    {
+                        skip = true;
+                        break;
+                    }
+                }
+                if (skip) { continue; }
+                foreach(var denyRegex in denyRegexes)
+                {
+                    if (denyRegex.IsMatch(result.FullPath)) 
+                    {
+                        skip = true;
+                        break;
+                    }                
+                }
+                if (skip) { continue; }
                 var targetPath = Path.Combine(options.Output, result.FullPath);
                 try
                 {
