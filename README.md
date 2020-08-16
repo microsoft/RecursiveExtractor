@@ -35,9 +35,16 @@ Then you can run: `RecursiveExtractor --input archive.ext --output outputDirecto
     <li><i>input</i>: The path to the Archive to extract.</li>
     <li><i>output</i>: The path a directory to extract into.</li>
     <li><i>passwords</i>: A comma separated list of passwords to use for archives.</li>
+    <li><i>allow-filters</i>: A comma separated list of regexes to require each extracted file match.</li>
+    <li><i>deny-filters</i>: A comma separated list of regexes to require each extracted file not match.</li>
 </ul>
 
-Run "RecursiveExtractor --help" for more detail.
+For example, to extract only ".cs" files:
+```
+RecursiveExtractor --input archive.ext --output outputDirectory --allow-filters .cs$
+```
+
+Run "RecursiveExtractor --help" for more details.
 </details>
 
 ## Library
