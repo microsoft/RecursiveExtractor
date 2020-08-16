@@ -243,7 +243,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("Shared.zip", ArchiveFileType.ZIP)]
         [DataRow("Shared.7z", ArchiveFileType.P7ZIP)]
         [DataRow("Shared.Tar", ArchiveFileType.TAR)]
-        [DataRow("Shared.rar", ArchiveFileType.RAR)]
+        [DataRow("Shared.rar", ArchiveFileType.RAR5)]
         [DataRow("Shared.rar4", ArchiveFileType.RAR)]
         [DataRow("Shared.tar.bz2", ArchiveFileType.BZIP2)]
         [DataRow("Shared.tar.gz", ArchiveFileType.GZIP)]

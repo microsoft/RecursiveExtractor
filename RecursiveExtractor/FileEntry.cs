@@ -95,7 +95,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 {
                     try
                     {
-                        System.Threading.Tasks.Task.Run(() => inputStream.CopyToAsync(Content)).Wait();
+                        Task.Run(() => inputStream.CopyToAsync(Content)).Wait();
                     }
                     catch (Exception f)
                     {
