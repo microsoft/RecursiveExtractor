@@ -3,10 +3,20 @@
 
 Recursive Extractor is a .NET Standard 2.0/2.1 Library for parsing archive files and disk images, including nested archives and disk images.
 
+# Getting Recursive Extractor
+## Cli
+First ensure you have the latest [.NET SDK](https://dotnet.microsoft.com/download).
+
+`dotnet tool install -g Microsoft.CST.RecursiveExtractor.Cli`
+
+Then you can run:
+`RecursiveExtractor --input archive.ext --output outputDirectory`
+
+## Library
 Recursive Extractor is available on NuGet as [Microsoft.CST.RecursiveExtractor](https://www.nuget.org/packages/Microsoft.CST.RecursiveExtractor/).
 
+## Browser
 You can try out Recursive Extractor [in your browser](https://microsoft.github.io/RecursiveExtractor/) as a Web Assembly app.
-
 
 # Supported File Types
 | | | |
@@ -17,9 +27,12 @@ You can try out Recursive Extractor [in your browser](https://microsoft.github.i
 | vhdx | vmdk | wim   |
 | xzip | zip  |       |
 
-# Usage
-This this code adapted from the Cli extracts the contents of given archive located at `options.Input`
-to a directory located at `options.Output` and prints the relative path of each file inside the archive.
+<details>
+<summary>Library Usage</summary>
+<br/>
+This this code adapted from the Cli extracts the contents of given archive located at "options.Input"
+to a directory located at "options.Output" and prints the relative path of each file inside the archive.
+
 ```csharp
 var extractor = new Extractor();
 var extractorOptions = new ExtractorOptions()
@@ -54,9 +67,10 @@ catch(OverflowException)
     // This means Recursive Extractor has detected a Quine or Zip Bomb
 }
 ```
+</details>
 
-## FileEntry
-
+<details>
+<summary>FileEntry Object</summary>
 The Extractor returns `FileEntry` objects.  These objects contain a `Content` Stream of the file contents.
 
 ```csharp
@@ -66,9 +80,11 @@ public string Name { get; }
 public FileEntry? Parent { get; }
 public string? ParentPath { get; }
 ```
+</details>
 
-## Extracting Encrypted Archives
-You can provide passwords to use to decrypt archives, paired with a Regex that will operate against the Name of the Archive.
+<details>
+<summary>Extracting Encrypted Archives</summary>
+The Extractor returns `FileEntry` objects.  These objects contain a `Content` Stream of the file contents.You can provide passwords to use to decrypt archives, paired with a Regex that will operate against the Name of the Archive.
 ```csharp
 var path = "/Path/To/Your/Archive"
 var extractor = new Extractor();
@@ -93,7 +109,7 @@ catch(OverflowException)
     // This means Recursive Extractor has detected a Quine or Zip Bomb
 }
 ```
-
+</details>
 ## Exceptions
 RecursiveExtractor protects against [ZipSlip](https://snyk.io/research/zip-slip-vulnerability), [Quines, and Zip Bombs](https://en.wikipedia.org/wiki/Zip_bomb).
 Calls to Extract will throw an `OverflowException` when a Quine or Zip bomb is detected.
