@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Microsoft.CST.RecursiveExtractor
 {
@@ -49,5 +51,10 @@ namespace Microsoft.CST.RecursiveExtractor
         /// Run in parallel when possible
         /// </summary>
         public bool Parallel { get; set; }
+
+        /// <summary>
+        /// Passwords to use
+        /// </summary>
+        public Dictionary<Regex, List<string>> Passwords { get; set; } = new Dictionary<Regex, List<string>>();
     }
 }

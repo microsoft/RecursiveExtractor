@@ -2,10 +2,13 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NLog;
+using NLog.Config;
+using NLog.Targets;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Microsoft.CST.RecursiveExtractor.Tests
@@ -37,8 +40,77 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
-            var results = extractor.ExtractFile(path, new ExtractorOptions()).ToList();
+            var results = extractor.ExtractFile(path, new ExtractorOptions());
             Assert.IsTrue(results.Count() == expectedNumFiles);
+        }
+
+        public static Dictionary<Regex, List<string>> TestArchivePasswords = new Dictionary<Regex, List<string>>()
+        {
+            {
+                new Regex("\\.zip"),
+                new List<string>()
+                {
+                    "AnIncorrectPassword",
+                    "TheMagicWordIsCelery"
+                }
+            },
+            {
+                new Regex("\\.7z"),
+                new List<string>()
+                {
+                    "AnIncorrectPassword",
+                    "TheMagicWordIsTomato", // SharedEncrypted.7z
+                    "TheMagicWordIsLettuce" // NestedEncrypted.7z
+                }
+            },
+            {
+                new Regex("\\.rar"),
+                new List<string>()
+                {
+                    "AnIncorrectPassword",
+                    "TheMagicWordIsPotato"
+                }
+            }
+        };
+
+        [DataTestMethod]
+        [DataRow("SharedEncrypted.zip")]
+        [DataRow("SharedEncrypted.7z")]
+        [DataRow("SharedEncrypted.rar4")]
+        [DataRow("NestedEncrypted.7z", 26*3)]
+        // [DataRow("SharedEncrypted.rar")] // RAR5 is not yet supported by SharpCompress: https://github.com/adamhathcock/sharpcompress/issues/517
+        public void ExtractEncryptedArchive(string fileName, int expectedNumFiles = 26)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            var results = extractor.ExtractFile(path, new ExtractorOptions()
+            {
+                Passwords = TestArchivePasswords
+            }).ToList(); // Make this a list so it fully populates
+            Assert.IsTrue(results.Count == expectedNumFiles);
+        }
+
+        [DataTestMethod]
+        [DataRow("SharedEncrypted.zip")]
+        [DataRow("SharedEncrypted.7z")]
+        [DataRow("SharedEncrypted.rar4")]
+        [DataRow("NestedEncrypted.7z", 26 * 3)]
+        // [DataRow("SharedEncrypted.rar")] // RAR5 is not yet supported by SharpCompress: https://github.com/adamhathcock/sharpcompress/issues/517
+
+        public async Task ExtractEncryptedArchiveAsync(string fileName, int expectedNumFiles = 26)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            var results = extractor.ExtractFileAsync(path, new ExtractorOptions()
+            {
+                Passwords = TestArchivePasswords
+            });
+            var numEntries = 0;
+            await foreach(var entry in results)
+            {
+                numEntries++;
+            }
+            Assert.IsTrue(numEntries == expectedNumFiles);
         }
 
         [DataTestMethod]
@@ -98,7 +170,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
-            var results = extractor.ExtractFile(path, new ExtractorOptions() { Parallel = true }).ToList();
+            var results = extractor.ExtractFile(path, new ExtractorOptions() { Parallel = true });
             Assert.IsTrue(results.Count() == expectedNumFiles);
         }
 
@@ -162,8 +234,8 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
             using var stream = new FileStream(path, FileMode.Open);
-            var results = extractor.ExtractStream(path, stream, new ExtractorOptions()).ToList();
-            Assert.AreEqual(expectedNumFiles, results.Count);
+            var results = extractor.ExtractStream(path, stream, new ExtractorOptions());
+            Assert.AreEqual(expectedNumFiles, results.Count());
             stream.Close();
         }
 
@@ -193,6 +265,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             // Test just based on the content
             var fileEntry = new FileEntry("NoName", fs);
 
+            // We make sure the expected type matches and we have reset the stream
             Assert.IsTrue(MiniMagic.DetectFileType(fileEntry) == expectedArchiveFileType);
             Assert.IsTrue(fileEntry.Content.Position == 0);
 
@@ -200,10 +273,6 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             fileEntry.Content.Position = 10;
             Assert.IsTrue(MiniMagic.DetectFileType(fileEntry) == expectedArchiveFileType);
             Assert.IsTrue(fileEntry.Content.Position == 10);
-
-            // We should also detect just on file names if the content doesn't match
-            var nameOnlyEntry = new FileEntry(fileName, new MemoryStream(), null, true);
-            Assert.IsTrue(MiniMagic.DetectFileType(nameOnlyEntry) == expectedArchiveFileType);
         }
 
         [DataTestMethod]
@@ -240,6 +309,31 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             Assert.Fail();
         }
 
+        [DataTestMethod]
+        [DataRow("zip-slip-win.zip")]
+        [DataRow("zip-slip-win.tar")]
+        [DataRow("zip-slip.zip")]
+        [DataRow("zip-slip.tar")]
+        public void TestZipSlip(string fileName)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            var results = extractor.ExtractFile(path, new ExtractorOptions()).ToList();
+            Assert.IsTrue(results.All(x => !x.FullPath.Contains("..")));
+        }
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext context)
+        {
+            var config = new LoggingConfiguration();
+            var consoleTarget = new ConsoleTarget
+            {
+                Name = "console",
+                Layout = "${longdate}|${level:uppercase=true}|${logger}|${message}",
+            };
+            config.AddRule(LogLevel.Trace, LogLevel.Fatal, consoleTarget, "*");
+
+            LogManager.Configuration = config;
+        }
         protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

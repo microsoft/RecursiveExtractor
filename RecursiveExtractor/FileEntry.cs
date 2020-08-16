@@ -38,6 +38,12 @@ namespace Microsoft.CST.RecursiveExtractor
             {
                 ParentPath = parent.FullPath;
                 FullPath = $"{ParentPath}{Path.DirectorySeparatorChar}{name}";
+                if (FullPath.Contains(".."))
+                {
+                    Logger.Info("ZipSlip detected in {0}. Removing unsafe path elements and extracting.", FullPath);
+                    // Replace .. for ZipSlip - https://snyk.io/research/zip-slip-vulnerability
+                    FullPath = FullPath.Replace("..", "");
+                }
             }
 
             if (inputStream == null)
@@ -149,7 +155,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="content">The Stream to parse</param>
         /// <param name="parent">The Parent FileEntry</param>
         /// <returns>A FileEntry object holding a Copy of the Stream</returns>
-        public static async Task<FileEntry> FromStreamAsync(string name, Stream content, FileEntry? parent)
+        public static async Task<FileEntry> FromStreamAsync(string name, Stream content, FileEntry? parent = null)
         {
             if (!content.CanRead || content == null)
             {
@@ -166,6 +172,12 @@ namespace Microsoft.CST.RecursiveExtractor
             else
             {
                 FullPath = $"{parent?.FullPath}{Path.DirectorySeparatorChar}{name}";
+                if (FullPath.Contains(".."))
+                {
+                    Logger.Info("ZipSlip detected in {0}. Removing unsafe path elements and extracting.", FullPath);
+                    // Replace .. for ZipSlip - https://snyk.io/research/zip-slip-vulnerability
+                    FullPath = FullPath.Replace("..", "");
+                }
             }
 
             // Back with a temporary filestream, this is optimized to be cached in memory when possible

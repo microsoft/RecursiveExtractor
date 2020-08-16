@@ -1,24 +1,47 @@
 # About
 ![Nuget](https://img.shields.io/nuget/v/Microsoft.CST.RecursiveExtractor)![Nuget](https://img.shields.io/nuget/dt/Microsoft.CST.RecursiveExtractor)
 
-Recursive Extractor is a .NET Standard 2.0/2.1 Library for parsing archive files and disk images, including nested archives and disk images.
-
-Recursive Extractor is available on NuGet as [Microsoft.CST.RecursiveExtractor](https://www.nuget.org/packages/Microsoft.CST.RecursiveExtractor/).
-
-You can try out Recursive Extractor [in your browser](https://microsoft.github.io/RecursiveExtractor/) as a Web Assembly app.
+Recursive Extractor is a .NET Standard 2.0/2.1 Library and Cli tool for parsing archive files and disk images, including nested archives and disk images.
 
 
 # Supported File Types
 | | | |
 |-|-|-|
-| 7zip | ar | bzip2 |
-| deb | gzip | iso |
-| rar | tar | vhd |
-| vhdx | vmdk | wim |
-| xzip | zip |  |
+| 7zip | ar   | bzip2 |
+| deb  | gzip | iso   |
+| rar  | tar  | vhd   |
+| vhdx | vmdk | wim   |
+| xzip | zip  |       |
 
-# Usage
-This this code from the Cli extracts the contents of given archive located at `options.Input` to a directory located at `options.Output`.
+# Variants
+
+## Browser
+You can try out Recursive Extractor [in your browser](https://microsoft.github.io/RecursiveExtractor/) as a Web Assembly app.
+
+## Cli
+First ensure you have the latest [.NET SDK](https://dotnet.microsoft.com/download).
+
+Then run `dotnet tool install -g Microsoft.CST.RecursiveExtractor.Cli`
+
+Then you can run: `RecursiveExtractor --input archive.ext --output outputDirectory`
+<details>
+<summary>Detailed Usage</summary>
+<br/>
+<ul>
+    <li><i>input</i>: The path to the Archive to extract.</li>
+    <li><i>output</i>: The path a directory to extract into.</li>
+    <li><i>passwords</i>: A comma separated list of passwords to use for archives.</li>
+</ul>
+
+Run "RecursiveExtractor --help" for more detail.
+</details>
+
+## Library
+Recursive Extractor is available on NuGet as [Microsoft.CST.RecursiveExtractor](https://www.nuget.org/packages/Microsoft.CST.RecursiveExtractor/).
+
+This code adapted from the Cli extracts the contents of given archive located at `options.Input`
+to a directory located at `options.Output` and prints the relative path of each file inside the archive.
+
 ```csharp
 var extractor = new Extractor();
 var extractorOptions = new ExtractorOptions()
@@ -28,17 +51,20 @@ var extractorOptions = new ExtractorOptions()
 };
 foreach(var result in extractor.ExtractFile(options.Input, extractorOptions))
 {
-    Directory.CreateDirectory(Path.Combine(options.Output,Path.GetDirectoryName(result.FullPath)?
-        .TrimStart(Path.DirectorySeparatorChar) ?? string.Empty));
+    Directory.CreateDirectory(Path.Combine(options.Output,
+        Path.GetDirectoryName(result.FullPath)?
+            .TrimStart(Path.DirectorySeparatorChar) ?? string.Empty));
+
     using var fs = new FileStream(Path.Combine(options.Output,result.FullPath), FileMode.Create);
     result.Content.CopyTo(fs);
-    if (options.Verbose)
-    {
-        Console.WriteLine("Extracted {0}.", result.FullPath);
-    }
+    Console.WriteLine("Extracted {0}.", result.FullPath);
 }
 ```
-If you'd prefer async, this example prints out all the file names.
+<details>
+<summary>Async Usage</summary>
+<br/>
+This example prints out all the file names found from the archive located at the path.
+
 ```csharp
 var path = "/Path/To/Your/Archive"
 var extractor = new Extractor();
@@ -54,8 +80,11 @@ catch(OverflowException)
     // This means Recursive Extractor has detected a Quine or Zip Bomb
 }
 ```
-## FileEntry
+</details>
 
+<details>
+<summary>The FileEntry Object</summary>
+<br/>
 The Extractor returns `FileEntry` objects.  These objects contain a `Content` Stream of the file contents.
 
 ```csharp
@@ -65,16 +94,56 @@ public string Name { get; }
 public FileEntry? Parent { get; }
 public string? ParentPath { get; }
 ```
+</details>
+
+<details>
+<summary>Extracting Encrypted Archives</summary>
+<br/>
+The Extractor returns `FileEntry` objects.  These objects contain a `Content` Stream of the file contents.You can provide passwords to use to decrypt archives, paired with a Regex that will operate against the Name of the Archive.
+
+```csharp
+var path = "/Path/To/Your/Archive"
+var extractor = new Extractor();
+try {
+    IEnumerable<FileEntry> results = extractor.ExtractFile(path, new ExtractorOptions()
+    {
+        Passwords = new Dictionary<Regex, List<string>>()
+        {
+            { new Regex("\.zip"), new List<string>(){ "PasswordForZipFiles" } },
+            { new Regex("\.7z"), new List<string>(){ "PasswordFor7zFiles" } },
+            { new Regex(".*"), new List<string>(){ "PasswordForAllFiles" } }
+
+        }
+    });
+    foreach(var found in results)
+    {
+        Console.WriteLine(found.FullPath);
+    }
+}
+catch(OverflowException)
+{
+    // This means Recursive Extractor has detected a Quine or Zip Bomb
+}
+```
+</details>
 
 ## Exceptions
-
-`ExtractFile` will throw an overflow exception when a quine or zip bomb is detected.
+RecursiveExtractor protects against [ZipSlip](https://snyk.io/research/zip-slip-vulnerability), [Quines, and Zip Bombs](https://en.wikipedia.org/wiki/Zip_bomb).
+Calls to Extract will throw an `OverflowException` when a Quine or Zip bomb is detected.
 
 Otherwise, invalid files found while crawling will emit a logger message and be skipped.  RecursiveExtractor uses NLog for logging.
 
 # Feedback
 
 If you have any issues or feature requests please open a new [Issue](https://github.com/microsoft/RecursiveExtractor/issues/new)
+
+# Dependencies
+
+Recursive Extractor uses a number of libraries to parse archives.
+
+* [SharpZipLib](https://github.com/icsharpcode/SharpZipLib)
+* [SharpCompress](https://github.com/adamhathcock/sharpcompress)
+* [DiscUtils](https://github.com/discutils/discutils).
 
 # Contributing
 

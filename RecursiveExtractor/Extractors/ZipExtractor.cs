@@ -3,6 +3,7 @@ using ICSharpCode.SharpZipLib.Zip;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
@@ -24,6 +25,27 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         internal Extractor Context { get; }
         private const int BUFFER_SIZE = 32768;
 
+        private string? GetZipPassword(FileEntry fileEntry, ZipFile zipFile, ZipEntry zipEntry, ExtractorOptions options)
+        {
+            foreach (var passwords in options.Passwords.Where(x => x.Key.IsMatch(fileEntry.Name)))
+            {
+                foreach (var password in passwords.Value)
+                {
+                    zipFile.Password = password;
+                    try
+                    {
+                        using var zipStream = zipFile.GetInputStream(zipEntry);
+                        return password;
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.ZIP, fileEntry.FullPath, zipEntry.Name, e.GetType());
+                    }
+                }
+            }
+            return null;
+        }
+
         /// <summary>
         ///     Extracts an zip file contained in fileEntry.
         /// </summary>
@@ -42,14 +64,21 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             if (zipFile != null)
             {
+                var buffer = new byte[BUFFER_SIZE];
+                var passwordFound = false;
                 foreach (ZipEntry? zipEntry in zipFile)
                 {
                     if (zipEntry is null ||
                         zipEntry.IsDirectory ||
-                        zipEntry.IsCrypted ||
                         !zipEntry.CanDecompress)
                     {
                         continue;
+                    }
+
+                    if (zipEntry.IsCrypted && !passwordFound)
+                    {
+                        zipFile.Password = GetZipPassword(fileEntry, zipFile, zipEntry, options) ?? string.Empty;
+                        passwordFound = true;
                     }
 
                     governor.CheckResourceGovernor(zipEntry.Size);
@@ -57,7 +86,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     using var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
                     try
                     {
-                        var buffer = new byte[BUFFER_SIZE];
                         var zipStream = zipFile.GetInputStream(zipEntry);
                         StreamUtils.Copy(zipStream, fs, buffer);
                     }
@@ -101,11 +129,12 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             if (zipFile != null)
             {
+                var buffer = new byte[BUFFER_SIZE];
+                var passwordFound = false;
                 foreach (ZipEntry? zipEntry in zipFile)
                 {
                     if (zipEntry is null ||
                         zipEntry.IsDirectory ||
-                        zipEntry.IsCrypted ||
                         !zipEntry.CanDecompress)
                     {
                         continue;
@@ -114,9 +143,15 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     governor.CheckResourceGovernor(zipEntry.Size);
 
                     using var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+
+                    if (zipEntry.IsCrypted && !passwordFound)
+                    {
+                        zipFile.Password = GetZipPassword(fileEntry, zipFile, zipEntry, options) ?? string.Empty;
+                        passwordFound = true;
+                    }
+
                     try
                     {
-                        var buffer = new byte[BUFFER_SIZE];
                         var zipStream = zipFile.GetInputStream(zipEntry);
                         StreamUtils.Copy(zipStream, fs, buffer);
                     }
@@ -124,6 +159,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.ZIP, fileEntry.FullPath, zipEntry.Name, e.GetType());
                     }
+                    
                     var name = zipEntry.Name.Replace('/', Path.DirectorySeparatorChar);
 
                     var newFileEntry = new FileEntry(name, fs, fileEntry);
