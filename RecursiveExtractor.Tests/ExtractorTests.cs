@@ -40,7 +40,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
-            var results = extractor.ExtractFile(path, new ExtractorOptions());
+            var results = extractor.Extract(path, new ExtractorOptions());
             Assert.AreEqual(expectedNumFiles, results.Count());
         }
 
@@ -92,7 +92,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
-            var results = extractor.ExtractFile(path, new ExtractorOptions()
+            var results = extractor.Extract(path, new ExtractorOptions()
             {
                 Passwords = TestArchivePasswords
             }).ToList(); // Make this a list so it fully populates
@@ -111,7 +111,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
-            var results = extractor.ExtractFileAsync(path, new ExtractorOptions()
+            var results = extractor.ExtractAsync(path, new ExtractorOptions()
             {
                 Passwords = TestArchivePasswords
             });
@@ -147,7 +147,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
-            var results = extractor.ExtractFileAsync(path, new ExtractorOptions());
+            var results = extractor.ExtractAsync(path, new ExtractorOptions());
             var numFound = 0;
             await foreach(var _ in results)
             {
@@ -180,7 +180,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
-            var results = extractor.ExtractFile(path, new ExtractorOptions() { Parallel = true });
+            var results = extractor.Extract(path, new ExtractorOptions() { Parallel = true });
             Assert.AreEqual(expectedNumFiles, results.Count());
         }
 
@@ -209,7 +209,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
             using var stream = new FileStream(path, FileMode.Open);
-            var results = extractor.ExtractStreamAsync(path, stream, new ExtractorOptions());
+            var results = extractor.ExtractAsync(path, stream, new ExtractorOptions());
             var numFiles = 0;
             await foreach (var result in results)
             {
@@ -244,7 +244,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
             using var stream = new FileStream(path, FileMode.Open);
-            var results = extractor.ExtractStream(path, stream, new ExtractorOptions());
+            var results = extractor.Extract(path, stream, new ExtractorOptions());
             Assert.AreEqual(expectedNumFiles, results.Count());
             stream.Close();
         }
@@ -302,7 +302,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             IEnumerable<FileEntry> results;
             try
             {
-                results = extractor.ExtractFile(path, new ExtractorOptions()).ToList();
+                results = extractor.Extract(path, new ExtractorOptions()).ToList();
                 // Getting here means we didnt catch the bomb
             }
             // We should throw an overflow exception when we detect a quine or bomb
@@ -328,7 +328,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
-            var results = extractor.ExtractFile(path, new ExtractorOptions()).ToList();
+            var results = extractor.Extract(path, new ExtractorOptions()).ToList();
             Assert.IsTrue(results.All(x => !x.FullPath.Contains("..")));
         }
         [ClassInitialize]

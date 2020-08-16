@@ -13,11 +13,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace Microsoft.CST.RecursiveExtractor
 {
     public class Extractor
     {
+     
+        /// <summary>
+        /// The main Extractor class.
+        /// </summary>
         public Extractor()
         {
             SetupHelper.RegisterAssembly(typeof(BtrfsFileSystem).Assembly);
@@ -29,9 +34,11 @@ namespace Microsoft.CST.RecursiveExtractor
             SetDefaultExtractors();
         }
 
-        public bool EnableTiming { get; }
         internal Dictionary<ArchiveFileType, AsyncExtractorInterface> Extractors { get; } = new Dictionary<ArchiveFileType, AsyncExtractorInterface>();
 
+        /// <summary>
+        /// Set up the Default Extractors compatible with this platform.
+        /// </summary>
         public void SetDefaultExtractors()
         {
             SetExtractor(ArchiveFileType.BZIP2, new BZip2Extractor(this));
@@ -54,6 +61,10 @@ namespace Microsoft.CST.RecursiveExtractor
             }
         }
 
+        /// <summary>
+        /// Remove any extractor (if set) for the given ArchiveFileType.
+        /// </summary>
+        /// <param name="targetType">The ArchiveFileType to remove the extractor for.</param>
         public void Unset(ArchiveFileType targetType)
         {
             if (Extractors.ContainsKey(targetType))
@@ -62,11 +73,19 @@ namespace Microsoft.CST.RecursiveExtractor
             }
         }
 
+        /// <summary>
+        /// Set a new Extractor for the given ArchiveFileType.
+        /// </summary>
+        /// <param name="targetType">The ArchiveFileType to assign this extractor to.</param>
+        /// <param name="implementation">The ExtractorImplementation.</param>
         public void SetExtractor(ArchiveFileType targetType, AsyncExtractorInterface implementation)
         {
             Extractors[targetType] = implementation;
         }
 
+        /// <summary>
+        /// Remove all assigned extractors.
+        /// </summary>
         public void ClearExtractors()
         {
             Extractors.Clear();
@@ -142,11 +161,22 @@ namespace Microsoft.CST.RecursiveExtractor
             return false;
         }
 
+        
         /// <summary>
-        ///     Extracts files from the file 'filename'.
+        /// Deprecated. Use Extract.
         /// </summary>
-        /// <returns> Extracted files </returns>
-        public IEnumerable<FileEntry> ExtractFile(string filename, ExtractorOptions? opts = null)
+        /// <param name="filename"></param>
+        /// <param name="opts"></param>
+        /// <returns></returns>
+        public IEnumerable<FileEntry> ExtractFile(string filename, ExtractorOptions? opts = null) => Extract(filename, opts);
+
+        /// <summary>
+        /// Extracts files from the `filename` given.
+        /// </summary>
+        /// <param name="filename">The path to the file to extract.</param>
+        /// <param name="opts">The ExtractorOptions to use.</param>
+        /// <returns>The FileEntries found.</returns>
+        public IEnumerable<FileEntry> Extract(string filename, ExtractorOptions? opts = null)
         {
             if (!File.Exists(filename))
             {
@@ -154,37 +184,69 @@ namespace Microsoft.CST.RecursiveExtractor
                 yield break;
             }
             using var fs = new FileStream(filename, FileMode.Open);
-            foreach (var entry in ExtractStream(filename, fs, opts))
+            foreach (var entry in Extract(filename, fs, opts))
             {
                 yield return entry;
             }
         }
 
         /// <summary>
-        ///     Extracts files from the file 'filename'.
+        /// Deprecated. Use ExtractAsync.
         /// </summary>
-        /// <returns> Extracted files </returns>
+        /// <param name="filename"></param>
+        /// <param name="opts"></param>
+        /// <returns></returns>
         public async IAsyncEnumerable<FileEntry> ExtractFileAsync(string filename, ExtractorOptions? opts = null)
         {
-            if (!File.Exists(filename))
-            {
-                Logger.Warn("ExtractFile called, but {0} does not exist.", filename);
-                yield break;
-            }
-            using var fs = new FileStream(filename, FileMode.Open);
-            await foreach (var entry in ExtractStreamAsync(filename, fs, opts))
+            await foreach(var entry in ExtractAsync(filename, opts))
             {
                 yield return entry;
             }
         }
 
         /// <summary>
-        /// Extract a stream into FileEntries
+        /// Extracts files from the `filename` given asynchronously.
         /// </summary>
-        /// <param name="filename">The filename (with parent path) to call this root file.</param>
-        /// <param name="stream">The Stream to parse.</param>
+        /// <param name="filename">The path to the file to extract.</param>
+        /// <param name="opts">The ExtractorOptions to use.</param>
+        /// <returns>The FileEntries found.</returns>
+        public async IAsyncEnumerable<FileEntry> ExtractAsync(string filename, ExtractorOptions? opts = null)
+        {
+            if (!File.Exists(filename))
+            {
+                Logger.Warn("ExtractFile called, but {0} does not exist.", filename);
+                yield break;
+            }
+            using var fs = new FileStream(filename, FileMode.Open);
+            await foreach (var entry in ExtractAsync(filename, fs, opts))
+            {
+                yield return entry;
+            }
+        }
+
+        /// <summary>
+        /// Deprecated. Use ExtractAsync.
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <param name="stream"></param>
+        /// <param name="opts"></param>
         /// <returns></returns>
         public async IAsyncEnumerable<FileEntry> ExtractStreamAsync(string filename, Stream stream, ExtractorOptions? opts = null)
+        {
+            await foreach(var entry in ExtractAsync(filename, stream, opts))
+            {
+                yield return entry;
+            }
+        }
+
+        /// <summary>
+        /// Extract from a Stream asynchronously.
+        /// </summary>
+        /// <param name="filename">The filename to call the Stream.</param>
+        /// <param name="stream">The Stream to parse.</param>
+        /// <param name="opts">The ExtractorOptions to use.</param>
+        /// <returns>The FileEntries found.</returns>
+        public async IAsyncEnumerable<FileEntry> ExtractAsync(string filename, Stream stream, ExtractorOptions? opts = null)
         {
             var options = opts ?? new ExtractorOptions();
             var governor = new ResourceGovernor(options);
@@ -208,7 +270,7 @@ namespace Microsoft.CST.RecursiveExtractor
 
             if (fileEntry != null)
             {
-                await foreach (var result in ExtractFileAsync(fileEntry, opts, governor))
+                await foreach (var result in ExtractAsync(fileEntry, opts, governor))
                 {
                     governor.GovernorStopwatch.Stop();
                     yield return result;
@@ -219,12 +281,22 @@ namespace Microsoft.CST.RecursiveExtractor
         }
 
         /// <summary>
-        /// Extract a stream into FileEntries
+        /// Deprecated. See Extract.
         /// </summary>
-        /// <param name="filename">The filename (with parent path) to call this root file.</param>
-        /// <param name="stream">The Stream to parse.</param>
+        /// <param name="filename"></param>
+        /// <param name="stream"></param>
+        /// <param name="opts"></param>
         /// <returns></returns>
-        public IEnumerable<FileEntry> ExtractStream(string filename, Stream stream, ExtractorOptions? opts = null)
+        public IEnumerable<FileEntry> ExtractStream(string filename, Stream stream, ExtractorOptions? opts = null) => Extract(filename, stream, opts);
+
+        /// <summary>
+        /// Extract the Stream given.
+        /// </summary>
+        /// <param name="filename">The filename to use for the stream.</param>
+        /// <param name="stream">The Stream to extract from</param>
+        /// <param name="opts">The Extractor Options to use.</param>
+        /// <returns></returns>
+        public IEnumerable<FileEntry> Extract(string filename, Stream stream, ExtractorOptions? opts = null)
         {
             var options = opts ?? new ExtractorOptions();
             var governor = new ResourceGovernor(options);
@@ -259,39 +331,57 @@ namespace Microsoft.CST.RecursiveExtractor
         }
 
         /// <summary>
-        ///     Extracts files from the file, identified by 'filename', but with contents passed through
-        ///     'archiveBytes'. Note that 'filename' does not have to exist; it will only be used to identify
-        ///     files extracted.
+        /// Deprecated. See Extract.
         /// </summary>
-        /// <param name="fileEntry"> FileEntry to extract </param>
-        /// <returns> Extracted files </returns>
-        public IEnumerable<FileEntry> ExtractFile(string filename, byte[] archiveBytes, ExtractorOptions? opts = null)
+        /// <param name="filename"></param>
+        /// <param name="archiveBytes"></param>
+        /// <param name="opts"></param>
+        /// <returns></returns>
+        public IEnumerable<FileEntry> ExtractFile(string filename, byte[] archiveBytes, ExtractorOptions? opts = null) => Extract(filename, archiveBytes, opts);
+
+        /// <summary>
+        /// Extract from the provided bytes.
+        /// </summary>
+        /// <param name="filename">The filename to use for the root.</param>
+        /// <param name="archiveBytes">The bytes to extract.</param>
+        /// <param name="opts">The Extractor options.</param>
+        /// <returns></returns>
+        public IEnumerable<FileEntry> Extract(string filename, byte[] archiveBytes, ExtractorOptions? opts = null)
         {
             using var ms = new MemoryStream(archiveBytes);
             return ExtractFile(new FileEntry(filename, ms), opts);
         }
 
         /// <summary>
-        ///     Extracts files from the file, identified by 'filename', but with contents passed through
-        ///     'archiveBytes'. Note that 'filename' does not have to exist; it will only be used to identify
-        ///     files extracted.
+        /// Depreacted. Use ExtractAsync.
         /// </summary>
-        /// <param name="fileEntry"> FileEntry to extract </param>
-        /// <returns> Extracted files </returns>
+        /// <param name="filename"></param>
+        /// <param name="archiveBytes"></param>
+        /// <param name="opts"></param>
+        /// <returns></returns>
         public async IAsyncEnumerable<FileEntry> ExtractFileAsync(string filename, byte[] archiveBytes, ExtractorOptions? opts = null)
         {
+            await foreach(var entry in ExtractAsync(filename, archiveBytes, opts))
+            {
+                yield return entry;
+            }
+        }
+
+        /// <summary>
+        /// Extract from the provided bytes async.
+        /// </summary>
+        /// <param name="filename">The filename to use for the root.</param>
+        /// <param name="archiveBytes">The bytes to extract.</param>
+        /// <param name="opts">The Extractor options.</param>
+        /// <returns>The FileEntrys found.</returns>
+        public async IAsyncEnumerable<FileEntry> ExtractAsync(string filename, byte[] archiveBytes, ExtractorOptions? opts = null)
+        {
             using var ms = new MemoryStream(archiveBytes);
-            await foreach (var entry in ExtractFileAsync(new FileEntry(filename, ms), opts))
+            await foreach (var entry in ExtractAsync(new FileEntry(filename, ms), opts))
             {
                 yield return entry;
             };
         }
-
-
-        /// <summary>
-        ///     Internal buffer size for extraction
-        /// </summary>
-        private const int BUFFER_SIZE = 32768;
 
         internal const string DEBUG_STRING = "Failed parsing archive of type {0} {1}:{2} ({3})";
 
@@ -303,11 +393,28 @@ namespace Microsoft.CST.RecursiveExtractor
         private readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         /// <summary>
-        ///     Extracts files from the given FileEntry, using the appropriate extractors, recursively.
+        /// Deprecated. Use ExtractAsync.
         /// </summary>
-        /// <param name="fileEntry"> FileEntry to extract </param>
-        /// <returns> Extracted files </returns>
+        /// <param name="fileEntry"></param>
+        /// <param name="opts"></param>
+        /// <param name="governor"></param>
+        /// <returns></returns>
         public async IAsyncEnumerable<FileEntry> ExtractFileAsync(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null)
+        {
+            await foreach(var entry in ExtractAsync(fileEntry, opts, governor))
+            {
+                yield return entry;
+            }
+        }
+
+        /// <summary>
+        /// Extract asynchronously from a FileEntry.
+        /// </summary>
+        /// <param name="fileEntry">The FileEntry containing the Conteant stream to parse.</param>
+        /// <param name="opts">The ExtractorOptions to use</param>
+        /// <param name="governor">The Resource governor to use (or null to create a new one).</param>
+        /// <returns>The FileEntries found.</returns>
+        public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null)
         {
             var options = opts ?? new ExtractorOptions();
             var Governor = governor ?? new ResourceGovernor(options);
@@ -331,11 +438,22 @@ namespace Microsoft.CST.RecursiveExtractor
 
 
         /// <summary>
-        ///     Extracts files from the given FileEntry, using the appropriate extractors, recursively.
+        /// Deprecated. Use Extract.
         /// </summary>
-        /// <param name="fileEntry"> FileEntry to extract </param>
-        /// <returns> Extracted files </returns>
-        public IEnumerable<FileEntry> ExtractFile(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null)
+        /// <param name="fileEntry"></param>
+        /// <param name="opts"></param>
+        /// <param name="governor"></param>
+        /// <returns></returns>
+        public IEnumerable<FileEntry> ExtractFile(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null) => Extract(fileEntry, opts, governor);
+
+        /// <summary>
+        /// Extract from a FileEntry.
+        /// </summary>
+        /// <param name="fileEntry">The FileEntry containing the Conteant stream to parse.</param>
+        /// <param name="opts">The ExtractorOptions to use</param>
+        /// <param name="governor">The Resource governor to use (or null to create a new one).</param>
+        /// <returns>The FileEntries found.</returns>
+        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null)
         {
             var options = opts ?? new ExtractorOptions();
             var Governor = governor;

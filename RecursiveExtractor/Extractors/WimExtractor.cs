@@ -110,7 +110,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             {
                                 var name = file.Replace('\\', Path.DirectorySeparatorChar);
                                 var newFileEntry = await FileEntry.FromStreamAsync($"{image.FriendlyName}{Path.DirectorySeparatorChar}{name}", stream, fileEntry);
-                                await foreach (var entry in Context.ExtractFileAsync(newFileEntry, options, governor))
+                                await foreach (var entry in Context.ExtractAsync(newFileEntry, options, governor))
                                 {
                                     yield return entry;
                                 }

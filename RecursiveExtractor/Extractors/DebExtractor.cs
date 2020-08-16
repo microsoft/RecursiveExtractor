@@ -31,7 +31,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         {
             await foreach (var entry in DebArchiveFile.GetFileEntriesAsync(fileEntry, options, governor))
             {
-                await foreach (var extractedFile in Context.ExtractFileAsync(entry, options, governor))
+                await foreach (var extractedFile in Context.ExtractAsync(entry, options, governor))
                 {
                     yield return extractedFile;
                 }

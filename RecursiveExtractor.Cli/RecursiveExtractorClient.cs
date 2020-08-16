@@ -59,7 +59,7 @@ namespace Microsoft.CST.RecursiveExtractor.Cli
             }
             var allowRegexes = options.AllowFilters?.Select(x => new Regex(x)) ?? Array.Empty<Regex>();
             var denyRegexes = options.DenyFilters?.Select(x => new Regex(x)) ?? Array.Empty<Regex>();
-            foreach (var result in extractor.ExtractFile(options.Input, extractorOptions))
+            foreach (var result in extractor.Extract(options.Input, extractorOptions))
             {
                 var skip = false;
                 foreach(var allowRegex in allowRegexes)

@@ -191,7 +191,7 @@
                     Output += $"{type} is not supported in the GUI, but is supported in the full RecursiveExtractor library.{nl}";
                     break;
                 default:
-                    var entries = extractor.ExtractStreamAsync(entry.FullPath, entryStream, options);
+                    var entries = extractor.ExtractAsync(entry.FullPath, entryStream, options);
                     await foreach (var foundEntry in entries)
                     {
                         appData.GuidToFileEntryMap[Guid.NewGuid().ToString()] = foundEntry;
