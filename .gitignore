@@ -1,7 +1,9 @@
 RecursiveExtractor/bin
 RecursiveExtractor/obj
-RecursiveExtractor.Tests/bin
-RecursiveExtractor.Tests/obj
 RecursiveExtractor.Blazor/bin
 RecursiveExtractor.Blazor/obj
+RecursiveExtractor.Cli/bin
+RecursiveExtractor.Cli/obj
+RecursiveExtractor.Tests/bin
+RecursiveExtractor.Tests/obj
 .vs

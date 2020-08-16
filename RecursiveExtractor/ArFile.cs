@@ -82,16 +82,6 @@ namespace Microsoft.CST.RecursiveExtractor
                             var nameSpan = new byte[nameLength];
                             // This should move us right to the file
 
-/* Unmerged change from project 'RecursiveExtractor (netstandard2.1)'
-Before:
-                            fileEntry.Content.Read(nameSpan, 0, nameLength);
-                            
-                            var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
-After:
-                            fileEntry.Content.Read(nameSpan, 0, nameLength);
-
-                            var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
-*/
                             fileEntry.Content.Read(nameSpan, 0, nameLength);
 
                             var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
@@ -99,7 +89,7 @@ After:
                             // The name length is included in the total size reported in the header
                             CopyStreamBytes(fileEntry.Content, entryStream, size - nameLength);
 
-                            yield return new FileEntry(Encoding.ASCII.GetString(nameSpan), entryStream, fileEntry, true);
+                            yield return new FileEntry(Encoding.ASCII.GetString(nameSpan).TrimEnd('/'), entryStream, fileEntry, true);
                         }
                     }
                     else if (filename.Equals('/'))
@@ -166,7 +156,7 @@ After:
                                     new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose) :
                                     (Stream)new MemoryStream((int)innerSize);
                                 CopyStreamBytes(fileEntry.Content, entryStream, innerSize);
-                                yield return new FileEntry(filename, entryStream, fileEntry, true);
+                                yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true);
                             }
                         }
                         fileEntry.Content.Position = fileEntry.Content.Length - 1;
@@ -239,7 +229,7 @@ After:
                                     (Stream)new MemoryStream((int)innerSize);
                                 CopyStreamBytes(fileEntry.Content, entryStream, innerSize);
 
-                                yield return new FileEntry(filename, entryStream, fileEntry, true);
+                                yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true);
                             }
                         }
                         fileEntry.Content.Position = fileEntry.Content.Length - 1;
@@ -262,7 +252,7 @@ After:
                                     (Stream)new MemoryStream((int)size);
                         CopyStreamBytes(fileEntry.Content, entryStream, size);
 
-                        yield return new FileEntry(filename, entryStream, fileEntry, true);
+                        yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true);
                     }
                     else
                     {
@@ -271,7 +261,7 @@ After:
                                     (Stream)new MemoryStream((int)size);
                         CopyStreamBytes(fileEntry.Content, entryStream, size);
 
-                        yield return new FileEntry(filename, entryStream, fileEntry, true);
+                        yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true);
 
                     }
                 }
@@ -361,7 +351,7 @@ After:
                             // The name length is included in the total size reported in the header
                             await CopyStreamBytesAsync(fileEntry.Content, entryStream, size - nameLength);
 
-                            yield return new FileEntry(Encoding.ASCII.GetString(nameSpan), entryStream, fileEntry, true);
+                            yield return new FileEntry(Encoding.ASCII.GetString(nameSpan).TrimEnd('/'), entryStream, fileEntry, true);
                         }
                     }
                     else if (filename.Equals('/'))
@@ -428,7 +418,7 @@ After:
                                     new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose) :
                                     (Stream)new MemoryStream((int)innerSize);
                                 await CopyStreamBytesAsync(fileEntry.Content, entryStream, innerSize);
-                                yield return new FileEntry(filename, entryStream, fileEntry, true);
+                                yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true);
                             }
                         }
                         fileEntry.Content.Position = fileEntry.Content.Length - 1;
@@ -501,7 +491,7 @@ After:
                                     new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose) :
                                     (Stream)new MemoryStream((int)innerSize);
                                 await CopyStreamBytesAsync(fileEntry.Content, entryStream, innerSize);
-                                yield return new FileEntry(filename, entryStream, fileEntry, true);
+                                yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true);
                             }
                         }
                         fileEntry.Content.Position = fileEntry.Content.Length - 1;
@@ -523,7 +513,7 @@ After:
                             new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose) :
                             (Stream)new MemoryStream((int)size);
                         CopyStreamBytes(fileEntry.Content, entryStream, size);
-                        yield return new FileEntry(filename, entryStream, fileEntry, true);
+                        yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true);
                     }
                     else
                     {
@@ -531,7 +521,7 @@ After:
                             new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose) :
                             (Stream)new MemoryStream((int)size);
                         await CopyStreamBytesAsync(fileEntry.Content, entryStream, size);
-                        yield return new FileEntry(filename, entryStream, fileEntry, true);
+                        yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true);
 
                     }
                 }

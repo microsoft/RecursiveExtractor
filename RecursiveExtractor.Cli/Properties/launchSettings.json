@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "RecursiveExtractor.Cli": {
+      "commandName": "Project",
+      "commandLineArgs": "--input D:\\GitHub\\RecursiveExtractor\\RecursiveExtractor.Tests\\TestData\\NestedEncrypted.7z --output D:\\RecurseOutput --verbose --passwords TheMagicWordIsPotato,TheMagicWordIsTomato,TheMagicWordIsCelery,TheMagicWordIsLettuce"
+    }
+  }
+}

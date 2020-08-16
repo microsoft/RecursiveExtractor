@@ -140,7 +140,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             {
                                 try
                                 {
-                                    var newFileEntry = new FileEntry(entry.entry.Key, entry.Item2, fileEntry);
+                                    var name = entry.entry.Key.Replace('/', Path.DirectorySeparatorChar);
+
+                                    var newFileEntry = new FileEntry(name, entry.Item2, fileEntry);
                                     if (Extractor.IsQuine(newFileEntry))
                                     {
                                         Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);

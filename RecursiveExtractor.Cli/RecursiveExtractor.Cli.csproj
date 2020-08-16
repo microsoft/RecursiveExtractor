@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>netcoreapp3.1;net48</TargetFrameworks>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Microsoft.CST.RecursiveExtractor.Cli</RootNamespace>
+    <copyright>© Microsoft Corporation. All rights reserved.</copyright> 
+    <Product>Recursive Extractor</Product>
+    <Company>Microsoft</Company>
+    <Authors>Microsoft</Authors>
+    <Description>RecursiveExtractor is able to process the following formats: ar, bzip2, deb, gzip, iso, tar, vhd, vhdx, vmdk, wim, xzip, and zip. RecursiveExtractor automatically detects the archive type and fails gracefully when attempting to process malformed content.</Description>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackAsTool>true</PackAsTool>
+    <PackageId>Microsoft.CST.RecursiveExtractor.CLI</PackageId>
+    <PackageVersion>0.0.0</PackageVersion>
+    <PackageProjectUrl>https://github.com/microsoft/RecursiveExtractor</PackageProjectUrl>
+    <PackageTags>unzip extract extractor</PackageTags>
+    <ToolCommandName>RecursiveExtractor</ToolCommandName>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageIcon>icon-128.png</PackageIcon>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RecursiveExtractor\RecursiveExtractor.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.8.0" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="1.6.4" />
+  </ItemGroup>
+ 
+  <ItemGroup>
+    <None Include="..\LICENSE.txt" Pack="true" PackagePath="" />
+    <None Include="..\icon-128.png" Pack="true" PackagePath="" />
+  </ItemGroup>  
+</Project>

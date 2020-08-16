@@ -2,6 +2,8 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NLog;
+using NLog.Config;
+using NLog.Targets;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -42,7 +44,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             Assert.IsTrue(results.Count() == expectedNumFiles);
         }
 
-        private Dictionary<Regex, List<string>> TestArchivePasswords = new Dictionary<Regex, List<string>>()
+        public static Dictionary<Regex, List<string>> TestArchivePasswords = new Dictionary<Regex, List<string>>()
         {
             {
                 new Regex("\\.zip"),
@@ -57,8 +59,8 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
                 new List<string>()
                 {
                     "AnIncorrectPassword",
-                    "TheMagicWordIsTomato",
-                    "TheMagicWordIsLettuce"
+                    "TheMagicWordIsTomato", // SharedEncrypted.7z
+                    "TheMagicWordIsLettuce" // NestedEncrypted.7z
                 }
             },
             {
@@ -241,7 +243,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("Shared.zip", ArchiveFileType.ZIP)]
         [DataRow("Shared.7z", ArchiveFileType.P7ZIP)]
         [DataRow("Shared.Tar", ArchiveFileType.TAR)]
-        [DataRow("Shared.rar", ArchiveFileType.RAR)]
+        [DataRow("Shared.rar", ArchiveFileType.RAR5)]
         [DataRow("Shared.rar4", ArchiveFileType.RAR)]
         [DataRow("Shared.tar.bz2", ArchiveFileType.BZIP2)]
         [DataRow("Shared.tar.gz", ArchiveFileType.GZIP)]
@@ -307,6 +309,31 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             Assert.Fail();
         }
 
+        [DataTestMethod]
+        [DataRow("zip-slip-win.zip")]
+        [DataRow("zip-slip-win.tar")]
+        [DataRow("zip-slip.zip")]
+        [DataRow("zip-slip.tar")]
+        public void TestZipSlip(string fileName)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            var results = extractor.ExtractFile(path, new ExtractorOptions()).ToList();
+            Assert.IsTrue(results.All(x => !x.FullPath.Contains("..")));
+        }
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext context)
+        {
+            var config = new LoggingConfiguration();
+            var consoleTarget = new ConsoleTarget
+            {
+                Name = "console",
+                Layout = "${longdate}|${level:uppercase=true}|${logger}|${message}",
+            };
+            config.AddRule(LogLevel.Trace, LogLevel.Fatal, consoleTarget, "*");
+
+            LogManager.Configuration = config;
+        }
         protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

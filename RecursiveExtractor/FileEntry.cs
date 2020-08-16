@@ -25,18 +25,31 @@ namespace Microsoft.CST.RecursiveExtractor
         public FileEntry(string name, Stream inputStream, FileEntry? parent = null, bool passthroughStream = false)
         {
             Parent = parent;
-            Name = name;
             Passthrough = passthroughStream;
+
+            Name = Path.GetFileName(name);
 
             if (parent == null)
             {
                 ParentPath = null;
-                FullPath = Name;
+                FullPath = name;
             }
             else
             {
                 ParentPath = parent.FullPath;
-                FullPath = $"{ParentPath}{Path.DirectorySeparatorChar}{Name}";
+                FullPath = $"{ParentPath}{Path.DirectorySeparatorChar}{name}";
+            }
+            var printPath = FullPath;
+            if (FullPath.Contains(".."))
+            {
+                Logger.Info("ZipSlip detected in {0}. Removing unsafe path elements and extracting.", FullPath);
+                // Replace .. for ZipSlip - https://snyk.io/research/zip-slip-vulnerability
+                FullPath = FullPath.Replace("..", "");
+                var doubleSeparator = $"{Path.DirectorySeparatorChar}{Path.DirectorySeparatorChar}";
+                while (FullPath.Contains(doubleSeparator))
+                {
+                    FullPath = FullPath.Replace(doubleSeparator, $"{Path.DirectorySeparatorChar}");
+                }
             }
 
             if (inputStream == null)
@@ -82,18 +95,18 @@ namespace Microsoft.CST.RecursiveExtractor
                 {
                     try
                     {
-                        System.Threading.Tasks.Task.Run(() => inputStream.CopyToAsync(Content)).Wait();
+                        Task.Run(() => inputStream.CopyToAsync(Content)).Wait();
                     }
                     catch (Exception f)
                     {
                         var message = f.Message;
                         var type = f.GetType();
-                        Logger.Debug("Failed to copy stream from {0} ({1}:{2})", FullPath, f.GetType(), f.Message);
+                        Logger.Debug("Failed to copy stream from {0} ({1}:{2})", printPath, f.GetType(), f.Message);
                     }
                 }
                 catch (Exception e)
                 {
-                    Logger.Debug("Failed to copy stream from {0} ({1}:{2})", FullPath, e.GetType(), e.Message);
+                    Logger.Debug("Failed to copy stream from {0} ({1}:{2})", printPath, e.GetType(), e.Message);
                 }
 
                 if (inputStream.CanSeek && inputStream.Position != 0)
@@ -154,17 +167,19 @@ namespace Microsoft.CST.RecursiveExtractor
             {
                 content = new MemoryStream();
             }
-            string? ParentPath;
+
+            // Used for Debug statements
             string FullPath;
+
             if (parent == null)
             {
                 FullPath = name;
             }
             else
             {
-                ParentPath = parent.FullPath;
-                FullPath = $"{ParentPath}{Path.DirectorySeparatorChar}{name}";
+                FullPath = $"{parent?.FullPath}{Path.DirectorySeparatorChar}{name}";
             }
+
             // Back with a temporary filestream, this is optimized to be cached in memory when possible
             // automatically by .NET
             var Content = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
