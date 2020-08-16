@@ -10,6 +10,7 @@ trigger:
   paths:
     include:
     - RecursiveExtractor
+    - RecursiveExtractor.Cli
 pr:
   branches:
     include:
@@ -19,6 +20,7 @@ pr:
     - Pipelines
     - RecursiveExtractor
     - RecursiveExtractor.Blazor
+    - RecursiveExtractor.Cli
     - RecursiveExtractor.Tests
     - RecursiveExtractor.sln
 
@@ -42,9 +44,16 @@ stages:
   jobs:
   - template: templates/nuget-build-job.yml
     parameters:
+      jobName: 'pack_lib'     
       dotnetVersion: '3.1.x'
       projectPath: 'RecursiveExtractor/RecursiveExtractor.csproj'
       projectName: 'RecursiveExtractor'
+  - template: templates/nuget-build-job.yml
+    parameters:
+      jobName: 'pack_cli'
+      dotnetVersion: '3.1.x'
+      projectPath: 'RecursiveExtractor.Cli/RecursiveExtractor.Cli.csproj'
+      projectName: 'RecursiveExtractor_CLI
 
 - stage: Release
   dependsOn:
