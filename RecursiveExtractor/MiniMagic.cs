@@ -20,6 +20,7 @@ namespace Microsoft.CST.RecursiveExtractor
         GZIP,
         BZIP2,
         RAR,
+        RAR5,
         P7ZIP,
         DEB,
         AR,
@@ -85,10 +86,13 @@ namespace Microsoft.CST.RecursiveExtractor
                 {
                     return ArchiveFileType.BZIP2;
                 }
-                if ((buffer[0] == 0x52 && buffer[1] == 0x61 && buffer[2] == 0x72 && buffer[3] == 0x21 && buffer[4] == 0x1A && buffer[5] == 0x07 && buffer[6] == 0x00) ||
-                    (buffer[0] == 0x52 && buffer[1] == 0x61 && buffer[2] == 0x72 && buffer[3] == 0x21 && buffer[4] == 0x1A && buffer[5] == 0x07 && buffer[6] == 0x01 && buffer[7] == 0x00))
+                if (buffer[0] == 0x52 && buffer[1] == 0x61 && buffer[2] == 0x72 && buffer[3] == 0x21 && buffer[4] == 0x1A && buffer[5] == 0x07 && buffer[6] == 0x00)
                 {
                     return ArchiveFileType.RAR;
+                }
+                if (buffer[0] == 0x52 && buffer[1] == 0x61 && buffer[2] == 0x72 && buffer[3] == 0x21 && buffer[4] == 0x1A && buffer[5] == 0x07 && buffer[6] == 0x01 && buffer[7] == 0x00)
+                {
+                    return ArchiveFileType.RAR5
                 }
                 if (buffer[0] == 0x37 && buffer[1] == 0x7A && buffer[2] == 0xBC && buffer[3] == 0xAF && buffer[4] == 0x27 && buffer[5] == 0x1C)
                 {

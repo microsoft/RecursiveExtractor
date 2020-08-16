@@ -40,6 +40,7 @@ namespace Microsoft.CST.RecursiveExtractor
             SetExtractor(ArchiveFileType.GZIP, new GzipExtractor(this));
             SetExtractor(ArchiveFileType.ISO_9660, new IsoExtractor(this));
             SetExtractor(ArchiveFileType.RAR, new RarExtractor(this));
+            SetExtractor(ArchiveFileType.RAR5, new RarExtractor(this));
             SetExtractor(ArchiveFileType.P7ZIP, new SevenZipExtractor(this));
             SetExtractor(ArchiveFileType.TAR, new TarExtractor(this));
             SetExtractor(ArchiveFileType.VHD, new VhdExtractor(this));
@@ -50,6 +51,14 @@ namespace Microsoft.CST.RecursiveExtractor
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 SetExtractor(ArchiveFileType.WIM, new WimExtractor(this));
+            }
+        }
+
+        public void Unset(ArchiveFileType targetType)
+        {
+            if (Extractors.ContainsKey(targetType))
+            {
+                Extractors.Remove(targetType);
             }
         }
 
