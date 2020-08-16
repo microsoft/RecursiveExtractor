@@ -39,7 +39,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 ParentPath = parent.FullPath;
                 FullPath = $"{ParentPath}{Path.DirectorySeparatorChar}{name}";
             }
-
+            var printPath = FullPath;
             if (FullPath.Contains(".."))
             {
                 Logger.Info("ZipSlip detected in {0}. Removing unsafe path elements and extracting.", FullPath);
@@ -101,12 +101,12 @@ namespace Microsoft.CST.RecursiveExtractor
                     {
                         var message = f.Message;
                         var type = f.GetType();
-                        Logger.Debug("Failed to copy stream from {0} ({1}:{2})", FullPath, f.GetType(), f.Message);
+                        Logger.Debug("Failed to copy stream from {0} ({1}:{2})", printPath, f.GetType(), f.Message);
                     }
                 }
                 catch (Exception e)
                 {
-                    Logger.Debug("Failed to copy stream from {0} ({1}:{2})", FullPath, e.GetType(), e.Message);
+                    Logger.Debug("Failed to copy stream from {0} ({1}:{2})", printPath, e.GetType(), e.Message);
                 }
 
                 if (inputStream.CanSeek && inputStream.Position != 0)
