@@ -3,11 +3,6 @@
 
 Recursive Extractor is a Cross-Platform [.NET Standard 2.0 Library](#library), [Progressive Web App](#browser) and [Command Line Program](#cli) for parsing archive files and disk images, including nested archives and disk images.
 
-Recursive Extractor is available on NuGet as [Microsoft.CST.RecursiveExtractor](https://www.nuget.org/packages/Microsoft.CST.RecursiveExtractor/).
-
-You can try out Recursive Extractor [in your browser](https://microsoft.github.io/RecursiveExtractor/) as a Web Assembly app.
-
-
 # Supported File Types
 | | | |
 |-|-|-|
@@ -24,7 +19,6 @@ You can try out Recursive Extractor [in your browser](https://microsoft.github.i
 + Encryption Supported<br/>
 ^ Rar version 4 Encryption supported<br/>
 </details>
-
 
 # Variants
 
