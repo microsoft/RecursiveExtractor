@@ -62,7 +62,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                     if (newFileEntry != null)
                     {
-                        await foreach (var extractedFile in Context.ExtractFileAsync(newFileEntry, options, governor))
+                        await foreach (var extractedFile in Context.ExtractAsync(newFileEntry, options, governor))
                         {
                             yield return extractedFile;
                         }

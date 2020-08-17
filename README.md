@@ -1,23 +1,24 @@
 # About
 ![Nuget](https://img.shields.io/nuget/v/Microsoft.CST.RecursiveExtractor)![Nuget](https://img.shields.io/nuget/dt/Microsoft.CST.RecursiveExtractor)
 
-Recursive Extractor is a Cross-Platform C# tool for parsing archive files and disk images, including nested archives and disk images.
-
-Install Recursive Extractor from the command line: `dotnet tool install --global Microsoft.CST.RecursiveExtractor.CLI`.
-
-The Recursive Extractor Library is available on NuGet as [Microsoft.CST.RecursiveExtractor](https://www.nuget.org/packages/Microsoft.CST.RecursiveExtractor/).
-
-You can try out Recursive Extractor [in your browser](https://microsoft.github.io/RecursiveExtractor/) as a Web Assembly app.
-
+Recursive Extractor is a Cross-Platform [.NET Standard 2.0 Library](#library), [Progressive Web App](#browser) and [Command Line Program](#cli) for parsing archive files and disk images, including nested archives and disk images.
 
 # Supported File Types
 | | | |
 |-|-|-|
-| 7zip | ar   | bzip2 |
-| deb  | gzip | iso   |
-| rar  | tar  | vhd   |
-| vhdx | vmdk | wim*  |
-| xzip | zip  |       |
+| 7zip+ | ar    | bzip2 |
+| deb   | gzip  | iso   |
+| rar^ | tar   | vhd   |
+| vhdx  | vmdk  | wim*  |
+| xzip  | zip+  |       |
+
+<details>
+<summary>Details</summary>
+<br/>
+* Windows only<br/>
++ Encryption Supported<br/>
+^ Rar version 4 Encryption supported<br/>
+</details>
 
 # Variants
 
@@ -25,11 +26,13 @@ You can try out Recursive Extractor [in your browser](https://microsoft.github.i
 You can try out Recursive Extractor [in your browser](https://microsoft.github.io/RecursiveExtractor/) as a Web Assembly app.
 
 ## Cli
-First ensure you have the latest [.NET SDK](https://dotnet.microsoft.com/download).
+### Installing
+1. Ensure you have the latest [.NET SDK](https://dotnet.microsoft.com/download).
+2. run `dotnet tool install -g Microsoft.CST.RecursiveExtractor.Cli`
 
-Then run `dotnet tool install --global Microsoft.CST.RecursiveExtractor.CLI`
+### Running
+You can now run: `RecursiveExtractor --input archive.ext --output outputDirectory`
 
-Then you can run: `RecursiveExtractor --input archive.ext --output outputDirectory`
 <details>
 <summary>Detailed Usage</summary>
 <br/>
@@ -53,7 +56,7 @@ Run "RecursiveExtractor --help" for more details.
 Recursive Extractor is available on NuGet as [Microsoft.CST.RecursiveExtractor](https://www.nuget.org/packages/Microsoft.CST.RecursiveExtractor/).
 
 This code adapted from the Cli extracts the contents of given archive located at `options.Input`
-to a directory located at `options.Output` and prints the relative path of each file inside the archive.
+to a directory located at `options.Output`.
 
 ```csharp
 var extractor = new Extractor();
@@ -62,16 +65,7 @@ var extractorOptions = new ExtractorOptions()
     ExtractSelfOnFail = true,
     Parallel = true,
 };
-foreach(var result in extractor.ExtractFile(options.Input, extractorOptions))
-{
-    Directory.CreateDirectory(Path.Combine(options.Output,
-        Path.GetDirectoryName(result.FullPath)?
-            .TrimStart(Path.DirectorySeparatorChar) ?? string.Empty));
-
-    using var fs = new FileStream(Path.Combine(options.Output,result.FullPath), FileMode.Create);
-    result.Content.CopyTo(fs);
-    Console.WriteLine("Extracted {0}.", result.FullPath);
-}
+extractor.ExtractToDirectory(options.Output, options.Input, extractorOptions);
 ```
 <details>
 <summary>Async Usage</summary>
@@ -112,10 +106,11 @@ public string? ParentPath { get; }
 <details>
 <summary>Extracting Encrypted Archives</summary>
 <br/>
-The Extractor returns `FileEntry` objects.  These objects contain a `Content` Stream of the file contents.You can provide passwords to use to decrypt archives, paired with a Regex that will operate against the Name of the Archive.
+You can provide passwords to use to decrypt archives, paired with a Regex that will operate against the Name of the Archive.
 
 ```csharp
 var path = "/Path/To/Your/Archive"
+var directory
 var extractor = new Extractor();
 try {
     IEnumerable<FileEntry> results = extractor.ExtractFile(path, new ExtractorOptions()
@@ -148,7 +143,9 @@ Otherwise, invalid files found while crawling will emit a logger message and be 
 
 # Feedback
 
-If you have any issues or feature requests please open a new [Issue](https://github.com/microsoft/RecursiveExtractor/issues/new)
+If you have any issues or feature requests you can open a new [Issue](https://github.com/microsoft/RecursiveExtractor/issues/new).  
+
+If you have an archive you are having trouble parsing, please include it in your feedback.
 
 # Dependencies
 

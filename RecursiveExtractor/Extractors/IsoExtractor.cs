@@ -53,7 +53,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         var name = fileInfo.Name.Replace('/', Path.DirectorySeparatorChar);
                         var newFileEntry = await FileEntry.FromStreamAsync(name, stream, fileEntry);
-                        var innerEntries = Context.ExtractFileAsync(newFileEntry, options, governor);
+                        var innerEntries = Context.ExtractAsync(newFileEntry, options, governor);
                         await foreach (var entry in innerEntries)
                         {
                             yield return entry;

@@ -36,22 +36,100 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("Empty.vmdk", 0)]
         [DataRow("TextFile.md", 1)]
         [DataRow("Nested.Zip", 26 * 8 + 1)] // there's one extra metadata file in there
+        public void ExtractArchiveToDirectory(string fileName, int expectedNumFiles = 26)
+        {
+            var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            var extractor = new Extractor();
+            extractor.ExtractToDirectory(directory, path);
+            var files = Array.Empty<string>();
+            if (Directory.Exists(directory))
+            {
+                files = Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories).ToArray();
+                Directory.Delete(directory, true);
+            }
+            Assert.AreEqual(expectedNumFiles, files.Length);
+        }
+
+        [DataTestMethod]
+        [DataRow("Shared.zip")]
+        [DataRow("Shared.7z")]
+        [DataRow("Shared.Tar")]
+        [DataRow("Shared.rar")]
+        [DataRow("Shared.rar4")]
+        [DataRow("Shared.tar.bz2")]
+        [DataRow("Shared.tar.gz")]
+        [DataRow("Shared.tar.xz")]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
+        [DataRow("Shared.a", 1)]
+        [DataRow("Shared.deb", 27)]
+        [DataRow("Shared.ar")]
+        [DataRow("Shared.iso")]
+        [DataRow("Shared.vhd", 29)] // 26 + Some invisible system files
+        [DataRow("Shared.vhdx")]
+        [DataRow("Shared.wim")]
+        [DataRow("Empty.vmdk", 0)]
+        [DataRow("TextFile.md", 1)]
+        [DataRow("Nested.Zip", 26 * 8 + 1)] // there's one extra metadata file in there
+        public async Task ExtractArchiveToDirectoryAsync(string fileName, int expectedNumFiles = 26)
+        {
+            var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            var extractor = new Extractor();
+            Assert.AreEqual(ExtractionStatusCode.OKAY, await extractor.ExtractToDirectoryAsync(directory, path));
+            var files = Array.Empty<string>();
+            if (Directory.Exists(directory))
+            {
+                files = Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories).ToArray();
+                Directory.Delete(directory, true);
+            }
+            Assert.AreEqual(expectedNumFiles, files.Length);
+        }
+
+        [DataTestMethod]
+        [DataRow("Shared.zip")]
+        [DataRow("Shared.7z")]
+        [DataRow("Shared.Tar")]
+        [DataRow("Shared.rar")]
+        [DataRow("Shared.rar4")]
+        [DataRow("Shared.tar.bz2")]
+        [DataRow("Shared.tar.gz")]
+        [DataRow("Shared.tar.xz")]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
+        [DataRow("Shared.a", 1)]
+        [DataRow("Shared.deb", 27)]
+        [DataRow("Shared.ar")]
+        [DataRow("Shared.iso")]
+        [DataRow("Shared.vhd", 29)] // 26 + Some invisible system files
+        [DataRow("Shared.vhdx")]
+        [DataRow("Shared.wim")]
+        [DataRow("Empty.vmdk", 0)]
+        [DataRow("TextFile.md", 1)]
+        [DataRow("Nested.Zip", 26 * 8 + 1)] // there's one extra metadata file in there
         public void ExtractArchive(string fileName, int expectedNumFiles = 26)
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
-            var results = extractor.ExtractFile(path, new ExtractorOptions());
-            Assert.IsTrue(results.Count() == expectedNumFiles);
+            var results = extractor.Extract(path, new ExtractorOptions());
+            Assert.AreEqual(expectedNumFiles, results.Count());
         }
 
         public static Dictionary<Regex, List<string>> TestArchivePasswords = new Dictionary<Regex, List<string>>()
         {
             {
-                new Regex("\\.zip"),
+                new Regex("Encrypted.zip"),
                 new List<string>()
                 {
                     "AnIncorrectPassword",
-                    "TheMagicWordIsCelery"
+                    "TheMagicWordIsCelery", // ZipCrypto Encrypted
+                }
+            },
+            {
+                new Regex("EncryptedAES.zip"),
+                new List<string>()
+                {
+                    "AnIncorrectPassword",
+                    "TheMagicWordIsRadish"  // AES Encrypted
                 }
             },
             {
@@ -75,6 +153,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
 
         [DataTestMethod]
         [DataRow("SharedEncrypted.zip")]
+        [DataRow("SharedEncryptedAES.zip")]
         [DataRow("SharedEncrypted.7z")]
         [DataRow("SharedEncrypted.rar4")]
         [DataRow("NestedEncrypted.7z", 26*3)]
@@ -83,15 +162,16 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
-            var results = extractor.ExtractFile(path, new ExtractorOptions()
+            var results = extractor.Extract(path, new ExtractorOptions()
             {
                 Passwords = TestArchivePasswords
             }).ToList(); // Make this a list so it fully populates
-            Assert.IsTrue(results.Count == expectedNumFiles);
+            Assert.AreEqual(expectedNumFiles, results.Count);
         }
 
         [DataTestMethod]
         [DataRow("SharedEncrypted.zip")]
+        [DataRow("SharedEncryptedAES.zip")]
         [DataRow("SharedEncrypted.7z")]
         [DataRow("SharedEncrypted.rar4")]
         [DataRow("NestedEncrypted.7z", 26 * 3)]
@@ -101,7 +181,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
-            var results = extractor.ExtractFileAsync(path, new ExtractorOptions()
+            var results = extractor.ExtractAsync(path, new ExtractorOptions()
             {
                 Passwords = TestArchivePasswords
             });
@@ -110,7 +190,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             {
                 numEntries++;
             }
-            Assert.IsTrue(numEntries == expectedNumFiles);
+            Assert.AreEqual(expectedNumFiles, numEntries);
         }
 
         [DataTestMethod]
@@ -137,13 +217,13 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
-            var results = extractor.ExtractFileAsync(path, new ExtractorOptions());
+            var results = extractor.ExtractAsync(path, new ExtractorOptions());
             var numFound = 0;
             await foreach(var _ in results)
             {
                 numFound++;
             }
-            Assert.IsTrue(numFound == expectedNumFiles);
+            Assert.AreEqual(expectedNumFiles, numFound);
         }
 
         [DataTestMethod]
@@ -170,8 +250,8 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
-            var results = extractor.ExtractFile(path, new ExtractorOptions() { Parallel = true });
-            Assert.IsTrue(results.Count() == expectedNumFiles);
+            var results = extractor.Extract(path, new ExtractorOptions() { Parallel = true });
+            Assert.AreEqual(expectedNumFiles, results.Count());
         }
 
         [DataTestMethod]
@@ -199,7 +279,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
             using var stream = new FileStream(path, FileMode.Open);
-            var results = extractor.ExtractStreamAsync(path, stream, new ExtractorOptions());
+            var results = extractor.ExtractAsync(path, stream, new ExtractorOptions());
             var numFiles = 0;
             await foreach (var result in results)
             {
@@ -234,7 +314,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
             using var stream = new FileStream(path, FileMode.Open);
-            var results = extractor.ExtractStream(path, stream, new ExtractorOptions());
+            var results = extractor.Extract(path, stream, new ExtractorOptions());
             Assert.AreEqual(expectedNumFiles, results.Count());
             stream.Close();
         }
@@ -266,13 +346,13 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var fileEntry = new FileEntry("NoName", fs);
 
             // We make sure the expected type matches and we have reset the stream
-            Assert.IsTrue(MiniMagic.DetectFileType(fileEntry) == expectedArchiveFileType);
-            Assert.IsTrue(fileEntry.Content.Position == 0);
+            Assert.AreEqual(expectedArchiveFileType, MiniMagic.DetectFileType(fileEntry));
+            Assert.AreEqual(0, fileEntry.Content.Position);
 
             // Should also work if the stream doesn't start at 0
             fileEntry.Content.Position = 10;
-            Assert.IsTrue(MiniMagic.DetectFileType(fileEntry) == expectedArchiveFileType);
-            Assert.IsTrue(fileEntry.Content.Position == 10);
+            Assert.AreEqual(expectedArchiveFileType, MiniMagic.DetectFileType(fileEntry));
+            Assert.AreEqual(10, fileEntry.Content.Position);
         }
 
         [DataTestMethod]
@@ -292,7 +372,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             IEnumerable<FileEntry> results;
             try
             {
-                results = extractor.ExtractFile(path, new ExtractorOptions()).ToList();
+                results = extractor.Extract(path, new ExtractorOptions()).ToList();
                 // Getting here means we didnt catch the bomb
             }
             // We should throw an overflow exception when we detect a quine or bomb
@@ -318,7 +398,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
-            var results = extractor.ExtractFile(path, new ExtractorOptions()).ToList();
+            var results = extractor.Extract(path, new ExtractorOptions()).ToList();
             Assert.IsTrue(results.All(x => !x.FullPath.Contains("..")));
         }
         [ClassInitialize]

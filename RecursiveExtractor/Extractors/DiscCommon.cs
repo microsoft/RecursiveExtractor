@@ -58,7 +58,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     if (fileStream != null && fi != null)
                     {
                         var newFileEntry = await FileEntry.FromStreamAsync($"{volume.Identity}{Path.DirectorySeparatorChar}{fi.FullName}", fileStream, parent);
-                        var entries = Context.ExtractFileAsync(newFileEntry, options, governor);
+                        var entries = Context.ExtractAsync(newFileEntry, options, governor);
                         await foreach (var entry in entries)
                         {
                             yield return entry;

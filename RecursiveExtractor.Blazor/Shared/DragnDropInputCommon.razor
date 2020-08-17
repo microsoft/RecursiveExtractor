@@ -28,7 +28,31 @@
         cursor: pointer;
     }
 </style>
+<h2>Encryption</h2>
+<input type="checkbox" id="hidePasswords" @bind="HidePasswords" /> <label for="hidePasswords">Hide passwords.</label><br/>
+@if (HidePasswords)
+{
+    <input type="password" id="passwords" @bind="PasswordInput" />
+}
+else
+{
+    <input type="text" id="passwords" @bind="PasswordInput" />
+}
+<label for="password">Add a password to use</label>
+<button @onclick="AddPasswordToList">Add</button>
+<br />
+@if (Passwords.Any())
+{
+    <select @bind="SelectedPassword">
+        @for (var i = 0; i < Passwords.Count; i++)
+        {
+            <option value="@i">@GetShownPassword(Passwords[i])</option>
+        }
+    </select>
+    <button @onclick="RemovePasswordFromList">Remove</button>
+}
 
+<h2>Upload File</h2>
 <div class="@IpDropClass">
     <input type="file"
            class="clickable"
@@ -38,11 +62,6 @@
            @ondragleave=OnIpDragLeave
            multiple />
     Drop Files here or click me.
-
-    @if (NumFilesExtracted > 0)
-    {
-        <span>Extracted @NumFilesExtracted files.</span>
-    }
 </div>
 
 <br />
@@ -54,12 +73,40 @@
 <textarea style="max-width: 100%;" cols="50" rows="20">@Output</textarea>
 
 @code {
+    public string GetShownPassword(string password)
+    {
+        if (HidePasswords)
+        {
+            return "********";
+        }
+        else
+        {
+            return password;
+        }
+    }
+    bool HidePasswords;
     private int NumFilesExtracted = 0;
     ElementReference dropTargetInput;
-    IFileReaderRef ipReference;
+    IFileReaderRef ipReference
+    {
+        get
+        {
+            return _ipReference;
+        }
+        set
+        {
+            Output += "Got file.";
+            _ipReference = value;
+        }
+    }
+    private IFileReaderRef _ipReference;
     private List<string> _ipdropClasses = new List<string>() { dropTargetClass };
     string IpDropClass => string.Join(" ", _ipdropClasses);
     List<FileWithStream> IpFileList { get; } = new List<FileWithStream>();
+
+    string PasswordInput { get; set; } = string.Empty;
+    List<string> Passwords { get; set; } = new List<string>();
+    int SelectedPassword { get; set; }
 
     string Output { get; set; } = string.Empty;
     private static readonly string nl = Environment.NewLine;
@@ -73,6 +120,17 @@
         {
             ipReference = fileReaderService.CreateReference(dropTargetInput);
         }
+    }
+
+    public async Task AddPasswordToList()
+    {
+        Passwords.Add(PasswordInput);
+        PasswordInput = string.Empty;
+    }
+
+    public async Task RemovePasswordFromList()
+    {
+        Passwords.RemoveAt(SelectedPassword);
     }
 
     public async Task ClearClick()
@@ -127,16 +185,16 @@
         extractor.Unset(ArchiveFileType.VHD);
         extractor.Unset(ArchiveFileType.WIM);
 
-        var options = new ExtractorOptions() { EnableTiming = false, ExtractSelfOnFail = false };
+        var options = new ExtractorOptions()
+        {
+            EnableTiming = false,
+            ExtractSelfOnFail = false,
+            Passwords = new Dictionary<System.Text.RegularExpressions.Regex, List<string>>() { { new System.Text.RegularExpressions.Regex(".*"), Passwords } }
+        };
         foreach (var pair in IpFileList)
         {
             var fileInfo = pair.FileInfo;
-
-            Output += $"{nameof(IFileInfo)}.{nameof(fileInfo.Name)}: {fileInfo.Name}{nl}";
-            Output += $"{nameof(IFileInfo)}.{nameof(fileInfo.Size)}: {fileInfo.Size}{nl}";
-            Output += $"{nameof(IFileInfo)}.{nameof(fileInfo.Type)}: {fileInfo.Type}{nl}";
-            Output += $"{nameof(IFileInfo)}.{nameof(fileInfo.LastModifiedDate)}: {fileInfo.LastModifiedDate?.ToString() ?? "(N/A)"}{nl}";
-            Output += $"Reading file...";
+            Output += $"Reading file {fileInfo.Name}{nl}";
             this.StateHasChanged();
             fileInfo.PositionInfo.PositionChanged += (s, e) =>
             {
@@ -154,10 +212,10 @@
                 case ArchiveFileType.P7ZIP:
                 case ArchiveFileType.GZIP:
                 case ArchiveFileType.VHD:
-                    Output += $"{type} is not supported in the GUI, but is supported in the full RecursiveExtractor library.";
+                    Output += $"{type} is not supported in the GUI, but is supported in the full RecursiveExtractor library.{nl}";
                     break;
                 default:
-                    var entries = extractor.ExtractStreamAsync(entry.FullPath, entryStream, options);
+                    var entries = extractor.ExtractAsync(entry.FullPath, entryStream, options);
                     await foreach (var foundEntry in entries)
                     {
                         appData.GuidToFileEntryMap[Guid.NewGuid().ToString()] = foundEntry;
@@ -166,6 +224,7 @@
                     }
                     break;
             }
+            Output += $"Finished extracting {NumFilesExtracted} files.  Click Browse Archive for results.";
         }
     }
 }
