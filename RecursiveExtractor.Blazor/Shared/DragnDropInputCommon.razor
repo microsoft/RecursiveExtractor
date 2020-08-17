@@ -29,19 +29,30 @@
     }
 </style>
 <h2>Encryption</h2>
-<input type="text" id="passwords" @bind="PasswordInput"/> <label for="password">Add a password to use</label> <button @onclick="AddPasswordToList">Add</button>
-<br/>
-@if (Passwords.Any()){
-<select @bind="SelectedPassword">
-    @for (var i = 0; i < Passwords.Count; i++)
-    {
-        <option value="@i">@Passwords[i]</option>
-    }
-</select>
-<button @onclick="RemovePasswordFromList">Remove</button>
+<input type="checkbox" id="hidePasswords" @bind="HidePasswords" /> <label for="hidePasswords">Hide passwords.</label>
+@if (HidePasswords)
+{
+    <input type="password" id="passwords" @bind="PasswordInput" />
+}
+else
+{
+    <input type="text" id="passwords" @bind="PasswordInput" />
+}
+<label for="password">Add a password to use</label>
+<button @onclick="AddPasswordToList">Add</button>
+<br />
+@if (Passwords.Any())
+{
+    <select @bind="SelectedPassword">
+        @for (var i = 0; i < Passwords.Count; i++)
+        {
+            <option value="@i">@GetShownPassword(Passwords[i])</option>
+        }
+    </select>
+    <button @onclick="RemovePasswordFromList">Remove</button>
 }
 
-<h2>Upload File</h2>                                                                                                               
+<h2>Upload File</h2>
 <div class="@IpDropClass">
     <input type="file"
            class="clickable"
@@ -62,9 +73,22 @@
 <textarea style="max-width: 100%;" cols="50" rows="20">@Output</textarea>
 
 @code {
+    public string GetShownPassword(string password)
+    {
+        if (HidePasswords)
+        {
+            return "********";
+        }
+        else
+        {
+            return password;
+        }
+    }
+    bool HidePasswords;
     private int NumFilesExtracted = 0;
     ElementReference dropTargetInput;
-    IFileReaderRef ipReference {
+    IFileReaderRef ipReference
+    {
         get
         {
             return _ipReference;
