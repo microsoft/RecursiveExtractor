@@ -1,9 +1,11 @@
 # About
 ![Nuget](https://img.shields.io/nuget/v/Microsoft.CST.RecursiveExtractor)![Nuget](https://img.shields.io/nuget/dt/Microsoft.CST.RecursiveExtractor)
 
-Recursive Extractor is a Cross-Platform .NET Standard 2.0/2.1 Library for parsing archive files and disk images, including nested archives and disk images.
+Recursive Extractor is a Cross-Platform C# tool for parsing archive files and disk images, including nested archives and disk images.
 
-Recursive Extractor is available on NuGet as [Microsoft.CST.RecursiveExtractor](https://www.nuget.org/packages/Microsoft.CST.RecursiveExtractor/).
+Install Recursive Extractor from the command line: `dotnet tool install --global Microsoft.CST.RecursiveExtractor.CLI`.
+
+The Recursive Extractor Library is available on NuGet as [Microsoft.CST.RecursiveExtractor](https://www.nuget.org/packages/Microsoft.CST.RecursiveExtractor/).
 
 You can try out Recursive Extractor [in your browser](https://microsoft.github.io/RecursiveExtractor/) as a Web Assembly app.
 
@@ -25,7 +27,7 @@ You can try out Recursive Extractor [in your browser](https://microsoft.github.i
 ## Cli
 First ensure you have the latest [.NET SDK](https://dotnet.microsoft.com/download).
 
-Then run `dotnet tool install -g Microsoft.CST.RecursiveExtractor.Cli`
+Then run `dotnet tool install --global Microsoft.CST.RecursiveExtractor.CLI`
 
 Then you can run: `RecursiveExtractor --input archive.ext --output outputDirectory`
 <details>
