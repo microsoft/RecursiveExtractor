@@ -29,7 +29,7 @@
     }
 </style>
 <h2>Encryption</h2>
-<input type="checkbox" id="hidePasswords" @bind="HidePasswords" /> <label for="hidePasswords">Hide passwords.</label>
+<input type="checkbox" id="hidePasswords" @bind="HidePasswords" /> <label for="hidePasswords">Hide passwords.</label><br/>
 @if (HidePasswords)
 {
     <input type="password" id="passwords" @bind="PasswordInput" />
