@@ -1,5 +1,5 @@
 # About
-![Nuget](https://img.shields.io/nuget/v/Microsoft.CST.RecursiveExtractor)![Nuget](https://img.shields.io/nuget/dt/Microsoft.CST.RecursiveExtractor)
+![Nuget](https://img.shields.io/nuget/v/Microsoft.CST.RecursiveExtractor?link=https://www.nuget.org/packages/Microsoft.CST.RecursiveExtractor/&link=https://www.nuget.org/packages/Microsoft.CST.RecursiveExtractor/)![Nuget](https://img.shields.io/nuget/dt/Microsoft.CST.RecursiveExtractor?link=https://www.nuget.org/packages/Microsoft.CST.RecursiveExtractor/&link=https://www.nuget.org/packages/Microsoft.CST.RecursiveExtractor/)
 
 Recursive Extractor is a Cross-Platform [.NET Standard 2.0 Library](#library), [Progressive Web App](#browser) and [Command Line Program](#cli) for parsing archive files and disk images, including nested archives and disk images.
 
@@ -153,7 +153,7 @@ Recursive Extractor uses a number of libraries to parse archives.
 
 * [SharpZipLib](https://github.com/icsharpcode/SharpZipLib)
 * [SharpCompress](https://github.com/adamhathcock/sharpcompress)
-* [DiscUtils](https://github.com/discutils/discutils).
+* [DiscUtils](https://github.com/discutils/discutils)
 
 # Contributing
 
