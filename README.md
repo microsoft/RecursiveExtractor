@@ -23,7 +23,9 @@ Recursive Extractor is a Cross-Platform [.NET Standard 2.0 Library](#library), [
 # Variants
 
 ## Browser
-You can try out Recursive Extractor [in your browser](https://microsoft.github.io/RecursiveExtractor/) as a Web Assembly app.
+You can run Recursive Extractor directly [in your browser](https://microsoft.github.io/RecursiveExtractor/) and install it as a Progressive Web App.  
+
+It runs entirely locally using [WebAssembly](https://docs.microsoft.com/en-us/aspnet/core/blazor/progressive-web-app?view=aspnetcore-3.1&tabs=visual-studio) with no connectivity requirement.
 
 ## Cli
 ### Installing
