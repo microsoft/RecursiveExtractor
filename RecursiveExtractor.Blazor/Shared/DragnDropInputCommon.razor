@@ -29,7 +29,12 @@
     }
 </style>
 <h2>Encryption</h2>
-<input type="checkbox" id="hidePasswords" @bind="HidePasswords" /> <label for="hidePasswords">Hide passwords.</label><br/>
+<h4>Hide Passwords</h4>
+<label for="hidePasswords">Obscure passwords in the GUI.</label>
+<input type="checkbox" id="hidePasswords" @bind="HidePasswords" />
+<br />
+<h4>Passwords To Use</h4>
+<label for="password">Password to Add:</label>
 @if (HidePasswords)
 {
     <input type="password" id="passwords" @bind="PasswordInput" />
@@ -38,18 +43,22 @@ else
 {
     <input type="text" id="passwords" @bind="PasswordInput" />
 }
-<label for="password">Add a password to use</label>
-<button @onclick="AddPasswordToList">Add</button>
+<button @onclick="AddPasswordToList">Add Password to Usage List</button>
 <br />
 @if (Passwords.Any())
 {
+    <label>Passwords To Use:</label>
     <select @bind="SelectedPassword">
         @for (var i = 0; i < Passwords.Count; i++)
         {
             <option value="@i">@GetShownPassword(Passwords[i])</option>
         }
     </select>
-    <button @onclick="RemovePasswordFromList">Remove</button>
+    <button @onclick="RemovePasswordFromList">Remove Selected</button>
+}
+else
+{
+    <p>Add a password to try to decrypt archives.</p>
 }
 
 <h2>Upload File</h2>
@@ -65,12 +74,15 @@ else
 </div>
 
 <br />
+<progress max="@max" value="@value" />
 <button @onclick="ReadClick" class="btn btn-primary">Read file</button>
 <button @onclick="ClearClick" class="btn btn-primary">Clear</button>
-
 <br />
-<br />
-<textarea style="max-width: 100%;" cols="50" rows="20">@Output</textarea>
+<div class="card">
+    <div class="card-body">
+        @Output
+    </div>
+</div>
 
 @code {
     public string GetShownPassword(string password)
@@ -84,6 +96,10 @@ else
             return password;
         }
     }
+
+    public long max;
+    public long value;
+
     bool HidePasswords;
     private int NumFilesExtracted = 0;
     ElementReference dropTargetInput;
@@ -95,7 +111,6 @@ else
         }
         set
         {
-            Output += "Got file.";
             _ipReference = value;
         }
     }
@@ -142,9 +157,9 @@ else
     private async Task ClearAsync()
     {
         appData.GuidToFileEntryMap.Clear();
-        Output = string.Empty;
         IpFileList.Clear();
     }
+
     private class FileWithStream { public IFileInfo FileInfo { get; set; } public AsyncDisposableStream Stream { get; set; } }
 
     public void OnIpDragEnter(EventArgs e) => _ipdropClasses.Add(dropTargetDragClass);
@@ -153,10 +168,10 @@ else
 
     public async Task OnInputChange(EventArgs e)
     {
-        Output += $"Dropped a file on the Clickable.{nl}";
         _ipdropClasses.Remove(dropTargetDragClass);
         this.StateHasChanged();
         await this.RefreshFileList();
+        await ReadClick();
     }
 
     private async Task RefreshFileList()
@@ -174,7 +189,6 @@ else
     public async Task ReadFile(IFileReaderRef list)
     {
         appData.GuidToFileEntryMap.Clear();
-        Output = string.Empty;
         this.StateHasChanged();
         var extractor = new Extractor();
 
@@ -194,11 +208,12 @@ else
         foreach (var pair in IpFileList)
         {
             var fileInfo = pair.FileInfo;
+            max = fileInfo.Size;
             Output += $"Reading file {fileInfo.Name}{nl}";
             this.StateHasChanged();
             fileInfo.PositionInfo.PositionChanged += (s, e) =>
             {
-                Output += $"Read {e.PositionDeltaSinceAcknowledge}, {e.Position} / {fileInfo.Size} ({e.Percentage:0.00}%){nl}";
+                value = e.Position;
                 this.StateHasChanged();
             };
             var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
