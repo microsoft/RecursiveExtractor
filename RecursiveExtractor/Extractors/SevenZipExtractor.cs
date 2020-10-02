@@ -81,7 +81,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             {
                 needsPassword = sevenZipArchive?.TotalUncompressSize == 0;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 needsPassword = true;
             }
@@ -150,7 +150,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                                     }
                                     else
                                     {
-                                        files.PushRange(Context.ExtractFile(newFileEntry, options, governor).ToArray());
+                                        files.PushRange(Context.Extract(newFileEntry, options, governor).ToArray());
                                     }
                                 }
                                 catch (Exception e) when (e is OverflowException)
@@ -197,7 +197,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
                             throw new OverflowException();
                         }
-                        foreach (var extractedFile in Context.ExtractFile(newFileEntry, options, governor))
+                        foreach (var extractedFile in Context.Extract(newFileEntry, options, governor))
                         {
                             yield return extractedFile;
                         }

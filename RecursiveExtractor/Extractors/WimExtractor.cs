@@ -72,7 +72,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             streamsAndNames.AsParallel().ForAll(file =>
                             {
                                 var newFileEntry = new FileEntry($"{image.FriendlyName}\\{file.Item1.FullName}", file.Item2, fileEntry);
-                                var entries = Context.ExtractFile(newFileEntry, options, governor);
+                                var entries = Context.Extract(newFileEntry, options, governor);
                                 if (entries.Any())
                                 {
                                     files.PushRange(entries.ToArray());
@@ -168,7 +168,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             var name = file.Replace('\\', Path.DirectorySeparatorChar);
 
                             var newFileEntry = new FileEntry($"{image.FriendlyName}{Path.DirectorySeparatorChar}{name}", stream, fileEntry);
-                            foreach (var entry in Context.ExtractFile(newFileEntry, options, governor))
+                            foreach (var entry in Context.Extract(newFileEntry, options, governor))
                             {
                                 yield return entry;
                             }

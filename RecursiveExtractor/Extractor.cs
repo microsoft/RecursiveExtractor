@@ -163,13 +163,14 @@ namespace Microsoft.CST.RecursiveExtractor
             return false;
         }
 
-        
+
         /// <summary>
         /// Deprecated. Use Extract.
         /// </summary>
         /// <param name="filename"></param>
         /// <param name="opts"></param>
         /// <returns></returns>
+        [ObsoleteAttribute("This method is obsolete. Use Extract instead.", false)]
         public IEnumerable<FileEntry> ExtractFile(string filename, ExtractorOptions? opts = null) => Extract(filename, opts);
 
         /// <summary>
@@ -198,6 +199,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="filename"></param>
         /// <param name="opts"></param>
         /// <returns></returns>
+        [ObsoleteAttribute("This method is obsolete. Use ExtractAsync instead.", false)]
         public async IAsyncEnumerable<FileEntry> ExtractFileAsync(string filename, ExtractorOptions? opts = null)
         {
             await foreach(var entry in ExtractAsync(filename, opts))
@@ -233,6 +235,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="stream"></param>
         /// <param name="opts"></param>
         /// <returns></returns>
+        [ObsoleteAttribute("This method is obsolete. Use ExtractAsync instead.", false)]
         public async IAsyncEnumerable<FileEntry> ExtractStreamAsync(string filename, Stream stream, ExtractorOptions? opts = null)
         {
             await foreach(var entry in ExtractAsync(filename, stream, opts))
@@ -283,6 +286,8 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="stream"></param>
         /// <param name="opts"></param>
         /// <returns></returns>
+        [ObsoleteAttribute("This method is obsolete. Use Extract instead.", false)]
+
         public IEnumerable<FileEntry> ExtractStream(string filename, Stream stream, ExtractorOptions? opts = null) => Extract(filename, stream, opts);
 
         /// <summary>
@@ -310,7 +315,7 @@ namespace Microsoft.CST.RecursiveExtractor
 
             if (fileEntry != null)
             {
-                foreach (var result in ExtractFile(fileEntry, opts, governor))
+                foreach (var result in Extract(fileEntry, opts, governor))
                 {
                     governor.GovernorStopwatch.Stop();
                     yield return result;
@@ -327,6 +332,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="archiveBytes"></param>
         /// <param name="opts"></param>
         /// <returns></returns>
+        [ObsoleteAttribute("This method is obsolete. Use Extract instead.", false)]
         public IEnumerable<FileEntry> ExtractFile(string filename, byte[] archiveBytes, ExtractorOptions? opts = null) => Extract(filename, archiveBytes, opts);
 
         /// <summary>
@@ -339,7 +345,7 @@ namespace Microsoft.CST.RecursiveExtractor
         public IEnumerable<FileEntry> Extract(string filename, byte[] archiveBytes, ExtractorOptions? opts = null)
         {
             using var ms = new MemoryStream(archiveBytes);
-            return ExtractFile(new FileEntry(Path.GetFileName(filename), ms), opts);
+            return Extract(new FileEntry(Path.GetFileName(filename), ms), opts);
         }
 
         /// <summary>
@@ -349,6 +355,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="archiveBytes"></param>
         /// <param name="opts"></param>
         /// <returns></returns>
+        [ObsoleteAttribute("This method is obsolete. Use ExtractAsync instead.", false)]
         public async IAsyncEnumerable<FileEntry> ExtractFileAsync(string filename, byte[] archiveBytes, ExtractorOptions? opts = null)
         {
             await foreach(var entry in ExtractAsync(filename, archiveBytes, opts))
@@ -389,6 +396,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="opts"></param>
         /// <param name="governor"></param>
         /// <returns></returns>
+        [ObsoleteAttribute("This method is obsolete. Use ExtractAsync instead.", false)]
         public async IAsyncEnumerable<FileEntry> ExtractFileAsync(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null)
         {
             await foreach(var entry in ExtractAsync(fileEntry, opts, governor))
@@ -596,6 +604,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="opts"></param>
         /// <param name="governor"></param>
         /// <returns></returns>
+        [ObsoleteAttribute("This method is obsolete. Use Extract instead.", false)]
         public IEnumerable<FileEntry> ExtractFile(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null) => Extract(fileEntry, opts, governor);
 
         /// <summary>
