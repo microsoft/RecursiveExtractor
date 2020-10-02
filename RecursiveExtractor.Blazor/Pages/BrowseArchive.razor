@@ -1,14 +1,18 @@
 ﻿@page "/Browse"
 @using System.Text;
 @using System.Text.RegularExpressions;
+
 @inject Microsoft.CST.RecursiveExtractor.Blazor.Services.AppData appData;
 @inject IJSRuntime JSRuntime
-    <b>Regex to match File Paths against</b>
-    <br />
+
+    <h2>Browse Archive</h2>
+
+    <p>You can specify a regular expression to filter the files discovered in the archive.</p>
+    <label>Regex to match File Paths against</label>
     <input @bind="CurrentString" />
     <br />
-    <h2>Files matching filter:</h2>
-
+    <h3>Files Matching Filter</h3>
+    <p>You can view each file below as formatted source code, or download the raw file.</p>
     @foreach (var file in appData.GuidToFileEntryMap.Where(x => filter.IsMatch(x.Value.FullPath)))
     {
         <p>Found: @file.Value.FullPath <a href="ViewFile/@file.Key">View</a> <button @onclick="@(e => DownloadFile(file.Key))">Download</button></p>
@@ -30,7 +34,7 @@
                 await JSRuntime.InvokeAsync<object>(
                     "FileSaveAs",
                     entry.Name,
-                    "data:text/plain;charset=utf-8,",
+                    $"data: {MimeMapper.MapFilePath(entry.Name)},",
                     await sr.ReadToEndAsync()
                 );
             }
