@@ -35,12 +35,16 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             {
                 Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.RAR, fileEntry.FullPath, string.Empty, e.GetType());
             }
+            if (rarArchive is null)
+            {
+                return null;
+            }
             var needsPassword = false;
             try
             {
                 using var testStream = rarArchive.Entries.First().OpenEntryStream();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 needsPassword = true;
             }
@@ -149,7 +153,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                                 }
                                 else
                                 {
-                                    files.PushRange(Context.ExtractFile(newFileEntry, options, governor).ToArray());
+                                    files.PushRange(Context.Extract(newFileEntry, options, governor).ToArray());
                                 }
                             }
                             catch (Exception e)
@@ -191,7 +195,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                                 Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
                                 throw new OverflowException();
                             }
-                            foreach (var extractedFile in Context.ExtractFile(newFileEntry, options, governor))
+                            foreach (var extractedFile in Context.Extract(newFileEntry, options, governor))
                             {
                                 yield return extractedFile;
                             }

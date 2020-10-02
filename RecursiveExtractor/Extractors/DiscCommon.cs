@@ -125,7 +125,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             if (file.Item2 != null)
                             {
                                 var newFileEntry = new FileEntry($"{volume.Identity}{Path.DirectorySeparatorChar}{file.Item1.FullName}", file.Item2, parent);
-                                var entries = Context.ExtractFile(newFileEntry, options, governor);
+                                var entries = Context.Extract(newFileEntry, options, governor);
                                 files.PushRange(entries.ToArray());
                             }
                         });
@@ -156,7 +156,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         if (fileStream != null)
                         {
                             var newFileEntry = new FileEntry($"{volume.Identity}{Path.DirectorySeparatorChar}{file}", fileStream, parent);
-                            var entries = Context.ExtractFile(newFileEntry, options, governor);
+                            var entries = Context.Extract(newFileEntry, options, governor);
                             foreach (var entry in entries)
                             {
                                 yield return entry;

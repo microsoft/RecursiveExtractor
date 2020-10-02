@@ -315,7 +315,7 @@ namespace Microsoft.CST.RecursiveExtractor
 
             if (fileEntry != null)
             {
-                foreach (var result in ExtractFile(fileEntry, opts, governor))
+                foreach (var result in Extract(fileEntry, opts, governor))
                 {
                     governor.GovernorStopwatch.Stop();
                     yield return result;

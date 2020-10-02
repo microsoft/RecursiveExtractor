@@ -125,7 +125,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
                     if (newFileEntry != null)
                     {
-                        foreach (var extractedFile in Context.ExtractFile(newFileEntry, options, governor))
+                        foreach (var extractedFile in Context.Extract(newFileEntry, options, governor))
                         {
                             yield return extractedFile;
                         }
