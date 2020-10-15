@@ -74,7 +74,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 throw new TimeoutException(string.Format($"Processing timeout exceeded: {GovernorStopwatch.Elapsed.TotalMilliseconds} ms."));
             }
 
-            if (CurrentOperationProcessedBytesLeft - additionalBytes <= 0)
+            if (CurrentOperationProcessedBytesLeft - additionalBytes < 0)
             {
                 throw new OverflowException("Too many bytes extracted, exceeding limit.");
             }

@@ -34,6 +34,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("Shared.vhdx")]
         [DataRow("Shared.wim")]
         [DataRow("Empty.vmdk", 0)]
+        [DataRow("EmptyFile.txt", 1)]
         [DataRow("TextFile.md", 1)]
         [DataRow("Nested.Zip", 26 * 8 + 1)] // there's one extra metadata file in there
         public void ExtractArchiveToDirectory(string fileName, int expectedNumFiles = 26)
@@ -69,6 +70,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("Shared.vhdx")]
         [DataRow("Shared.wim")]
         [DataRow("Empty.vmdk", 0)]
+        [DataRow("EmptyFile.txt", 1)]
         [DataRow("TextFile.md", 1)]
         [DataRow("Nested.Zip", 26 * 8 + 1)] // there's one extra metadata file in there
         public async Task ExtractArchiveToDirectoryAsync(string fileName, int expectedNumFiles = 26)
@@ -104,6 +106,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("Shared.vhdx")]
         [DataRow("Shared.wim")]
         [DataRow("Empty.vmdk", 0)]
+        [DataRow("EmptyFile.txt", 1)]
         [DataRow("TextFile.md", 1)]
         [DataRow("Nested.Zip", 26 * 8 + 1)] // there's one extra metadata file in there
         public void ExtractArchive(string fileName, int expectedNumFiles = 26)
@@ -211,6 +214,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("Shared.vhdx")]
         [DataRow("Shared.wim")]
         [DataRow("Empty.vmdk", 0)]
+        [DataRow("EmptyFile.txt", 1)]
         [DataRow("TextFile.md", 1)]
         [DataRow("Nested.Zip", 26 * 8 + 1)] // there's one extra metadata file in there
         public async Task ExtractArchiveAsync(string fileName, int expectedNumFiles = 26)
@@ -244,6 +248,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("Shared.vhdx")]
         [DataRow("Shared.wim")]
         [DataRow("Empty.vmdk", 0)]
+        [DataRow("EmptyFile.txt", 1)]
         [DataRow("TextFile.md", 1)]
         [DataRow("Nested.Zip", 26 * 8 + 1)] // there's one extra metadata file in there
         public void ExtractArchiveParallel(string fileName, int expectedNumFiles = 26)
@@ -272,6 +277,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("Shared.vhdx")]
         [DataRow("Shared.wim")]
         [DataRow("Empty.vmdk", 0)]
+        [DataRow("EmptyFile.txt", 1)]
         [DataRow("TextFile.md", 1)]
         [DataRow("Nested.Zip", 26 * 8 + 1)] // there's one extra metadata file in there
         public async Task ExtractArchiveFromStreamAsync(string fileName, int expectedNumFiles = 26)
@@ -307,6 +313,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("Shared.vhdx")]
         [DataRow("Shared.wim")]
         [DataRow("Empty.vmdk", 0)]
+        [DataRow("EmptyFile.txt", 1)]
         [DataRow("TextFile.md", 1)]
         [DataRow("Nested.Zip", 26 * 8 + 1)] // there's one extra metadata file in there
         public void ExtractArchiveFromStream(string fileName, int expectedNumFiles = 26)
@@ -337,6 +344,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("Shared.vhdx", ArchiveFileType.VHDX)]
         [DataRow("Shared.wim", ArchiveFileType.WIM)]
         [DataRow("Empty.vmdk", ArchiveFileType.VMDK)]
+        [DataRow("EmptyFile.txt", ArchiveFileType.UNKNOWN)]
         [DataRow("TextFile.md", ArchiveFileType.UNKNOWN)]
         public void TestMiniMagic(string fileName, ArchiveFileType expectedArchiveFileType)
         {
