@@ -424,6 +424,10 @@ namespace Microsoft.CST.RecursiveExtractor
             Logger.Trace("ExtractFile({0})", fileEntry.FullPath);
             Governor.CurrentOperationProcessedBytesLeft -= fileEntry.Content.Length;
             Governor.CheckResourceGovernor();
+            if (opts?.ParseAsRawExtensions?.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ?? false)
+            {
+                yield return fileEntry;
+            }
             var type = MiniMagic.DetectFileType(fileEntry);
             if (type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type))
             {
@@ -631,8 +635,7 @@ namespace Microsoft.CST.RecursiveExtractor
 
             try
             {
-                var type = MiniMagic.DetectFileType(fileEntry);
-                if (type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type))
+                if (opts?.ParseAsRawExtensions?.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ?? false)
                 {
                     useRaw = true;
                     result = new[]
@@ -642,7 +645,19 @@ namespace Microsoft.CST.RecursiveExtractor
                 }
                 else
                 {
-                    result = Extractors[type].Extract(fileEntry, options, Governor);
+                    var type = MiniMagic.DetectFileType(fileEntry);
+                    if (type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type))
+                    {
+                        useRaw = true;
+                        result = new[]
+                        {
+                        fileEntry
+                    };
+                    }
+                    else
+                    {
+                        result = Extractors[type].Extract(fileEntry, options, Governor);
+                    }
                 }
             }
             catch (Exception ex)
