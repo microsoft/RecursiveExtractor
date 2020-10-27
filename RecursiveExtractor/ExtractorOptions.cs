@@ -53,6 +53,11 @@ namespace Microsoft.CST.RecursiveExtractor
         public bool Parallel { get; set; }
 
         /// <summary>
+        /// Parse these extensions as raw, don't traverse them.
+        /// </summary>
+        public IEnumerable<string>? RawExtensions { get; set; }
+
+        /// <summary>
         /// Passwords to use
         /// </summary>
         public Dictionary<Regex, List<string>> Passwords { get; set; } = new Dictionary<Regex, List<string>>();
