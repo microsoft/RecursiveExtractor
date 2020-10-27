@@ -424,7 +424,7 @@ namespace Microsoft.CST.RecursiveExtractor
             Logger.Trace("ExtractFile({0})", fileEntry.FullPath);
             Governor.CurrentOperationProcessedBytesLeft -= fileEntry.Content.Length;
             Governor.CheckResourceGovernor();
-            if (opts?.ParseAsRawExtensions?.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ?? false)
+            if (opts?.RawExtensions?.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ?? false)
             {
                 yield return fileEntry;
             }
@@ -635,7 +635,7 @@ namespace Microsoft.CST.RecursiveExtractor
 
             try
             {
-                if (opts?.ParseAsRawExtensions?.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ?? false)
+                if (opts?.RawExtensions?.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ?? false)
                 {
                     useRaw = true;
                     result = new[]
