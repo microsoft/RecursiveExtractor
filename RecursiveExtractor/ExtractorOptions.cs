@@ -55,7 +55,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <summary>
         /// Parse these extensions as raw, don't traverse them.
         /// </summary>
-        public List<string>? ParseAsRawExtensions { get; set; }
+        public IEnumerable<string>? ParseAsRawExtensions { get; set; }
 
         /// <summary>
         /// Passwords to use

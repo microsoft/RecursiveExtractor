@@ -21,6 +21,9 @@ namespace Microsoft.CST.RecursiveExtractor.Cli
         [Option('D', "deny-filters", Required = false, HelpText = "Comma-separated list of regular expressions. When set, files are NOT written to disk if they match one of these filters.", Separator = ',')]
         public IEnumerable<string>? DenyFilters { get; set; }
 
+        [Option('R', "raw-extensions", Required = false, HelpText = "Comma-separated list of file extensions to treat as raw files (don't recurse into).", Separator = ',')]
+        public IEnumerable<string>? RawExtensions { get; set; }
+
         [Option(HelpText = "Set logging to 'verbose'.")]
 		public bool Verbose { get; set; }
 
