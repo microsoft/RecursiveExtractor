@@ -117,6 +117,22 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             Assert.AreEqual(expectedNumFiles, results.Count());
         }
 
+                
+        [DataRow("TextFile.md")]
+        [DataRow("Nested.zip", ".zip")]
+        public void ExtractAsRaw(string fileName, string? RawExtension)
+        {
+            var extractor = new Extractor();
+            var options = new ExtractorOptions()
+            {
+                RawExtensions = RawExtension is null ? null : new List<string>(){ RawExtension }
+            };
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+
+            var results = extractor.Extract(path, options);
+            Assert.AreEqual(1, results.Count());
+        }
+
         public static Dictionary<Regex, List<string>> TestArchivePasswords = new Dictionary<Regex, List<string>>()
         {
             {
