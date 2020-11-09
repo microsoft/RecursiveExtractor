@@ -17,29 +17,26 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
     public class ExtractorTests
     {
         [DataTestMethod]
-        [DataRow("TestData.zip")]
+        [DataRow("TestData.zip", 5)]
         [DataRow("TestData.7z")]
-        [DataRow("TestData.Tar")]
+        [DataRow("TestData.tar", 5)]
         [DataRow("TestData.rar")]
         [DataRow("TestData.rar4")]
-        [DataRow("TestData.tar.bz2")]
-        [DataRow("TestData.tar.gz")]
+        [DataRow("TestData.tar.bz2", 5)]
+        [DataRow("TestData.tar.gz", 5)]
         [DataRow("TestData.tar.xz")]
         [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
-        [DataRow("TestData.a", 1)]
-        [DataRow("TestData.deb", 27)]
-        [DataRow("TestData.ar")]
-        [DataRow("TestData.iso")]
-        [DataRow("TestData.vhd", 29)] // 26 + Some invisible system files
+        [DataRow("TestData.a")]
+        //[DataRow("TestData.ar")]
+        //[DataRow("TestData.iso")]
         [DataRow("TestData.vhdx")]
         [DataRow("TestData.wim")]
-        [DataRow("Empty.vmdk", 0)]
-        [DataRow("Lorem.txt", 1)]
-        [DataRow("Nested.Zip", 26 * 8 + 1)] // there's one extra metadata file in there
-        public void ExtractArchiveToDirectory(string fileName, int expectedNumFiles = 26)
+        [DataRow("EmptyFile.txt", 1)]
+        [DataRow("TestDataArchivesNested.Zip", 51)]
+        public void ExtractArchiveToDirectory(string fileName, int expectedNumFiles = 3)
         {
             var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var extractor = new Extractor();
             extractor.ExtractToDirectory(directory, path);
             var files = Array.Empty<string>();
@@ -52,30 +49,26 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         }
 
         [DataTestMethod]
-        [DataRow("TestData.zip")]
+        [DataRow("TestData.zip", 5)]
         [DataRow("TestData.7z")]
-        [DataRow("TestData.Tar")]
+        [DataRow("TestData.tar", 5)]
         [DataRow("TestData.rar")]
         [DataRow("TestData.rar4")]
-        [DataRow("TestData.tar.bz2")]
-        [DataRow("TestData.tar.gz")]
+        [DataRow("TestData.tar.bz2", 5)]
+        [DataRow("TestData.tar.gz", 5)]
         [DataRow("TestData.tar.xz")]
         [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
-        [DataRow("TestData.a", 1)]
-        [DataRow("TestData.deb", 27)]
-        [DataRow("TestData.ar")]
-        [DataRow("TestData.iso")]
-        [DataRow("TestData.vhd", 29)] // 26 + Some invisible system files
+        [DataRow("TestData.a")]
+        //[DataRow("TestData.ar")]
+        //[DataRow("TestData.iso")]
         [DataRow("TestData.vhdx")]
         [DataRow("TestData.wim")]
-        [DataRow("Empty.vmdk", 0)]
         [DataRow("EmptyFile.txt", 1)]
-        [DataRow("TextFile.md", 1)]
-        [DataRow("Nested.Zip", 26 * 8 + 1)] // there's one extra metadata file in there
-        public async Task ExtractArchiveToDirectoryAsync(string fileName, int expectedNumFiles = 26)
+        [DataRow("TestDataArchivesNested.Zip", 51)]
+        public async Task ExtractArchiveToDirectoryAsync(string fileName, int expectedNumFiles = 3)
         {
             var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var extractor = new Extractor();
             Assert.AreEqual(ExtractionStatusCode.OKAY, await extractor.ExtractToDirectoryAsync(directory, path));
             var files = Array.Empty<string>();
@@ -88,30 +81,26 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         }
 
         [DataTestMethod]
-        [DataRow("TestData.zip")]
+        [DataRow("TestData.zip", 5)]
         [DataRow("TestData.7z")]
-        [DataRow("TestData.Tar")]
+        [DataRow("TestData.tar", 5)]
         [DataRow("TestData.rar")]
         [DataRow("TestData.rar4")]
-        [DataRow("TestData.tar.bz2")]
-        [DataRow("TestData.tar.gz")]
+        [DataRow("TestData.tar.bz2", 5)]
+        [DataRow("TestData.tar.gz", 5)]
         [DataRow("TestData.tar.xz")]
         [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
-        [DataRow("TestData.a", 1)]
-        [DataRow("TestData.deb", 27)]
-        [DataRow("TestData.ar")]
-        [DataRow("TestData.iso")]
-        [DataRow("TestData.vhd", 29)] // 26 + Some invisible system files
+        [DataRow("TestData.a")]
+        //[DataRow("TestData.ar")]
+        //[DataRow("TestData.iso")]
         [DataRow("TestData.vhdx")]
         [DataRow("TestData.wim")]
-        [DataRow("Empty.vmdk", 0)]
         [DataRow("EmptyFile.txt", 1)]
-        [DataRow("TextFile.md", 1)]
-        [DataRow("Nested.Zip", 26 * 8 + 1)] // there's one extra metadata file in there
-        public void ExtractArchive(string fileName, int expectedNumFiles = 26)
+        [DataRow("TestDataArchivesNested.Zip", 51)]
+        public void ExtractArchive(string fileName, int expectedNumFiles = 3)
         {
             var extractor = new Extractor();
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var results = extractor.Extract(path, new ExtractorOptions());
             Assert.AreEqual(expectedNumFiles, results.Count());
         }
@@ -126,7 +115,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             {
                 RawExtensions = RawExtension is null ? null : new List<string>(){ RawExtension }
             };
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
 
             var results = extractor.Extract(path, options);
             Assert.AreEqual(1, results.Count());
@@ -135,19 +124,19 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         public static Dictionary<Regex, List<string>> TestArchivePasswords = new Dictionary<Regex, List<string>>()
         {
             {
-                new Regex("Encrypted.zip"),
+                new Regex("EncryptedZipCrypto.zip"),
                 new List<string>()
                 {
                     "AnIncorrectPassword",
-                    "TheMagicWordIsCelery", // ZipCrypto Encrypted
+                    "TestData", // ZipCrypto Encrypted
                 }
             },
             {
-                new Regex("EncryptedAES.zip"),
+                new Regex("EncryptedAes.zip"),
                 new List<string>()
                 {
                     "AnIncorrectPassword",
-                    "TheMagicWordIsRadish"  // AES Encrypted
+                    "TestData"  // AES Encrypted
                 }
             },
             {
@@ -155,8 +144,8 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
                 new List<string>()
                 {
                     "AnIncorrectPassword",
-                    "TheMagicWordIsTomato", // TestDataEncrypted.7z
-                    "TheMagicWordIsLettuce" // NestedEncrypted.7z
+                    "TestData", // TestDataEncrypted.7z
+                    "TestData" // NestedEncrypted.7z
                 }
             },
             {
@@ -164,22 +153,21 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
                 new List<string>()
                 {
                     "AnIncorrectPassword",
-                    "TheMagicWordIsPotato"
+                    "TestData"
                 }
             }
         };
 
         [DataTestMethod]
-        [DataRow("TestDataEncrypted.zip")]
-        [DataRow("TestDataEncryptedAES.zip")]
+        [DataRow("TestDataEncryptedZipCrypto.zip")]
+        [DataRow("TestDataEncryptedAes.zip")]
         [DataRow("TestDataEncrypted.7z")]
         [DataRow("TestDataEncrypted.rar4")]
-        [DataRow("NestedEncrypted.7z", 26*3)]
         // [DataRow("TestDataEncrypted.rar")] // RAR5 is not yet supported by SharpCompress: https://github.com/adamhathcock/sharpcompress/issues/517
-        public void ExtractEncryptedArchive(string fileName, int expectedNumFiles = 26)
+        public void ExtractEncryptedArchive(string fileName, int expectedNumFiles = 3)
         {
             var extractor = new Extractor();
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var results = extractor.Extract(path, new ExtractorOptions()
             {
                 Passwords = TestArchivePasswords
@@ -188,17 +176,16 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         }
 
         [DataTestMethod]
-        [DataRow("TestDataEncrypted.zip")]
-        [DataRow("TestDataEncryptedAES.zip")]
+        [DataRow("TestDataEncryptedZipCrypto.zip")]
+        [DataRow("TestDataEncryptedAes.zip")]
         [DataRow("TestDataEncrypted.7z")]
         [DataRow("TestDataEncrypted.rar4")]
-        [DataRow("NestedEncrypted.7z", 26 * 3)]
         // [DataRow("TestDataEncrypted.rar")] // RAR5 is not yet supported by SharpCompress: https://github.com/adamhathcock/sharpcompress/issues/517
 
-        public async Task ExtractEncryptedArchiveAsync(string fileName, int expectedNumFiles = 26)
+        public async Task ExtractEncryptedArchiveAsync(string fileName, int expectedNumFiles = 3)
         {
             var extractor = new Extractor();
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var results = extractor.ExtractAsync(path, new ExtractorOptions()
             {
                 Passwords = TestArchivePasswords
@@ -212,30 +199,26 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         }
 
         [DataTestMethod]
-        [DataRow("TestData.zip")]
+        [DataRow("TestData.zip", 5)]
         [DataRow("TestData.7z")]
-        [DataRow("TestData.Tar")]
+        [DataRow("TestData.tar", 5)]
         [DataRow("TestData.rar")]
         [DataRow("TestData.rar4")]
-        [DataRow("TestData.tar.bz2")]
-        [DataRow("TestData.tar.gz")]
+        [DataRow("TestData.tar.bz2", 5)]
+        [DataRow("TestData.tar.gz", 5)]
         [DataRow("TestData.tar.xz")]
         [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
-        [DataRow("TestData.a", 1)]
-        [DataRow("TestData.deb", 27)]
-        [DataRow("TestData.ar")]
-        [DataRow("TestData.iso")]
-        [DataRow("TestData.vhd", 29)] // 26 + Some invisible system files
+        [DataRow("TestData.a")]
+        //[DataRow("TestData.ar")]
+        //[DataRow("TestData.iso")]
         [DataRow("TestData.vhdx")]
         [DataRow("TestData.wim")]
-        [DataRow("Empty.vmdk", 0)]
         [DataRow("EmptyFile.txt", 1)]
-        [DataRow("TextFile.md", 1)]
-        [DataRow("Nested.Zip", 26 * 8 + 1)] // there's one extra metadata file in there
-        public async Task ExtractArchiveAsync(string fileName, int expectedNumFiles = 26)
+        [DataRow("TestDataArchivesNested.Zip", 51)]
+        public async Task ExtractArchiveAsync(string fileName, int expectedNumFiles = 3)
         {
             var extractor = new Extractor();
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var results = extractor.ExtractAsync(path, new ExtractorOptions());
             var numFound = 0;
             await foreach(var _ in results)
@@ -246,59 +229,51 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         }
 
         [DataTestMethod]
-        [DataRow("TestData.zip")]
+        [DataRow("TestData.zip", 5)]
         [DataRow("TestData.7z")]
-        [DataRow("TestData.Tar")]
+        [DataRow("TestData.tar", 5)]
         [DataRow("TestData.rar")]
         [DataRow("TestData.rar4")]
-        [DataRow("TestData.tar.bz2")]
-        [DataRow("TestData.tar.gz")]
+        [DataRow("TestData.tar.bz2", 5)]
+        [DataRow("TestData.tar.gz", 5)]
         [DataRow("TestData.tar.xz")]
         [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
-        [DataRow("TestData.a", 1)]
-        [DataRow("TestData.deb", 27)]
-        [DataRow("TestData.ar")]
-        [DataRow("TestData.iso")]
-        [DataRow("TestData.vhd", 29)] // 26 + Some invisible system files
+        [DataRow("TestData.a")]
+        //[DataRow("TestData.ar")]
+        //[DataRow("TestData.iso")]
         [DataRow("TestData.vhdx")]
         [DataRow("TestData.wim")]
-        [DataRow("Empty.vmdk", 0)]
         [DataRow("EmptyFile.txt", 1)]
-        [DataRow("TextFile.md", 1)]
-        [DataRow("Nested.Zip", 26 * 8 + 1)] // there's one extra metadata file in there
-        public void ExtractArchiveParallel(string fileName, int expectedNumFiles = 26)
+        [DataRow("TestDataArchivesNested.Zip", 51)]
+        public void ExtractArchiveParallel(string fileName, int expectedNumFiles = 3)
         {
             var extractor = new Extractor();
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var results = extractor.Extract(path, new ExtractorOptions() { Parallel = true });
             Assert.AreEqual(expectedNumFiles, results.Count());
         }
 
         [DataTestMethod]
-        [DataRow("TestData.zip")]
+        [DataRow("TestData.zip", 5)]
         [DataRow("TestData.7z")]
-        [DataRow("TestData.Tar")]
+        [DataRow("TestData.tar", 5)]
         [DataRow("TestData.rar")]
         [DataRow("TestData.rar4")]
-        [DataRow("TestData.tar.bz2")]
-        [DataRow("TestData.tar.gz")]
+        [DataRow("TestData.tar.bz2", 5)]
+        [DataRow("TestData.tar.gz", 5)]
         [DataRow("TestData.tar.xz")]
         [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
-        [DataRow("TestData.a", 1)]
-        [DataRow("TestData.deb", 27)]
-        [DataRow("TestData.ar")]
-        [DataRow("TestData.iso")]
-        [DataRow("TestData.vhd", 29)] // 26 + Some invisible system files
+        [DataRow("TestData.a")]
+        //[DataRow("TestData.ar")]
+        //[DataRow("TestData.iso")]
         [DataRow("TestData.vhdx")]
         [DataRow("TestData.wim")]
-        [DataRow("Empty.vmdk", 0)]
         [DataRow("EmptyFile.txt", 1)]
-        [DataRow("TextFile.md", 1)]
-        [DataRow("Nested.Zip", 26 * 8 + 1)] // there's one extra metadata file in there
-        public async Task ExtractArchiveFromStreamAsync(string fileName, int expectedNumFiles = 26)
+        [DataRow("TestDataArchivesNested.Zip", 51)]
+        public async Task ExtractArchiveFromStreamAsync(string fileName, int expectedNumFiles = 3)
         {
             var extractor = new Extractor();
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             using var stream = new FileStream(path, FileMode.Open);
             var results = extractor.ExtractAsync(path, stream, new ExtractorOptions());
             var numFiles = 0;
@@ -311,30 +286,26 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         }
 
         [DataTestMethod]
-        [DataRow("TestData.zip")]
+        [DataRow("TestData.zip", 5)]
         [DataRow("TestData.7z")]
-        [DataRow("TestData.Tar")]
+        [DataRow("TestData.tar", 5)]
         [DataRow("TestData.rar")]
         [DataRow("TestData.rar4")]
-        [DataRow("TestData.tar.bz2")]
-        [DataRow("TestData.tar.gz")]
+        [DataRow("TestData.tar.bz2", 5)]
+        [DataRow("TestData.tar.gz", 5)]
         [DataRow("TestData.tar.xz")]
         [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
-        [DataRow("TestData.a", 1)]
-        [DataRow("TestData.deb", 27)]
-        [DataRow("TestData.ar")]
-        [DataRow("TestData.iso")]
-        [DataRow("TestData.vhd", 29)] // 26 + Some invisible system files
+        [DataRow("TestData.a")]
+        //[DataRow("TestData.ar")]
+        //[DataRow("TestData.iso")]
         [DataRow("TestData.vhdx")]
         [DataRow("TestData.wim")]
-        [DataRow("Empty.vmdk", 0)]
         [DataRow("EmptyFile.txt", 1)]
-        [DataRow("TextFile.md", 1)]
-        [DataRow("Nested.Zip", 26 * 8 + 1)] // there's one extra metadata file in there
-        public void ExtractArchiveFromStream(string fileName, int expectedNumFiles = 26)
+        [DataRow("TestDataArchivesNested.Zip", 51)]
+        public void ExtractArchiveFromStream(string fileName, int expectedNumFiles = 3)
         {
             var extractor = new Extractor();
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             using var stream = new FileStream(path, FileMode.Open);
             var results = extractor.Extract(path, stream, new ExtractorOptions());
             Assert.AreEqual(expectedNumFiles, results.Count());
@@ -355,7 +326,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("TestData.deb", ArchiveFileType.DEB)]
         [DataRow("TestData.ar", ArchiveFileType.AR)]
         [DataRow("TestData.iso", ArchiveFileType.ISO_9660)]
-        [DataRow("TestData.vhd", ArchiveFileType.VHD)]
+//        [DataRow("TestData.vhd", ArchiveFileType.VHD)]
         [DataRow("TestData.vhdx", ArchiveFileType.VHDX)]
         [DataRow("TestData.wim", ArchiveFileType.WIM)]
         [DataRow("Empty.vmdk", ArchiveFileType.VMDK)]
@@ -363,7 +334,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("TextFile.md", ArchiveFileType.UNKNOWN)]
         public void TestMiniMagic(string fileName, ArchiveFileType expectedArchiveFileType)
         {
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             using var fs = new FileStream(path, FileMode.Open);
             // Test just based on the content
             var fileEntry = new FileEntry("NoName", fs);
@@ -391,7 +362,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         public void TestQuineBombs(string fileName)
         {
             var extractor = new Extractor();
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             IEnumerable<FileEntry> results;
             try
             {
@@ -420,7 +391,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         public void TestZipSlip(string fileName)
         {
             var extractor = new Extractor();
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Bombs", fileName);
             var results = extractor.Extract(path, new ExtractorOptions()).ToList();
             Assert.IsTrue(results.All(x => !x.FullPath.Contains("..")));
         }

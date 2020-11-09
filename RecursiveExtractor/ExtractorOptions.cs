@@ -34,7 +34,7 @@ namespace Microsoft.CST.RecursiveExtractor
         ///     By default, stop extracting if the total number of bytes seen is greater than this multiple of
         ///     the original archive size. Used to avoid denial of service (zip bombs and the like).
         /// </summary>
-        public double MaxExtractedBytesRatio { get; set; } = 60.0;
+        public double MaxExtractedBytesRatio { get; set; } = 200.0;
 
         /// <summary>
         ///     If timing is enabled, stop processing after this time span. Used to avoid denial of service
