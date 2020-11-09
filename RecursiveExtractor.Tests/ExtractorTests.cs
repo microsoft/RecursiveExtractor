@@ -359,7 +359,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         public void TestQuineBombs(string fileName)
         {
             var extractor = new Extractor();
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Bombs", fileName);
             IEnumerable<FileEntry> results;
             try
             {
