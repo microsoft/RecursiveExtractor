@@ -32,7 +32,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("TestData.vhdx")]
         [DataRow("TestData.wim")]
         [DataRow("EmptyFile.txt", 1)]
-        [DataRow("TestDataArchivesNested.Zip", 51)]
+        [DataRow("TestDataArchivesNested.Zip", 49)]
         public void ExtractArchiveToDirectory(string fileName, int expectedNumFiles = 3)
         {
             var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
@@ -64,7 +64,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("TestData.vhdx")]
         [DataRow("TestData.wim")]
         [DataRow("EmptyFile.txt", 1)]
-        [DataRow("TestDataArchivesNested.Zip", 51)]
+        [DataRow("TestDataArchivesNested.Zip", 49)]
         public async Task ExtractArchiveToDirectoryAsync(string fileName, int expectedNumFiles = 3)
         {
             var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
@@ -322,16 +322,13 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("TestData.tar.gz", ArchiveFileType.GZIP)]
         [DataRow("TestData.tar.xz", ArchiveFileType.XZ)]
         [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", ArchiveFileType.DEB)]
-        [DataRow("TestData.a", ArchiveFileType.UNKNOWN)]
-        [DataRow("TestData.deb", ArchiveFileType.DEB)]
-        [DataRow("TestData.ar", ArchiveFileType.AR)]
-        [DataRow("TestData.iso", ArchiveFileType.ISO_9660)]
+        [DataRow("TestData.a", ArchiveFileType.AR)]
+//        [DataRow("TestData.iso", ArchiveFileType.ISO_9660)]
 //        [DataRow("TestData.vhd", ArchiveFileType.VHD)]
         [DataRow("TestData.vhdx", ArchiveFileType.VHDX)]
         [DataRow("TestData.wim", ArchiveFileType.WIM)]
         [DataRow("Empty.vmdk", ArchiveFileType.VMDK)]
         [DataRow("EmptyFile.txt", ArchiveFileType.UNKNOWN)]
-        [DataRow("TextFile.md", ArchiveFileType.UNKNOWN)]
         public void TestMiniMagic(string fileName, ArchiveFileType expectedArchiveFileType)
         {
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
