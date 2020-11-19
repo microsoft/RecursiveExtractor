@@ -26,7 +26,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
         [DataRow("TestData.a")]
         //[DataRow("TestData.ar")]
-        //[DataRow("TestData.iso")]
+        [DataRow("TestData.iso")]
         [DataRow("TestData.vhdx")]
         [DataRow("TestData.wim")]
         [DataRow("EmptyFile.txt", 1)]
@@ -47,14 +47,15 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
 
         [DataTestMethod]
         [DataRow("TestDataForFilters.7z")]
-        [DataRow("TestData.zip", 0)]
         public void ExtractArchiveWithAllowFilters(string fileName, int expectedNumFiles = 1)
         {
             var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            var newpath = Path.GetTempFileName();
+            File.Copy(path, newpath,true);
             RecursiveExtractorClient.ExtractCommand(new ExtractCommandOptions()
             {
-                Input = path,
+                Input = newpath,
                 Output = directory,
                 Verbose = true,
                 AllowFilters = new string[]
@@ -73,14 +74,15 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
 
         [DataTestMethod]
         [DataRow("TestDataForFilters.7z")]
-        [DataRow("TestData.zip", 5)]
         public void ExtractArchiveWithDenyFilters(string fileName, int expectedNumFiles = 2)
         {
             var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            var newpath = Path.GetTempFileName();
+            File.Copy(path, newpath, true);
             RecursiveExtractorClient.ExtractCommand(new ExtractCommandOptions()
             {
-                Input = path,
+                Input = newpath,
                 Output = directory,
                 Verbose = true,
                 DenyFilters = new string[]
