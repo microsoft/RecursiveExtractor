@@ -651,8 +651,8 @@ namespace Microsoft.CST.RecursiveExtractor
                         useRaw = true;
                         result = new[]
                         {
-                        fileEntry
-                    };
+                            fileEntry
+                        };
                     }
                     else
                     {
