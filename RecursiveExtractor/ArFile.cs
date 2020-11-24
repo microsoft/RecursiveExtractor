@@ -262,7 +262,6 @@ namespace Microsoft.CST.RecursiveExtractor
                         CopyStreamBytes(fileEntry.Content, entryStream, size);
 
                         yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true);
-
                     }
                 }
                 else

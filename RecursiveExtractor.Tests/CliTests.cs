@@ -15,29 +15,26 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
     public class ExtractorCliTests
     {
         [DataTestMethod]
-        [DataRow("Shared.zip")]
-        [DataRow("Shared.7z")]
-        [DataRow("Shared.Tar")]
-        [DataRow("Shared.rar")]
-        [DataRow("Shared.rar4")]
-        [DataRow("Shared.tar.bz2")]
-        [DataRow("Shared.tar.gz")]
-        [DataRow("Shared.tar.xz")]
+        [DataRow("TestData.zip", 5)]
+        [DataRow("TestData.7z")]
+        [DataRow("TestData.tar", 5)]
+        [DataRow("TestData.rar")]
+        [DataRow("TestData.rar4")]
+        [DataRow("TestData.tar.bz2", 5)]
+        [DataRow("TestData.tar.gz", 5)]
+        [DataRow("TestData.tar.xz")]
         [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
-        [DataRow("Shared.a", 1)]
-        [DataRow("Shared.deb", 27)]
-        [DataRow("Shared.ar")]
-        [DataRow("Shared.iso")]
-        [DataRow("Shared.vhd", 29)] // 26 + Some invisible system files
-        [DataRow("Shared.vhdx")]
-        [DataRow("Shared.wim")]
-        [DataRow("Empty.vmdk", 0)]
-        [DataRow("TextFile.md", 1)]
-        [DataRow("Nested.Zip", 26 * 8 + 1)] // there's one extra metadata file in there
-        public void ExtractArchive(string fileName, int expectedNumFiles = 26)
+        [DataRow("TestData.a")]
+        //[DataRow("TestData.ar")]
+        [DataRow("TestData.iso")]
+        [DataRow("TestData.vhdx")]
+        [DataRow("TestData.wim")]
+        [DataRow("EmptyFile.txt", 1)]
+        [DataRow("TestDataArchivesNested.Zip", 49)]
+        public void ExtractArchive(string fileName, int expectedNumFiles = 3)
         {
             var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             RecursiveExtractorClient.ExtractCommand(new ExtractCommandOptions() { Input = path, Output = directory, Verbose = true });
             var files = Array.Empty<string>();
             if (Directory.Exists(directory))
@@ -49,32 +46,16 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         }
 
         [DataTestMethod]
-        [DataRow("Shared.zip")]
-        [DataRow("Shared.7z")]
-        [DataRow("Shared.Tar")]
-        [DataRow("Shared.rar")]
-        [DataRow("Shared.rar4")]
-        [DataRow("Shared.tar.bz2")]
-        [DataRow("Shared.tar.gz")]
-        [DataRow("Shared.tar.xz")]
-        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 0)]
-        [DataRow("Shared.a", 0)]
-        [DataRow("Shared.deb")]
-        [DataRow("Shared.ar")]
-        [DataRow("Shared.iso")]
-        [DataRow("Shared.vhd")] // Filename formatting in the VHD has CS capitalized so nothing matches
-        [DataRow("Shared.vhdx")]
-        [DataRow("Shared.wim")]
-        [DataRow("Empty.vmdk", 0)]
-        [DataRow("TextFile.md", 0)]
-        [DataRow("Nested.Zip", 22 * 8)]
-        public void ExtractArchiveWithAllowFilters(string fileName, int expectedNumFiles = 22)
+        [DataRow("TestDataForFilters.7z")]
+        public void ExtractArchiveWithAllowFilters(string fileName, int expectedNumFiles = 1)
         {
             var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            var newpath = Path.GetTempFileName();
+            File.Copy(path, newpath,true);
             RecursiveExtractorClient.ExtractCommand(new ExtractCommandOptions()
             {
-                Input = path,
+                Input = newpath,
                 Output = directory,
                 Verbose = true,
                 AllowFilters = new string[]
@@ -92,32 +73,16 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         }
 
         [DataTestMethod]
-        [DataRow("Shared.zip")]
-        [DataRow("Shared.7z")]
-        [DataRow("Shared.Tar")]
-        [DataRow("Shared.rar")]
-        [DataRow("Shared.rar4")]
-        [DataRow("Shared.tar.bz2")]
-        [DataRow("Shared.tar.gz")]
-        [DataRow("Shared.tar.xz")]
-        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
-        [DataRow("Shared.a", 1)]
-        [DataRow("Shared.deb", 5)]
-        [DataRow("Shared.ar")]
-        [DataRow("Shared.iso")]
-        [DataRow("Shared.vhd", 7)] // 26 + Some invisible system files
-        [DataRow("Shared.vhdx")]
-        [DataRow("Shared.wim")]
-        [DataRow("Empty.vmdk", 0)]
-        [DataRow("TextFile.md", 1)]
-        [DataRow("Nested.Zip", 4 * 8 + 1)] // there's one extra metadata file in there
-        public void ExtractArchiveWithDenyFilters(string fileName, int expectedNumFiles = 4)
+        [DataRow("TestDataForFilters.7z")]
+        public void ExtractArchiveWithDenyFilters(string fileName, int expectedNumFiles = 2)
         {
             var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            var newpath = Path.GetTempFileName();
+            File.Copy(path, newpath, true);
             RecursiveExtractorClient.ExtractCommand(new ExtractCommandOptions()
             {
-                Input = path,
+                Input = newpath,
                 Output = directory,
                 Verbose = true,
                 DenyFilters = new string[]
@@ -135,14 +100,13 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         }
 
         [DataTestMethod]
-        [DataRow("SharedEncrypted.7z")]
-        [DataRow("SharedEncrypted.zip")]
-        [DataRow("SharedEncrypted.rar4")]
-        [DataRow("NestedEncrypted.7z", 26 * 3)] // there's one extra metadata file in there
-        public void ExtractEncryptedArchive(string fileName, int expectedNumFiles = 26)
+        [DataRow("TestDataEncrypted.7z")]
+        [DataRow("TestDataEncryptedAes.zip")]
+        [DataRow("TestDataEncrypted.rar4")]
+        public void ExtractEncryptedArchive(string fileName, int expectedNumFiles = 3)
         {
             var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", fileName);
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var passwords = ExtractorTests.TestArchivePasswords.Values.SelectMany(x => x);
             RecursiveExtractorClient.ExtractCommand(new ExtractCommandOptions() { Input = path, Output = directory, Verbose = true, Passwords = passwords });
             var files = Array.Empty<string>();

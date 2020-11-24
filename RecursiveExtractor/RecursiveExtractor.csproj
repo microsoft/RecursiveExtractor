@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net5.0</TargetFrameworks>
     <RootNamespace>Microsoft.CST.RecursiveExtractor</RootNamespace>
     <Version>0.0.0-placeholder</Version>
     <Company>Microsoft</Company>
@@ -37,10 +37,10 @@
     <PackageReference Include="DiscUtils.Vmdk" Version="0.15.1-ci0002" />
     <PackageReference Include="DiscUtils.Wim" Version="0.15.1-ci0002" />
     <PackageReference Include="DiscUtils.Xfs" Version="0.15.1-ci0002" />
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.1" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="5.0.0" />
     <PackageReference Include="NLog" Version="4.7.5" />
     <PackageReference Include="SharpCompress" Version="0.26.0" />
-    <PackageReference Include="SharpZipLib" Version="1.3.0" />
+    <PackageReference Include="SharpZipLib" Version="1.3.1" />
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.3.37" />
   </ItemGroup>
 
