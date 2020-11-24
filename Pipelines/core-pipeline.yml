@@ -56,8 +56,6 @@ stages:
       projectPath: 'RecursiveExtractor.Cli/RecursiveExtractor.Cli.csproj'
       projectName: 'RecursiveExtractor_CLI'
 
-
- 
 - stage: Release
   dependsOn:
   - SDL
@@ -93,15 +91,13 @@ stages:
         TreatSignatureUpdateFailureAs: 'Warning'
         SignatureFreshness: 'UpToDate'
         TreatStaleSignatureAs: 'Warning'
+    - task: CodeInspector@2
+      inputs:
+           ProductId: '1f6713ed-e0f1-4691-93a2-7e01bcf04acb'
     - task: UseDotNet@2
       inputs:
         packageType: 'sdk'
         version: '2.1.804'
-        
-    - task: CodeInspector@2
-      inputs:
-           ProductId: '1f6713ed-e0f1-4691-93a2-7e01bcf04acb'
-
     - task: EsrpCodeSigning@1
       displayName: Code Sign Nuget Packages
       inputs:
