@@ -39,7 +39,6 @@ jobs:
       run: |
          dotnet restore RecursiveExtractor.sln
          dotnet build -c Release
-      working-directory: ./src
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
