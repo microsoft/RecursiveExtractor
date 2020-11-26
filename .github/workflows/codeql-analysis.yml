@@ -1,0 +1,44 @@
+name: "CodeQL"
+
+on:
+  push:
+    paths:
+    - .github/workflows/codeql-analysis.yml
+    - RecursiveExtractor.Blazor
+    - RecursiveExtractor.Cli
+    - RecursiveExtractor.Tests
+    - RecursiveExtractor
+  schedule:
+    - cron: '0 5 * * 2'
+
+jobs:
+  CodeQL-Build:
+
+    strategy:
+      fail-fast: false
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET Core SDK
+      uses: actions/setup-dotnet@v1.7.2
+      with:
+        dotnet-version: 5.0.x
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v1
+      with:
+        languages: csharp
+
+    - name: Build RecursiveExtractor
+      run: |
+         dotnet restore RecursiveExtractor.sln
+         dotnet build -c Release
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v1
