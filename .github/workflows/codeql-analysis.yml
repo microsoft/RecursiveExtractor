@@ -3,11 +3,11 @@ name: "CodeQL"
 on:
   push:
     paths:
-    - .github/workflows/codeql-analysis.yml
     - RecursiveExtractor.Blazor
     - RecursiveExtractor.Cli
     - RecursiveExtractor.Tests
     - RecursiveExtractor
+  pull_request:
   schedule:
     - cron: '0 5 * * 2'
 
