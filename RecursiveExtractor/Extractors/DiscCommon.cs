@@ -57,7 +57,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
                     if (fileStream != null && fi != null)
                     {
-                        var newFileEntry = await FileEntry.FromStreamAsync($"{volume.Identity}{Path.DirectorySeparatorChar}{fi.FullName}", fileStream, parent);
+                        var newFileEntry = await FileEntry.FromStreamAsync($"{volume.Identity}{Path.DirectorySeparatorChar}{fi.FullName}", fileStream, parent, fi.CreationTime, fi.LastWriteTime, fi.LastAccessTime);
                         var entries = Context.ExtractAsync(newFileEntry, options, governor);
                         await foreach (var entry in entries)
                         {
@@ -124,7 +124,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         {
                             if (file.Item2 != null)
                             {
-                                var newFileEntry = new FileEntry($"{volume.Identity}{Path.DirectorySeparatorChar}{file.Item1.FullName}", file.Item2, parent);
+                                var newFileEntry = new FileEntry($"{volume.Identity}{Path.DirectorySeparatorChar}{file.Item1.FullName}", file.Item2, parent, false, file.Item1.CreationTime, file.Item1.LastWriteTime, file.Item1.LastAccessTime);
                                 var entries = Context.Extract(newFileEntry, options, governor);
                                 files.PushRange(entries.ToArray());
                             }
@@ -143,11 +143,15 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     foreach (var file in diskFiles)
                     {
                         Stream? fileStream = null;
+                        (DateTime? creation, DateTime? modification, DateTime? access) = (null, null, null);
                         try
                         {
                             var fi = fs.GetFileInfo(file);
                             governor.CheckResourceGovernor(fi.Length);
                             fileStream = fi.OpenRead();
+                            creation = fi.CreationTime;
+                            modification = fi.LastWriteTime;
+                            access = fi.LastAccessTime;
                         }
                         catch (Exception e)
                         {
@@ -155,7 +159,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         }
                         if (fileStream != null)
                         {
-                            var newFileEntry = new FileEntry($"{volume.Identity}{Path.DirectorySeparatorChar}{file}", fileStream, parent);
+                            var newFileEntry = new FileEntry($"{volume.Identity}{Path.DirectorySeparatorChar}{file}", fileStream, parent, false, creation, modification, access);
                             var entries = Context.Extract(newFileEntry, options, governor);
                             foreach (var entry in entries)
                             {

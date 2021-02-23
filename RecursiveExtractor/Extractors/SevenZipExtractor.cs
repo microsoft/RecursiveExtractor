@@ -43,7 +43,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     governor.CheckResourceGovernor(entry.Size);
                     var name = entry.Key.Replace('/', Path.DirectorySeparatorChar);
 
-                    var newFileEntry = await FileEntry.FromStreamAsync(name, entry.OpenEntryStream(), fileEntry);
+                    var newFileEntry = await FileEntry.FromStreamAsync(name, entry.OpenEntryStream(), fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime);
 
                     if (Extractor.IsQuine(newFileEntry))
                     {
@@ -142,7 +142,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                                 {
                                     var name = entry.entry.Key.Replace('/', Path.DirectorySeparatorChar);
 
-                                    var newFileEntry = new FileEntry(name, entry.Item2, fileEntry);
+                                    var newFileEntry = new FileEntry(name, entry.Item2, fileEntry, false, entry.entry.CreatedTime, entry.entry.LastModifiedTime, entry.entry.LastAccessedTime);
                                     if (Extractor.IsQuine(newFileEntry))
                                     {
                                         Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);

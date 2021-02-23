@@ -52,7 +52,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     if (stream != null)
                     {
                         var name = fileInfo.Name.Replace('/', Path.DirectorySeparatorChar);
-                        var newFileEntry = await FileEntry.FromStreamAsync(name, stream, fileEntry);
+                        var newFileEntry = await FileEntry.FromStreamAsync(name, stream, fileEntry, fileInfo.CreationTime, fileInfo.LastWriteTime, fileInfo.LastAccessTime);
                         var innerEntries = Context.ExtractAsync(newFileEntry, options, governor);
                         await foreach (var entry in innerEntries)
                         {
@@ -107,7 +107,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                     fileInfoTuples.AsParallel().ForAll(cdFile =>
                     {
-                        var newFileEntry = new FileEntry(cdFile.Item1.Name, cdFile.Item2, fileEntry);
+                        var newFileEntry = new FileEntry(cdFile.Item1.Name, cdFile.Item2, fileEntry, false, cdFile.Item1.CreationTime, cdFile.Item1.LastWriteTime, cdFile.Item1.LastAccessTime);
                         var entries = Context.Extract(newFileEntry, options, governor);
                         files.PushRange(entries.ToArray());
                     });

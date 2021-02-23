@@ -22,10 +22,14 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="inputStream"> </param>
         /// <param name="parent"> </param>
         /// <param name="passthroughStream"> </param>
-        public FileEntry(string name, Stream inputStream, FileEntry? parent = null, bool passthroughStream = false)
+        public FileEntry(string name, Stream inputStream, FileEntry? parent = null, bool passthroughStream = false, DateTime? createTime = null, DateTime? modifyTime = null, DateTime? accessTime = null)
         {
             Parent = parent;
             Passthrough = passthroughStream;
+
+            CreateTime = createTime ?? DateTime.MinValue;
+            ModifyTime = modifyTime ?? DateTime.MinValue;
+            AccessTime = accessTime ?? DateTime.MinValue;
 
             Name = Path.GetFileName(name);
 
@@ -145,6 +149,9 @@ namespace Microsoft.CST.RecursiveExtractor
         public bool DisposeOnFinalize { get; set; } = true;
 
         internal bool Passthrough { get; }
+        public DateTime CreateTime { get; }
+        public DateTime ModifyTime { get; }
+        public DateTime AccessTime { get; }
 
         ~FileEntry()
         {
@@ -161,7 +168,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="content">The Stream to parse</param>
         /// <param name="parent">The Parent FileEntry</param>
         /// <returns>A FileEntry object holding a Copy of the Stream</returns>
-        public static async Task<FileEntry> FromStreamAsync(string name, Stream content, FileEntry? parent = null)
+        public static async Task<FileEntry> FromStreamAsync(string name, Stream content, FileEntry? parent = null, DateTime? createTime = null, DateTime? modifyTime = null, DateTime? accessTime = null)
         {
             if (!content.CanRead || content == null)
             {
@@ -223,7 +230,7 @@ namespace Microsoft.CST.RecursiveExtractor
 
             Content.Position = 0;
 
-            return new FileEntry(name, Content, parent, true);
+            return new FileEntry(name, Content, parent, true, createTime, modifyTime, accessTime);
         }
     }
 }

@@ -95,7 +95,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
 
                     var name = zipEntry.Name.Replace('/', Path.DirectorySeparatorChar);
-                    var newFileEntry = new FileEntry(name, fs, fileEntry);
+                    var newFileEntry = new FileEntry(name, fs, fileEntry, modifyTime: zipEntry.DateTime);
 
                     if (Extractor.IsQuine(newFileEntry))
                     {
@@ -162,7 +162,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     
                     var name = zipEntry.Name.Replace('/', Path.DirectorySeparatorChar);
 
-                    var newFileEntry = new FileEntry(name, fs, fileEntry);
+                    var newFileEntry = new FileEntry(name, fs, fileEntry, modifyTime: zipEntry.DateTime);
 
                     if (Extractor.IsQuine(newFileEntry))
                     {
