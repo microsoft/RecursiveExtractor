@@ -102,7 +102,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         var batchSize = Math.Min(options.BatchSize, diskFiles.Count);
                         var range = diskFiles.GetRange(0, batchSize);
-                        var fileinfos = new List<(DiscFileInfo, Stream)>();
+                        var fileinfos = new List<(string name, DateTime created, DateTime modified, DateTime accessed, Stream stream)>();
                         long totalLength = 0;
                         foreach (var r in range)
                         {
@@ -110,7 +110,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             {
                                 var fi = fs.GetFileInfo(r);
                                 totalLength += fi.Length;
-                                fileinfos.Add((fi, fi.OpenRead()));
+                                fileinfos.Add((fi.FullName, fi.CreationTime, fi.LastWriteTime, fi.LastAccessTime, fi.OpenRead()));
                             }
                             catch (Exception e)
                             {
@@ -122,20 +122,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                         fileinfos.AsParallel().ForAll(file =>
                         {
-                            if (file.Item2 != null)
+                            if (file.stream != null)
                             {
-                                (DateTime? created, DateTime? modified, DateTime? accessed) = (null, null, null);
-                                try
-                                {
-                                    created = file.Item1.CreationTime;
-                                    modified = file.Item1.LastWriteTime;
-                                    accessed = file.Item1.LastAccessTime;
-                                }
-                                catch (Exception e)
-                                {
-                                    Logger.Debug("Failed to Get File Times from {0} in ISO {1} ({2}:{3})", file.Item1.Name, file.Item1.FullName, e.GetType(), e.Message);
-                                }
-                                var newFileEntry = new FileEntry($"{volume.Identity}{Path.DirectorySeparatorChar}{file.Item1.FullName}", file.Item2, parent, false, created, modified, accessed);
+                                var newFileEntry = new FileEntry($"{volume.Identity}{Path.DirectorySeparatorChar}{file.name}", file.stream, parent, false, file.created, file.modified, file.accessed);
                                 var entries = Context.Extract(newFileEntry, options, governor);
                                 files.PushRange(entries.ToArray());
                             }

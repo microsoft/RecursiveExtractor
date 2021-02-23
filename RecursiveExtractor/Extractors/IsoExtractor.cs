@@ -87,7 +87,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                     var batchSize = Math.Min(options.BatchSize, entries.Length);
                     var selectedFileEntries = entries[0..batchSize];
-                    var fileInfoTuples = new List<(DiscFileInfo, Stream)>();
+                    var fileInfoTuples = new List<(string name, DateTime created, DateTime modified, DateTime accessed, Stream stream)>();
 
                     foreach (var selectedFileEntry in selectedFileEntries)
                     {
@@ -95,7 +95,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         {
                             var stream = selectedFileEntry.OpenRead();
 
-                            fileInfoTuples.Add((selectedFileEntry, stream));
+                            fileInfoTuples.Add((selectedFileEntry.Name, selectedFileEntry.CreationTime, selectedFileEntry.LastWriteTime, selectedFileEntry.LastAccessTime, stream));
                         }
                         catch (Exception e)
                         {
@@ -103,22 +103,11 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         }
                     }
 
-                    governor.CheckResourceGovernor(fileInfoTuples.Sum(x => x.Item1.Length));
+                    governor.CheckResourceGovernor(fileInfoTuples.Sum(x => x.stream.Length));
 
                     fileInfoTuples.AsParallel().ForAll(cdFile =>
                     {
-                        (DateTime? created, DateTime? modified, DateTime? accessed) = (null, null, null);
-                        try
-                        {
-                            created = cdFile.Item1.CreationTime;
-                            modified = cdFile.Item1.LastWriteTime;
-                            accessed = cdFile.Item1.LastAccessTime;
-                        }
-                        catch(Exception e)
-                        {
-                            Logger.Debug("Failed to Get File Times from {0} in ISO {1} ({2}:{3})", cdFile.Item1.Name, fileEntry.FullPath, e.GetType(), e.Message);
-                        }
-                        var newFileEntry = new FileEntry(cdFile.Item1.Name, cdFile.Item2, fileEntry, false, created, modified, accessed);
+                        var newFileEntry = new FileEntry(cdFile.name, cdFile.stream, fileEntry, false, cdFile.created, cdFile.modified, cdFile.accessed);
                         var entries = Context.Extract(newFileEntry, options, governor);
                         files.PushRange(entries.ToArray());
                     });
