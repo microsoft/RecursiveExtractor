@@ -124,7 +124,18 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         {
                             if (file.Item2 != null)
                             {
-                                var newFileEntry = new FileEntry($"{volume.Identity}{Path.DirectorySeparatorChar}{file.Item1.FullName}", file.Item2, parent, false, file.Item1.CreationTime, file.Item1.LastWriteTime, file.Item1.LastAccessTime);
+                                (DateTime? created, DateTime? modified, DateTime? accessed) = (null, null, null);
+                                try
+                                {
+                                    created = file.Item1.CreationTime;
+                                    modified = file.Item1.LastWriteTime;
+                                    accessed = file.Item1.LastAccessTime;
+                                }
+                                catch (Exception e)
+                                {
+                                    Logger.Debug("Failed to Get File Times from {0} in ISO {1} ({2}:{3})", file.Item1.Name, file.Item1.FullName, e.GetType(), e.Message);
+                                }
+                                var newFileEntry = new FileEntry($"{volume.Identity}{Path.DirectorySeparatorChar}{file.Item1.FullName}", file.Item2, parent, false, created, modified, accessed);
                                 var entries = Context.Extract(newFileEntry, options, governor);
                                 files.PushRange(entries.ToArray());
                             }

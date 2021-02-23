@@ -107,7 +107,18 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                     fileInfoTuples.AsParallel().ForAll(cdFile =>
                     {
-                        var newFileEntry = new FileEntry(cdFile.Item1.Name, cdFile.Item2, fileEntry, false, cdFile.Item1.CreationTime, cdFile.Item1.LastWriteTime, cdFile.Item1.LastAccessTime);
+                        (DateTime? created, DateTime? modified, DateTime? accessed) = (null, null, null);
+                        try
+                        {
+                            created = cdFile.Item1.CreationTime;
+                            modified = cdFile.Item1.LastWriteTime;
+                            accessed = cdFile.Item1.LastAccessTime;
+                        }
+                        catch(Exception e)
+                        {
+                            Logger.Debug("Failed to Get File Times from {0} in ISO {1} ({2}:{3})", cdFile.Item1.Name, fileEntry.FullPath, e.GetType(), e.Message);
+                        }
+                        var newFileEntry = new FileEntry(cdFile.Item1.Name, cdFile.Item2, fileEntry, false, created, modified, accessed);
                         var entries = Context.Extract(newFileEntry, options, governor);
                         files.PushRange(entries.ToArray());
                     });
