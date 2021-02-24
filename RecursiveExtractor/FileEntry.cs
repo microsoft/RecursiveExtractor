@@ -147,11 +147,20 @@ namespace Microsoft.CST.RecursiveExtractor
         /// Default: true
         /// </summary>
         public bool DisposeOnFinalize { get; set; } = true;
+        /// <summary>
+        /// The Creation time of the file or DateTime.MinValue if unavailable
+        /// </summary>
+        public DateTime CreateTime { get; }
+        /// <summary>
+        /// The Modify time of the file or DateTime.MinValue if unavailable
+        /// </summary>
+        public DateTime ModifyTime { get; }
+        /// <summary>
+        /// The Access time of the file or DateTime.MinValue if unavailable
+        /// </summary>
+        public DateTime AccessTime { get; }
 
         internal bool Passthrough { get; }
-        public DateTime CreateTime { get; }
-        public DateTime ModifyTime { get; }
-        public DateTime AccessTime { get; }
 
         ~FileEntry()
         {
@@ -190,6 +199,7 @@ namespace Microsoft.CST.RecursiveExtractor
             // Back with a temporary filestream, this is optimized to be cached in memory when possible
             // automatically by .NET
             var Content = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+            
             long? initialPosition = null;
 
             if (content.CanSeek)
