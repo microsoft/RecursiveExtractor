@@ -83,7 +83,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                     governor.CheckResourceGovernor(zipEntry.Size);
 
-                    using var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+                    using var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
                     try
                     {
                         var zipStream = zipFile.GetInputStream(zipEntry);
@@ -142,7 +142,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                     governor.CheckResourceGovernor(zipEntry.Size);
 
-                    using var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+                    using var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
 
                     if (zipEntry.IsCrypted && !passwordFound)
                     {
@@ -177,6 +177,8 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 }
             }
         }
+        
+        private const int bufferSize = 4096;
 
     }
 }

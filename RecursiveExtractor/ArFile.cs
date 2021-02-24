@@ -84,7 +84,7 @@ namespace Microsoft.CST.RecursiveExtractor
 
                             fileEntry.Content.Read(nameSpan, 0, nameLength);
 
-                            var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+                            var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
 
                             // The name length is included in the total size reported in the header
                             CopyStreamBytes(fileEntry.Content, entryStream, size - nameLength);
@@ -153,7 +153,7 @@ namespace Microsoft.CST.RecursiveExtractor
                                     filename = entry.Item2;
                                 }
                                 var entryStream = innerSize > options.MemoryStreamCutoff ?
-                                    new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose) :
+                                    new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose) :
                                     (Stream)new MemoryStream((int)innerSize);
                                 CopyStreamBytes(fileEntry.Content, entryStream, innerSize);
                                 yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true);
@@ -225,7 +225,7 @@ namespace Microsoft.CST.RecursiveExtractor
                                     filename = innerEntry.Item2;
                                 }
                                 var entryStream = innerSize > options.MemoryStreamCutoff ?
-                                    new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose) :
+                                    new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose) :
                                     (Stream)new MemoryStream((int)innerSize);
                                 CopyStreamBytes(fileEntry.Content, entryStream, innerSize);
 
@@ -248,7 +248,7 @@ namespace Microsoft.CST.RecursiveExtractor
                             }
                         }
                         var entryStream = size > options.MemoryStreamCutoff ?
-                                    new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose) :
+                                    new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose) :
                                     (Stream)new MemoryStream((int)size);
                         CopyStreamBytes(fileEntry.Content, entryStream, size);
 
@@ -257,7 +257,7 @@ namespace Microsoft.CST.RecursiveExtractor
                     else
                     {
                         var entryStream = size > options.MemoryStreamCutoff ?
-                                    new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose) :
+                                    new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose) :
                                     (Stream)new MemoryStream((int)size);
                         CopyStreamBytes(fileEntry.Content, entryStream, size);
 
@@ -345,7 +345,7 @@ namespace Microsoft.CST.RecursiveExtractor
                             await fileEntry.Content.ReadAsync(nameSpan, 0, nameLength);
 
                             var entryStream = size - nameLength > options.MemoryStreamCutoff ?
-                                                                new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose) :
+                                                                new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose) :
                                                                 (Stream)new MemoryStream((int)size - nameLength);
                             // The name length is included in the total size reported in the header
                             await CopyStreamBytesAsync(fileEntry.Content, entryStream, size - nameLength);
@@ -414,7 +414,7 @@ namespace Microsoft.CST.RecursiveExtractor
                                     filename = entry.Item2;
                                 }
                                 var entryStream = innerSize > options.MemoryStreamCutoff ?
-                                    new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose) :
+                                    new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose) :
                                     (Stream)new MemoryStream((int)innerSize);
                                 await CopyStreamBytesAsync(fileEntry.Content, entryStream, innerSize);
                                 yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true);
@@ -487,7 +487,7 @@ namespace Microsoft.CST.RecursiveExtractor
                                 }
 
                                 var entryStream = innerSize > options.MemoryStreamCutoff ?
-                                    new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose) :
+                                    new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose) :
                                     (Stream)new MemoryStream((int)innerSize);
                                 await CopyStreamBytesAsync(fileEntry.Content, entryStream, innerSize);
                                 yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true);
@@ -509,7 +509,7 @@ namespace Microsoft.CST.RecursiveExtractor
                             }
                         }
                         var entryStream = size > options.MemoryStreamCutoff ?
-                            new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose) :
+                            new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose) :
                             (Stream)new MemoryStream((int)size);
                         CopyStreamBytes(fileEntry.Content, entryStream, size);
                         yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true);
@@ -517,7 +517,7 @@ namespace Microsoft.CST.RecursiveExtractor
                     else
                     {
                         var entryStream = size > options.MemoryStreamCutoff ?
-                            new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose) :
+                            new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose) :
                             (Stream)new MemoryStream((int)size);
                         await CopyStreamBytesAsync(fileEntry.Content, entryStream, size);
                         yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true);
@@ -587,6 +587,8 @@ namespace Microsoft.CST.RecursiveExtractor
             }
             return totalRead;
         }
+
+        private const int bufferSize = 4096;
 
         private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     }
