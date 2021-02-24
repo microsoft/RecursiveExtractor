@@ -52,7 +52,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     if (stream != null)
                     {
                         var name = fileInfo.Name.Replace('/', Path.DirectorySeparatorChar);
-                        var newFileEntry = await FileEntry.FromStreamAsync(name, stream, fileEntry, fileInfo.CreationTime, fileInfo.LastWriteTime, fileInfo.LastAccessTime);
+                        var newFileEntry = await FileEntry.FromStreamAsync(name, stream, fileEntry, fileInfo.CreationTime, fileInfo.LastWriteTime, fileInfo.LastAccessTime, memoryStreamCutoff: options.MemoryStreamCutoff);
                         var innerEntries = Context.ExtractAsync(newFileEntry, options, governor);
                         await foreach (var entry in innerEntries)
                         {
@@ -107,7 +107,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                     fileInfoTuples.AsParallel().ForAll(cdFile =>
                     {
-                        var newFileEntry = new FileEntry(cdFile.name, cdFile.stream, fileEntry, false, cdFile.created, cdFile.modified, cdFile.accessed);
+                        var newFileEntry = new FileEntry(cdFile.name, cdFile.stream, fileEntry, false, cdFile.created, cdFile.modified, cdFile.accessed, memoryStreamCutoff: options.MemoryStreamCutoff);
                         var entries = Context.Extract(newFileEntry, options, governor);
                         files.PushRange(entries.ToArray());
                     });
@@ -138,7 +138,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         if (stream != null)
                         {
                             var name = fileInfo.Name.Replace('/', Path.DirectorySeparatorChar);
-                            var newFileEntry = new FileEntry(name, stream, fileEntry);
+                            var newFileEntry = new FileEntry(name, stream, fileEntry, createTime: file.CreationTime, modifyTime: file.LastWriteTime, accessTime: file.LastAccessTime,memoryStreamCutoff: options.MemoryStreamCutoff);
                             var innerEntries = Context.Extract(newFileEntry, options, governor);
                             foreach (var entry in innerEntries)
                             {

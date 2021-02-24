@@ -58,7 +58,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                     FileEntry? newFileEntry = null;
                     using var stream = entry.OpenEntryStream();
-                    newFileEntry = await FileEntry.FromStreamAsync(newFilename, stream, fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime);
+                    newFileEntry = await FileEntry.FromStreamAsync(newFilename, stream, fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
 
                     if (newFileEntry != null)
                     {
@@ -117,7 +117,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     try
                     {
                         using var stream = entry.OpenEntryStream();
-                        newFileEntry = new FileEntry(newFilename, stream, fileEntry, false, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime);
+                        newFileEntry = new FileEntry(newFilename, stream, fileEntry, false, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
                     }
                     catch (Exception e)
                     {

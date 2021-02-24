@@ -61,7 +61,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                     var name = tarEntry.Name.Replace('/', Path.DirectorySeparatorChar);
 
-                    var newFileEntry = new FileEntry(name, fs, fileEntry, true);
+                    var newFileEntry = new FileEntry(name, fs, fileEntry, true, memoryStreamCutoff: options.MemoryStreamCutoff);
 
                     if (Extractor.IsQuine(newFileEntry))
                     {
@@ -123,7 +123,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
                     var name = tarEntry.Name.Replace('/', Path.DirectorySeparatorChar);
 
-                    var newFileEntry = new FileEntry(name, fs, fileEntry, true);
+                    var newFileEntry = new FileEntry(name, fs, fileEntry, true, memoryStreamCutoff: options.MemoryStreamCutoff);
 
                     if (Extractor.IsQuine(newFileEntry))
                     {

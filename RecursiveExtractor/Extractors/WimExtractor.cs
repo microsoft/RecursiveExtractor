@@ -71,7 +71,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             governor.CheckResourceGovernor(streamsAndNames.Sum(x => x.Item1.Length));
                             streamsAndNames.AsParallel().ForAll(file =>
                             {
-                                var newFileEntry = new FileEntry($"{image.FriendlyName}\\{file.Item1.FullName}", file.Item2, fileEntry);
+                                var newFileEntry = new FileEntry($"{image.FriendlyName}\\{file.Item1.FullName}", file.Item2, fileEntry, memoryStreamCutoff: options.MemoryStreamCutoff);
                                 var entries = Context.Extract(newFileEntry, options, governor);
                                 if (entries.Any())
                                 {
@@ -109,7 +109,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             if (stream != null)
                             {
                                 var name = file.Replace('\\', Path.DirectorySeparatorChar);
-                                var newFileEntry = await FileEntry.FromStreamAsync($"{image.FriendlyName}{Path.DirectorySeparatorChar}{name}", stream, fileEntry);
+                                var newFileEntry = await FileEntry.FromStreamAsync($"{image.FriendlyName}{Path.DirectorySeparatorChar}{name}", stream, fileEntry, memoryStreamCutoff: options.MemoryStreamCutoff);
                                 await foreach (var entry in Context.ExtractAsync(newFileEntry, options, governor))
                                 {
                                     yield return entry;
@@ -167,7 +167,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         {
                             var name = file.Replace('\\', Path.DirectorySeparatorChar);
 
-                            var newFileEntry = new FileEntry($"{image.FriendlyName}{Path.DirectorySeparatorChar}{name}", stream, fileEntry);
+                            var newFileEntry = new FileEntry($"{image.FriendlyName}{Path.DirectorySeparatorChar}{name}", stream, fileEntry, memoryStreamCutoff: options.MemoryStreamCutoff);
                             foreach (var entry in Context.Extract(newFileEntry, options, governor))
                             {
                                 yield return entry;

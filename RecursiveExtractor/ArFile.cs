@@ -89,7 +89,7 @@ namespace Microsoft.CST.RecursiveExtractor
                             // The name length is included in the total size reported in the header
                             CopyStreamBytes(fileEntry.Content, entryStream, size - nameLength);
 
-                            yield return new FileEntry(Encoding.ASCII.GetString(nameSpan).TrimEnd('/'), entryStream, fileEntry, true);
+                            yield return new FileEntry(Encoding.ASCII.GetString(nameSpan).TrimEnd('/'), entryStream, fileEntry, true, memoryStreamCutoff: options.MemoryStreamCutoff);
                         }
                     }
                     else if (filename.Equals('/'))

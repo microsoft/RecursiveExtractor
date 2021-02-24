@@ -42,7 +42,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             if (xzStream != null)
             {
                 var newFilename = Path.GetFileNameWithoutExtension(fileEntry.Name);
-                var newFileEntry = new FileEntry(newFilename, xzStream, fileEntry);
+                var newFileEntry = new FileEntry(newFilename, xzStream, fileEntry, memoryStreamCutoff: options.MemoryStreamCutoff);
 
                 // SharpCompress does not expose metadata without a full read, so we need to decompress first,
                 // and then abort if the bytes exceeded the governor's capacity.
@@ -97,7 +97,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             if (xzStream != null)
             {
                 var newFilename = Path.GetFileNameWithoutExtension(fileEntry.Name);
-                var newFileEntry = new FileEntry(newFilename, xzStream, fileEntry);
+                var newFileEntry = new FileEntry(newFilename, xzStream, fileEntry, memoryStreamCutoff: options.MemoryStreamCutoff);
 
                 // SharpCompress does not expose metadata without a full read, so we need to decompress first,
                 // and then abort if the bytes exceeded the governor's capacity.

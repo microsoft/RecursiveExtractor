@@ -22,7 +22,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="inputStream"> </param>
         /// <param name="parent"> </param>
         /// <param name="passthroughStream"> </param>
-        public FileEntry(string name, Stream inputStream, FileEntry? parent = null, bool passthroughStream = false, DateTime? createTime = null, DateTime? modifyTime = null, DateTime? accessTime = null)
+        public FileEntry(string name, Stream inputStream, FileEntry? parent = null, bool passthroughStream = false, DateTime? createTime = null, DateTime? modifyTime = null, DateTime? accessTime = null, int memoryStreamCutoff = 1024*1024)
         {
             Parent = parent;
             Passthrough = passthroughStream;
@@ -77,9 +77,22 @@ namespace Microsoft.CST.RecursiveExtractor
             }
             else
             {
-                // Back with a temporary filestream, this is optimized to be cached in memory when possible
-                // automatically by .NET
-                Content = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+                try
+                {
+                    if (inputStream.Length > memoryStreamCutoff)
+                    {
+                        Content = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+                    }
+                    else
+                    {
+                        Content = new MemoryStream();
+                    }
+                }
+                catch (Exception)
+                {
+                    Content = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+                }
+
                 long? initialPosition = null;
 
                 if (inputStream.CanSeek)
@@ -177,7 +190,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="content">The Stream to parse</param>
         /// <param name="parent">The Parent FileEntry</param>
         /// <returns>A FileEntry object holding a Copy of the Stream</returns>
-        public static async Task<FileEntry> FromStreamAsync(string name, Stream content, FileEntry? parent = null, DateTime? createTime = null, DateTime? modifyTime = null, DateTime? accessTime = null)
+        public static async Task<FileEntry> FromStreamAsync(string name, Stream content, FileEntry? parent = null, DateTime? createTime = null, DateTime? modifyTime = null, DateTime? accessTime = null, int memoryStreamCutoff = 1024*1024)
         {
             if (!content.CanRead || content == null)
             {
@@ -195,11 +208,24 @@ namespace Microsoft.CST.RecursiveExtractor
             {
                 FullPath = $"{parent?.FullPath}{Path.DirectorySeparatorChar}{name}";
             }
+            Stream Content = new MemoryStream();
 
-            // Back with a temporary filestream, this is optimized to be cached in memory when possible
-            // automatically by .NET
-            var Content = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
-            
+            try
+            {
+                if (content.Length > memoryStreamCutoff)
+                {
+                    Content = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+                }
+                else
+                {
+                    Content = new MemoryStream();
+                }
+            }
+            catch (Exception)
+            {
+                Content = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+            }
+
             long? initialPosition = null;
 
             if (content.CanSeek)
