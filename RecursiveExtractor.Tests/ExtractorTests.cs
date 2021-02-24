@@ -363,7 +363,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             IEnumerable<FileEntry> results;
             try
             {
-                results = extractor.Extract(path, new ExtractorOptions()).ToList();
+                results = extractor.Extract(path, new ExtractorOptions() { MemoryStreamCutoff = 1024*1024*1024 }).ToList();
                 // Getting here means we didnt catch the bomb
             }
             // We should throw an overflow exception when we detect a quine or bomb

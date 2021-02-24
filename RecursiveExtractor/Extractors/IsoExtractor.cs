@@ -52,7 +52,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     if (stream != null)
                     {
                         var name = fileInfo.Name.Replace('/', Path.DirectorySeparatorChar);
-                        var newFileEntry = await FileEntry.FromStreamAsync(name, stream, fileEntry);
+                        var newFileEntry = await FileEntry.FromStreamAsync(name, stream, fileEntry, fileInfo.CreationTime, fileInfo.LastWriteTime, fileInfo.LastAccessTime, memoryStreamCutoff: options.MemoryStreamCutoff);
                         var innerEntries = Context.ExtractAsync(newFileEntry, options, governor);
                         await foreach (var entry in innerEntries)
                         {
@@ -87,7 +87,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                     var batchSize = Math.Min(options.BatchSize, entries.Length);
                     var selectedFileEntries = entries[0..batchSize];
-                    var fileInfoTuples = new List<(DiscFileInfo, Stream)>();
+                    var fileInfoTuples = new List<(string name, DateTime created, DateTime modified, DateTime accessed, Stream stream)>();
 
                     foreach (var selectedFileEntry in selectedFileEntries)
                     {
@@ -95,7 +95,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         {
                             var stream = selectedFileEntry.OpenRead();
 
-                            fileInfoTuples.Add((selectedFileEntry, stream));
+                            fileInfoTuples.Add((selectedFileEntry.Name, selectedFileEntry.CreationTime, selectedFileEntry.LastWriteTime, selectedFileEntry.LastAccessTime, stream));
                         }
                         catch (Exception e)
                         {
@@ -103,11 +103,11 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         }
                     }
 
-                    governor.CheckResourceGovernor(fileInfoTuples.Sum(x => x.Item1.Length));
+                    governor.CheckResourceGovernor(fileInfoTuples.Sum(x => x.stream.Length));
 
                     fileInfoTuples.AsParallel().ForAll(cdFile =>
                     {
-                        var newFileEntry = new FileEntry(cdFile.Item1.Name, cdFile.Item2, fileEntry);
+                        var newFileEntry = new FileEntry(cdFile.name, cdFile.stream, fileEntry, false, cdFile.created, cdFile.modified, cdFile.accessed, memoryStreamCutoff: options.MemoryStreamCutoff);
                         var entries = Context.Extract(newFileEntry, options, governor);
                         files.PushRange(entries.ToArray());
                     });
@@ -138,7 +138,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         if (stream != null)
                         {
                             var name = fileInfo.Name.Replace('/', Path.DirectorySeparatorChar);
-                            var newFileEntry = new FileEntry(name, stream, fileEntry);
+                            var newFileEntry = new FileEntry(name, stream, fileEntry, createTime: file.CreationTime, modifyTime: file.LastWriteTime, accessTime: file.LastAccessTime,memoryStreamCutoff: options.MemoryStreamCutoff);
                             var innerEntries = Context.Extract(newFileEntry, options, governor);
                             foreach (var entry in innerEntries)
                             {

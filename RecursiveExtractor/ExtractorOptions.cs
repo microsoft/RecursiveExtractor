@@ -10,9 +10,9 @@ namespace Microsoft.CST.RecursiveExtractor
     public class ExtractorOptions
     {
         /// <summary>
-        /// Maximum number of bytes before using a FileStream
+        /// Maximum number of bytes before using a FileStream. Default 100MB
         /// </summary>
-        public int MemoryStreamCutoff { get; set; } = 1024 * 1024;
+        public int MemoryStreamCutoff { get; set; } = 1024 * 1024 * 100;
 
         /// <summary>
         ///     Enable timing limit for processing.

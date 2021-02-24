@@ -48,7 +48,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         continue;
                     }
 
-                    var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+                    var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
                     governor.CheckResourceGovernor(tarStream.Length);
                     try
                     {
@@ -61,7 +61,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                     var name = tarEntry.Name.Replace('/', Path.DirectorySeparatorChar);
 
-                    var newFileEntry = new FileEntry(name, fs, fileEntry, true);
+                    var newFileEntry = new FileEntry(name, fs, fileEntry, true, memoryStreamCutoff: options.MemoryStreamCutoff);
 
                     if (Extractor.IsQuine(newFileEntry))
                     {
@@ -111,7 +111,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         continue;
                     }
 
-                    var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+                    var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
                     governor.CheckResourceGovernor(tarStream.Length);
                     try
                     {
@@ -123,7 +123,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
                     var name = tarEntry.Name.Replace('/', Path.DirectorySeparatorChar);
 
-                    var newFileEntry = new FileEntry(name, fs, fileEntry, true);
+                    var newFileEntry = new FileEntry(name, fs, fileEntry, true, memoryStreamCutoff: options.MemoryStreamCutoff);
 
                     if (Extractor.IsQuine(newFileEntry))
                     {
@@ -146,5 +146,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 }
             }
         }
+
+        private const int bufferSize = 4096;
     }
 }

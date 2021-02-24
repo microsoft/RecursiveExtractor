@@ -94,7 +94,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 {
                     governor.CheckResourceGovernor(entry.Size);
                     var name = entry.Key.Replace('/', Path.DirectorySeparatorChar);
-                    FileEntry newFileEntry = await FileEntry.FromStreamAsync(name, entry.OpenEntryStream(), fileEntry);
+                    FileEntry newFileEntry = await FileEntry.FromStreamAsync(name, entry.OpenEntryStream(), fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
                     if (newFileEntry != null)
                     {
                         if (Extractor.IsQuine(newFileEntry))
@@ -145,7 +145,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         {
                             try
                             {
-                                var newFileEntry = new FileEntry(streampair.entry.Key, streampair.Item2, fileEntry);
+                                var newFileEntry = new FileEntry(streampair.entry.Key, streampair.Item2, fileEntry, false, streampair.entry.CreatedTime, streampair.entry.LastModifiedTime, streampair.entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
                                 if (Extractor.IsQuine(newFileEntry))
                                 {
                                     Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
@@ -182,7 +182,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         {
                             var name = entry.Key.Replace('/', Path.DirectorySeparatorChar);
 
-                            newFileEntry = new FileEntry(name, entry.OpenEntryStream(), fileEntry);
+                            newFileEntry = new FileEntry(name, entry.OpenEntryStream(), fileEntry, false, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
                         }
                         catch (Exception e)
                         {

@@ -57,7 +57,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
                     if (fileStream != null && fi != null)
                     {
-                        var newFileEntry = await FileEntry.FromStreamAsync($"{volume.Identity}{Path.DirectorySeparatorChar}{fi.FullName}", fileStream, parent);
+                        var newFileEntry = await FileEntry.FromStreamAsync($"{volume.Identity}{Path.DirectorySeparatorChar}{fi.FullName}", fileStream, parent, fi.CreationTime, fi.LastWriteTime, fi.LastAccessTime, memoryStreamCutoff: options.MemoryStreamCutoff);
                         var entries = Context.ExtractAsync(newFileEntry, options, governor);
                         await foreach (var entry in entries)
                         {
@@ -102,7 +102,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         var batchSize = Math.Min(options.BatchSize, diskFiles.Count);
                         var range = diskFiles.GetRange(0, batchSize);
-                        var fileinfos = new List<(DiscFileInfo, Stream)>();
+                        var fileinfos = new List<(string name, DateTime created, DateTime modified, DateTime accessed, Stream stream)>();
                         long totalLength = 0;
                         foreach (var r in range)
                         {
@@ -110,7 +110,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             {
                                 var fi = fs.GetFileInfo(r);
                                 totalLength += fi.Length;
-                                fileinfos.Add((fi, fi.OpenRead()));
+                                fileinfos.Add((fi.FullName, fi.CreationTime, fi.LastWriteTime, fi.LastAccessTime, fi.OpenRead()));
                             }
                             catch (Exception e)
                             {
@@ -122,9 +122,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                         fileinfos.AsParallel().ForAll(file =>
                         {
-                            if (file.Item2 != null)
+                            if (file.stream != null)
                             {
-                                var newFileEntry = new FileEntry($"{volume.Identity}{Path.DirectorySeparatorChar}{file.Item1.FullName}", file.Item2, parent);
+                                var newFileEntry = new FileEntry($"{volume.Identity}{Path.DirectorySeparatorChar}{file.name}", file.stream, parent, false, file.created, file.modified, file.accessed, memoryStreamCutoff: options.MemoryStreamCutoff);
                                 var entries = Context.Extract(newFileEntry, options, governor);
                                 files.PushRange(entries.ToArray());
                             }
@@ -143,11 +143,15 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     foreach (var file in diskFiles)
                     {
                         Stream? fileStream = null;
+                        (DateTime? creation, DateTime? modification, DateTime? access) = (null, null, null);
                         try
                         {
                             var fi = fs.GetFileInfo(file);
                             governor.CheckResourceGovernor(fi.Length);
                             fileStream = fi.OpenRead();
+                            creation = fi.CreationTime;
+                            modification = fi.LastWriteTime;
+                            access = fi.LastAccessTime;
                         }
                         catch (Exception e)
                         {
@@ -155,7 +159,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         }
                         if (fileStream != null)
                         {
-                            var newFileEntry = new FileEntry($"{volume.Identity}{Path.DirectorySeparatorChar}{file}", fileStream, parent);
+                            var newFileEntry = new FileEntry($"{volume.Identity}{Path.DirectorySeparatorChar}{file}", fileStream, parent, false, creation, modification, access, memoryStreamCutoff: options.MemoryStreamCutoff);
                             var entries = Context.Extract(newFileEntry, options, governor);
                             foreach (var entry in entries)
                             {
