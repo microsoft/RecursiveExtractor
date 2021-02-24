@@ -22,8 +22,10 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="inputStream"> </param>
         /// <param name="parent"> </param>
         /// <param name="passthroughStream"> </param>
-        public FileEntry(string name, Stream inputStream, FileEntry? parent = null, bool passthroughStream = false, DateTime? createTime = null, DateTime? modifyTime = null, DateTime? accessTime = null, int memoryStreamCutoff = defaultCutoff)
+        public FileEntry(string name, Stream inputStream, FileEntry? parent = null, bool passthroughStream = false, DateTime? createTime = null, DateTime? modifyTime = null, DateTime? accessTime = null, int? memoryStreamCutoff = null)
         {
+            memoryStreamCutoff = memoryStreamCutoff ?? defaultCutoff;
+
             Parent = parent;
             Passthrough = passthroughStream;
 
@@ -192,8 +194,9 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="content">The Stream to parse</param>
         /// <param name="parent">The Parent FileEntry</param>
         /// <returns>A FileEntry object holding a Copy of the Stream</returns>
-        public static async Task<FileEntry> FromStreamAsync(string name, Stream content, FileEntry? parent = null, DateTime? createTime = null, DateTime? modifyTime = null, DateTime? accessTime = null, int memoryStreamCutoff = defaultCutoff)
+        public static async Task<FileEntry> FromStreamAsync(string name, Stream content, FileEntry? parent = null, DateTime? createTime = null, DateTime? modifyTime = null, DateTime? accessTime = null, int? memoryStreamCutoff = null)
         {
+            memoryStreamCutoff = memoryStreamCutoff ?? defaultCutoff;
             if (!content.CanRead || content == null)
             {
                 content = new MemoryStream();
@@ -271,6 +274,6 @@ namespace Microsoft.CST.RecursiveExtractor
             return new FileEntry(name, Content, parent, true, createTime, modifyTime, accessTime);
         }
 
-        private int defaultCutoff = 1024 * 1024 * 100;
+        private static int defaultCutoff = 1024 * 1024 * 100;
     }
 }
