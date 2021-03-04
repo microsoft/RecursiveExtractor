@@ -515,25 +515,32 @@ namespace Microsoft.CST.RecursiveExtractor
                 if (FileNamePasses(entry.FullPath, acceptFilters, denyFilters))
                 {
                     var targetPath = Path.Combine(outputDirectory, entry.FullPath);
-                    try
+                    if (Path.GetDirectoryName(targetPath) is string directoryPath && targetPath is string targetPathNotNull)
                     {
-                        Directory.CreateDirectory(Path.GetDirectoryName(targetPath));
-                        
-                        using var fs = new FileStream(targetPath, FileMode.Create);
-                        entry.Content.CopyTo(fs);
-                        if (printNames)
+                        try
                         {
-                            Console.WriteLine("Extracted {0}.", entry.FullPath);
+                            Directory.CreateDirectory(directoryPath);
+
+                            using var fs = new FileStream(targetPathNotNull, FileMode.Create);
+                            entry.Content.CopyTo(fs);
+                            if (printNames)
+                            {
+                                Console.WriteLine("Extracted {0}.", entry.FullPath);
+                            }
+                            Logger.Trace("Extracted {0}", entry.FullPath);
                         }
-                        Logger.Trace("Extracted {0}", entry.FullPath);
+                        catch (Exception e)
+                        {
+                            Logger.Error(e, "Failed to create file at {0}.", targetPathNotNull);
+                        }
                     }
-                    catch (Exception e)
+                    else
                     {
-                        Logger.Fatal(e, "Failed to create file at {0}.", targetPath);
+                        Logger.Error("Failed to create directory.");
                     }
                 }
             }
-            return ExtractionStatusCode.OKAY;
+            return ExtractionStatusCode.Ok;
         }
 
         /// <summary>
@@ -585,24 +592,31 @@ namespace Microsoft.CST.RecursiveExtractor
                 if (FileNamePasses(entry.FullPath, acceptFilters, denyFilters))
                 {
                     var targetPath = Path.Combine(outputDirectory, entry.FullPath);
-                    try
+                    if (Path.GetDirectoryName(targetPath) is string directoryPath && targetPath is string targetPathNotNull)
                     {
-                        Directory.CreateDirectory(Path.GetDirectoryName(targetPath));
-                        using var fs = new FileStream(targetPath, FileMode.Create);
-                        await entry.Content.CopyToAsync(fs);
-                        if (printNames)
+                        try
                         {
-                            Console.WriteLine("Extracted {0}.", entry.FullPath);
+                            Directory.CreateDirectory(directoryPath);
+                            using var fs = new FileStream(targetPathNotNull, FileMode.Create);
+                            await entry.Content.CopyToAsync(fs);
+                            if (printNames)
+                            {
+                                Console.WriteLine("Extracted {0}.", entry.FullPath);
+                            }
+                            Logger.Trace("Extracted {0}", entry.FullPath);
                         }
-                        Logger.Trace("Extracted {0}", entry.FullPath);
+                        catch (Exception e)
+                        {
+                            Logger.Error(e, "Failed to create file at {0}.", targetPathNotNull);
+                        }
                     }
-                    catch (Exception e)
+                    else
                     {
-                        Logger.Fatal(e, "Failed to create file at {0}.", targetPath);
+                        Logger.Error("Failed to create directory.");
                     }
                 }
             }
-            return ExtractionStatusCode.OKAY;
+            return ExtractionStatusCode.Ok;
         }
 
         /// <summary>

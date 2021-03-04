@@ -33,7 +33,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             TarInputStream? tarStream = null;
             try
             {
-                tarStream = new TarInputStream(fileEntry.Content);
+                tarStream = new TarInputStream(fileEntry.Content, System.Text.Encoding.UTF8);
             }
             catch (Exception e)
             {
@@ -96,7 +96,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             TarInputStream? tarStream = null;
             try
             {
-                tarStream = new TarInputStream(fileEntry.Content);
+                tarStream = new TarInputStream(fileEntry.Content, System.Text.Encoding.UTF8);
             }
             catch (Exception e)
             {
