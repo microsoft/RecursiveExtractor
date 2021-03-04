@@ -186,7 +186,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 Logger.Warn("ExtractFile called, but {0} does not exist.", filename);
                 yield break;
             }
-            using var fs = new FileStream(filename, FileMode.Open);
+            using var fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
             foreach (var entry in Extract(filename, fs, opts))
             {
                 yield return entry;
@@ -221,7 +221,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 Logger.Warn("ExtractFile called, but {0} does not exist.", filename);
                 yield break;
             }
-            using var fs = new FileStream(filename, FileMode.Open);
+            using var fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
             await foreach (var entry in ExtractAsync(filename, fs, opts))
             {
                 yield return entry;
@@ -477,7 +477,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="printNames">If we should print the filename when when writing it out to disc.</param>
         public ExtractionStatusCode ExtractToDirectory(string outputDirectory, string filename, ExtractorOptions? opts = null, IEnumerable<Regex>? acceptFilters = null, IEnumerable<Regex>? denyFilters = null, bool printNames = false)
         {
-            using var fs = new FileStream(filename, FileMode.Open);
+            using var fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
             return ExtractToDirectory(outputDirectory, filename, fs, opts, acceptFilters, denyFilters, printNames);
         }
 
@@ -515,25 +515,32 @@ namespace Microsoft.CST.RecursiveExtractor
                 if (FileNamePasses(entry.FullPath, acceptFilters, denyFilters))
                 {
                     var targetPath = Path.Combine(outputDirectory, entry.FullPath);
-                    try
+                    if (Path.GetDirectoryName(targetPath) is string directoryPath && targetPath is string targetPathNotNull)
                     {
-                        Directory.CreateDirectory(Path.GetDirectoryName(targetPath));
-                        
-                        using var fs = new FileStream(targetPath, FileMode.Create);
-                        entry.Content.CopyTo(fs);
-                        if (printNames)
+                        try
                         {
-                            Console.WriteLine("Extracted {0}.", entry.FullPath);
+                            Directory.CreateDirectory(directoryPath);
+
+                            using var fs = new FileStream(targetPathNotNull, FileMode.Create);
+                            entry.Content.CopyTo(fs);
+                            if (printNames)
+                            {
+                                Console.WriteLine("Extracted {0}.", entry.FullPath);
+                            }
+                            Logger.Trace("Extracted {0}", entry.FullPath);
                         }
-                        Logger.Trace("Extracted {0}", entry.FullPath);
+                        catch (Exception e)
+                        {
+                            Logger.Error(e, "Failed to create file at {0}.", targetPathNotNull);
+                        }
                     }
-                    catch (Exception e)
+                    else
                     {
-                        Logger.Fatal(e, "Failed to create file at {0}.", targetPath);
+                        Logger.Error("Failed to create directory.");
                     }
                 }
             }
-            return ExtractionStatusCode.OKAY;
+            return ExtractionStatusCode.Ok;
         }
 
         /// <summary>
@@ -542,12 +549,13 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="outputDirectory">The directory to extract under. (Will be created if it does not exist).</param>
         /// <param name="filename">The filename to call the stream.</param>
         /// <param name="opts">The ExtractorOptions to use.</param>
+        /// <param name="opts">The ExtractorOptions to use.</param>
         /// <param name="acceptFilters">An optional list of regexes, when set each entry's FullName must match at least one.</param>
         /// <param name="denyFilters">An optional list of regexes, when set each entry's FullName must match none.</param>
         /// <param name="printNames">If we should print the filename when when writing it out to disc.</param>
         public async Task<ExtractionStatusCode> ExtractToDirectoryAsync(string outputDirectory, string filename, ExtractorOptions? opts = null, IEnumerable<Regex>? acceptFilters = null, IEnumerable<Regex>? denyFilters = null, bool printNames = false)
         {
-            var fs = new FileStream(filename, FileMode.Open);
+            var fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
             return await ExtractToDirectoryAsync(outputDirectory, filename, fs, opts, acceptFilters, denyFilters, printNames);
         }
 
@@ -585,24 +593,31 @@ namespace Microsoft.CST.RecursiveExtractor
                 if (FileNamePasses(entry.FullPath, acceptFilters, denyFilters))
                 {
                     var targetPath = Path.Combine(outputDirectory, entry.FullPath);
-                    try
+                    if (Path.GetDirectoryName(targetPath) is string directoryPath && targetPath is string targetPathNotNull)
                     {
-                        Directory.CreateDirectory(Path.GetDirectoryName(targetPath));
-                        using var fs = new FileStream(targetPath, FileMode.Create);
-                        await entry.Content.CopyToAsync(fs);
-                        if (printNames)
+                        try
                         {
-                            Console.WriteLine("Extracted {0}.", entry.FullPath);
+                            Directory.CreateDirectory(directoryPath);
+                            using var fs = new FileStream(targetPathNotNull, FileMode.Create);
+                            await entry.Content.CopyToAsync(fs);
+                            if (printNames)
+                            {
+                                Console.WriteLine("Extracted {0}.", entry.FullPath);
+                            }
+                            Logger.Trace("Extracted {0}", entry.FullPath);
                         }
-                        Logger.Trace("Extracted {0}", entry.FullPath);
+                        catch (Exception e)
+                        {
+                            Logger.Error(e, "Failed to create file at {0}.", targetPathNotNull);
+                        }
                     }
-                    catch (Exception e)
+                    else
                     {
-                        Logger.Fatal(e, "Failed to create file at {0}.", targetPath);
+                        Logger.Error("Failed to create directory.");
                     }
                 }
             }
-            return ExtractionStatusCode.OKAY;
+            return ExtractionStatusCode.Ok;
         }
 
         /// <summary>

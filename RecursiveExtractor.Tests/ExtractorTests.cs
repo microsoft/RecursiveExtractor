@@ -70,7 +70,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var extractor = new Extractor();
-            Assert.AreEqual(ExtractionStatusCode.OKAY, await extractor.ExtractToDirectoryAsync(directory, path));
+            Assert.AreEqual(ExtractionStatusCode.Ok, await extractor.ExtractToDirectoryAsync(directory, path));
             var files = Array.Empty<string>();
             if (Directory.Exists(directory))
             {
