@@ -27,7 +27,7 @@ You can run Recursive Extractor directly [in your browser](https://microsoft.git
 
 It runs entirely locally using [WebAssembly](https://docs.microsoft.com/en-us/aspnet/core/blazor/progressive-web-app?view=aspnetcore-3.1&tabs=visual-studio) with no connectivity requirement.
 
-## Cli
+## Command Line
 ### Installing
 1. Ensure you have the latest [.NET SDK](https://dotnet.microsoft.com/download).
 2. run `dotnet tool install -g Microsoft.CST.RecursiveExtractor.Cli`
@@ -53,15 +53,32 @@ For example, to extract only ".cs" files:
 RecursiveExtractor --input archive.ext --output outputDirectory --allow-filters .cs$
 ```
 
-Run "RecursiveExtractor --help" for more details.
+Run `RecursiveExtractor --help` for more details.
 </details>
 
-## Library
+## .NET Standard Library
 Recursive Extractor is available on NuGet as [Microsoft.CST.RecursiveExtractor](https://www.nuget.org/packages/Microsoft.CST.RecursiveExtractor/).
 
 ### Usage
+
+The most basic usage is to enumerate through all the files in the archive provided and do something with their contents as a Stream.
+
+```csharp
+using Microsoft.CST.RecursiveExtractor;
+
+var path = "path/to/file";
+var extractor = new Extractor();
+foreach(var file in extractor.Extract(path))
+{
+    doSomething(file.Content); //Do Something with the file contents
+}
+```
+
+<details>
+<summary>Extracting to Disk</summary>
+<br/>
 This code adapted from the Cli extracts the contents of given archive located at `options.Input`
-to a directory located at `options.Output`.
+to a directory located at `options.Output`, including extracting failed archives as themselves.
 
 ```csharp
 using Microsoft.CST.RecursiveExtractor;
@@ -70,10 +87,10 @@ var extractor = new Extractor();
 var extractorOptions = new ExtractorOptions()
 {
     ExtractSelfOnFail = true,
-    Parallel = true,
 };
 extractor.ExtractToDirectory(options.Output, options.Input, extractorOptions);
 ```
+</details>
 <details>
 <summary>Async Usage</summary>
 <br/>
@@ -107,6 +124,9 @@ public string FullPath { get; }
 public string Name { get; }
 public FileEntry? Parent { get; }
 public string? ParentPath { get; }
+public DateTime CreateTime { get; }
+public DateTime ModifyTime { get; }
+public DateTime AccessTime { get; }
 ```
 </details>
 
