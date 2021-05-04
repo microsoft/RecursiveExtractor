@@ -184,13 +184,11 @@ namespace Microsoft.CST.RecursiveExtractor
             if (!File.Exists(filename))
             {
                 Logger.Warn("ExtractFile called, but {0} does not exist.", filename);
-                yield break;
+                return Array.Empty<FileEntry>();
             }
             using var fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
-            foreach (var entry in Extract(filename, fs, opts))
-            {
-                yield return entry;
-            }
+            var fe = new FileEntry(filename, fs, null, false, createTime: File.GetCreationTimeUtc(filename), modifyTime: File.GetLastWriteTimeUtc(filename), accessTime: File.GetLastAccessTimeUtc(filename));
+            return Extract(fe, opts);
         }
 
         /// <summary>
@@ -222,7 +220,8 @@ namespace Microsoft.CST.RecursiveExtractor
                 yield break;
             }
             using var fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
-            await foreach (var entry in ExtractAsync(filename, fs, opts))
+            var fe = new FileEntry(filename, fs, null, false, createTime: File.GetCreationTimeUtc(filename), modifyTime: File.GetLastWriteTimeUtc(filename), accessTime: File.GetLastAccessTimeUtc(filename));
+            await foreach (var entry in ExtractAsync(fe, opts))
             {
                 yield return entry;
             }
@@ -300,29 +299,8 @@ namespace Microsoft.CST.RecursiveExtractor
         public IEnumerable<FileEntry> Extract(string filename, Stream stream, ExtractorOptions? opts = null)
         {
             opts ??= new ExtractorOptions();
-            var governor = new ResourceGovernor(opts);
-            governor.ResetResourceGovernor(stream);
-            FileEntry? fileEntry = null;
-            try
-            {
-                fileEntry = new FileEntry(Path.GetFileName(filename), stream, memoryStreamCutoff: opts.MemoryStreamCutoff);
-                governor.ResetResourceGovernor(stream);
-            }
-            catch (Exception ex)
-            {
-                Logger.Debug(ex, "Failed to extract file {0}", filename);
-            }
-
-            if (fileEntry != null)
-            {
-                foreach (var result in Extract(fileEntry, opts, governor))
-                {
-                    governor.GovernorStopwatch.Stop();
-                    yield return result;
-                    governor.GovernorStopwatch.Start();
-                }
-            }
-            governor.GovernorStopwatch.Stop();
+            FileEntry fileEntry = new FileEntry(filename, stream, memoryStreamCutoff: opts.MemoryStreamCutoff);
+            return Extract(fileEntry, opts);
         }
 
         /// <summary>
@@ -346,7 +324,7 @@ namespace Microsoft.CST.RecursiveExtractor
         {
             opts ??= new ExtractorOptions();
             using var ms = new MemoryStream(archiveBytes);
-            return Extract(new FileEntry(Path.GetFileName(filename), ms, memoryStreamCutoff: opts.MemoryStreamCutoff), opts);
+            return Extract(new FileEntry(filename, ms, memoryStreamCutoff: opts.MemoryStreamCutoff), opts);
         }
 
         /// <summary>
