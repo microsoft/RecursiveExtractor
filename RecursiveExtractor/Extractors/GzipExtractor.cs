@@ -1,5 +1,4 @@
-﻿using ICSharpCode.SharpZipLib.Core;
-using ICSharpCode.SharpZipLib.GZip;
+﻿using ICSharpCode.SharpZipLib.GZip;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -45,6 +44,12 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
             if (entry != null)
             {
+                if (Extractor.IsQuine(entry))
+                {
+                    Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
+                    throw new OverflowException();
+                }
+
                 await foreach (var extractedFile in Context.ExtractAsync(entry, options, governor))
                 {
                     yield return extractedFile;
@@ -74,6 +79,12 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
             if (entry != null)
             {
+                if (Extractor.IsQuine(entry))
+                {
+                    Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
+                    throw new OverflowException();
+                }
+
                 foreach (var extractedFile in Context.Extract(entry, options, governor))
                 {
                     yield return extractedFile;
