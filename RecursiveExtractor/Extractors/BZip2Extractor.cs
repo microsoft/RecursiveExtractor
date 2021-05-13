@@ -30,8 +30,15 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         {
             using var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.Asynchronous | FileOptions.DeleteOnClose);
 
-            BZip2.Decompress(fileEntry.Content, fs, false);
-
+            try
+            {
+                BZip2.Decompress(fileEntry.Content, fs, false);
+            }
+            catch (Exception e)
+            {
+                Logger.Debug(Extractor.DEBUG_STRING, "BZip2", e.GetType(), e.Message, e.StackTrace);
+                yield break;
+            }
             var newFilename = Path.GetFileNameWithoutExtension(fileEntry.Name);
 
             var entry = await FileEntry.FromStreamAsync(newFilename, fs, fileEntry);
@@ -60,8 +67,15 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         {
             using var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
 
-            BZip2.Decompress(fileEntry.Content, fs, false);
-
+            try
+            {
+                BZip2.Decompress(fileEntry.Content, fs, false);
+            }
+            catch (Exception e)
+            {
+                Logger.Debug(Extractor.DEBUG_STRING, "BZip2", e.GetType(), e.Message, e.StackTrace);
+                yield break;
+            }
             var newFilename = Path.GetFileNameWithoutExtension(fileEntry.Name);
 
             var entry = new FileEntry(newFilename, fs, fileEntry);
