@@ -1,4 +1,4 @@
-﻿using SharpCompress.Compressors.BZip2;
+﻿using ICSharpCode.SharpZipLib.BZip2;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -28,84 +28,69 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <returns> Extracted files </returns>
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
-            BZip2Stream? bzip2Stream = null;
+            using var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.Asynchronous | FileOptions.DeleteOnClose);
+
             try
             {
-                bzip2Stream = new BZip2Stream(fileEntry.Content, SharpCompress.Compressors.CompressionMode.Decompress, false);
-                governor.CheckResourceGovernor(bzip2Stream.Length);
+                BZip2.Decompress(fileEntry.Content, fs, false);
             }
             catch (Exception e)
             {
-                Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.BZIP2, fileEntry.FullPath, string.Empty, e.GetType());
+                Logger.Debug(Extractor.DEBUG_STRING, "BZip2", e.GetType(), e.Message, e.StackTrace);
+                yield break;
             }
-            if (bzip2Stream != null)
-            {
-                var newFilename = Path.GetFileNameWithoutExtension(fileEntry.Name);
-                var newFileEntry = await FileEntry.FromStreamAsync(newFilename, bzip2Stream, fileEntry, memoryStreamCutoff: options.MemoryStreamCutoff);
+            var newFilename = Path.GetFileNameWithoutExtension(fileEntry.Name);
 
-                if (Extractor.IsQuine(newFileEntry))
+            var entry = await FileEntry.FromStreamAsync(newFilename, fs, fileEntry);
+
+            if (entry != null)
+            {
+
+                if (Extractor.IsQuine(entry))
                 {
                     Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                    bzip2Stream.Dispose();
                     throw new OverflowException();
                 }
 
-                await foreach (var extractedFile in Context.ExtractAsync(newFileEntry, options, governor))
+                await foreach (var extractedFile in Context.ExtractAsync(entry, options, governor))
                 {
                     yield return extractedFile;
-                }
-                bzip2Stream.Dispose();
-            }
-            else
-            {
-                if (options.ExtractSelfOnFail)
-                {
-                    yield return fileEntry;
                 }
             }
         }
 
-
-        ///     Extracts an BZip2 file contained in fileEntry.
+        ///     Extracts a BZip2 file contained in fileEntry.
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
-            BZip2Stream? bzip2Stream = null;
+            using var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+
             try
             {
-                bzip2Stream = new BZip2Stream(fileEntry.Content, SharpCompress.Compressors.CompressionMode.Decompress, false);
-                governor.CheckResourceGovernor(bzip2Stream.Length);
+                BZip2.Decompress(fileEntry.Content, fs, false);
             }
             catch (Exception e)
             {
-                Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.BZIP2, fileEntry.FullPath, string.Empty, e.GetType());
+                Logger.Debug(Extractor.DEBUG_STRING, "BZip2", e.GetType(), e.Message, e.StackTrace);
+                yield break;
             }
-            if (bzip2Stream != null)
-            {
-                var newFilename = Path.GetFileNameWithoutExtension(fileEntry.Name);
-                var newFileEntry = new FileEntry(newFilename, bzip2Stream, fileEntry, memoryStreamCutoff: options.MemoryStreamCutoff);
+            var newFilename = Path.GetFileNameWithoutExtension(fileEntry.Name);
 
-                if (Extractor.IsQuine(newFileEntry))
+            var entry = new FileEntry(newFilename, fs, fileEntry);
+
+            if (entry != null)
+            {
+                if (Extractor.IsQuine(entry))
                 {
                     Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                    bzip2Stream.Dispose();
                     throw new OverflowException();
                 }
 
-                foreach (var extractedFile in Context.Extract(newFileEntry, options, governor))
+                foreach (var extractedFile in Context.Extract(entry, options, governor))
                 {
                     yield return extractedFile;
-                }
-
-                bzip2Stream.Dispose();
-            }
-            else
-            {
-                if (options.ExtractSelfOnFail)
-                {
-                    yield return fileEntry;
                 }
             }
         }

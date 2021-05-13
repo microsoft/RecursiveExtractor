@@ -219,7 +219,7 @@ namespace Microsoft.CST.RecursiveExtractor
             {
                 if (content.Length > memoryStreamCutoff)
                 {
-                    Content = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
+                    Content = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.Asynchronous | FileOptions.DeleteOnClose);
                 }
                 else
                 {
@@ -228,7 +228,7 @@ namespace Microsoft.CST.RecursiveExtractor
             }
             catch (Exception)
             {
-                Content = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
+                Content = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.Asynchronous | FileOptions.DeleteOnClose);
             }
 
             long? initialPosition = null;

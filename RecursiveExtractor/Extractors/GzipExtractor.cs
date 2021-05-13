@@ -1,4 +1,4 @@
-﻿using SharpCompress.Archives.GZip;
+﻿using ICSharpCode.SharpZipLib.GZip;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -30,51 +30,36 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <returns> Extracted files </returns>
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
-            GZipArchive? gzipArchive = null;
+            using var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.Asynchronous | FileOptions.DeleteOnClose);
+
             try
             {
-                gzipArchive = GZipArchive.Open(fileEntry.Content);
+                GZip.Decompress(fileEntry.Content, fs, false);
             }
             catch (Exception e)
             {
-                Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.GZIP, fileEntry.FullPath, string.Empty, e.GetType());
+                Logger.Debug(Extractor.DEBUG_STRING, "GZip", e.GetType(), e.Message, e.StackTrace);
+                yield break;
             }
-            if (gzipArchive != null)
+            var newFilename = Path.GetFileNameWithoutExtension(fileEntry.Name);
+            if (fileEntry.Name.EndsWith(".tgz", StringComparison.InvariantCultureIgnoreCase))
             {
-                foreach (var entry in gzipArchive.Entries)
+                newFilename = newFilename[0..^4] + ".tar";
+            }
+
+            var entry = await FileEntry.FromStreamAsync(newFilename, fs, fileEntry);
+
+            if (entry != null)
+            {
+                if (Extractor.IsQuine(entry))
                 {
-                    if (entry.IsDirectory)
-                    {
-                        continue;
-                    }
-
-                    governor.CheckResourceGovernor(entry.Size);
-
-                    var newFilename = Path.GetFileNameWithoutExtension(fileEntry.Name);
-                    if (fileEntry.Name.EndsWith(".tgz", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        newFilename = newFilename[0..^4] + ".tar";
-                    }
-
-                    FileEntry? newFileEntry = null;
-                    using var stream = entry.OpenEntryStream();
-                    newFileEntry = await FileEntry.FromStreamAsync(newFilename, stream, fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
-
-                    if (newFileEntry != null)
-                    {
-                        await foreach (var extractedFile in Context.ExtractAsync(newFileEntry, options, governor))
-                        {
-                            yield return extractedFile;
-                        }
-                    }
+                    Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
+                    throw new OverflowException();
                 }
-                gzipArchive.Dispose();
-            }
-            else
-            {
-                if (options.ExtractSelfOnFail)
+
+                await foreach (var extractedFile in Context.ExtractAsync(entry, options, governor))
                 {
-                    yield return fileEntry;
+                    yield return extractedFile;
                 }
             }
         }
@@ -87,57 +72,36 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <returns> Extracted files </returns>
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
-            GZipArchive? gzipArchive = null;
+            using var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+            
             try
             {
-                gzipArchive = GZipArchive.Open(fileEntry.Content);
+                GZip.Decompress(fileEntry.Content, fs, false);
             }
-            catch (Exception e)
+            catch(Exception e)
             {
-                Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.GZIP, fileEntry.FullPath, string.Empty, e.GetType());
+                Logger.Debug(Extractor.DEBUG_STRING, "GZip", e.GetType(), e.Message, e.StackTrace);
+                yield break;
             }
-            if (gzipArchive != null)
+            var newFilename = Path.GetFileNameWithoutExtension(fileEntry.Name);
+            if (fileEntry.Name.EndsWith(".tgz", StringComparison.InvariantCultureIgnoreCase))
             {
-                foreach (var entry in gzipArchive.Entries)
+                newFilename = newFilename[0..^4] + ".tar";
+            }
+
+            var entry = new FileEntry(newFilename, fs, fileEntry);
+
+            if (entry != null)
+            {
+                if (Extractor.IsQuine(entry))
                 {
-                    if (entry.IsDirectory)
-                    {
-                        continue;
-                    }
-
-                    governor.CheckResourceGovernor(entry.Size);
-
-                    var newFilename = Path.GetFileNameWithoutExtension(fileEntry.Name);
-                    if (fileEntry.Name.EndsWith(".tgz", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        newFilename = newFilename[0..^4] + ".tar";
-                    }
-
-                    FileEntry? newFileEntry = null;
-                    try
-                    {
-                        using var stream = entry.OpenEntryStream();
-                        newFileEntry = new FileEntry(newFilename, stream, fileEntry, false, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
-                    }
-                    catch (Exception e)
-                    {
-                        Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.GZIP, fileEntry.FullPath, newFilename, e.GetType());
-                    }
-                    if (newFileEntry != null)
-                    {
-                        foreach (var extractedFile in Context.Extract(newFileEntry, options, governor))
-                        {
-                            yield return extractedFile;
-                        }
-                    }
+                    Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
+                    throw new OverflowException();
                 }
-                gzipArchive.Dispose();
-            }
-            else
-            {
-                if (options.ExtractSelfOnFail)
+
+                foreach (var extractedFile in Context.Extract(entry, options, governor))
                 {
-                    yield return fileEntry;
+                    yield return extractedFile;
                 }
             }
         }
