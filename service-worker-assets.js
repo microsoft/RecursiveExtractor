@@ -181,6 +181,10 @@
       "url": "_framework\/DiscUtils.Xfs.dll"
     },
     {
+      "hash": "sha256-BexWyXV09HfyioAt4Uyvf+fkLesjPYSclq1LKNBz+1Q=",
+      "url": "_framework\/Glob.dll"
+    },
+    {
       "hash": "sha256-Lo\/JjVG03U7hzCO+Amhk13Tz0SRGyiMzJ93D1Umcr64=",
       "url": "_framework\/lzo.net.dll"
     },
@@ -301,11 +305,11 @@
       "url": "_framework\/Tewr.Blazor.FileReader.dll"
     },
     {
-      "hash": "sha256-T2p5IP\/5N\/pqm8J+I7df5qrfTF8W1SDAPFLzLu0i66I=",
+      "hash": "sha256-jgVqOiH+44QSe0YC1DEb38HZKzTRvncahS0nfKphUDk=",
       "url": "_framework\/RecursiveExtractor.dll"
     },
     {
-      "hash": "sha256-I9eogicJ+E7FNmiQyyHLsXQBIjrIXLSA8vzd\/ZEk5Dg=",
+      "hash": "sha256-OMPYYfC33N9+M2ewEM1Te+4yBuYJUulHMMG4QjNaQKQ=",
       "url": "_framework\/RecursiveExtractor.Blazor.dll"
     },
     {
@@ -381,7 +385,7 @@
       "url": "_framework\/System.IO.FileSystem.Watcher.dll"
     },
     {
-      "hash": "sha256-gl3y0pTlPzBrL1CC\/0LUvoSAC2PeHxfz8qLrGRAJ1w4=",
+      "hash": "sha256-J4hQdO5hRFOY1DhyyOXrAyvFzO1g48bRyJ1Y9Pl6Bzk=",
       "url": "_framework\/System.IO.FileSystem.dll"
     },
     {
@@ -757,7 +761,7 @@
       "url": "_framework\/zh-Hant\/Microsoft.CodeAnalysis.Scripting.resources.dll"
     },
     {
-      "hash": "sha256-cvZlZxvvRKtvEtFalG52UeelJHIg0ERsVYqiooMl204=",
+      "hash": "sha256-R3tvCloo8gvYhPYRmU6U\/qeU5UHxauD7YVzSpsylChY=",
       "url": "_framework\/blazor.boot.json"
     },
     {
@@ -765,5 +769,5 @@
       "url": "_framework\/blazor.webassembly.js"
     }
   ],
-  "version": "DQR48G9e"
+  "version": "2SaGellr"
 };
