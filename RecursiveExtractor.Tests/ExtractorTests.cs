@@ -106,6 +106,31 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         }
 
         [DataTestMethod]
+        [DataRow("TestData.zip", 5)]
+        [DataRow("TestData.7z")]
+        [DataRow("TestData.tar", 5)]
+        [DataRow("TestData.rar")]
+        [DataRow("TestData.rar4")]
+        [DataRow("TestData.tar.bz2", 5)]
+        [DataRow("TestData.tar.gz", 5)]
+        [DataRow("TestData.tar.xz")]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
+        [DataRow("TestData.a")]
+        //[DataRow("TestData.ar")]
+        [DataRow("TestData.iso")]
+        [DataRow("TestData.vhdx")]
+        [DataRow("TestData.wim")]
+        [DataRow("EmptyFile.txt", 1)]
+        [DataRow("TestDataArchivesNested.Zip", 51)]
+        public void ExtractArchiveParallel(string fileName, int expectedNumFiles = 3)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            var results = extractor.Extract(path, new ExtractorOptions() { Parallel = true });
+            Assert.AreEqual(expectedNumFiles, results.Count());
+        }
+
+        [DataTestMethod]
         [DataRow("TestData.zip")]
         [DataRow("TestData.7z")]
         [DataRow("TestData.tar")]
@@ -386,31 +411,6 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
                 numFound++;
             }
             Assert.AreEqual(expectedNumFiles, numFound);
-        }
-
-        [DataTestMethod]
-        [DataRow("TestData.zip", 5)]
-        [DataRow("TestData.7z")]
-        [DataRow("TestData.tar", 5)]
-        [DataRow("TestData.rar")]
-        [DataRow("TestData.rar4")]
-        [DataRow("TestData.tar.bz2", 5)]
-        [DataRow("TestData.tar.gz", 5)]
-        [DataRow("TestData.tar.xz")]
-        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
-        [DataRow("TestData.a")]
-        //[DataRow("TestData.ar")]
-        [DataRow("TestData.iso")]
-        [DataRow("TestData.vhdx")]
-        [DataRow("TestData.wim")]
-        [DataRow("EmptyFile.txt", 1)]
-        [DataRow("TestDataArchivesNested.Zip", 51)]
-        public void ExtractArchiveParallel(string fileName, int expectedNumFiles = 3)
-        {
-            var extractor = new Extractor();
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
-            var results = extractor.Extract(path, new ExtractorOptions() { Parallel = true });
-            Assert.AreEqual(expectedNumFiles, results.Count());
         }
 
         [DataTestMethod]
