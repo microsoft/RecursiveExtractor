@@ -9,7 +9,7 @@ using NLog.Config;
 using NLog.Targets;
 namespace Microsoft.CST.RecursiveExtractor.Cli
 {
-    public class RecursiveExtractorClient
+    public static class RecursiveExtractorClient
     {
 		public static int Main(string[] args)
 		{            
@@ -47,7 +47,7 @@ namespace Microsoft.CST.RecursiveExtractor.Cli
             {
                 ExtractSelfOnFail = true,
                 Parallel = true,
-                RawExtensions = options.RawExtensions
+                RawExtensions = options.RawExtensions ?? Array.Empty<string>()
             };
             if (options.Passwords?.Any() ?? false)
             {

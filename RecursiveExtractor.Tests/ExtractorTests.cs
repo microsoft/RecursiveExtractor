@@ -298,7 +298,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var extractor = new Extractor();
             var options = new ExtractorOptions()
             {
-                RawExtensions = RawExtension is null ? null : new List<string>(){ RawExtension }
+                RawExtensions = RawExtension is null ? new List<string>():new List<string>(){ RawExtension }
             };
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
 

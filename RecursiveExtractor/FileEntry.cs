@@ -274,6 +274,6 @@ namespace Microsoft.CST.RecursiveExtractor
             return new FileEntry(name, Content, parent, true, createTime, modifyTime, accessTime);
         }
 
-        private static int defaultCutoff = 1024 * 1024 * 100;
+        private const int defaultCutoff = 1024 * 1024 * 100;
     }
 }

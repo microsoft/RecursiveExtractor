@@ -4,7 +4,6 @@ using System.Text;
 
 namespace Microsoft.CST.RecursiveExtractor
 {
-
     /// <summary>
     /// Implementation of the Deb Archive format
     /// See: https://en.wikipedia.org/wiki/Deb_(file_format)#/media/File:Deb_File_Structure.svg
@@ -29,12 +28,8 @@ namespace Microsoft.CST.RecursiveExtractor
             fileEntry.Content.Position = 72;
             var headerBytes = new byte[60];
 
-            while (true)
+            while (fileEntry.Content.Length - fileEntry.Content.Position >= 60)
             {
-                if (fileEntry.Content.Length - fileEntry.Content.Position < 60)  // The header for each file is 60 bytes
-                {
-                    break;
-                }
                 fileEntry.Content.Read(headerBytes, 0, 60);
                 var filename = Encoding.ASCII.GetString(headerBytes[0..16]).Trim();  // filename is 16 bytes
                 var fileSizeBytes = headerBytes[48..58]; // File size is decimal-encoded, 10 bytes long
@@ -45,8 +40,11 @@ namespace Microsoft.CST.RecursiveExtractor
 
                     var entryContent = new byte[fileSize];
                     fileEntry.Content.Read(entryContent, 0, fileSize);
-                    var stream = new MemoryStream(entryContent);
-                    yield return new FileEntry(filename, stream, fileEntry, true);
+                    if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{filename}"))
+                    {
+                        var stream = new MemoryStream(entryContent);
+                        yield return new FileEntry(filename, stream, fileEntry, true);
+                    }
                 }
                 else
                 {
@@ -73,12 +71,8 @@ namespace Microsoft.CST.RecursiveExtractor
             fileEntry.Content.Position = 72;
             var headerBytes = new byte[60];
 
-            while (true)
+            while (fileEntry.Content.Length - fileEntry.Content.Position >= 60)
             {
-                if (fileEntry.Content.Length - fileEntry.Content.Position < 60)  // The header for each file is 60 bytes
-                {
-                    break;
-                }
                 fileEntry.Content.Read(headerBytes, 0, 60);
                 var filename = Encoding.ASCII.GetString(headerBytes[0..16]).Trim();  // filename is 16 bytes
                 var fileSizeBytes = headerBytes[48..58]; // File size is decimal-encoded, 10 bytes long
@@ -88,12 +82,11 @@ namespace Microsoft.CST.RecursiveExtractor
                     governor.CurrentOperationProcessedBytesLeft -= fileSize;
 
                     var entryContent = new byte[fileSize];
-                    await fileEntry.Content.ReadAsync(entryContent, 0, fileSize);
-                    var stream = new MemoryStream(entryContent);
-                    var entry = new FileEntry(filename, stream, fileEntry, true);
-                    if (options.FileNamePasses(entry.FullPath))
+                    await fileEntry.Content.ReadAsync(entryContent, 0, fileSize).ConfigureAwait(false);
+                    if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{filename}"))
                     {
-                        yield return entry;
+                        var stream = new MemoryStream(entryContent);
+                        yield return new FileEntry(filename, stream, fileEntry, true);
                     }
                 }
                 else

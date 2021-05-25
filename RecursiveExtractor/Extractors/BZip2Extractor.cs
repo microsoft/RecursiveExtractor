@@ -58,6 +58,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
         }
 
+        /// <summary>
         ///     Extracts a BZip2 file contained in fileEntry.
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
