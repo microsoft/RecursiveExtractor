@@ -26,14 +26,14 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         internal Extractor Context { get; }
 
         /// <summary>
-        ///     Extracts an an ISO file
+        ///     Extracts an ISO file
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
             using var cd = new CDReader(fileEntry.Content, true);
-            var entries = cd.Root.GetFiles("*.*", SearchOption.AllDirectories);
+            var entries = cd.Root.GetFiles("*.*", SearchOption.AllDirectories).Where(x => options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{x.FullName}")).ToArray();
             if (entries != null)
             {
                 foreach (var file in entries)
@@ -47,12 +47,12 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
                     catch (Exception e)
                     {
-                        Logger.Debug("Failed to extract {0} from ISO {1}. ({2}:{3})", fileInfo.Name, fileEntry.FullPath, e.GetType(), e.Message);
+                        Logger.Debug("Failed to extract {0} from ISO {1}. ({2}:{3})", fileInfo.FullName, fileEntry.FullPath, e.GetType(), e.Message);
                     }
                     if (stream != null)
                     {
-                        var name = fileInfo.Name.Replace('/', Path.DirectorySeparatorChar);
-                        var newFileEntry = await FileEntry.FromStreamAsync(name, stream, fileEntry, fileInfo.CreationTime, fileInfo.LastWriteTime, fileInfo.LastAccessTime, memoryStreamCutoff: options.MemoryStreamCutoff);
+                        var name = fileInfo.FullName.Replace('/', Path.DirectorySeparatorChar);
+                        var newFileEntry = await FileEntry.FromStreamAsync(name, stream, fileEntry, fileInfo.CreationTime, fileInfo.LastWriteTime, fileInfo.LastAccessTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
                         var innerEntries = Context.ExtractAsync(newFileEntry, options, governor);
                         await foreach (var entry in innerEntries)
                         {
@@ -71,14 +71,14 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         }
 
         /// <summary>
-        ///     Extracts an an ISO file
+        ///     Extracts an ISO file
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
             using var cd = new CDReader(fileEntry.Content, true);
-            var entries = cd.Root.GetFiles("*.*", SearchOption.AllDirectories);
+            var entries = cd.Root.GetFiles("*.*", SearchOption.AllDirectories).Where(x => options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{x.FullName}")).ToArray();
             if (entries != null)
             {
                 if (options.Parallel)
@@ -86,38 +86,44 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     var files = new ConcurrentStack<FileEntry>();
 
                     var batchSize = Math.Min(options.BatchSize, entries.Length);
-                    var selectedFileEntries = entries[0..batchSize];
-                    var fileInfoTuples = new List<(string name, DateTime created, DateTime modified, DateTime accessed, Stream stream)>();
-
-                    foreach (var selectedFileEntry in selectedFileEntries)
+                    while(entries.Length > 0)
                     {
-                        try
+                        var selectedFileEntries = entries.Take(batchSize);
+                        var fileInfoTuples = new List<(string name, DateTime created, DateTime modified, DateTime accessed, Stream stream)>();
+
+                        foreach (var selectedFileEntry in selectedFileEntries)
                         {
-                            var stream = selectedFileEntry.OpenRead();
+                            try
+                            {
+                                var stream = selectedFileEntry.OpenRead();
 
-                            fileInfoTuples.Add((selectedFileEntry.Name, selectedFileEntry.CreationTime, selectedFileEntry.LastWriteTime, selectedFileEntry.LastAccessTime, stream));
+                                fileInfoTuples.Add((selectedFileEntry.FullName.Replace('/', Path.DirectorySeparatorChar), selectedFileEntry.CreationTime, selectedFileEntry.LastWriteTime, selectedFileEntry.LastAccessTime, stream));
+                            }
+                            catch (Exception e)
+                            {
+                                Logger.Debug("Failed to get FileInfo or OpenStream from {0} in ISO {1} ({2}:{3})", selectedFileEntry, fileEntry.FullPath, e.GetType(), e.Message);
+                            }
                         }
-                        catch (Exception e)
+
+                        governor.CheckResourceGovernor(fileInfoTuples.Sum(x => x.stream.Length));
+
+                        fileInfoTuples.AsParallel().ForAll(cdFile =>
                         {
-                            Logger.Debug("Failed to get FileInfo or OpenStream from {0} in ISO {1} ({2}:{3})", selectedFileEntry, fileEntry.FullPath, e.GetType(), e.Message);
+                            var newFileEntry = new FileEntry(cdFile.name, cdFile.stream, fileEntry, false, cdFile.created, cdFile.modified, cdFile.accessed, memoryStreamCutoff: options.MemoryStreamCutoff);
+                            var entries = Context.Extract(newFileEntry, options, governor);
+                            if (entries.Any())
+                            {
+                                files.PushRange(entries.ToArray());
+                            }
+                        });
+
+                        entries = entries[batchSize..];
+
+                        while (files.TryPop(out var result))
+                        {
+                            if (result != null)
+                                yield return result;
                         }
-                    }
-
-                    governor.CheckResourceGovernor(fileInfoTuples.Sum(x => x.stream.Length));
-
-                    fileInfoTuples.AsParallel().ForAll(cdFile =>
-                    {
-                        var newFileEntry = new FileEntry(cdFile.name, cdFile.stream, fileEntry, false, cdFile.created, cdFile.modified, cdFile.accessed, memoryStreamCutoff: options.MemoryStreamCutoff);
-                        var entries = Context.Extract(newFileEntry, options, governor);
-                        files.PushRange(entries.ToArray());
-                    });
-
-                    entries = entries[batchSize..];
-
-                    while (files.TryPop(out var result))
-                    {
-                        if (result != null)
-                            yield return result;
                     }
                 }
                 else
@@ -133,14 +139,13 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         }
                         catch (Exception e)
                         {
-                            Logger.Debug("Failed to extract {0} from ISO {1}. ({2}:{3})", fileInfo.Name, fileEntry.FullPath, e.GetType(), e.Message);
+                            Logger.Debug("Failed to extract {0} from ISO {1}. ({2}:{3})", fileInfo.FullName, fileEntry.FullPath, e.GetType(), e.Message);
                         }
                         if (stream != null)
                         {
-                            var name = fileInfo.Name.Replace('/', Path.DirectorySeparatorChar);
+                            var name = fileInfo.FullName.Replace('/', Path.DirectorySeparatorChar);
                             var newFileEntry = new FileEntry(name, stream, fileEntry, createTime: file.CreationTime, modifyTime: file.LastWriteTime, accessTime: file.LastAccessTime,memoryStreamCutoff: options.MemoryStreamCutoff);
-                            var innerEntries = Context.Extract(newFileEntry, options, governor);
-                            foreach (var entry in innerEntries)
+                            foreach (var entry in Context.Extract(newFileEntry, options, governor))
                             {
                                 yield return entry;
                             }

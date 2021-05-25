@@ -41,11 +41,10 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             var newFilename = Path.GetFileNameWithoutExtension(fileEntry.Name);
 
-            var entry = await FileEntry.FromStreamAsync(newFilename, fs, fileEntry);
+            var entry = await FileEntry.FromStreamAsync(newFilename, fs, fileEntry).ConfigureAwait(false);
 
             if (entry != null)
             {
-
                 if (Extractor.IsQuine(entry))
                 {
                     Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
@@ -59,38 +58,43 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
         }
 
+        /// <summary>
         ///     Extracts a BZip2 file contained in fileEntry.
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
-            using var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
-
-            try
-            {
-                BZip2.Decompress(fileEntry.Content, fs, false);
-            }
-            catch (Exception e)
-            {
-                Logger.Debug(Extractor.DEBUG_STRING, "BZip2", e.GetType(), e.Message, e.StackTrace);
-                yield break;
-            }
             var newFilename = Path.GetFileNameWithoutExtension(fileEntry.Name);
 
-            var entry = new FileEntry(newFilename, fs, fileEntry);
-
-            if (entry != null)
+            if (options.FileNamePasses(newFilename))
             {
-                if (Extractor.IsQuine(entry))
+                using var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+
+                try
                 {
-                    Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                    throw new OverflowException();
+                    BZip2.Decompress(fileEntry.Content, fs, false);
+                }
+                catch (Exception e)
+                {
+                    Logger.Debug(Extractor.DEBUG_STRING, "BZip2", e.GetType(), e.Message, e.StackTrace);
+                    yield break;
                 }
 
-                foreach (var extractedFile in Context.Extract(entry, options, governor))
+                var entry = new FileEntry(newFilename, fs, fileEntry);
+
+                if (entry != null)
                 {
-                    yield return extractedFile;
+                    if (Extractor.IsQuine(entry))
+                    {
+                        Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
+                        throw new OverflowException();
+                    }
+
+                    foreach (var extractedFile in Context.Extract(entry, options, governor))
+                    {
+                        yield return extractedFile;
+                    }
                 }
             }
         }

@@ -27,7 +27,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
-        ///         
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
             await foreach (var entry in ArFile.GetFileEntriesAsync(fileEntry, options, governor))
@@ -44,7 +43,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
-        ///         
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
             IEnumerable<FileEntry>? fileEntries = null;
@@ -68,10 +66,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         var tempStore = new ConcurrentStack<FileEntry>();
                         var selectedEntries = fileEntries.Take(options.BatchSize);
-                        selectedEntries.AsParallel().ForAll(arEntry =>
-                        {
-                            tempStore.PushRange(Context.Extract(arEntry, options, governor).ToArray());
-                        });
+                        selectedEntries.AsParallel().ForAll(arEntry => tempStore.PushRange(Context.Extract(arEntry, options, governor).ToArray()));
 
                         fileEntries = fileEntries.Skip(selectedEntries.Count());
 
@@ -101,6 +96,5 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 }
             }
         }
-
     }
 }

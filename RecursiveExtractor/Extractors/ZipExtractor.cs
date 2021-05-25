@@ -68,8 +68,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 var passwordFound = false;
                 foreach (ZipEntry? zipEntry in zipFile)
                 {
-                    if (zipEntry is null ||
-                        zipEntry.IsDirectory ||
+                    if (zipEntry?.IsDirectory != false ||
                         !zipEntry.CanDecompress)
                     {
                         continue;
@@ -95,17 +94,20 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
 
                     var name = zipEntry.Name.Replace('/', Path.DirectorySeparatorChar);
-                    var newFileEntry = new FileEntry(name, fs, fileEntry, modifyTime: zipEntry.DateTime, memoryStreamCutoff: options.MemoryStreamCutoff);
-
-                    if (Extractor.IsQuine(newFileEntry))
+                    if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{name}"))
                     {
-                        Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                        throw new OverflowException();
-                    }
+                        var newFileEntry = new FileEntry(name, fs, fileEntry, modifyTime: zipEntry.DateTime, memoryStreamCutoff: options.MemoryStreamCutoff);
 
-                    await foreach (var extractedFile in Context.ExtractAsync(newFileEntry, options, governor))
-                    {
-                        yield return extractedFile;
+                        if (Extractor.IsQuine(newFileEntry))
+                        {
+                            Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
+                            throw new OverflowException();
+                        }
+
+                        await foreach (var extractedFile in Context.ExtractAsync(newFileEntry, options, governor))
+                        {
+                            yield return extractedFile;
+                        }
                     }
                 }
             }
@@ -133,8 +135,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 var passwordFound = false;
                 foreach (ZipEntry? zipEntry in zipFile)
                 {
-                    if (zipEntry is null ||
-                        zipEntry.IsDirectory ||
+                    if (zipEntry?.IsDirectory != false ||
                         !zipEntry.CanDecompress)
                     {
                         continue;
@@ -159,26 +160,27 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.ZIP, fileEntry.FullPath, zipEntry.Name, e.GetType());
                     }
-                    
+
                     var name = zipEntry.Name.Replace('/', Path.DirectorySeparatorChar);
-
-                    var newFileEntry = new FileEntry(name, fs, fileEntry, modifyTime: zipEntry.DateTime, memoryStreamCutoff: options.MemoryStreamCutoff);
-
-                    if (Extractor.IsQuine(newFileEntry))
+                    if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{name}"))
                     {
-                        Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                        throw new OverflowException();
-                    }
+                        var newFileEntry = new FileEntry(name, fs, fileEntry, modifyTime: zipEntry.DateTime, memoryStreamCutoff: options.MemoryStreamCutoff);
 
-                    foreach (var extractedFile in Context.Extract(newFileEntry, options, governor))
-                    {
-                        yield return extractedFile;
+                        if (Extractor.IsQuine(newFileEntry))
+                        {
+                            Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
+                            throw new OverflowException();
+                        }
+
+                        foreach (var extractedFile in Context.Extract(newFileEntry, options, governor))
+                        {
+                            yield return extractedFile;
+                        }
                     }
                 }
             }
         }
-        
-        private const int bufferSize = 4096;
 
+        private const int bufferSize = 4096;
     }
 }

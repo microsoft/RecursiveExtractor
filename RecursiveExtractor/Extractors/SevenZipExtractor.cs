@@ -30,7 +30,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
             var sevenZipArchive = GetSevenZipArchive(fileEntry, options);
@@ -42,17 +41,19 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 {
                     governor.CheckResourceGovernor(entry.Size);
                     var name = entry.Key.Replace('/', Path.DirectorySeparatorChar);
-
-                    var newFileEntry = await FileEntry.FromStreamAsync(name, entry.OpenEntryStream(), fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
-
-                    if (Extractor.IsQuine(newFileEntry))
+                    if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{name}"))
                     {
-                        Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                        throw new OverflowException();
-                    }
-                    await foreach (var extractedFile in Context.ExtractAsync(newFileEntry, options, governor))
-                    {
-                        yield return extractedFile;
+                        var newFileEntry = await FileEntry.FromStreamAsync(name, entry.OpenEntryStream(), fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
+
+                        if (Extractor.IsQuine(newFileEntry))
+                        {
+                            Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
+                            throw new OverflowException();
+                        }
+                        await foreach (var extractedFile in Context.ExtractAsync(newFileEntry, options, governor))
+                        {
+                            yield return extractedFile;
+                        }
                     }
                 }
             }
@@ -117,7 +118,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
             var sevenZipArchive = GetSevenZipArchive(fileEntry, options);
@@ -128,9 +128,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 {
                     var files = new ConcurrentStack<FileEntry>();
 
-                    while (entries.Count() > 0)
+                    while (entries.Count > 0)
                     {
-                        var batchSize = Math.Min(options.BatchSize, entries.Count());
+                        var batchSize = Math.Min(options.BatchSize, entries.Count);
                         var selectedEntries = entries.GetRange(0, batchSize).Select(entry => (entry, entry.OpenEntryStream()));
                         governor.CheckResourceGovernor(selectedEntries.Sum(x => x.entry.Size));
 
@@ -141,16 +141,18 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                                 try
                                 {
                                     var name = entry.entry.Key.Replace('/', Path.DirectorySeparatorChar);
-
-                                    var newFileEntry = new FileEntry(name, entry.Item2, fileEntry, false, entry.entry.CreatedTime, entry.entry.LastModifiedTime, entry.entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
-                                    if (Extractor.IsQuine(newFileEntry))
+                                    if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{name}"))
                                     {
-                                        Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                                        governor.CurrentOperationProcessedBytesLeft = -1;
-                                    }
-                                    else
-                                    {
-                                        files.PushRange(Context.Extract(newFileEntry, options, governor).ToArray());
+                                        var newFileEntry = new FileEntry(name, entry.Item2, fileEntry, false, entry.entry.CreatedTime, entry.entry.LastModifiedTime, entry.entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
+                                        if (Extractor.IsQuine(newFileEntry))
+                                        {
+                                            Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
+                                            governor.CurrentOperationProcessedBytesLeft = -1;
+                                        }
+                                        else
+                                        {
+                                            files.PushRange(Context.Extract(newFileEntry, options, governor).ToArray());
+                                        }
                                     }
                                 }
                                 catch (Exception e) when (e is OverflowException)
@@ -189,17 +191,19 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         governor.CheckResourceGovernor(entry.Size);
                         var name = entry.Key.Replace('/', Path.DirectorySeparatorChar);
-
-                        var newFileEntry = new FileEntry(name, entry.OpenEntryStream(), fileEntry, createTime: entry.CreatedTime, modifyTime: entry.LastModifiedTime, accessTime: entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
-
-                        if (Extractor.IsQuine(newFileEntry))
+                        if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{name}"))
                         {
-                            Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                            throw new OverflowException();
-                        }
-                        foreach (var extractedFile in Context.Extract(newFileEntry, options, governor))
-                        {
-                            yield return extractedFile;
+                            var newFileEntry = new FileEntry(name, entry.OpenEntryStream(), fileEntry, createTime: entry.CreatedTime, modifyTime: entry.LastModifiedTime, accessTime: entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
+
+                            if (Extractor.IsQuine(newFileEntry))
+                            {
+                                Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
+                                throw new OverflowException();
+                            }
+                            foreach (var extractedFile in Context.Extract(newFileEntry, options, governor))
+                            {
+                                yield return extractedFile;
+                            }
                         }
                     }
                 }
@@ -212,6 +216,5 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 }
             }
         }
-
     }
 }

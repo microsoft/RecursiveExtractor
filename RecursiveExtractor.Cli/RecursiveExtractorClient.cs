@@ -9,14 +9,14 @@ using NLog.Config;
 using NLog.Targets;
 namespace Microsoft.CST.RecursiveExtractor.Cli
 {
-    public class RecursiveExtractorClient
+    public static class RecursiveExtractorClient
     {
 		public static int Main(string[] args)
-		{            
+		{
             return CommandLine.Parser.Default.ParseArguments<ExtractCommandOptions>(args)
 			  .MapResult(
 				(ExtractCommandOptions opts) => ExtractCommand(opts),
-				errs => 1);
+				_ => 1);
 		}
 
         public static int ExtractCommand(ExtractCommandOptions options)
@@ -47,7 +47,7 @@ namespace Microsoft.CST.RecursiveExtractor.Cli
             {
                 ExtractSelfOnFail = true,
                 Parallel = true,
-                RawExtensions = options.RawExtensions
+                RawExtensions = options.RawExtensions ?? Array.Empty<string>()
             };
             if (options.Passwords?.Any() ?? false)
             {
@@ -65,6 +65,6 @@ namespace Microsoft.CST.RecursiveExtractor.Cli
 
             return 0;
         }
-        private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        private readonly static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

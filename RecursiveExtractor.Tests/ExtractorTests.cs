@@ -70,7 +70,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var extractor = new Extractor();
-            Assert.AreEqual(ExtractionStatusCode.Ok, await extractor.ExtractToDirectoryAsync(directory, path));
+            Assert.AreEqual(ExtractionStatusCode.Ok, await extractor.ExtractToDirectoryAsync(directory, path).ConfigureAwait(false));
             var files = Array.Empty<string>();
             if (Directory.Exists(directory))
             {
@@ -105,7 +105,191 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             Assert.AreEqual(expectedNumFiles, results.Count());
         }
 
-                
+        [DataTestMethod]
+        [DataRow("TestData.zip", 5)]
+        [DataRow("TestData.7z")]
+        [DataRow("TestData.tar", 5)]
+        [DataRow("TestData.rar")]
+        [DataRow("TestData.rar4")]
+        [DataRow("TestData.tar.bz2", 5)]
+        [DataRow("TestData.tar.gz", 5)]
+        [DataRow("TestData.tar.xz")]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
+        [DataRow("TestData.a")]
+        //[DataRow("TestData.ar")]
+        [DataRow("TestData.iso")]
+        [DataRow("TestData.vhdx")]
+        [DataRow("TestData.wim")]
+        [DataRow("EmptyFile.txt", 1)]
+        [DataRow("TestDataArchivesNested.Zip", 51)]
+        public void ExtractArchiveParallel(string fileName, int expectedNumFiles = 3)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            var results = extractor.Extract(path, new ExtractorOptions() { Parallel = true });
+            Assert.AreEqual(expectedNumFiles, results.Count());
+        }
+
+        [DataTestMethod]
+        [DataRow("TestData.zip")]
+        [DataRow("TestData.7z")]
+        [DataRow("TestData.tar")]
+        [DataRow("TestData.rar")]
+        [DataRow("TestData.rar4")]
+        [DataRow("TestData.tar.bz2")]
+        [DataRow("TestData.tar.gz")]
+        [DataRow("TestData.tar.xz")]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 0)]
+        [DataRow("TestData.a", 0)]
+        [DataRow("TestData.ar", 0)]
+        [DataRow("TestData.iso")]
+        [DataRow("TestData.vhdx")]
+        [DataRow("TestData.wim")]
+        [DataRow("EmptyFile.txt", 0)]
+        [DataRow("TestDataArchivesNested.Zip", 1)]
+        public async Task ExtractArchiveAsyncAllowFiltered(string fileName, int expectedNumFiles = 1)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            var results = extractor.ExtractAsync(path, new ExtractorOptions() { AllowFilters = new string[] { "**/Bar/**", "**/TestData.tar" } });
+            var numResults = 0;
+            await foreach(var result in results)
+            {
+                numResults++;
+            }
+            Assert.AreEqual(expectedNumFiles, numResults);
+        }
+
+        [DataTestMethod]
+        [DataRow("TestData.zip")]
+        [DataRow("TestData.7z")]
+        [DataRow("TestData.tar")]
+        [DataRow("TestData.rar")]
+        [DataRow("TestData.rar4")]
+        [DataRow("TestData.tar.bz2")]
+        [DataRow("TestData.tar.gz")]
+        [DataRow("TestData.tar.xz")]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb",0)]
+        [DataRow("TestData.a",0)]
+        [DataRow("TestData.ar",0)]
+        [DataRow("TestData.iso")]
+        [DataRow("TestData.vhdx")]
+        [DataRow("TestData.wim")]
+        [DataRow("EmptyFile.txt", 0)]
+        [DataRow("TestDataArchivesNested.Zip", 1)]
+        public void ExtractArchiveAllowFiltered(string fileName, int expectedNumFiles = 1)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            var results = extractor.Extract(path, new ExtractorOptions() { AllowFilters = new string[] { "**/Bar/**", "**/TestData.tar" } });
+            Assert.AreEqual(expectedNumFiles, results.Count());
+        }
+
+        [DataTestMethod]
+        [DataRow("TestData.zip")]
+        [DataRow("TestData.7z")]
+        [DataRow("TestData.tar")]
+        [DataRow("TestData.rar")]
+        [DataRow("TestData.rar4")]
+        [DataRow("TestData.tar.bz2")]
+        [DataRow("TestData.tar.gz")]
+        [DataRow("TestData.tar.xz")]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 0)]
+        [DataRow("TestData.a", 0)]
+        [DataRow("TestData.ar", 0)]
+        [DataRow("TestData.iso")]
+        [DataRow("TestData.vhdx")]
+        [DataRow("TestData.wim")]
+        [DataRow("EmptyFile.txt", 0)]
+        [DataRow("TestDataArchivesNested.Zip", 1)]
+        public void ExtractArchiveParallelAllowFiltered(string fileName, int expectedNumFiles = 1)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            var results = extractor.Extract(path, new ExtractorOptions() { Parallel = true, AllowFilters = new string[] { "**/Bar/**", "**/TestData.tar" } });
+            Assert.AreEqual(expectedNumFiles, results.Count());
+        }
+
+        [DataTestMethod]
+        [DataRow("TestData.zip", 4)]
+        [DataRow("TestData.7z")]
+        [DataRow("TestData.tar", 4)]
+        [DataRow("TestData.rar")]
+        [DataRow("TestData.rar4")]
+        [DataRow("TestData.tar.bz2", 4)]
+        [DataRow("TestData.tar.gz", 4)]
+        [DataRow("TestData.tar.xz")]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
+        [DataRow("TestData.a", 3)]
+        //[DataRow("TestData.ar")]
+        [DataRow("TestData.iso")]
+        [DataRow("TestData.vhdx")]
+        [DataRow("TestData.wim")]
+        [DataRow("EmptyFile.txt", 1)]
+        [DataRow("TestDataArchivesNested.Zip", 42)]
+        public void ExtractArchiveDenyFiltered(string fileName, int expectedNumFiles = 2)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            var results = extractor.Extract(path, new ExtractorOptions() { DenyFilters = new string[] { "**/Bar/**" } });
+            Assert.AreEqual(expectedNumFiles, results.Count());
+        }
+
+        [DataTestMethod]
+        [DataRow("TestData.zip", 4)]
+        [DataRow("TestData.7z")]
+        [DataRow("TestData.tar", 4)]
+        [DataRow("TestData.rar")]
+        [DataRow("TestData.rar4")]
+        [DataRow("TestData.tar.bz2", 4)]
+        [DataRow("TestData.tar.gz", 4)]
+        [DataRow("TestData.tar.xz")]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
+        [DataRow("TestData.a", 3)]
+        //[DataRow("TestData.ar")]
+        [DataRow("TestData.iso")]
+        [DataRow("TestData.vhdx")]
+        [DataRow("TestData.wim")]
+        [DataRow("EmptyFile.txt", 1)]
+        [DataRow("TestDataArchivesNested.Zip", 42)]
+        public void ExtractArchiveParallelDenyFiltered(string fileName, int expectedNumFiles = 2)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            var results = extractor.Extract(path, new ExtractorOptions() { Parallel = true, DenyFilters = new string[] { "**/Bar/**" } });
+            Assert.AreEqual(expectedNumFiles, results.Count());
+        }
+
+        [DataTestMethod]
+        [DataRow("TestData.zip", 4)]
+        [DataRow("TestData.7z")]
+        [DataRow("TestData.tar", 4)]
+        [DataRow("TestData.rar")]
+        [DataRow("TestData.rar4")]
+        [DataRow("TestData.tar.bz2", 4)]
+        [DataRow("TestData.tar.gz", 4)]
+        [DataRow("TestData.tar.xz")]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
+        [DataRow("TestData.a", 3)]
+        //[DataRow("TestData.ar")]
+        [DataRow("TestData.iso")]
+        [DataRow("TestData.vhdx")]
+        [DataRow("TestData.wim")]
+        [DataRow("EmptyFile.txt", 1)]
+        [DataRow("TestDataArchivesNested.Zip", 42)]
+        public async Task ExtractArchiveAsyncDenyFiltered(string fileName, int expectedNumFiles = 2)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            var results = extractor.ExtractAsync(path, new ExtractorOptions() { DenyFilters = new string[] { "**/Bar/**" } });
+            var numResults = 0;
+            await foreach (var result in results)
+            {
+                numResults++;
+            }
+            Assert.AreEqual(expectedNumFiles, numResults);
+        }
+
         [DataRow("TextFile.md")]
         [DataRow("Nested.zip", ".zip")]
         public void ExtractAsRaw(string fileName, string? RawExtension)
@@ -113,7 +297,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var extractor = new Extractor();
             var options = new ExtractorOptions()
             {
-                RawExtensions = RawExtension is null ? null : new List<string>(){ RawExtension }
+                RawExtensions = RawExtension is null ? new List<string>():new List<string>(){ RawExtension }
             };
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
 
@@ -121,7 +305,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             Assert.AreEqual(1, results.Count());
         }
 
-        public static Dictionary<Regex, List<string>> TestArchivePasswords = new Dictionary<Regex, List<string>>()
+        public static Dictionary<Regex, List<string>> TestArchivePasswords { get; } = new Dictionary<Regex, List<string>>()
         {
             {
                 new Regex("EncryptedZipCrypto.zip"),
@@ -226,31 +410,6 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
                 numFound++;
             }
             Assert.AreEqual(expectedNumFiles, numFound);
-        }
-
-        [DataTestMethod]
-        [DataRow("TestData.zip", 5)]
-        [DataRow("TestData.7z")]
-        [DataRow("TestData.tar", 5)]
-        [DataRow("TestData.rar")]
-        [DataRow("TestData.rar4")]
-        [DataRow("TestData.tar.bz2", 5)]
-        [DataRow("TestData.tar.gz", 5)]
-        [DataRow("TestData.tar.xz")]
-        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
-        [DataRow("TestData.a")]
-        //[DataRow("TestData.ar")]
-        [DataRow("TestData.iso")]
-        [DataRow("TestData.vhdx")]
-        [DataRow("TestData.wim")]
-        [DataRow("EmptyFile.txt", 1)]
-        [DataRow("TestDataArchivesNested.Zip", 51)]
-        public void ExtractArchiveParallel(string fileName, int expectedNumFiles = 3)
-        {
-            var extractor = new Extractor();
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
-            var results = extractor.Extract(path, new ExtractorOptions() { Parallel = true });
-            Assert.AreEqual(expectedNumFiles, results.Count());
         }
 
         [DataTestMethod]

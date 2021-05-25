@@ -57,9 +57,8 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
                     if (fileStream != null && fi != null)
                     {
-                        var newFileEntry = await FileEntry.FromStreamAsync($"{volume.Identity}{Path.DirectorySeparatorChar}{fi.FullName}", fileStream, parent, fi.CreationTime, fi.LastWriteTime, fi.LastAccessTime, memoryStreamCutoff: options.MemoryStreamCutoff);
-                        var entries = Context.ExtractAsync(newFileEntry, options, governor);
-                        await foreach (var entry in entries)
+                        var newFileEntry = await FileEntry.FromStreamAsync($"{volume.Identity}{Path.DirectorySeparatorChar}{fi.FullName}", fileStream, parent, fi.CreationTime, fi.LastWriteTime, fi.LastAccessTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
+                        await foreach (var entry in Context.ExtractAsync(newFileEntry, options, governor))
                         {
                             yield return entry;
                         }
@@ -98,7 +97,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 {
                     var files = new ConcurrentStack<FileEntry>();
 
-                    while (diskFiles.Any())
+                    while (diskFiles.Count > 0)
                     {
                         var batchSize = Math.Min(options.BatchSize, diskFiles.Count);
                         var range = diskFiles.GetRange(0, batchSize);
@@ -120,13 +119,18 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                         governor.CheckResourceGovernor(totalLength);
 
+                        var validFileInfos = fileinfos.Where(x => options.FileNamePasses($"{parent?.FullPath}{Path.DirectorySeparatorChar}{x.name}"));
+
                         fileinfos.AsParallel().ForAll(file =>
                         {
                             if (file.stream != null)
                             {
                                 var newFileEntry = new FileEntry($"{volume.Identity}{Path.DirectorySeparatorChar}{file.name}", file.stream, parent, false, file.created, file.modified, file.accessed, memoryStreamCutoff: options.MemoryStreamCutoff);
-                                var entries = Context.Extract(newFileEntry, options, governor);
-                                files.PushRange(entries.ToArray());
+                                var entries = Context.Extract(newFileEntry, options, governor).ToArray();
+                                if (entries.Length > 0)
+                                {
+                                    files.PushRange(entries);
+                                }
                             }
                         });
                         diskFiles.RemoveRange(0, batchSize);
@@ -147,6 +151,10 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         try
                         {
                             var fi = fs.GetFileInfo(file);
+                            if (!options.FileNamePasses(fi.FullName))
+                            {
+                                continue;
+                            }
                             governor.CheckResourceGovernor(fi.Length);
                             fileStream = fi.OpenRead();
                             creation = fi.CreationTime;
@@ -160,8 +168,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         if (fileStream != null)
                         {
                             var newFileEntry = new FileEntry($"{volume.Identity}{Path.DirectorySeparatorChar}{file}", fileStream, parent, false, creation, modification, access, memoryStreamCutoff: options.MemoryStreamCutoff);
-                            var entries = Context.Extract(newFileEntry, options, governor);
-                            foreach (var entry in entries)
+                            foreach (var entry in Context.Extract(newFileEntry, options, governor))
                             {
                                 yield return entry;
                             }

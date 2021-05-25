@@ -37,6 +37,7 @@
     <PackageReference Include="DiscUtils.Vmdk" Version="0.15.1-ci0002" />
     <PackageReference Include="DiscUtils.Wim" Version="0.15.1-ci0002" />
     <PackageReference Include="DiscUtils.Xfs" Version="0.15.1-ci0002" />
+    <PackageReference Include="Glob" Version="1.1.8" />
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="5.0.0" />
     <PackageReference Include="NLog" Version="4.7.9" />
     <PackageReference Include="SharpCompress" Version="0.28.2" />
