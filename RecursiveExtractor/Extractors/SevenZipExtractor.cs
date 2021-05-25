@@ -30,7 +30,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
             var sevenZipArchive = GetSevenZipArchive(fileEntry, options);
@@ -44,7 +43,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     var name = entry.Key.Replace('/', Path.DirectorySeparatorChar);
                     if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{name}"))
                     {
-                        var newFileEntry = await FileEntry.FromStreamAsync(name, entry.OpenEntryStream(), fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
+                        var newFileEntry = await FileEntry.FromStreamAsync(name, entry.OpenEntryStream(), fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
 
                         if (Extractor.IsQuine(newFileEntry))
                         {
@@ -119,7 +118,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
             var sevenZipArchive = GetSevenZipArchive(fileEntry, options);
@@ -132,7 +130,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                     while (entries.Count > 0)
                     {
-                        var batchSize = Math.Min(options.BatchSize, entries.Count());
+                        var batchSize = Math.Min(options.BatchSize, entries.Count);
                         var selectedEntries = entries.GetRange(0, batchSize).Select(entry => (entry, entry.OpenEntryStream()));
                         governor.CheckResourceGovernor(selectedEntries.Sum(x => x.entry.Size));
 
@@ -218,6 +216,5 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 }
             }
         }
-
     }
 }

@@ -68,8 +68,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 var passwordFound = false;
                 foreach (ZipEntry? zipEntry in zipFile)
                 {
-                    if (zipEntry is null ||
-                        zipEntry.IsDirectory ||
+                    if (zipEntry?.IsDirectory != false ||
                         !zipEntry.CanDecompress)
                     {
                         continue;
@@ -136,8 +135,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 var passwordFound = false;
                 foreach (ZipEntry? zipEntry in zipFile)
                 {
-                    if (zipEntry is null ||
-                        zipEntry.IsDirectory ||
+                    if (zipEntry?.IsDirectory != false ||
                         !zipEntry.CanDecompress)
                     {
                         continue;
@@ -162,7 +160,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.ZIP, fileEntry.FullPath, zipEntry.Name, e.GetType());
                     }
-                    
+            
                     var name = zipEntry.Name.Replace('/', Path.DirectorySeparatorChar);
                     if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{name}"))
                     {
@@ -182,8 +180,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 }
             }
         }
-        
-        private const int bufferSize = 4096;
 
+        private const int bufferSize = 4096;
     }
 }

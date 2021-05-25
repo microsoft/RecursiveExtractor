@@ -21,7 +21,6 @@ namespace Microsoft.CST.RecursiveExtractor
 {
     public class Extractor
     {
-     
         /// <summary>
         /// The main Extractor class.
         /// </summary>
@@ -109,7 +108,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 {
                     if (stream1.CanRead && stream2.CanRead && stream1.Length == stream2.Length && fileEntry1.Name == fileEntry2.Name)
                     {
-                        var bufferSize = 1024;
+                        const int bufferSize = 1024;
                         var buffer1 = new byte[bufferSize];
                         var buffer2 = new byte[bufferSize];
 
@@ -162,7 +161,6 @@ namespace Microsoft.CST.RecursiveExtractor
 
             return false;
         }
-
 
         /// <summary>
         /// Deprecated. Use Extract.
@@ -299,7 +297,7 @@ namespace Microsoft.CST.RecursiveExtractor
         public IEnumerable<FileEntry> Extract(string filename, Stream stream, ExtractorOptions? opts = null)
         {
             opts ??= new ExtractorOptions();
-            FileEntry fileEntry = new FileEntry(filename, stream, memoryStreamCutoff: opts.MemoryStreamCutoff);
+            var fileEntry = new FileEntry(filename, stream, memoryStreamCutoff: opts.MemoryStreamCutoff);
             return Extract(fileEntry, opts);
         }
 
@@ -352,12 +350,12 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <returns>The FileEntrys found.</returns>
         public async IAsyncEnumerable<FileEntry> ExtractAsync(string filename, byte[] archiveBytes, ExtractorOptions? opts = null)
         {
-            opts = opts ?? new ExtractorOptions();
+            opts ??= new ExtractorOptions();
             using var ms = new MemoryStream(archiveBytes);
             await foreach (var entry in ExtractAsync(new FileEntry(Path.GetFileName(filename), ms, memoryStreamCutoff: opts.MemoryStreamCutoff), opts))
             {
                 yield return entry;
-            };
+            }
         }
 
         internal const string DEBUG_STRING = "Failed parsing archive of type {0} {1}:{2} ({3})";
@@ -395,14 +393,14 @@ namespace Microsoft.CST.RecursiveExtractor
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null)
         {
             var options = opts ?? new ExtractorOptions();
-            
+
             var Governor = governor ?? new ResourceGovernor(options);
             if (governor is null)
             {
                 Governor.ResetResourceGovernor(fileEntry.Content);
             }
             Logger.Trace("ExtractFile({0})", fileEntry.FullPath);
-            
+
             Governor.CurrentOperationProcessedBytesLeft -= fileEntry.Content.Length;
             Governor.CheckResourceGovernor();
             var type = MiniMagic.DetectFileType(fileEntry);
@@ -431,7 +429,7 @@ namespace Microsoft.CST.RecursiveExtractor
             }
         }
 
-        private bool FileNamePasses(string fileName, IEnumerable<Regex>? acceptFilters = null, IEnumerable<Regex>? denyFilters = null)
+        private static bool FileNamePasses(string fileName, IEnumerable<Regex>? acceptFilters = null, IEnumerable<Regex>? denyFilters = null)
         {
             foreach (var allowRegex in acceptFilters ?? Array.Empty<Regex>())
             {
@@ -450,8 +448,6 @@ namespace Microsoft.CST.RecursiveExtractor
             return true;
         }
 
-
-
         /// <summary>
         /// Extract the given file to the given Directory.
         /// </summary>
@@ -460,7 +456,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="opts">The ExtractorOptions to use.</param>
         /// <param name="acceptFilters">An optional list of regexes, when set each entry's FullName must match at least one.</param>
         /// <param name="denyFilters">An optional list of regexes, when set each entry's FullName must match none.</param>
-        /// <param name="printNames">If we should print the filename when when writing it out to disc.</param>
+        /// <param name="printNames">If we should print the filename when writing it out to disc.</param>
         public ExtractionStatusCode ExtractToDirectory(string outputDirectory, string filename, ExtractorOptions? opts = null, IEnumerable<Regex>? acceptFilters = null, IEnumerable<Regex>? denyFilters = null, bool printNames = false)
         {
             using var fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
@@ -476,7 +472,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="opts">The ExtractorOptions to use.</param>
         /// <param name="acceptFilters">An optional list of regexes, when set each entry's FullName must match at least one.</param>
         /// <param name="denyFilters">An optional list of regexes, when set each entry's FullName must match none.</param>
-        /// <param name="printNames">If we should print the filename when when writing it out to disc.</param>
+        /// <param name="printNames">If we should print the filename when writing it out to disc.</param>
         public ExtractionStatusCode ExtractToDirectory(string outputDirectory, string filename, Stream stream, ExtractorOptions? opts = null, IEnumerable<Regex>? acceptFilters = null, IEnumerable<Regex>? denyFilters = null, bool printNames = false)
         {
             opts ??= new ExtractorOptions();
@@ -493,9 +489,9 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="opts">The ExtractorOptions to use.</param>
         /// <param name="acceptFilters">An optional list of regexes, when set each entry's FullName must match at least one.</param>
         /// <param name="denyFilters">An optional list of regexes, when set each entry's FullName must match none.</param>
-        /// <param name="printNames">If we should print the filename when when writing it out to disc.</param>
+        /// <param name="printNames">If we should print the filename when writing it out to disc.</param>
         public ExtractionStatusCode ExtractToDirectory(string outputDirectory, FileEntry fileEntry, ExtractorOptions? opts = null, IEnumerable<Regex>? acceptFilters = null, IEnumerable<Regex>? denyFilters = null, bool printNames = false)
-        { 
+        {
             foreach (var entry in Extract(fileEntry, opts))
             {
                 if (FileNamePasses(entry.FullPath, acceptFilters, denyFilters))
@@ -538,11 +534,11 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="opts">The ExtractorOptions to use.</param>
         /// <param name="acceptFilters">An optional list of regexes, when set each entry's FullName must match at least one.</param>
         /// <param name="denyFilters">An optional list of regexes, when set each entry's FullName must match none.</param>
-        /// <param name="printNames">If we should print the filename when when writing it out to disc.</param>
+        /// <param name="printNames">If we should print the filename when writing it out to disc.</param>
         public async Task<ExtractionStatusCode> ExtractToDirectoryAsync(string outputDirectory, string filename, ExtractorOptions? opts = null, IEnumerable<Regex>? acceptFilters = null, IEnumerable<Regex>? denyFilters = null, bool printNames = false)
         {
             var fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
-            return await ExtractToDirectoryAsync(outputDirectory, filename, fs, opts, acceptFilters, denyFilters, printNames);
+            return await ExtractToDirectoryAsync(outputDirectory, filename, fs, opts, acceptFilters, denyFilters, printNames).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -554,13 +550,13 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="opts">The ExtractorOptions to use.</param>
         /// <param name="acceptFilters">An optional list of regexes, when set each entry's FullName must match at least one.</param>
         /// <param name="denyFilters">An optional list of regexes, when set each entry's FullName must match none.</param>
-        /// <param name="printNames">If we should print the filename when when writing it out to disc.</param>
+        /// <param name="printNames">If we should print the filename when writing it out to disc.</param>
         public async Task<ExtractionStatusCode> ExtractToDirectoryAsync(string outputDirectory, string filename, Stream stream, ExtractorOptions? opts = null, IEnumerable<Regex>? acceptFilters = null, IEnumerable<Regex>? denyFilters = null, bool printNames = false)
         {
-            opts = opts ?? new ExtractorOptions();
+            opts ??= new ExtractorOptions();
             var file = Path.GetFileName(filename);
             var fileEntry = new FileEntry(Path.GetFileName(file), stream, memoryStreamCutoff: opts.MemoryStreamCutoff);
-            return await ExtractToDirectoryAsync(outputDirectory, fileEntry, opts, acceptFilters, denyFilters, printNames);
+            return await ExtractToDirectoryAsync(outputDirectory, fileEntry, opts, acceptFilters, denyFilters, printNames).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -571,7 +567,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="opts">The ExtractorOptions to use.</param>
         /// <param name="acceptFilters">An optional list of regexes, when set each entry's FullName must match at least one.</param>
         /// <param name="denyFilters">An optional list of regexes, when set each entry's FullName must match none.</param>
-        /// <param name="printNames">If we should print the filename when when writing it out to disc.</param>
+        /// <param name="printNames">If we should print the filename when writing it out to disc.</param>
         public async Task<ExtractionStatusCode> ExtractToDirectoryAsync(string outputDirectory, FileEntry fileEntry, ExtractorOptions? opts = null, IEnumerable<Regex>? acceptFilters = null, IEnumerable<Regex>? denyFilters = null, bool printNames = false)
         {
             await foreach (var entry in ExtractAsync(fileEntry, opts))
@@ -585,7 +581,7 @@ namespace Microsoft.CST.RecursiveExtractor
                         {
                             Directory.CreateDirectory(directoryPath);
                             using var fs = new FileStream(targetPathNotNull, FileMode.Create);
-                            await entry.Content.CopyToAsync(fs);
+                            await entry.Content.CopyToAsync(fs).ConfigureAwait(false);
                             if (printNames)
                             {
                                 Console.WriteLine("Extracted {0}.", entry.FullPath);

@@ -57,9 +57,8 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
                     if (fileStream != null && fi != null)
                     {
-                        var newFileEntry = await FileEntry.FromStreamAsync($"{volume.Identity}{Path.DirectorySeparatorChar}{fi.FullName}", fileStream, parent, fi.CreationTime, fi.LastWriteTime, fi.LastAccessTime, memoryStreamCutoff: options.MemoryStreamCutoff);
-                        var entries = Context.ExtractAsync(newFileEntry, options, governor);
-                        await foreach (var entry in entries)
+                        var newFileEntry = await FileEntry.FromStreamAsync($"{volume.Identity}{Path.DirectorySeparatorChar}{fi.FullName}", fileStream, parent, fi.CreationTime, fi.LastWriteTime, fi.LastAccessTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
+                        await foreach (var entry in Context.ExtractAsync(newFileEntry, options, governor))
                         {
                             yield return entry;
                         }
@@ -98,7 +97,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 {
                     var files = new ConcurrentStack<FileEntry>();
 
-                    while (diskFiles.Any())
+                    while (diskFiles.Count > 0)
                     {
                         var batchSize = Math.Min(options.BatchSize, diskFiles.Count);
                         var range = diskFiles.GetRange(0, batchSize);

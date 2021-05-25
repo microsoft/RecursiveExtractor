@@ -12,11 +12,11 @@ namespace Microsoft.CST.RecursiveExtractor.Cli
     public static class RecursiveExtractorClient
     {
 		public static int Main(string[] args)
-		{            
+		{  
             return CommandLine.Parser.Default.ParseArguments<ExtractCommandOptions>(args)
 			  .MapResult(
 				(ExtractCommandOptions opts) => ExtractCommand(opts),
-				errs => 1);
+				_ => 1);
 		}
 
         public static int ExtractCommand(ExtractCommandOptions options)
@@ -65,6 +65,6 @@ namespace Microsoft.CST.RecursiveExtractor.Cli
 
             return 0;
         }
-        private static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        private readonly static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

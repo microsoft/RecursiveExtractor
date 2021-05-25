@@ -41,7 +41,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             var newFilename = Path.GetFileNameWithoutExtension(fileEntry.Name);
 
-            var entry = await FileEntry.FromStreamAsync(newFilename, fs, fileEntry);
+            var entry = await FileEntry.FromStreamAsync(newFilename, fs, fileEntry).ConfigureAwait(false);
 
             if (entry != null)
             {

@@ -103,7 +103,7 @@ namespace Microsoft.CST.RecursiveExtractor
 
         public bool FileNamePasses(string filename)
         {
-            bool allowed = true;
+            var allowed = true;
             if (_allowGlobs.Any())
             {
                 allowed = false;

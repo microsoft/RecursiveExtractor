@@ -64,8 +64,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             foreach(var entry in rarArchive.Entries)
                             {
                                 //Just do anything in the loop, but you need to loop over entries to check if the password is correct
-                                count++; 
+                                count++;
                             }
+                            passwordFound = true;
                             break;
                         }
                         catch (Exception e)
@@ -94,7 +95,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     var name = entry.Key.Replace('/', Path.DirectorySeparatorChar);
                     if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{name}"))
                     {
-                        FileEntry newFileEntry = await FileEntry.FromStreamAsync(name, entry.OpenEntryStream(), fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
+                        var newFileEntry = await FileEntry.FromStreamAsync(name, entry.OpenEntryStream(), fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
                         if (newFileEntry != null)
                         {
                             if (Extractor.IsQuine(newFileEntry))

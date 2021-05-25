@@ -26,7 +26,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         internal Extractor Context { get; }
 
         /// <summary>
-        ///     Extracts an an ISO file
+        ///     Extracts an ISO file
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
@@ -52,7 +52,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     if (stream != null)
                     {
                         var name = fileInfo.FullName.Replace('/', Path.DirectorySeparatorChar);
-                        var newFileEntry = await FileEntry.FromStreamAsync(name, stream, fileEntry, fileInfo.CreationTime, fileInfo.LastWriteTime, fileInfo.LastAccessTime, memoryStreamCutoff: options.MemoryStreamCutoff);
+                        var newFileEntry = await FileEntry.FromStreamAsync(name, stream, fileEntry, fileInfo.CreationTime, fileInfo.LastWriteTime, fileInfo.LastAccessTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
                         var innerEntries = Context.ExtractAsync(newFileEntry, options, governor);
                         await foreach (var entry in innerEntries)
                         {
@@ -71,7 +71,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         }
 
         /// <summary>
-        ///     Extracts an an ISO file
+        ///     Extracts an ISO file
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>

@@ -109,7 +109,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             if (stream != null)
                             {
                                 var name = file.Replace('\\', Path.DirectorySeparatorChar);
-                                var newFileEntry = await FileEntry.FromStreamAsync($"{image.FriendlyName}{Path.DirectorySeparatorChar}{name}", stream, fileEntry, memoryStreamCutoff: options.MemoryStreamCutoff);
+                                var newFileEntry = await FileEntry.FromStreamAsync($"{image.FriendlyName}{Path.DirectorySeparatorChar}{name}", stream, fileEntry, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
                                 await foreach (var entry in Context.ExtractAsync(newFileEntry, options, governor))
                                 {
                                     yield return entry;
@@ -185,6 +185,5 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 }
             }
         }
-
     }
 }

@@ -70,7 +70,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var extractor = new Extractor();
-            Assert.AreEqual(ExtractionStatusCode.Ok, await extractor.ExtractToDirectoryAsync(directory, path));
+            Assert.AreEqual(ExtractionStatusCode.Ok, await extractor.ExtractToDirectoryAsync(directory, path).ConfigureAwait(false));
             var files = Array.Empty<string>();
             if (Directory.Exists(directory))
             {
@@ -290,7 +290,6 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             Assert.AreEqual(expectedNumFiles, numResults);
         }
 
-
         [DataRow("TextFile.md")]
         [DataRow("Nested.zip", ".zip")]
         public void ExtractAsRaw(string fileName, string? RawExtension)
@@ -306,7 +305,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             Assert.AreEqual(1, results.Count());
         }
 
-        public static Dictionary<Regex, List<string>> TestArchivePasswords = new Dictionary<Regex, List<string>>()
+        public static Dictionary<Regex, List<string>> TestArchivePasswords { get; } = new Dictionary<Regex, List<string>>()
         {
             {
                 new Regex("EncryptedZipCrypto.zip"),

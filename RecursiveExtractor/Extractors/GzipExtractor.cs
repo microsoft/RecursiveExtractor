@@ -47,7 +47,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 newFilename = newFilename[0..^4] + ".tar";
             }
 
-            var entry = await FileEntry.FromStreamAsync(newFilename, fs, fileEntry);
+            var entry = await FileEntry.FromStreamAsync(newFilename, fs, fileEntry).ConfigureAwait(false);
 
             if (entry != null)
             {
