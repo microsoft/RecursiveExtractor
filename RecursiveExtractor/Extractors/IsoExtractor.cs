@@ -86,38 +86,44 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     var files = new ConcurrentStack<FileEntry>();
 
                     var batchSize = Math.Min(options.BatchSize, entries.Length);
-                    var selectedFileEntries = entries[0..batchSize];
-                    var fileInfoTuples = new List<(string name, DateTime created, DateTime modified, DateTime accessed, Stream stream)>();
-
-                    foreach (var selectedFileEntry in selectedFileEntries)
+                    while(entries.Length > 0)
                     {
-                        try
+                        var selectedFileEntries = entries.Take(batchSize);
+                        var fileInfoTuples = new List<(string name, DateTime created, DateTime modified, DateTime accessed, Stream stream)>();
+
+                        foreach (var selectedFileEntry in selectedFileEntries)
                         {
-                            var stream = selectedFileEntry.OpenRead();
+                            try
+                            {
+                                var stream = selectedFileEntry.OpenRead();
 
-                            fileInfoTuples.Add((selectedFileEntry.Name, selectedFileEntry.CreationTime, selectedFileEntry.LastWriteTime, selectedFileEntry.LastAccessTime, stream));
+                                fileInfoTuples.Add((selectedFileEntry.FullName.Replace('/', Path.DirectorySeparatorChar), selectedFileEntry.CreationTime, selectedFileEntry.LastWriteTime, selectedFileEntry.LastAccessTime, stream));
+                            }
+                            catch (Exception e)
+                            {
+                                Logger.Debug("Failed to get FileInfo or OpenStream from {0} in ISO {1} ({2}:{3})", selectedFileEntry, fileEntry.FullPath, e.GetType(), e.Message);
+                            }
                         }
-                        catch (Exception e)
+
+                        governor.CheckResourceGovernor(fileInfoTuples.Sum(x => x.stream.Length));
+
+                        fileInfoTuples.AsParallel().ForAll(cdFile =>
                         {
-                            Logger.Debug("Failed to get FileInfo or OpenStream from {0} in ISO {1} ({2}:{3})", selectedFileEntry, fileEntry.FullPath, e.GetType(), e.Message);
+                            var newFileEntry = new FileEntry(cdFile.name, cdFile.stream, fileEntry, false, cdFile.created, cdFile.modified, cdFile.accessed, memoryStreamCutoff: options.MemoryStreamCutoff);
+                            var entries = Context.Extract(newFileEntry, options, governor);
+                            if (entries.Any())
+                            {
+                                files.PushRange(entries.ToArray());
+                            }
+                        });
+
+                        entries = entries[batchSize..];
+
+                        while (files.TryPop(out var result))
+                        {
+                            if (result != null)
+                                yield return result;
                         }
-                    }
-
-                    governor.CheckResourceGovernor(fileInfoTuples.Sum(x => x.stream.Length));
-
-                    fileInfoTuples.AsParallel().ForAll(cdFile =>
-                    {
-                        var newFileEntry = new FileEntry(cdFile.name, cdFile.stream, fileEntry, false, cdFile.created, cdFile.modified, cdFile.accessed, memoryStreamCutoff: options.MemoryStreamCutoff);
-                        var entries = Context.Extract(newFileEntry, options, governor);
-                        files.PushRange(entries.ToArray());
-                    });
-
-                    entries = entries[batchSize..];
-
-                    while (files.TryPop(out var result))
-                    {
-                        if (result != null)
-                            yield return result;
                     }
                 }
                 else

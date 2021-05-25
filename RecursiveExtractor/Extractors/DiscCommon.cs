@@ -120,13 +120,18 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                         governor.CheckResourceGovernor(totalLength);
 
+                        var validFileInfos = fileinfos.Where(x => options.FileNamePasses($"{parent?.FullPath}{Path.DirectorySeparatorChar}{x.name}"));
+
                         fileinfos.AsParallel().ForAll(file =>
                         {
                             if (file.stream != null)
                             {
                                 var newFileEntry = new FileEntry($"{volume.Identity}{Path.DirectorySeparatorChar}{file.name}", file.stream, parent, false, file.created, file.modified, file.accessed, memoryStreamCutoff: options.MemoryStreamCutoff);
-                                var entries = Context.Extract(newFileEntry, options, governor);
-                                files.PushRange(entries.ToArray());
+                                var entries = Context.Extract(newFileEntry, options, governor).ToArray();
+                                if (entries.Length > 0)
+                                {
+                                    files.PushRange(entries);
+                                }
                             }
                         });
                         diskFiles.RemoveRange(0, batchSize);
