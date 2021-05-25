@@ -72,7 +72,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         selectedEntries.AsParallel().ForAll(entry =>
                         {
                             var newEntries = Context.Extract(entry, options, governor).ToArray();
-                            if (newEntries.Length)
+                            if (newEntries.Length > 0)
                             {
                                 files.PushRange(newEntries);
                             }

@@ -82,7 +82,7 @@ namespace Microsoft.CST.RecursiveExtractor
                     governor.CurrentOperationProcessedBytesLeft -= fileSize;
 
                     var entryContent = new byte[fileSize];
-                    await fileEntry.Content.ReadAsync(entryContent, 0, fileSize).ConfigureAwait(false).ConfigureAwait(false);
+                    await fileEntry.Content.ReadAsync(entryContent, 0, fileSize).ConfigureAwait(false);
                     if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{filename}"))
                     {
                         var stream = new MemoryStream(entryContent);

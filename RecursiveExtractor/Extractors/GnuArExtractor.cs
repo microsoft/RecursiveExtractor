@@ -42,7 +42,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         ///     Extracts an archive file created with GNU ar
         /// </summary>
         /// <param name="fileEntry"> </param>
-        /// <returns> </returns>      
+        /// <returns> </returns>
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
             IEnumerable<FileEntry>? fileEntries = null;

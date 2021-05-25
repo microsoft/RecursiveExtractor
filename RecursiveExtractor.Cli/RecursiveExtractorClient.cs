@@ -12,7 +12,7 @@ namespace Microsoft.CST.RecursiveExtractor.Cli
     public static class RecursiveExtractorClient
     {
 		public static int Main(string[] args)
-		{  
+		{
             return CommandLine.Parser.Default.ParseArguments<ExtractCommandOptions>(args)
 			  .MapResult(
 				(ExtractCommandOptions opts) => ExtractCommand(opts),
