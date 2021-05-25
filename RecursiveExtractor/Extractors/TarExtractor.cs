@@ -60,18 +60,20 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
 
                     var name = tarEntry.Name.Replace('/', Path.DirectorySeparatorChar);
-
-                    var newFileEntry = new FileEntry(name, fs, fileEntry, true, memoryStreamCutoff: options.MemoryStreamCutoff);
-
-                    if (Extractor.IsQuine(newFileEntry))
+                    if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{name}"))
                     {
-                        Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                        throw new OverflowException();
-                    }
+                        var newFileEntry = new FileEntry(name, fs, fileEntry, true, memoryStreamCutoff: options.MemoryStreamCutoff);
 
-                    await foreach (var extractedFile in Context.ExtractAsync(newFileEntry, options, governor))
-                    {
-                        yield return extractedFile;
+                        if (Extractor.IsQuine(newFileEntry))
+                        {
+                            Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
+                            throw new OverflowException();
+                        }
+
+                        await foreach (var extractedFile in Context.ExtractAsync(newFileEntry, options, governor))
+                        {
+                            yield return extractedFile;
+                        }
                     }
                 }
                 tarStream.Dispose();
@@ -122,18 +124,20 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.TAR, fileEntry.FullPath, tarEntry.Name, e.GetType());
                     }
                     var name = tarEntry.Name.Replace('/', Path.DirectorySeparatorChar);
-
-                    var newFileEntry = new FileEntry(name, fs, fileEntry, true, memoryStreamCutoff: options.MemoryStreamCutoff);
-
-                    if (Extractor.IsQuine(newFileEntry))
+                    if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{name}"))
                     {
-                        Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                        throw new OverflowException();
-                    }
+                        var newFileEntry = new FileEntry(name, fs, fileEntry, true, memoryStreamCutoff: options.MemoryStreamCutoff);
 
-                    foreach (var extractedFile in Context.Extract(newFileEntry, options, governor))
-                    {
-                        yield return extractedFile;
+                        if (Extractor.IsQuine(newFileEntry))
+                        {
+                            Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
+                            throw new OverflowException();
+                        }
+
+                        foreach (var extractedFile in Context.Extract(newFileEntry, options, governor))
+                        {
+                            yield return extractedFile;
+                        }
                     }
                 }
                 tarStream.Dispose();

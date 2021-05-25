@@ -402,16 +402,24 @@ namespace Microsoft.CST.RecursiveExtractor
                 Governor.ResetResourceGovernor(fileEntry.Content);
             }
             Logger.Trace("ExtractFile({0})", fileEntry.FullPath);
+            
             Governor.CurrentOperationProcessedBytesLeft -= fileEntry.Content.Length;
             Governor.CheckResourceGovernor();
+            var type = MiniMagic.DetectFileType(fileEntry);
+
             if (opts?.RawExtensions?.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ?? false)
             {
-                yield return fileEntry;
+                if (options.FileNamePasses(fileEntry.FullPath))
+                {
+                    yield return fileEntry;
+                }
             }
-            var type = MiniMagic.DetectFileType(fileEntry);
             if (type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type))
             {
-                yield return fileEntry;
+                if (options.FileNamePasses(fileEntry.FullPath))
+                {
+                    yield return fileEntry;
+                }
             }
             else
             {
@@ -635,10 +643,13 @@ namespace Microsoft.CST.RecursiveExtractor
                 if (opts?.RawExtensions?.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ?? false)
                 {
                     useRaw = true;
-                    result = new[]
+                    if (options.FileNamePasses(fileEntry.FullPath))
                     {
-                        fileEntry
-                    };
+                        result = new[]
+                        {
+                                fileEntry
+                            };
+                    }
                 }
                 else
                 {
@@ -646,10 +657,13 @@ namespace Microsoft.CST.RecursiveExtractor
                     if (type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type))
                     {
                         useRaw = true;
-                        result = new[]
+                        if (options.FileNamePasses(fileEntry.FullPath))
                         {
-                            fileEntry
-                        };
+                            result = new[]
+                            {
+                                fileEntry
+                            };
+                        }
                     }
                     else
                     {
@@ -662,9 +676,13 @@ namespace Microsoft.CST.RecursiveExtractor
                 Logger.Debug(ex, "Error extracting {0}: {1}", fileEntry.FullPath, ex.Message);
                 useRaw = true;
 
-                result = new[] {
-                    fileEntry
-                };
+                if (options.FileNamePasses(fileEntry.FullPath))
+                {
+                    result = new[]
+                    {
+                                fileEntry
+                    };
+                }
             }
 
             // After we are done with an archive subtract its bytes. Contents have been counted now separately

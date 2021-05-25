@@ -147,6 +147,10 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         try
                         {
                             var fi = fs.GetFileInfo(file);
+                            if (!options.FileNamePasses(fi.FullName))
+                            {
+                                continue;
+                            }
                             governor.CheckResourceGovernor(fi.Length);
                             fileStream = fi.OpenRead();
                             creation = fi.CreationTime;
@@ -160,8 +164,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         if (fileStream != null)
                         {
                             var newFileEntry = new FileEntry($"{volume.Identity}{Path.DirectorySeparatorChar}{file}", fileStream, parent, false, creation, modification, access, memoryStreamCutoff: options.MemoryStreamCutoff);
-                            var entries = Context.Extract(newFileEntry, options, governor);
-                            foreach (var entry in entries)
+                            foreach (var entry in Context.Extract(newFileEntry, options, governor))
                             {
                                 yield return entry;
                             }

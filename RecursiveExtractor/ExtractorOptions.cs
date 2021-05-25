@@ -1,5 +1,7 @@
-﻿using System;
+﻿using GlobExpressions;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Microsoft.CST.RecursiveExtractor
@@ -9,6 +11,11 @@ namespace Microsoft.CST.RecursiveExtractor
     /// </summary>
     public class ExtractorOptions
     {
+        private IEnumerable<string> _allowFilters = Array.Empty<string>();
+        private IEnumerable<Glob> _allowGlobs = Array.Empty<Glob>();
+        private IEnumerable<string> _denyFilters = Array.Empty<string>();
+        private IEnumerable<Glob> _denyGlobs = Array.Empty<Glob>();
+
         /// <summary>
         /// Maximum number of bytes before using a FileStream. Default 100MB
         /// </summary>
@@ -17,7 +24,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <summary>
         ///     Enable timing limit for processing.
         /// </summary>
-        public bool EnableTiming { get; set; } = false;
+        public bool EnableTiming { get; set; }
 
         /// <summary>
         ///     If an archive cannot be extracted return a single file entry for the archive itself.
@@ -55,11 +62,65 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <summary>
         /// Parse these extensions as raw, don't traverse them.
         /// </summary>
-        public IEnumerable<string>? RawExtensions { get; set; }
+        public IEnumerable<string> RawExtensions { get; set; } = Array.Empty<string>();
 
         /// <summary>
         /// Passwords to use
         /// </summary>
         public Dictionary<Regex, List<string>> Passwords { get; set; } = new Dictionary<Regex, List<string>>();
+
+        /// <summary>
+        /// If set, only return files that match these glob filters
+        /// </summary>
+        public IEnumerable<string> AllowFilters
+        {
+            get
+            {
+                return _allowFilters;
+            }
+            set
+            {
+                _allowFilters = value;
+                _allowGlobs = value.Select(x => new Glob(x));
+            }
+        }
+
+        /// <summary>
+        /// If set, don't return any files that match these glob filters
+        /// </summary>
+        public IEnumerable<string> DenyFilters
+        {
+            get
+            {
+                return _denyFilters;
+            }
+            set
+            {
+                _denyFilters = value;
+                _denyGlobs = value.Select(x => new Glob(x));
+            }
+        }
+
+        public bool FileNamePasses(string filename)
+        {
+            bool allowed = true;
+            if (_allowGlobs.Any())
+            {
+                allowed = false;
+                if (_allowGlobs.Any(x => x.IsMatch(filename)))
+                {
+                    allowed = true;
+                }
+            }
+            if (allowed && _denyGlobs.Any(x => x.IsMatch(filename)))
+            {
+                allowed = false;
+            }
+            return allowed;
+        }
+
+        public ExtractorOptions()
+        {
+        }
     }
 }

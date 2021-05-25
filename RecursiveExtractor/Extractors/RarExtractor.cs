@@ -88,23 +88,24 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             var rarArchive = GetRarArchive(fileEntry, options);
             if (rarArchive != null)
             {
-                var entries = rarArchive.Entries.Where(x => x.IsComplete && !x.IsDirectory);
-
-                foreach (var entry in entries)
+                foreach (var entry in rarArchive.Entries.Where(x => x.IsComplete && !x.IsDirectory))
                 {
                     governor.CheckResourceGovernor(entry.Size);
                     var name = entry.Key.Replace('/', Path.DirectorySeparatorChar);
-                    FileEntry newFileEntry = await FileEntry.FromStreamAsync(name, entry.OpenEntryStream(), fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
-                    if (newFileEntry != null)
+                    if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{name}"))
                     {
-                        if (Extractor.IsQuine(newFileEntry))
+                        FileEntry newFileEntry = await FileEntry.FromStreamAsync(name, entry.OpenEntryStream(), fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
+                        if (newFileEntry != null)
                         {
-                            Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                            throw new OverflowException();
-                        }
-                        await foreach (var extractedFile in Context.ExtractAsync(newFileEntry, options, governor))
-                        {
-                            yield return extractedFile;
+                            if (Extractor.IsQuine(newFileEntry))
+                            {
+                                Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
+                                throw new OverflowException();
+                            }
+                            await foreach (var extractedFile in Context.ExtractAsync(newFileEntry, options, governor))
+                            {
+                                yield return extractedFile;
+                            }
                         }
                     }
                 }
@@ -181,8 +182,10 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         try
                         {
                             var name = entry.Key.Replace('/', Path.DirectorySeparatorChar);
-
-                            newFileEntry = new FileEntry(name, entry.OpenEntryStream(), fileEntry, false, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
+                            if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{name}"))
+                            {
+                                newFileEntry = new FileEntry(name, entry.OpenEntryStream(), fileEntry, false, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
+                            }
                         }
                         catch (Exception e)
                         {

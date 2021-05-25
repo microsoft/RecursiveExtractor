@@ -33,7 +33,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
             using var cd = new CDReader(fileEntry.Content, true);
-            var entries = cd.Root.GetFiles("*.*", SearchOption.AllDirectories);
+            var entries = cd.Root.GetFiles("*.*", SearchOption.AllDirectories).Where(x => options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{x.FullName}")).ToArray();
             if (entries != null)
             {
                 foreach (var file in entries)
@@ -47,11 +47,11 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
                     catch (Exception e)
                     {
-                        Logger.Debug("Failed to extract {0} from ISO {1}. ({2}:{3})", fileInfo.Name, fileEntry.FullPath, e.GetType(), e.Message);
+                        Logger.Debug("Failed to extract {0} from ISO {1}. ({2}:{3})", fileInfo.FullName, fileEntry.FullPath, e.GetType(), e.Message);
                     }
                     if (stream != null)
                     {
-                        var name = fileInfo.Name.Replace('/', Path.DirectorySeparatorChar);
+                        var name = fileInfo.FullName.Replace('/', Path.DirectorySeparatorChar);
                         var newFileEntry = await FileEntry.FromStreamAsync(name, stream, fileEntry, fileInfo.CreationTime, fileInfo.LastWriteTime, fileInfo.LastAccessTime, memoryStreamCutoff: options.MemoryStreamCutoff);
                         var innerEntries = Context.ExtractAsync(newFileEntry, options, governor);
                         await foreach (var entry in innerEntries)
@@ -78,7 +78,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
             using var cd = new CDReader(fileEntry.Content, true);
-            var entries = cd.Root.GetFiles("*.*", SearchOption.AllDirectories);
+            var entries = cd.Root.GetFiles("*.*", SearchOption.AllDirectories).Where(x => options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{x.FullName}")).ToArray();
             if (entries != null)
             {
                 if (options.Parallel)
@@ -133,14 +133,13 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         }
                         catch (Exception e)
                         {
-                            Logger.Debug("Failed to extract {0} from ISO {1}. ({2}:{3})", fileInfo.Name, fileEntry.FullPath, e.GetType(), e.Message);
+                            Logger.Debug("Failed to extract {0} from ISO {1}. ({2}:{3})", fileInfo.FullName, fileEntry.FullPath, e.GetType(), e.Message);
                         }
                         if (stream != null)
                         {
-                            var name = fileInfo.Name.Replace('/', Path.DirectorySeparatorChar);
+                            var name = fileInfo.FullName.Replace('/', Path.DirectorySeparatorChar);
                             var newFileEntry = new FileEntry(name, stream, fileEntry, createTime: file.CreationTime, modifyTime: file.LastWriteTime, accessTime: file.LastAccessTime,memoryStreamCutoff: options.MemoryStreamCutoff);
-                            var innerEntries = Context.Extract(newFileEntry, options, governor);
-                            foreach (var entry in innerEntries)
+                            foreach (var entry in Context.Extract(newFileEntry, options, governor))
                             {
                                 yield return entry;
                             }

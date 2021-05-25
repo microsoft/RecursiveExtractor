@@ -90,7 +90,11 @@ namespace Microsoft.CST.RecursiveExtractor
                     var entryContent = new byte[fileSize];
                     await fileEntry.Content.ReadAsync(entryContent, 0, fileSize);
                     var stream = new MemoryStream(entryContent);
-                    yield return new FileEntry(filename, stream, fileEntry, true);
+                    var entry = new FileEntry(filename, stream, fileEntry, true);
+                    if (options.FileNamePasses(entry.FullPath))
+                    {
+                        yield return entry;
+                    }
                 }
                 else
                 {

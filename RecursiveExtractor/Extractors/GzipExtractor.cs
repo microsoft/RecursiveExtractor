@@ -73,16 +73,17 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
         {
             using var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
-            
+
             try
             {
                 GZip.Decompress(fileEntry.Content, fs, false);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.Debug(Extractor.DEBUG_STRING, "GZip", e.GetType(), e.Message, e.StackTrace);
                 yield break;
             }
+
             var newFilename = Path.GetFileNameWithoutExtension(fileEntry.Name);
             if (fileEntry.Name.EndsWith(".tgz", StringComparison.InvariantCultureIgnoreCase))
             {
@@ -91,7 +92,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
             var entry = new FileEntry(newFilename, fs, fileEntry);
 
-            if (entry != null)
+            if (entry != null && options.FileNamePasses(entry.FullPath))
             {
                 if (Extractor.IsQuine(entry))
                 {
