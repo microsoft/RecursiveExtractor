@@ -15,10 +15,10 @@ namespace Microsoft.CST.RecursiveExtractor.Cli
         [Option('p', "passwords", Required = false, HelpText = "Comma-separated list of passwords to use.", Separator = ',')]
         public IEnumerable<string>? Passwords { get; set; }
 
-        [Option('A', "allow-filters", Required = false, HelpText = "Comma-separated list of regular expressions. When set, files are ONLY written to disk if they match one of these filters.", Separator = ',')]
+        [Option('a', "allow-globs", Required = false, HelpText = "Comma-separated list of glob expressions. When set, files are ONLY written to disk if they match one of these filters.", Separator = ',')]
         public IEnumerable<string>? AllowFilters { get; set; }
 
-        [Option('D', "deny-filters", Required = false, HelpText = "Comma-separated list of regular expressions. When set, files are NOT written to disk if they match one of these filters.", Separator = ',')]
+        [Option('d', "deny-globs", Required = false, HelpText = "Comma-separated list of glob expressions. When set, files are NOT written to disk if they match one of these filters.", Separator = ',')]
         public IEnumerable<string>? DenyFilters { get; set; }
 
         [Option('R', "raw-extensions", Required = false, HelpText = "Comma-separated list of file extensions to treat as raw files (don't recurse into).", Separator = ',')]

@@ -60,6 +60,14 @@ namespace Microsoft.CST.RecursiveExtractor.Cli
                     }
                 };
             }
+            if (options.AllowFilters != null)
+            {
+                extractorOptions.AllowFilters = options.AllowFilters;
+            }
+            if (options.DenyFilters != null)
+            {
+                extractorOptions.DenyFilters = options.DenyFilters;
+            }
             var allowRegexes = options.AllowFilters?.Select(x => new Regex(x)) ?? Array.Empty<Regex>();
             var denyRegexes = options.DenyFilters?.Select(x => new Regex(x)) ?? Array.Empty<Regex>();
             extractor.ExtractToDirectory(options.Output, options.Input, extractorOptions, allowRegexes, denyRegexes, options.PrintNames);

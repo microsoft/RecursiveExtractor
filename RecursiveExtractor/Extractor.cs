@@ -375,10 +375,10 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="acceptFilters">An optional list of regexes, when set each entry's FullName must match at least one.</param>
         /// <param name="denyFilters">An optional list of regexes, when set each entry's FullName must match none.</param>
         /// <param name="printNames">If we should print the filename when writing it out to disc.</param>
-        public ExtractionStatusCode ExtractToDirectory(string outputDirectory, string filename, ExtractorOptions? opts = null, IEnumerable<Regex>? acceptFilters = null, IEnumerable<Regex>? denyFilters = null, bool printNames = false)
+        public ExtractionStatusCode ExtractToDirectory(string outputDirectory, string filename, ExtractorOptions? opts = null, bool printNames = false)
         {
             using var fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
-            return ExtractToDirectory(outputDirectory, filename, fs, opts, acceptFilters, denyFilters, printNames);
+            return ExtractToDirectory(outputDirectory, filename, fs, opts, printNames);
         }
 
         /// <summary>
@@ -391,12 +391,12 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="acceptFilters">An optional list of regexes, when set each entry's FullName must match at least one.</param>
         /// <param name="denyFilters">An optional list of regexes, when set each entry's FullName must match none.</param>
         /// <param name="printNames">If we should print the filename when writing it out to disc.</param>
-        public ExtractionStatusCode ExtractToDirectory(string outputDirectory, string filename, Stream stream, ExtractorOptions? opts = null, IEnumerable<Regex>? acceptFilters = null, IEnumerable<Regex>? denyFilters = null, bool printNames = false)
+        public ExtractionStatusCode ExtractToDirectory(string outputDirectory, string filename, Stream stream, ExtractorOptions? opts = null, bool printNames = false)
         {
             opts ??= new ExtractorOptions();
             var file = Path.GetFileName(filename);
             var fileEntry = new FileEntry(Path.GetFileName(file), stream, memoryStreamCutoff: opts.MemoryStreamCutoff);
-            return ExtractToDirectory(outputDirectory, fileEntry, opts, acceptFilters, denyFilters, printNames);
+            return ExtractToDirectory(outputDirectory, fileEntry, opts, printNames);
         }
 
         /// <summary>
@@ -408,36 +408,35 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="acceptFilters">An optional list of regexes, when set each entry's FullName must match at least one.</param>
         /// <param name="denyFilters">An optional list of regexes, when set each entry's FullName must match none.</param>
         /// <param name="printNames">If we should print the filename when writing it out to disc.</param>
-        public ExtractionStatusCode ExtractToDirectory(string outputDirectory, FileEntry fileEntry, ExtractorOptions? opts = null, IEnumerable<Regex>? acceptFilters = null, IEnumerable<Regex>? denyFilters = null, bool printNames = false)
+        public ExtractionStatusCode ExtractToDirectory(string outputDirectory, FileEntry fileEntry, ExtractorOptions? opts = null, bool printNames = false)
         {
             foreach (var entry in Extract(fileEntry, opts))
             {
-                if (FileNamePasses(entry.FullPath, acceptFilters, denyFilters))
+                var targetPath = Path.Combine(outputDirectory, entry.FullPath);
+                if (Path.GetDirectoryName(targetPath) is string directoryPath && targetPath is string targetPathNotNull)
                 {
-                    var targetPath = Path.Combine(outputDirectory, entry.FullPath);
-                    if (Path.GetDirectoryName(targetPath) is string directoryPath && targetPath is string targetPathNotNull)
+                    try
                     {
-                        try
-                        {
-                            Directory.CreateDirectory(directoryPath);
+                        Directory.CreateDirectory(directoryPath);
 
-                            using var fs = new FileStream(targetPathNotNull, FileMode.Create);
-                            entry.Content.CopyTo(fs);
-                            if (printNames)
-                            {
-                                Console.WriteLine("Extracted {0}.", entry.FullPath);
-                            }
-                            Logger.Trace("Extracted {0}", entry.FullPath);
-                        }
-                        catch (Exception e)
+                        using var fs = new FileStream(targetPathNotNull, FileMode.Create);
+                        entry.Content.CopyTo(fs);
+                        if (printNames)
                         {
-                            Logger.Error(e, "Failed to create file at {0}.", targetPathNotNull);
+                            Console.WriteLine("Extracted {0}.", entry.FullPath);
                         }
+                        Logger.Trace("Extracted {0}", entry.FullPath);
                     }
-                    else
+                    catch (Exception e)
                     {
-                        Logger.Error("Failed to create directory.");
+                        Logger.Error(e, "Failed to create file at {0}.", targetPathNotNull);
+                        return ExtractionStatusCode.Failure;
                     }
+                }
+                else
+                {
+                    Logger.Error("Failed to create directory.");
+                    return ExtractionStatusCode.Failure;
                 }
             }
             return ExtractionStatusCode.Ok;
