@@ -15,6 +15,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Microsoft.CST.RecursiveExtractor
@@ -163,15 +164,6 @@ namespace Microsoft.CST.RecursiveExtractor
         }
 
         /// <summary>
-        /// Deprecated. Use Extract.
-        /// </summary>
-        /// <param name="filename"></param>
-        /// <param name="opts"></param>
-        /// <returns></returns>
-        [ObsoleteAttribute("This method is obsolete. Use Extract instead.", false)]
-        public IEnumerable<FileEntry> ExtractFile(string filename, ExtractorOptions? opts = null) => Extract(filename, opts);
-
-        /// <summary>
         /// Extracts files from the `filename` given.
         /// </summary>
         /// <param name="filename">The path to the file to extract.</param>
@@ -190,21 +182,6 @@ namespace Microsoft.CST.RecursiveExtractor
         }
 
         /// <summary>
-        /// Deprecated. Use ExtractAsync.
-        /// </summary>
-        /// <param name="filename"></param>
-        /// <param name="opts"></param>
-        /// <returns></returns>
-        [ObsoleteAttribute("This method is obsolete. Use ExtractAsync instead.", false)]
-        public async IAsyncEnumerable<FileEntry> ExtractFileAsync(string filename, ExtractorOptions? opts = null)
-        {
-            await foreach(var entry in ExtractAsync(filename, opts))
-            {
-                yield return entry;
-            }
-        }
-
-        /// <summary>
         /// Extracts files from the `filename` given asynchronously.
         /// </summary>
         /// <param name="filename">The path to the file to extract.</param>
@@ -212,6 +189,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <returns>The FileEntries found.</returns>
         public async IAsyncEnumerable<FileEntry> ExtractAsync(string filename, ExtractorOptions? opts = null)
         {
+            opts ??= new ExtractorOptions();
             if (!File.Exists(filename))
             {
                 Logger.Warn("ExtractFile called, but {0} does not exist.", filename);
@@ -221,23 +199,10 @@ namespace Microsoft.CST.RecursiveExtractor
             var fe = new FileEntry(filename, fs, null, false, createTime: File.GetCreationTimeUtc(filename), modifyTime: File.GetLastWriteTimeUtc(filename), accessTime: File.GetLastAccessTimeUtc(filename));
             await foreach (var entry in ExtractAsync(fe, opts))
             {
-                yield return entry;
-            }
-        }
-
-        /// <summary>
-        /// Deprecated. Use ExtractAsync.
-        /// </summary>
-        /// <param name="filename"></param>
-        /// <param name="stream"></param>
-        /// <param name="opts"></param>
-        /// <returns></returns>
-        [ObsoleteAttribute("This method is obsolete. Use ExtractAsync instead.", false)]
-        public async IAsyncEnumerable<FileEntry> ExtractStreamAsync(string filename, Stream stream, ExtractorOptions? opts = null)
-        {
-            await foreach(var entry in ExtractAsync(filename, stream, opts))
-            {
-                yield return entry;
+                if (opts.FileNamePasses(entry.FullPath))
+                {
+                    yield return entry;
+                }
             }
         }
 
@@ -253,39 +218,25 @@ namespace Microsoft.CST.RecursiveExtractor
             opts ??= new ExtractorOptions();
             var governor = new ResourceGovernor(opts);
             FileEntry? fileEntry = null;
-            try
-            {
-                var file = Path.GetFileName(filename);
-                fileEntry = new FileEntry(file, stream, memoryStreamCutoff: opts.MemoryStreamCutoff);
-                governor.ResetResourceGovernor(stream);
-            }
-            catch (Exception ex)
-            {
-                Logger.Debug(ex, "Failed to extract file {0}", filename);
-            }
+            var file = Path.GetFileName(filename);
+            fileEntry = new FileEntry(file, stream, memoryStreamCutoff: opts.MemoryStreamCutoff);
+            governor.ResetResourceGovernor(stream);
+            
 
             if (fileEntry != null)
             {
-                await foreach (var result in ExtractAsync(fileEntry, opts, governor))
+                await foreach (var result in ExtractAsync(fileEntry, opts, governor, true))
                 {
                     governor.GovernorStopwatch.Stop();
-                    yield return result;
+                    if (opts.FileNamePasses(result.FullPath))
+                    {
+                        yield return result;
+                    }
                     governor.GovernorStopwatch.Start();
                 }
             }
             governor.GovernorStopwatch.Stop();
         }
-
-        /// <summary>
-        /// Deprecated. See Extract.
-        /// </summary>
-        /// <param name="filename"></param>
-        /// <param name="stream"></param>
-        /// <param name="opts"></param>
-        /// <returns></returns>
-        [ObsoleteAttribute("This method is obsolete. Use Extract instead.", false)]
-
-        public IEnumerable<FileEntry> ExtractStream(string filename, Stream stream, ExtractorOptions? opts = null) => Extract(filename, stream, opts);
 
         /// <summary>
         /// Extract the Stream given.
@@ -302,16 +253,6 @@ namespace Microsoft.CST.RecursiveExtractor
         }
 
         /// <summary>
-        /// Deprecated. See Extract.
-        /// </summary>
-        /// <param name="filename"></param>
-        /// <param name="archiveBytes"></param>
-        /// <param name="opts"></param>
-        /// <returns></returns>
-        [ObsoleteAttribute("This method is obsolete. Use Extract instead.", false)]
-        public IEnumerable<FileEntry> ExtractFile(string filename, byte[] archiveBytes, ExtractorOptions? opts = null) => Extract(filename, archiveBytes, opts);
-
-        /// <summary>
         /// Extract from the provided bytes.
         /// </summary>
         /// <param name="filename">The filename to use for the root.</param>
@@ -323,22 +264,6 @@ namespace Microsoft.CST.RecursiveExtractor
             opts ??= new ExtractorOptions();
             using var ms = new MemoryStream(archiveBytes);
             return Extract(new FileEntry(filename, ms, memoryStreamCutoff: opts.MemoryStreamCutoff), opts);
-        }
-
-        /// <summary>
-        /// Depreacted. Use ExtractAsync.
-        /// </summary>
-        /// <param name="filename"></param>
-        /// <param name="archiveBytes"></param>
-        /// <param name="opts"></param>
-        /// <returns></returns>
-        [ObsoleteAttribute("This method is obsolete. Use ExtractAsync instead.", false)]
-        public async IAsyncEnumerable<FileEntry> ExtractFileAsync(string filename, byte[] archiveBytes, ExtractorOptions? opts = null)
-        {
-            await foreach(var entry in ExtractAsync(filename, archiveBytes, opts))
-            {
-                yield return entry;
-            }
         }
 
         /// <summary>
@@ -354,7 +279,10 @@ namespace Microsoft.CST.RecursiveExtractor
             using var ms = new MemoryStream(archiveBytes);
             await foreach (var entry in ExtractAsync(new FileEntry(Path.GetFileName(filename), ms, memoryStreamCutoff: opts.MemoryStreamCutoff), opts))
             {
-                yield return entry;
+                if (opts.FileNamePasses(entry.FullPath))
+                {
+                    yield return entry;
+                }
             }
         }
 
@@ -368,29 +296,13 @@ namespace Microsoft.CST.RecursiveExtractor
         private readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         /// <summary>
-        /// Deprecated. Use ExtractAsync.
-        /// </summary>
-        /// <param name="fileEntry"></param>
-        /// <param name="opts"></param>
-        /// <param name="governor"></param>
-        /// <returns></returns>
-        [ObsoleteAttribute("This method is obsolete. Use ExtractAsync instead.", false)]
-        public async IAsyncEnumerable<FileEntry> ExtractFileAsync(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null)
-        {
-            await foreach(var entry in ExtractAsync(fileEntry, opts, governor))
-            {
-                yield return entry;
-            }
-        }
-
-        /// <summary>
         /// Extract asynchronously from a FileEntry.
         /// </summary>
         /// <param name="fileEntry">The FileEntry containing the Conteant stream to parse.</param>
         /// <param name="opts">The ExtractorOptions to use</param>
         /// <param name="governor">The Resource governor to use (or null to create a new one).</param>
         /// <returns>The FileEntries found.</returns>
-        public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null)
+        public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null, bool topLevel = true)
         {
             var options = opts ?? new ExtractorOptions();
 
@@ -403,29 +315,36 @@ namespace Microsoft.CST.RecursiveExtractor
 
             Governor.CurrentOperationProcessedBytesLeft -= fileEntry.Content.Length;
             Governor.CheckResourceGovernor();
-            var type = MiniMagic.DetectFileType(fileEntry);
+            if (IsQuine(fileEntry))
+            {
+                Logger.Info(IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
+                throw new OverflowException();
+            }
+            if (topLevel || (!topLevel && options.Recurse))
+            {
+                var type = MiniMagic.DetectFileType(fileEntry);
 
-            if (opts?.RawExtensions?.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ?? false)
-            {
-                if (options.FileNamePasses(fileEntry.FullPath))
+                if (((opts?.RawExtensions?.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ?? false) || type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type)))
                 {
-                    yield return fileEntry;
+                    if (options.FileNamePasses(fileEntry.FullPath))
+                    {
+                        yield return fileEntry;
+                    }
+                }
+                else
+                {
+                    await foreach (var result in Extractors[type].ExtractAsync(fileEntry, options, Governor, false))
+                    {
+                        if (options.FileNamePasses(result.FullPath))
+                        {
+                            yield return result;
+                        }
+                    }
                 }
             }
-            if (type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type))
+            else if (options.FileNamePasses(fileEntry.FullPath))
             {
-                if (options.FileNamePasses(fileEntry.FullPath))
-                {
-                    yield return fileEntry;
-                }
-            }
-            else
-            {
-                Governor.CurrentOperationProcessedBytesLeft += fileEntry.Content.Length;
-                await foreach (var result in Extractors[type].ExtractAsync(fileEntry, options, Governor))
-                {
-                    yield return result;
-                }
+                yield return fileEntry;
             }
         }
 
@@ -457,10 +376,10 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="acceptFilters">An optional list of regexes, when set each entry's FullName must match at least one.</param>
         /// <param name="denyFilters">An optional list of regexes, when set each entry's FullName must match none.</param>
         /// <param name="printNames">If we should print the filename when writing it out to disc.</param>
-        public ExtractionStatusCode ExtractToDirectory(string outputDirectory, string filename, ExtractorOptions? opts = null, IEnumerable<Regex>? acceptFilters = null, IEnumerable<Regex>? denyFilters = null, bool printNames = false)
+        public ExtractionStatusCode ExtractToDirectory(string outputDirectory, string filename, ExtractorOptions? opts = null, bool printNames = false)
         {
             using var fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
-            return ExtractToDirectory(outputDirectory, filename, fs, opts, acceptFilters, denyFilters, printNames);
+            return ExtractToDirectory(outputDirectory, filename, fs, opts, printNames);
         }
 
         /// <summary>
@@ -473,12 +392,12 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="acceptFilters">An optional list of regexes, when set each entry's FullName must match at least one.</param>
         /// <param name="denyFilters">An optional list of regexes, when set each entry's FullName must match none.</param>
         /// <param name="printNames">If we should print the filename when writing it out to disc.</param>
-        public ExtractionStatusCode ExtractToDirectory(string outputDirectory, string filename, Stream stream, ExtractorOptions? opts = null, IEnumerable<Regex>? acceptFilters = null, IEnumerable<Regex>? denyFilters = null, bool printNames = false)
+        public ExtractionStatusCode ExtractToDirectory(string outputDirectory, string filename, Stream stream, ExtractorOptions? opts = null, bool printNames = false)
         {
             opts ??= new ExtractorOptions();
             var file = Path.GetFileName(filename);
             var fileEntry = new FileEntry(Path.GetFileName(file), stream, memoryStreamCutoff: opts.MemoryStreamCutoff);
-            return ExtractToDirectory(outputDirectory, fileEntry, opts, acceptFilters, denyFilters, printNames);
+            return ExtractToDirectory(outputDirectory, fileEntry, opts, printNames);
         }
 
         /// <summary>
@@ -490,11 +409,12 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="acceptFilters">An optional list of regexes, when set each entry's FullName must match at least one.</param>
         /// <param name="denyFilters">An optional list of regexes, when set each entry's FullName must match none.</param>
         /// <param name="printNames">If we should print the filename when writing it out to disc.</param>
-        public ExtractionStatusCode ExtractToDirectory(string outputDirectory, FileEntry fileEntry, ExtractorOptions? opts = null, IEnumerable<Regex>? acceptFilters = null, IEnumerable<Regex>? denyFilters = null, bool printNames = false)
+        public ExtractionStatusCode ExtractToDirectory(string outputDirectory, FileEntry fileEntry, ExtractorOptions? opts = null, bool printNames = false)
         {
-            foreach (var entry in Extract(fileEntry, opts))
+            opts ??= new ExtractorOptions();
+            if (!opts.Parallel)
             {
-                if (FileNamePasses(entry.FullPath, acceptFilters, denyFilters))
+                foreach (var entry in Extract(fileEntry, opts))
                 {
                     var targetPath = Path.Combine(outputDirectory, entry.FullPath);
                     if (Path.GetDirectoryName(targetPath) is string directoryPath && targetPath is string targetPathNotNull)
@@ -514,14 +434,59 @@ namespace Microsoft.CST.RecursiveExtractor
                         catch (Exception e)
                         {
                             Logger.Error(e, "Failed to create file at {0}.", targetPathNotNull);
+                            return ExtractionStatusCode.Failure;
                         }
                     }
                     else
                     {
                         Logger.Error("Failed to create directory.");
+                        return ExtractionStatusCode.Failure;
                     }
                 }
             }
+            else
+            {
+                var exitCode = ExtractionStatusCode.Ok;
+                var cts = new CancellationTokenSource();
+                try
+                {
+                    Parallel.ForEach(Extract(fileEntry, opts), new ParallelOptions() { CancellationToken = cts.Token }, entry =>
+                    {
+                        var targetPath = Path.Combine(outputDirectory, entry.FullPath);
+                        if (Path.GetDirectoryName(targetPath) is string directoryPath && targetPath is string targetPathNotNull)
+                        {
+                            try
+                            {
+                                Directory.CreateDirectory(directoryPath);
+
+                                using var fs = new FileStream(targetPathNotNull, FileMode.Create);
+                                entry.Content.CopyTo(fs);
+                                if (printNames)
+                                {
+                                    Console.WriteLine("Extracted {0}.", entry.FullPath);
+                                }
+                                Logger.Trace("Extracted {0}", entry.FullPath);
+                            }
+                            catch (Exception e)
+                            {
+                                Logger.Error(e, "Failed to create file at {0}.", targetPathNotNull);
+                                cts.Cancel();
+                            }
+                        }
+                        else
+                        {
+                            Logger.Error("Failed to create directory.");
+                            cts.Cancel();
+                        }
+                    });
+                }
+                catch (OperationCanceledException)
+                {
+                    exitCode = ExtractionStatusCode.Failure;
+                }
+                return exitCode;
+            }
+            
             return ExtractionStatusCode.Ok;
         }
 
@@ -603,23 +568,13 @@ namespace Microsoft.CST.RecursiveExtractor
         }
 
         /// <summary>
-        /// Deprecated. Use Extract.
-        /// </summary>
-        /// <param name="fileEntry"></param>
-        /// <param name="opts"></param>
-        /// <param name="governor"></param>
-        /// <returns></returns>
-        [ObsoleteAttribute("This method is obsolete. Use Extract instead.", false)]
-        public IEnumerable<FileEntry> ExtractFile(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null) => Extract(fileEntry, opts, governor);
-
-        /// <summary>
         /// Extract from a FileEntry.
         /// </summary>
         /// <param name="fileEntry">The FileEntry containing the Conteant stream to parse.</param>
         /// <param name="opts">The ExtractorOptions to use</param>
         /// <param name="governor">The Resource governor to use (or null to create a new one).</param>
         /// <returns>The FileEntries found.</returns>
-        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null)
+        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null, bool topLevel = true)
         {
             var options = opts ?? new ExtractorOptions();
             var Governor = governor;
@@ -631,54 +586,39 @@ namespace Microsoft.CST.RecursiveExtractor
             Logger.Trace("ExtractFile({0})", fileEntry.FullPath);
             Governor.CurrentOperationProcessedBytesLeft -= fileEntry.Content.Length;
             Governor.CheckResourceGovernor();
-            IEnumerable<FileEntry> result = Array.Empty<FileEntry>();
+            if (IsQuine(fileEntry))
+            {
+                Logger.Info(IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
+                throw new OverflowException();
+            }
+            List<FileEntry> result = new List<FileEntry>();
             var useRaw = false;
 
-            try
+            if (topLevel || options.Recurse)
             {
-                if (opts?.RawExtensions?.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ?? false)
+                var type = MiniMagic.DetectFileType(fileEntry);
+
+                if ((opts?.RawExtensions?.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ?? false) || type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type))
                 {
-                    useRaw = true;
                     if (options.FileNamePasses(fileEntry.FullPath))
                     {
-                        result = new[]
-                        {
-                                fileEntry
-                            };
+                        result.Add(fileEntry);
                     }
                 }
                 else
                 {
-                    var type = MiniMagic.DetectFileType(fileEntry);
-                    if (type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type))
+                    foreach (var extractedResult in Extractors[type].Extract(fileEntry, options, Governor, false))
                     {
-                        useRaw = true;
-                        if (options.FileNamePasses(fileEntry.FullPath))
+                        if (options.FileNamePasses(extractedResult.FullPath))
                         {
-                            result = new[]
-                            {
-                                fileEntry
-                            };
+                            result.Add(extractedResult);
                         }
-                    }
-                    else
-                    {
-                        result = Extractors[type].Extract(fileEntry, options, Governor);
                     }
                 }
             }
-            catch (Exception ex)
+            else if (options.FileNamePasses(fileEntry.FullPath))
             {
-                Logger.Debug(ex, "Error extracting {0}: {1}", fileEntry.FullPath, ex.Message);
-                useRaw = true;
-
-                if (options.FileNamePasses(fileEntry.FullPath))
-                {
-                    result = new[]
-                    {
-                                fileEntry
-                    };
-                }
+                result.Add(fileEntry);
             }
 
             // After we are done with an archive subtract its bytes. Contents have been counted now separately

@@ -46,8 +46,11 @@ namespace Microsoft.CST.RecursiveExtractor.Cli
             var extractorOptions = new ExtractorOptions()
             {
                 ExtractSelfOnFail = true,
-                Parallel = true,
-                RawExtensions = options.RawExtensions ?? Array.Empty<string>()
+                Parallel = !options.SingleThread,
+                RawExtensions = options.RawExtensions ?? Array.Empty<string>(),
+                Recurse = !options.DisableRecursion,
+                AllowFilters = options.AllowFilters ?? Array.Empty<string>(),
+                DenyFilters = options.DenyFilters ?? Array.Empty<string>()
             };
             if (options.Passwords?.Any() ?? false)
             {
@@ -59,11 +62,18 @@ namespace Microsoft.CST.RecursiveExtractor.Cli
                     }
                 };
             }
-            var allowRegexes = options.AllowFilters?.Select(x => new Regex(x)) ?? Array.Empty<Regex>();
-            var denyRegexes = options.DenyFilters?.Select(x => new Regex(x)) ?? Array.Empty<Regex>();
-            extractor.ExtractToDirectory(options.Output, options.Input, extractorOptions, allowRegexes, denyRegexes, options.PrintNames);
+            var exitCode = ExtractionStatusCode.Ok;
+            try
+            {
+                exitCode = extractor.ExtractToDirectory(options.Output, options.Input, extractorOptions, options.PrintNames);
+            }
+            catch(Exception e)
+            {
+                Logger.Error($"Exception while extracting. {e.GetType()}:{e.Message} ({e.StackTrace})");
+                exitCode = ExtractionStatusCode.Failure;
+            }
 
-            return 0;
+            return (int)exitCode;
         }
         private readonly static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     }

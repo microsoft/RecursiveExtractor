@@ -28,7 +28,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             XZStream? xzStream = null;
             try
@@ -42,32 +42,33 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             if (xzStream != null)
             {
                 var newFilename = Path.GetFileNameWithoutExtension(fileEntry.Name);
-                if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{newFilename}"))
+                var newFileEntry = new FileEntry(newFilename, xzStream, fileEntry, memoryStreamCutoff: options.MemoryStreamCutoff);
+
+                // SharpCompress does not expose metadata without a full read, so we need to decompress first,
+                // and then abort if the bytes exceeded the governor's capacity.
+
+                var streamLength = xzStream.Index?.Records?.Select(r => r.UncompressedSize)
+                                            .Aggregate((ulong?)0, (a, b) => a + b);
+
+                // BUG: Technically, we're casting a ulong to a long, but we don't expect 9 exabyte steams, so
+                // low risk.
+                if (streamLength.HasValue)
                 {
-                    var newFileEntry = new FileEntry(newFilename, xzStream, fileEntry, memoryStreamCutoff: options.MemoryStreamCutoff);
+                    governor.CheckResourceGovernor((long)streamLength.Value);
+                }
 
-                    // SharpCompress does not expose metadata without a full read, so we need to decompress first,
-                    // and then abort if the bytes exceeded the governor's capacity.
-
-                    var streamLength = xzStream.Index?.Records?.Select(r => r.UncompressedSize)
-                                              .Aggregate((ulong?)0, (a, b) => a + b);
-
-                    // BUG: Technically, we're casting a ulong to a long, but we don't expect 9 exabyte steams, so
-                    // low risk.
-                    if (streamLength.HasValue)
+                if (newFileEntry != null)
+                {
+                    if (options.Recurse || topLevel)
                     {
-                        governor.CheckResourceGovernor((long)streamLength.Value);
+                        await foreach (var innerEntry in Context.ExtractAsync(newFileEntry, options, governor, false))
+                        {
+                            yield return innerEntry;
+                        }
                     }
-
-                    if (Extractor.IsQuine(newFileEntry))
+                    else
                     {
-                        Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                        throw new OverflowException();
-                    }
-
-                    await foreach (var extractedFile in Context.ExtractAsync(newFileEntry, options, governor))
-                    {
-                        yield return extractedFile;
+                        yield return newFileEntry;
                     }
                 }
                 xzStream.Dispose();
@@ -86,7 +87,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             XZStream? xzStream = null;
             try
@@ -100,33 +101,31 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             if (xzStream != null)
             {
                 var newFilename = Path.GetFileNameWithoutExtension(fileEntry.Name);
-                if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{newFilename}"))
+                var newFileEntry = new FileEntry(newFilename, xzStream, fileEntry, memoryStreamCutoff: options.MemoryStreamCutoff);
+
+                // SharpCompress does not expose metadata without a full read, so we need to decompress first,
+                // and then abort if the bytes exceeded the governor's capacity.
+
+                var streamLength = xzStream.Index?.Records?.Select(r => r.UncompressedSize)
+                                            .Aggregate((ulong?)0, (a, b) => a + b);
+
+                // BUG: Technically, we're casting a ulong to a long, but we don't expect 9 exabyte steams, so
+                // low risk.
+                if (streamLength.HasValue)
                 {
-                    var newFileEntry = new FileEntry(newFilename, xzStream, fileEntry, memoryStreamCutoff: options.MemoryStreamCutoff);
+                    governor.CheckResourceGovernor((long)streamLength.Value);
+                }
 
-                    // SharpCompress does not expose metadata without a full read, so we need to decompress first,
-                    // and then abort if the bytes exceeded the governor's capacity.
-
-                    var streamLength = xzStream.Index?.Records?.Select(r => r.UncompressedSize)
-                                              .Aggregate((ulong?)0, (a, b) => a + b);
-
-                    // BUG: Technically, we're casting a ulong to a long, but we don't expect 9 exabyte steams, so
-                    // low risk.
-                    if (streamLength.HasValue)
+                if (options.Recurse || topLevel)
+                {
+                    foreach (var innerEntry in Context.Extract(newFileEntry, options, governor, false))
                     {
-                        governor.CheckResourceGovernor((long)streamLength.Value);
+                        yield return innerEntry;
                     }
-
-                    if (Extractor.IsQuine(newFileEntry))
-                    {
-                        Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                        throw new OverflowException();
-                    }
-
-                    foreach (var extractedFile in Context.Extract(newFileEntry, options, governor))
-                    {
-                        yield return extractedFile;
-                    }
+                }
+                else
+                {
+                    yield return newFileEntry;
                 }
                 xzStream.Dispose();
             }

@@ -25,24 +25,24 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DiscUtils.Btrfs" Version="0.15.1-ci0002" />
-    <PackageReference Include="DiscUtils.Core" Version="0.15.1-ci0002" />
-    <PackageReference Include="DiscUtils.Ext" Version="0.15.1-ci0002" />
-    <PackageReference Include="DiscUtils.Fat" Version="0.15.1-ci0002" />
-    <PackageReference Include="DiscUtils.HfsPlus" Version="0.15.1-ci0002" />
-    <PackageReference Include="DiscUtils.Iso9660" Version="0.15.1-ci0002" />
-    <PackageReference Include="DiscUtils.Ntfs" Version="0.15.1-ci0002" />
-    <PackageReference Include="DiscUtils.Vhd" Version="0.15.1-ci0002" />
-    <PackageReference Include="DiscUtils.Vhdx" Version="0.15.1-ci0002" />
-    <PackageReference Include="DiscUtils.Vmdk" Version="0.15.1-ci0002" />
-    <PackageReference Include="DiscUtils.Wim" Version="0.15.1-ci0002" />
-    <PackageReference Include="DiscUtils.Xfs" Version="0.15.1-ci0002" />
+    <PackageReference Include="DiscUtils.Btrfs" Version="0.16.4" />
+    <PackageReference Include="DiscUtils.Core" Version="0.16.4" />
+    <PackageReference Include="DiscUtils.Ext" Version="0.16.4" />
+    <PackageReference Include="DiscUtils.Fat" Version="0.16.4" />
+    <PackageReference Include="DiscUtils.HfsPlus" Version="0.16.4" />
+    <PackageReference Include="DiscUtils.Iso9660" Version="0.16.4" />
+    <PackageReference Include="DiscUtils.Ntfs" Version="0.16.4" />
+    <PackageReference Include="DiscUtils.Vhd" Version="0.16.4" />
+    <PackageReference Include="DiscUtils.Vhdx" Version="0.16.4" />
+    <PackageReference Include="DiscUtils.Vmdk" Version="0.16.4" />
+    <PackageReference Include="DiscUtils.Wim" Version="0.16.4" />
+    <PackageReference Include="DiscUtils.Xfs" Version="0.16.4" />
     <PackageReference Include="Glob" Version="1.1.8" />
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="5.0.0" />
-    <PackageReference Include="NLog" Version="4.7.9" />
+    <PackageReference Include="NLog" Version="4.7.10" />
     <PackageReference Include="SharpCompress" Version="0.28.2" />
     <PackageReference Include="SharpZipLib" Version="1.3.2" />
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.194">
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.205">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

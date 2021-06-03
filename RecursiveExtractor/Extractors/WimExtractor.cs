@@ -29,7 +29,72 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
+        {
+            DiscUtils.Wim.WimFile? baseFile = null;
+            try
+            {
+                baseFile = new DiscUtils.Wim.WimFile(fileEntry.Content);
+            }
+            catch (Exception e)
+            {
+                Logger.Debug(e, "Failed to init WIM image.");
+            }
+            if (baseFile != null)
+            {
+                
+                for (var i = 0; i < baseFile.ImageCount; i++)
+                {
+                    var image = baseFile.GetImage(i);
+                    foreach (var file in image.GetFiles(image.Root.FullName, "*.*", SearchOption.AllDirectories))
+                    {
+                        Stream? stream = null;
+                        try
+                        {
+                            var info = image.GetFileInfo(file);
+                            stream = info.OpenRead();
+                            governor.CheckResourceGovernor(info.Length);
+                        }
+                        catch (Exception e)
+                        {
+                            Logger.Debug("Error reading {0} from WIM {1} ({2}:{3})", file, image.FriendlyName, e.GetType(), e.Message);
+                        }
+                        if (stream != null)
+                        {
+                            var name = file.Replace('\\', Path.DirectorySeparatorChar);
+                            var newFileEntry = await FileEntry.FromStreamAsync($"{image.FriendlyName}{Path.DirectorySeparatorChar}{name}", stream, fileEntry, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
+                            
+                            if (options.Recurse || topLevel)
+                            {
+                                await foreach (var entry in Context.ExtractAsync(newFileEntry, options, governor, false))
+                                {
+                                    yield return entry;
+                                }
+                            }
+                            else
+                            {
+                                yield return newFileEntry;
+                            }
+                            stream.Dispose();
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (options.ExtractSelfOnFail)
+                {
+                    yield return fileEntry;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Extracts a WIM file contained in fileEntry.
+        /// </summary>
+        /// <param name="fileEntry"> FileEntry to extract </param>
+        /// <returns> Extracted files </returns>
+        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             DiscUtils.Wim.WimFile? baseFile = null;
             try
@@ -72,11 +137,19 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             streamsAndNames.AsParallel().ForAll(file =>
                             {
                                 var newFileEntry = new FileEntry($"{image.FriendlyName}\\{file.Item1.FullName}", file.Item2, fileEntry, memoryStreamCutoff: options.MemoryStreamCutoff);
-                                var entries = Context.Extract(newFileEntry, options, governor);
-                                if (entries.Any())
+                                if (options.Recurse || topLevel)
                                 {
-                                    files.PushRange(entries.ToArray());
+                                    var entries = Context.Extract(newFileEntry, options, governor, false);
+                                    if (entries.Any())
+                                    {
+                                        files.PushRange(entries.ToArray());
+                                    }
                                 }
+                                else
+                                {
+                                    files.Push(newFileEntry);
+                                }
+                                
                             });
                             fileList.RemoveRange(0, batchSize);
 
@@ -109,70 +182,21 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             if (stream != null)
                             {
                                 var name = file.Replace('\\', Path.DirectorySeparatorChar);
-                                var newFileEntry = await FileEntry.FromStreamAsync($"{image.FriendlyName}{Path.DirectorySeparatorChar}{name}", stream, fileEntry, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
-                                await foreach (var entry in Context.ExtractAsync(newFileEntry, options, governor))
+
+                                var newFileEntry = new FileEntry($"{image.FriendlyName}{Path.DirectorySeparatorChar}{name}", stream, fileEntry, memoryStreamCutoff: options.MemoryStreamCutoff);
+                                if (options.Recurse || topLevel)
                                 {
-                                    yield return entry;
+                                    foreach (var extractedFile in Context.Extract(newFileEntry, options, governor, false))
+                                    {
+                                        yield return extractedFile;
+                                    }
+                                }
+                                else
+                                {
+                                    yield return newFileEntry;
                                 }
                                 stream.Dispose();
                             }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                if (options.ExtractSelfOnFail)
-                {
-                    yield return fileEntry;
-                }
-            }
-        }
-
-        /// <summary>
-        ///     Extracts a WIM file contained in fileEntry.
-        /// </summary>
-        /// <param name="fileEntry"> FileEntry to extract </param>
-        /// <returns> Extracted files </returns>
-        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
-        {
-            DiscUtils.Wim.WimFile? baseFile = null;
-            try
-            {
-                baseFile = new DiscUtils.Wim.WimFile(fileEntry.Content);
-            }
-            catch (Exception e)
-            {
-                Logger.Debug(e, "Failed to init WIM image.");
-            }
-            if (baseFile != null)
-            {
-                for (var i = 0; i < baseFile.ImageCount; i++)
-                {
-                    var image = baseFile.GetImage(i);
-                    foreach (var file in image.GetFiles(image.Root.FullName, "*.*", SearchOption.AllDirectories))
-                    {
-                        Stream? stream = null;
-                        try
-                        {
-                            var info = image.GetFileInfo(file);
-                            stream = info.OpenRead();
-                            governor.CheckResourceGovernor(info.Length);
-                        }
-                        catch (Exception e)
-                        {
-                            Logger.Debug("Error reading {0} from WIM {1} ({2}:{3})", file, image.FriendlyName, e.GetType(), e.Message);
-                        }
-                        if (stream != null)
-                        {
-                            var name = file.Replace('\\', Path.DirectorySeparatorChar);
-
-                            var newFileEntry = new FileEntry($"{image.FriendlyName}{Path.DirectorySeparatorChar}{name}", stream, fileEntry, memoryStreamCutoff: options.MemoryStreamCutoff);
-                            foreach (var entry in Context.Extract(newFileEntry, options, governor))
-                            {
-                                yield return entry;
-                            }
-                            stream.Dispose();
                         }
                     }
                 }

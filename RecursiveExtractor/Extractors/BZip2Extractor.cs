@@ -26,7 +26,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             using var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.Asynchronous | FileOptions.DeleteOnClose);
 
@@ -45,15 +45,16 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
             if (entry != null)
             {
-                if (Extractor.IsQuine(entry))
+                if (options.Recurse || topLevel)
                 {
-                    Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                    throw new OverflowException();
+                    await foreach (var extractedFile in Context.ExtractAsync(entry, options, governor, false))
+                    {
+                        yield return extractedFile;
+                    }
                 }
-
-                await foreach (var extractedFile in Context.ExtractAsync(entry, options, governor))
+                else
                 {
-                    yield return extractedFile;
+                    yield return entry;
                 }
             }
         }
@@ -63,38 +64,36 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             var newFilename = Path.GetFileNameWithoutExtension(fileEntry.Name);
 
-            if (options.FileNamePasses(newFilename))
+            using var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+
+            try
             {
-                using var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+                BZip2.Decompress(fileEntry.Content, fs, false);
+            }
+            catch (Exception e)
+            {
+                Logger.Debug(Extractor.DEBUG_STRING, "BZip2", e.GetType(), e.Message, e.StackTrace);
+                yield break;
+            }
 
-                try
+            var entry = new FileEntry(newFilename, fs, fileEntry);
+
+            if (entry != null)
+            {
+                if (options.Recurse || topLevel)
                 {
-                    BZip2.Decompress(fileEntry.Content, fs, false);
-                }
-                catch (Exception e)
-                {
-                    Logger.Debug(Extractor.DEBUG_STRING, "BZip2", e.GetType(), e.Message, e.StackTrace);
-                    yield break;
-                }
-
-                var entry = new FileEntry(newFilename, fs, fileEntry);
-
-                if (entry != null)
-                {
-                    if (Extractor.IsQuine(entry))
-                    {
-                        Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                        throw new OverflowException();
-                    }
-
-                    foreach (var extractedFile in Context.Extract(entry, options, governor))
+                    foreach (var extractedFile in Context.Extract(entry, options, governor, false))
                     {
                         yield return extractedFile;
                     }
+                }
+                else
+                {
+                    yield return entry;
                 }
             }
         }

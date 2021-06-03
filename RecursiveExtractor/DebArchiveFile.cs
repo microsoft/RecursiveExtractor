@@ -40,11 +40,8 @@ namespace Microsoft.CST.RecursiveExtractor
 
                     var entryContent = new byte[fileSize];
                     fileEntry.Content.Read(entryContent, 0, fileSize);
-                    if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{filename}"))
-                    {
-                        var stream = new MemoryStream(entryContent);
-                        yield return new FileEntry(filename, stream, fileEntry, true);
-                    }
+                    var stream = new MemoryStream(entryContent);
+                    yield return new FileEntry(filename, stream, fileEntry, true);
                 }
                 else
                 {
@@ -83,11 +80,8 @@ namespace Microsoft.CST.RecursiveExtractor
 
                     var entryContent = new byte[fileSize];
                     await fileEntry.Content.ReadAsync(entryContent, 0, fileSize).ConfigureAwait(false);
-                    if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{filename}"))
-                    {
-                        var stream = new MemoryStream(entryContent);
-                        yield return new FileEntry(filename, stream, fileEntry, true);
-                    }
+                    var stream = new MemoryStream(entryContent);
+                    yield return new FileEntry(filename, stream, fileEntry, true);
                 }
                 else
                 {

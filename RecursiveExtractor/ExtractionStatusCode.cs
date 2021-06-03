@@ -5,6 +5,7 @@ namespace Microsoft.CST.RecursiveExtractor
     public enum ExtractionStatusCode
     {
         Ok,
-        BadArgument
+        BadArgument,
+        Failure
     }
 }

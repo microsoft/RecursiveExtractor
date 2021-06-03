@@ -28,7 +28,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             using var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.Asynchronous | FileOptions.DeleteOnClose);
 
@@ -51,15 +51,16 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
             if (entry != null)
             {
-                if (Extractor.IsQuine(entry))
+                if (options.Recurse || topLevel)
                 {
-                    Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                    throw new OverflowException();
+                    await foreach (var newFileEntry in Context.ExtractAsync(entry, options, governor, false))
+                    {
+                        yield return newFileEntry;
+                    }
                 }
-
-                await foreach (var extractedFile in Context.ExtractAsync(entry, options, governor))
+                else
                 {
-                    yield return extractedFile;
+                    yield return entry;
                 }
             }
         }
@@ -70,7 +71,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             using var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
 
@@ -92,17 +93,18 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
             var entry = new FileEntry(newFilename, fs, fileEntry);
 
-            if (entry != null && options.FileNamePasses(entry.FullPath))
+            if (entry != null)
             {
-                if (Extractor.IsQuine(entry))
+                if (options.Recurse || topLevel)
                 {
-                    Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                    throw new OverflowException();
+                    foreach (var extractedFile in Context.Extract(entry, options, governor, false))
+                    {
+                        yield return extractedFile;
+                    }
                 }
-
-                foreach (var extractedFile in Context.Extract(entry, options, governor))
+                else
                 {
-                    yield return extractedFile;
+                    yield return entry;
                 }
             }
         }

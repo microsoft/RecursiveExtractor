@@ -27,13 +27,20 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
-        public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             await foreach (var entry in ArFile.GetFileEntriesAsync(fileEntry, options, governor))
             {
-                await foreach (var extractedFile in Context.ExtractAsync(entry, options, governor))
+                if (options.Recurse || topLevel)
                 {
-                    yield return extractedFile;
+                    await foreach (var extractedFile in Context.ExtractAsync(entry, options, governor, false))
+                    {
+                        yield return extractedFile;
+                    }
+                }
+                else
+                {
+                    yield return entry;
                 }
             }
         }
@@ -43,7 +50,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
-        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             IEnumerable<FileEntry>? fileEntries = null;
             try
@@ -66,7 +73,21 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         var tempStore = new ConcurrentStack<FileEntry>();
                         var selectedEntries = fileEntries.Take(options.BatchSize);
-                        selectedEntries.AsParallel().ForAll(arEntry => tempStore.PushRange(Context.Extract(arEntry, options, governor).ToArray()));
+                        selectedEntries.AsParallel().ForAll(arEntry =>
+                        {
+                            if (options.Recurse || topLevel)
+                            {
+                                var entries = Context.Extract(arEntry, options, governor, false).ToArray();
+                                if (entries.Any())
+                                {
+                                    tempStore.PushRange(entries);
+                                }
+                            }
+                            else
+                            {
+                                tempStore.Push(arEntry);
+                            }
+                        });
 
                         fileEntries = fileEntries.Skip(selectedEntries.Count());
 
@@ -81,9 +102,16 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 {
                     foreach (var entry in fileEntries)
                     {
-                        foreach (var extractedFile in Context.Extract(entry, options, governor))
+                        if (options.Recurse || topLevel)
                         {
-                            yield return extractedFile;
+                            foreach (var extractedFile in Context.Extract(entry, options, governor, false))
+                            {
+                                yield return extractedFile;
+                            }
+                        }
+                        else
+                        {
+                            yield return entry;
                         }
                     }
                 }

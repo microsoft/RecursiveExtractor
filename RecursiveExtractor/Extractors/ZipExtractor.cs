@@ -51,7 +51,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             ZipFile? zipFile = null;
             try
@@ -94,19 +94,20 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
 
                     var name = zipEntry.Name.Replace('/', Path.DirectorySeparatorChar);
-                    if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{name}"))
+                    var newFileEntry = new FileEntry(name, fs, fileEntry, modifyTime: zipEntry.DateTime, memoryStreamCutoff: options.MemoryStreamCutoff);
+
+                    if (newFileEntry != null)
                     {
-                        var newFileEntry = new FileEntry(name, fs, fileEntry, modifyTime: zipEntry.DateTime, memoryStreamCutoff: options.MemoryStreamCutoff);
-
-                        if (Extractor.IsQuine(newFileEntry))
+                        if (options.Recurse || topLevel)
                         {
-                            Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                            throw new OverflowException();
+                            await foreach (var innerEntry in Context.ExtractAsync(newFileEntry, options, governor, false))
+                            {
+                                yield return innerEntry;
+                            }
                         }
-
-                        await foreach (var extractedFile in Context.ExtractAsync(newFileEntry, options, governor))
+                        else
                         {
-                            yield return extractedFile;
+                            yield return newFileEntry;
                         }
                     }
                 }
@@ -118,7 +119,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             ZipFile? zipFile = null;
             try
@@ -162,20 +163,18 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
 
                     var name = zipEntry.Name.Replace('/', Path.DirectorySeparatorChar);
-                    if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{name}"))
+                    var newFileEntry = new FileEntry(name, fs, fileEntry, modifyTime: zipEntry.DateTime, memoryStreamCutoff: options.MemoryStreamCutoff);
+
+                    if (options.Recurse || topLevel)
                     {
-                        var newFileEntry = new FileEntry(name, fs, fileEntry, modifyTime: zipEntry.DateTime, memoryStreamCutoff: options.MemoryStreamCutoff);
-
-                        if (Extractor.IsQuine(newFileEntry))
+                        foreach (var innerEntry in Context.Extract(newFileEntry, options, governor, false))
                         {
-                            Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                            throw new OverflowException();
+                            yield return innerEntry;
                         }
-
-                        foreach (var extractedFile in Context.Extract(newFileEntry, options, governor))
-                        {
-                            yield return extractedFile;
-                        }
+                    }
+                    else
+                    {
+                        yield return newFileEntry;
                     }
                 }
             }

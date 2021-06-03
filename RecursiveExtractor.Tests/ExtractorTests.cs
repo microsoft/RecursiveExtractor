@@ -86,6 +86,85 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("TestData.tar", 5)]
         [DataRow("TestData.rar")]
         [DataRow("TestData.rar4")]
+        [DataRow("TestData.tar.bz2", 1)]
+        [DataRow("TestData.tar.gz", 1)]
+        [DataRow("TestData.tar.xz", 1)]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 2)]
+        [DataRow("TestData.a")]
+        //[DataRow("TestData.ar")]
+        [DataRow("TestData.iso")]
+        [DataRow("TestData.vhdx")]
+        [DataRow("TestData.wim")]
+        [DataRow("EmptyFile.txt", 1)]
+        [DataRow("TestDataArchivesNested.Zip", 14)]
+        public async Task ExtractArchiveAsyncNoRecursion(string fileName, int expectedNumFiles = 3)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            var numResults = 0;
+            await foreach(var result in extractor.ExtractAsync(path, new ExtractorOptions() { Recurse = false }))
+            {
+                numResults++;
+            }
+            Assert.AreEqual(expectedNumFiles, numResults);
+        }
+
+        [DataTestMethod]
+        [DataRow("TestData.zip", 5)]
+        [DataRow("TestData.7z")]
+        [DataRow("TestData.tar", 5)]
+        [DataRow("TestData.rar")]
+        [DataRow("TestData.rar4")]
+        [DataRow("TestData.tar.bz2", 1)]
+        [DataRow("TestData.tar.gz", 1)]
+        [DataRow("TestData.tar.xz", 1)]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 2)]
+        [DataRow("TestData.a")]
+        //[DataRow("TestData.ar")]
+        [DataRow("TestData.iso")]
+        [DataRow("TestData.vhdx")]
+        [DataRow("TestData.wim")]
+        [DataRow("EmptyFile.txt", 1)]
+        [DataRow("TestDataArchivesNested.Zip", 14)]
+        public void ExtractArchiveParallelNoRecursion(string fileName, int expectedNumFiles = 3)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            var results = extractor.Extract(path, new ExtractorOptions() { Parallel = true, Recurse = false });
+            Assert.AreEqual(expectedNumFiles, results.Count());
+        }
+
+        [DataTestMethod]
+        [DataRow("TestData.zip", 5)]
+        [DataRow("TestData.7z")]
+        [DataRow("TestData.tar", 5)]
+        [DataRow("TestData.rar")]
+        [DataRow("TestData.rar4")]
+        [DataRow("TestData.tar.bz2", 1)]
+        [DataRow("TestData.tar.gz", 1)]
+        [DataRow("TestData.tar.xz", 1)]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 2)]
+        [DataRow("TestData.a")]
+        //[DataRow("TestData.ar")]
+        [DataRow("TestData.iso")]
+        [DataRow("TestData.vhdx")]
+        [DataRow("TestData.wim")]
+        [DataRow("EmptyFile.txt", 1)]
+        [DataRow("TestDataArchivesNested.Zip", 14)]
+        public void ExtractArchiveNoRecursion(string fileName, int expectedNumFiles = 3)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            var results = extractor.Extract(path, new ExtractorOptions() { Recurse = false });
+            Assert.AreEqual(expectedNumFiles, results.Count());
+        }
+
+        [DataTestMethod]
+        [DataRow("TestData.zip", 5)]
+        [DataRow("TestData.7z")]
+        [DataRow("TestData.tar", 5)]
+        [DataRow("TestData.rar")]
+        [DataRow("TestData.rar4")]
         [DataRow("TestData.tar.bz2", 5)]
         [DataRow("TestData.tar.gz", 5)]
         [DataRow("TestData.tar.xz")]
@@ -146,7 +225,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("TestData.vhdx")]
         [DataRow("TestData.wim")]
         [DataRow("EmptyFile.txt", 0)]
-        [DataRow("TestDataArchivesNested.Zip", 1)]
+        [DataRow("TestDataArchivesNested.Zip", 9)]
         public async Task ExtractArchiveAsyncAllowFiltered(string fileName, int expectedNumFiles = 1)
         {
             var extractor = new Extractor();
@@ -176,7 +255,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("TestData.vhdx")]
         [DataRow("TestData.wim")]
         [DataRow("EmptyFile.txt", 0)]
-        [DataRow("TestDataArchivesNested.Zip", 1)]
+        [DataRow("TestDataArchivesNested.Zip", 9)]
         public void ExtractArchiveAllowFiltered(string fileName, int expectedNumFiles = 1)
         {
             var extractor = new Extractor();
@@ -201,7 +280,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("TestData.vhdx")]
         [DataRow("TestData.wim")]
         [DataRow("EmptyFile.txt", 0)]
-        [DataRow("TestDataArchivesNested.Zip", 1)]
+        [DataRow("TestDataArchivesNested.Zip", 9)]
         public void ExtractArchiveParallelAllowFiltered(string fileName, int expectedNumFiles = 1)
         {
             var extractor = new Extractor();
@@ -515,28 +594,12 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("zblg.zip")]
         [DataRow("zbsm.zip")]
         [DataRow("zbxl.zip")]
+        [ExpectedException(typeof(OverflowException))]
         public void TestQuineBombs(string fileName)
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Bombs", fileName);
-            IEnumerable<FileEntry> results;
-            try
-            {
-                results = extractor.Extract(path, new ExtractorOptions() { MemoryStreamCutoff = 1024*1024*1024 }).ToList();
-                // Getting here means we didnt catch the bomb
-            }
-            // We should throw an overflow exception when we detect a quine or bomb
-            catch (Exception e) when (
-                    e is OverflowException)
-            {
-                return;
-            }
-            catch (Exception e)
-            {
-                Logger.Debug(e, "Shouldn't hit other exceptions in this test.");
-            }
-            // Getting here means we didnt catch the bomb
-            Assert.Fail();
+            _ = extractor.Extract(path, new ExtractorOptions() { MemoryStreamCutoff = 1024 * 1024 * 1024 }).ToList();
         }
 
         [DataTestMethod]
