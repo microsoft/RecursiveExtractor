@@ -84,7 +84,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
-        public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             var rarArchive = GetRarArchive(fileEntry, options);
             if (rarArchive != null)
@@ -98,14 +98,16 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         var newFileEntry = await FileEntry.FromStreamAsync(name, entry.OpenEntryStream(), fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
                         if (newFileEntry != null)
                         {
-                            if (Extractor.IsQuine(newFileEntry))
+                            if (options.Recurse || topLevel)
                             {
-                                Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                                throw new OverflowException();
+                                await foreach (var innerEntry in Context.ExtractAsync(newFileEntry, options, governor, false))
+                                {
+                                    yield return innerEntry;
+                                }
                             }
-                            await foreach (var extractedFile in Context.ExtractAsync(newFileEntry, options, governor))
+                            else
                             {
-                                yield return extractedFile;
+                                yield return newFileEntry;
                             }
                         }
                     }
@@ -125,7 +127,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
-        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             var rarArchive = GetRarArchive(fileEntry, options);
             if (rarArchive != null)
@@ -148,14 +150,17 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             try
                             {
                                 var newFileEntry = new FileEntry(streampair.entry.Key, streampair.Item2, fileEntry, false, streampair.entry.CreatedTime, streampair.entry.LastModifiedTime, streampair.entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
-                                if (Extractor.IsQuine(newFileEntry))
+                                if (options.Recurse || topLevel)
                                 {
-                                    Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                                    governor.CurrentOperationProcessedBytesLeft = -1;
+                                    var entries = Context.Extract(newFileEntry, options, governor, false);
+                                    if (entries.Any())
+                                    {
+                                        files.PushRange(entries.ToArray());
+                                    }
                                 }
                                 else
                                 {
-                                    files.PushRange(Context.Extract(newFileEntry, options, governor).ToArray());
+                                    files.Push(newFileEntry);
                                 }
                             }
                             catch (Exception e)
@@ -194,14 +199,16 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         }
                         if (newFileEntry != null)
                         {
-                            if (Extractor.IsQuine(newFileEntry))
+                            if (options.Recurse || topLevel)
                             {
-                                Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                                throw new OverflowException();
+                                foreach (var innerEntry in Context.Extract(newFileEntry, options, governor, false))
+                                {
+                                    yield return innerEntry;
+                                }
                             }
-                            foreach (var extractedFile in Context.Extract(newFileEntry, options, governor))
+                            else
                             {
-                                yield return extractedFile;
+                                yield return newFileEntry;
                             }
                         }
                     }

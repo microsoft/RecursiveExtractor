@@ -24,7 +24,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <param name="Context">Extractor context to use</param>
         /// <param name="parent">The Parent FilEntry</param>
         /// <returns></returns>
-        public static async IAsyncEnumerable<FileEntry> DumpLogicalVolumeAsync(LogicalVolumeInfo volume, string parentPath, ExtractorOptions options, ResourceGovernor governor, Extractor Context, FileEntry? parent = null)
+        public static async IAsyncEnumerable<FileEntry> DumpLogicalVolumeAsync(LogicalVolumeInfo volume, string parentPath, ExtractorOptions options, ResourceGovernor governor, Extractor Context, FileEntry? parent = null, bool topLevel = true)
         {
             DiscUtils.FileSystemInfo[]? fsInfos = null;
             try
@@ -40,6 +40,8 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             {
                 using var fs = fsInfo.Open(volume);
                 var diskFiles = fs.GetFiles(fs.Root.FullName, "*.*", SearchOption.AllDirectories).ToList();
+                diskFiles = options.Recurse ? diskFiles :
+                            diskFiles.Where(x => options.FileNamePasses($"{parent?.FullPath}{Path.DirectorySeparatorChar}{x}")).ToList();
 
                 foreach (var file in diskFiles)
                 {
@@ -58,10 +60,18 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     if (fileStream != null && fi != null)
                     {
                         var newFileEntry = await FileEntry.FromStreamAsync($"{volume.Identity}{Path.DirectorySeparatorChar}{fi.FullName}", fileStream, parent, fi.CreationTime, fi.LastWriteTime, fi.LastAccessTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
-                        await foreach (var entry in Context.ExtractAsync(newFileEntry, options, governor))
+                        if (options.Recurse || topLevel)
                         {
-                            yield return entry;
+                            await foreach (var entry in Context.ExtractAsync(newFileEntry, options, governor, false))
+                            {
+                                yield return entry;
+                            }
                         }
+                        else
+                        {
+                            yield return newFileEntry;
+                        }
+                        
                     }
                 }
             }
@@ -77,7 +87,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <param name="Context">Extractor context to use</param>
         /// <param name="parent">The Parent FilEntry</param>
         /// <returns></returns>
-        public static IEnumerable<FileEntry> DumpLogicalVolume(LogicalVolumeInfo volume, string parentPath, ExtractorOptions options, ResourceGovernor governor, Extractor Context, FileEntry? parent = null)
+        public static IEnumerable<FileEntry> DumpLogicalVolume(LogicalVolumeInfo volume, string parentPath, ExtractorOptions options, ResourceGovernor governor, Extractor Context, FileEntry? parent = null, bool topLevel = true)
         {
             DiscUtils.FileSystemInfo[]? fsInfos = null;
             try
@@ -119,17 +129,25 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                         governor.CheckResourceGovernor(totalLength);
 
-                        var validFileInfos = fileinfos.Where(x => options.FileNamePasses($"{parent?.FullPath}{Path.DirectorySeparatorChar}{x.name}"));
+                        var validFileInfos = options.Recurse ? fileinfos :
+                            fileinfos.Where(x => options.FileNamePasses($"{parent?.FullPath}{Path.DirectorySeparatorChar}{x.name}"));
 
                         fileinfos.AsParallel().ForAll(file =>
                         {
                             if (file.stream != null)
                             {
                                 var newFileEntry = new FileEntry($"{volume.Identity}{Path.DirectorySeparatorChar}{file.name}", file.stream, parent, false, file.created, file.modified, file.accessed, memoryStreamCutoff: options.MemoryStreamCutoff);
-                                var entries = Context.Extract(newFileEntry, options, governor).ToArray();
-                                if (entries.Length > 0)
+                                if (options.Recurse || topLevel)
                                 {
-                                    files.PushRange(entries);
+                                    var newEntries = Context.Extract(newFileEntry, options, governor, false).ToArray();
+                                    if (newEntries.Length > 0)
+                                    {
+                                        files.PushRange(newEntries);
+                                    }
+                                }
+                                else
+                                {
+                                    files.Push(newFileEntry);
                                 }
                             }
                         });
@@ -151,7 +169,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         try
                         {
                             var fi = fs.GetFileInfo(file);
-                            if (!options.FileNamePasses(fi.FullName))
+                            if (!options.FileNamePasses(fi.FullName) && !options.Recurse)
                             {
                                 continue;
                             }
@@ -168,9 +186,16 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         if (fileStream != null)
                         {
                             var newFileEntry = new FileEntry($"{volume.Identity}{Path.DirectorySeparatorChar}{file}", fileStream, parent, false, creation, modification, access, memoryStreamCutoff: options.MemoryStreamCutoff);
-                            foreach (var entry in Context.Extract(newFileEntry, options, governor))
+                            if (options.Recurse || topLevel)
                             {
-                                yield return entry;
+                                foreach (var extractedFile in Context.Extract(newFileEntry, options, governor, false))
+                                {
+                                    yield return extractedFile;
+                                }
+                            }
+                            else
+                            {
+                                yield return newFileEntry;
                             }
                         }
                     }

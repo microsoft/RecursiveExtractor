@@ -47,7 +47,8 @@ namespace Microsoft.CST.RecursiveExtractor.Cli
             {
                 ExtractSelfOnFail = true,
                 Parallel = true,
-                RawExtensions = options.RawExtensions ?? Array.Empty<string>()
+                RawExtensions = options.RawExtensions ?? Array.Empty<string>(),
+                Recurse = !options.DisableRecursion
             };
             if (options.Passwords?.Any() ?? false)
             {

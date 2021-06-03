@@ -28,7 +28,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             XZStream? xzStream = null;
             try
@@ -59,15 +59,19 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         governor.CheckResourceGovernor((long)streamLength.Value);
                     }
 
-                    if (Extractor.IsQuine(newFileEntry))
+                    if (newFileEntry != null)
                     {
-                        Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                        throw new OverflowException();
-                    }
-
-                    await foreach (var extractedFile in Context.ExtractAsync(newFileEntry, options, governor))
-                    {
-                        yield return extractedFile;
+                        if (options.Recurse || topLevel)
+                        {
+                            await foreach (var innerEntry in Context.ExtractAsync(newFileEntry, options, governor, false))
+                            {
+                                yield return innerEntry;
+                            }
+                        }
+                        else
+                        {
+                            yield return newFileEntry;
+                        }
                     }
                 }
                 xzStream.Dispose();
@@ -86,7 +90,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             XZStream? xzStream = null;
             try
@@ -117,15 +121,16 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         governor.CheckResourceGovernor((long)streamLength.Value);
                     }
 
-                    if (Extractor.IsQuine(newFileEntry))
+                    if (options.Recurse || topLevel)
                     {
-                        Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                        throw new OverflowException();
+                        foreach (var innerEntry in Context.Extract(newFileEntry, options, governor, false))
+                        {
+                            yield return innerEntry;
+                        }
                     }
-
-                    foreach (var extractedFile in Context.Extract(newFileEntry, options, governor))
+                    else
                     {
-                        yield return extractedFile;
+                        yield return newFileEntry;
                     }
                 }
                 xzStream.Dispose();

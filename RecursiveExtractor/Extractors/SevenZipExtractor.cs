@@ -30,14 +30,12 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             var sevenZipArchive = GetSevenZipArchive(fileEntry, options);
             if (sevenZipArchive != null)
             {
-                var entries = sevenZipArchive.Entries.Where(x => !x.IsDirectory && x.IsComplete).ToList();
-
-                foreach (var entry in entries)
+                foreach (var entry in sevenZipArchive.Entries.Where(x => !x.IsDirectory && x.IsComplete).ToList())
                 {
                     governor.CheckResourceGovernor(entry.Size);
                     var name = entry.Key.Replace('/', Path.DirectorySeparatorChar);
@@ -45,14 +43,19 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         var newFileEntry = await FileEntry.FromStreamAsync(name, entry.OpenEntryStream(), fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
 
-                        if (Extractor.IsQuine(newFileEntry))
+                        if (newFileEntry != null)
                         {
-                            Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                            throw new OverflowException();
-                        }
-                        await foreach (var extractedFile in Context.ExtractAsync(newFileEntry, options, governor))
-                        {
-                            yield return extractedFile;
+                            if (options.Recurse || topLevel)
+                            {
+                                await foreach (var innerEntry in Context.ExtractAsync(newFileEntry, options, governor, false))
+                                {
+                                    yield return innerEntry;
+                                }
+                            }
+                            else
+                            {
+                                yield return newFileEntry;
+                            }
                         }
                     }
                 }
@@ -118,7 +121,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
         /// <returns> Extracted files </returns>
-        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor)
+        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             var sevenZipArchive = GetSevenZipArchive(fileEntry, options);
             if (sevenZipArchive != null)
@@ -144,14 +147,17 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                                     if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{name}"))
                                     {
                                         var newFileEntry = new FileEntry(name, entry.Item2, fileEntry, false, entry.entry.CreatedTime, entry.entry.LastModifiedTime, entry.entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
-                                        if (Extractor.IsQuine(newFileEntry))
+                                        if (options.Recurse || topLevel)
                                         {
-                                            Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                                            governor.CurrentOperationProcessedBytesLeft = -1;
+                                            var entries = Context.Extract(newFileEntry, options, governor, false);
+                                            if (entries.Any())
+                                            {
+                                                files.PushRange(entries.ToArray());
+                                            }
                                         }
                                         else
                                         {
-                                            files.PushRange(Context.Extract(newFileEntry, options, governor).ToArray());
+                                            files.Push(newFileEntry);
                                         }
                                     }
                                 }
@@ -195,14 +201,16 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         {
                             var newFileEntry = new FileEntry(name, entry.OpenEntryStream(), fileEntry, createTime: entry.CreatedTime, modifyTime: entry.LastModifiedTime, accessTime: entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
 
-                            if (Extractor.IsQuine(newFileEntry))
+                            if (options.Recurse || topLevel)
                             {
-                                Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                                throw new OverflowException();
+                                foreach (var innerEntry in Context.Extract(newFileEntry, options, governor, false))
+                                {
+                                    yield return innerEntry;
+                                }
                             }
-                            foreach (var extractedFile in Context.Extract(newFileEntry, options, governor))
+                            else
                             {
-                                yield return extractedFile;
+                                yield return newFileEntry;
                             }
                         }
                     }

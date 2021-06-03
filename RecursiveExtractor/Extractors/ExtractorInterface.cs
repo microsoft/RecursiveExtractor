@@ -14,6 +14,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <param name="options">The ExtractorOptions to use</param>
         /// <param name="governor">The ResourceGovernor to use</param>
         /// <returns></returns>
-        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor);
+        public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true);
     }
 }

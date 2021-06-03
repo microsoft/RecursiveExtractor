@@ -70,6 +70,11 @@ namespace Microsoft.CST.RecursiveExtractor
         public Dictionary<Regex, List<string>> Passwords { get; set; } = new Dictionary<Regex, List<string>>();
 
         /// <summary>
+        /// Should extraction recurse into archives
+        /// </summary>
+        public bool Recurse { get; set; } = true;
+
+        /// <summary>
         /// If set, only return files that match these glob filters
         /// </summary>
         public IEnumerable<string> AllowFilters
@@ -117,10 +122,6 @@ namespace Microsoft.CST.RecursiveExtractor
                 allowed = false;
             }
             return allowed;
-        }
-
-        public ExtractorOptions()
-        {
         }
     }
 }
