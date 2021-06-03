@@ -62,10 +62,18 @@ namespace Microsoft.CST.RecursiveExtractor.Cli
                     }
                 };
             }
+            var exitCode = ExtractionStatusCode.Ok;
+            try
+            {
+                exitCode = extractor.ExtractToDirectory(options.Output, options.Input, extractorOptions, options.PrintNames);
+            }
+            catch(Exception e)
+            {
+                Logger.Error($"Exception while extracting. {e.GetType()}:{e.Message} ({e.StackTrace})");
+                exitCode = ExtractionStatusCode.Failure;
+            }
 
-            extractor.ExtractToDirectory(options.Output, options.Input, extractorOptions, options.PrintNames);
-
-            return 0;
+            return (int)exitCode;
         }
         private readonly static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     }

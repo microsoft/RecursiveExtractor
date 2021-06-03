@@ -60,7 +60,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
                 Verbose = true,
                 AllowFilters = new string[]
                 {
-                    ".[cC][sS]$"
+                    "*.cs"
                 }
             });
             var files = Array.Empty<string>();
@@ -87,7 +87,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
                 Verbose = true,
                 DenyFilters = new string[]
                 {
-                    ".[cC][sS]$"
+                    "*.cs"
                 }
             });
             var files = Array.Empty<string>();

@@ -412,9 +412,37 @@ namespace Microsoft.CST.RecursiveExtractor
         public ExtractionStatusCode ExtractToDirectory(string outputDirectory, FileEntry fileEntry, ExtractorOptions? opts = null, bool printNames = false)
         {
             opts ??= new ExtractorOptions();
-            if (opts.Parallel)
+            if (!opts.Parallel)
             {
+                foreach (var entry in Extract(fileEntry, opts))
+                {
+                    var targetPath = Path.Combine(outputDirectory, entry.FullPath);
+                    if (Path.GetDirectoryName(targetPath) is string directoryPath && targetPath is string targetPathNotNull)
+                    {
+                        try
+                        {
+                            Directory.CreateDirectory(directoryPath);
 
+                            using var fs = new FileStream(targetPathNotNull, FileMode.Create);
+                            entry.Content.CopyTo(fs);
+                            if (printNames)
+                            {
+                                Console.WriteLine("Extracted {0}.", entry.FullPath);
+                            }
+                            Logger.Trace("Extracted {0}", entry.FullPath);
+                        }
+                        catch (Exception e)
+                        {
+                            Logger.Error(e, "Failed to create file at {0}.", targetPathNotNull);
+                            return ExtractionStatusCode.Failure;
+                        }
+                    }
+                    else
+                    {
+                        Logger.Error("Failed to create directory.");
+                        return ExtractionStatusCode.Failure;
+                    }
+                }
             }
             else
             {
