@@ -30,10 +30,15 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             TarEntry tarEntry;
+            // Workaround because TarInputStream closes the underlying stream when it is disposed
+            using var tempStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
+            fileEntry.Content.CopyTo(tempStream);
+            tempStream.Position = 0;
+            fileEntry.Content.Position = 0;
             TarInputStream? tarStream = null;
             try
             {
-                tarStream = new TarInputStream(fileEntry.Content, System.Text.Encoding.UTF8);
+                tarStream = new TarInputStream(tempStream, System.Text.Encoding.UTF8);
             }
             catch (Exception e)
             {
@@ -60,23 +65,20 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
 
                     var name = tarEntry.Name.Replace('/', Path.DirectorySeparatorChar);
-                    if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{name}"))
-                    {
-                        var newFileEntry = new FileEntry(name, fs, fileEntry, true, memoryStreamCutoff: options.MemoryStreamCutoff);
+                    var newFileEntry = new FileEntry(name, fs, fileEntry, true, memoryStreamCutoff: options.MemoryStreamCutoff);
 
-                        if (newFileEntry != null)
+                    if (newFileEntry != null)
+                    {
+                        if (options.Recurse || topLevel)
                         {
-                            if (options.Recurse || topLevel)
+                            await foreach (var innerEntry in Context.ExtractAsync(newFileEntry, options, governor, false))
                             {
-                                await foreach (var innerEntry in Context.ExtractAsync(newFileEntry, options, governor, false))
-                                {
-                                    yield return innerEntry;
-                                }
+                                yield return innerEntry;
                             }
-                            else
-                            {
-                                yield return newFileEntry;
-                            }
+                        }
+                        else
+                        {
+                            yield return newFileEntry;
                         }
                     }
                 }
@@ -99,10 +101,15 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             TarEntry tarEntry;
+            // Workaround because TarInputStream closes the underlying stream when it is disposed
+            using var tempStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
+            fileEntry.Content.CopyTo(tempStream);
+            tempStream.Position = 0;
+            fileEntry.Content.Position = 0;
             TarInputStream? tarStream = null;
             try
             {
-                tarStream = new TarInputStream(fileEntry.Content, System.Text.Encoding.UTF8);
+                tarStream = new TarInputStream(tempStream, System.Text.Encoding.UTF8);
             }
             catch (Exception e)
             {
@@ -128,24 +135,20 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.TAR, fileEntry.FullPath, tarEntry.Name, e.GetType());
                     }
                     var name = tarEntry.Name.Replace('/', Path.DirectorySeparatorChar);
-                    if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{name}"))
-                    {
-                        var newFileEntry = new FileEntry(name, fs, fileEntry, true, memoryStreamCutoff: options.MemoryStreamCutoff);
+                    var newFileEntry = new FileEntry(name, fs, fileEntry, true, memoryStreamCutoff: options.MemoryStreamCutoff);
 
-                        if (options.Recurse || topLevel)
+                    if (options.Recurse || topLevel)
+                    {
+                        foreach (var innerEntry in Context.Extract(newFileEntry, options, governor, false))
                         {
-                            foreach (var innerEntry in Context.Extract(newFileEntry, options, governor, false))
-                            {
-                                yield return innerEntry;
-                            }
-                        }
-                        else
-                        {
-                            yield return newFileEntry;
+                            yield return innerEntry;
                         }
                     }
+                    else
+                    {
+                        yield return newFileEntry;
+                    }
                 }
-                tarStream.Dispose();
             }
             else
             {
@@ -154,6 +157,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     yield return fileEntry;
                 }
             }
+            tarStream?.Dispose();
         }
 
         private const int bufferSize = 4096;

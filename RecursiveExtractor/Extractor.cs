@@ -217,16 +217,10 @@ namespace Microsoft.CST.RecursiveExtractor
             opts ??= new ExtractorOptions();
             var governor = new ResourceGovernor(opts);
             FileEntry? fileEntry = null;
-            try
-            {
-                var file = Path.GetFileName(filename);
-                fileEntry = new FileEntry(file, stream, memoryStreamCutoff: opts.MemoryStreamCutoff);
-                governor.ResetResourceGovernor(stream);
-            }
-            catch (Exception ex)
-            {
-                Logger.Debug(ex, "Failed to extract file {0}", filename);
-            }
+            var file = Path.GetFileName(filename);
+            fileEntry = new FileEntry(file, stream, memoryStreamCutoff: opts.MemoryStreamCutoff);
+            governor.ResetResourceGovernor(stream);
+            
 
             if (fileEntry != null)
             {
@@ -320,20 +314,30 @@ namespace Microsoft.CST.RecursiveExtractor
 
             Governor.CurrentOperationProcessedBytesLeft -= fileEntry.Content.Length;
             Governor.CheckResourceGovernor();
-
+            if (IsQuine(fileEntry))
+            {
+                Logger.Info(IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
+                throw new OverflowException();
+            }
             if (topLevel || (!topLevel && options.Recurse))
             {
                 var type = MiniMagic.DetectFileType(fileEntry);
 
-                if (((opts?.RawExtensions?.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ?? false) || type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type)) && options.FileNamePasses(fileEntry.FullPath))
+                if (((opts?.RawExtensions?.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ?? false) || type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type)))
                 {
-                    yield return fileEntry;
+                    if (options.FileNamePasses(fileEntry.FullPath))
+                    {
+                        yield return fileEntry;
+                    }
                 }
                 else
                 {
                     await foreach (var result in Extractors[type].ExtractAsync(fileEntry, options, Governor, false))
                     {
-                        yield return result;
+                        if (options.FileNamePasses(result.FullPath))
+                        {
+                            yield return result;
+                        }
                     }
                 }
             }
@@ -543,38 +547,31 @@ namespace Microsoft.CST.RecursiveExtractor
             List<FileEntry> result = new List<FileEntry>();
             var useRaw = false;
 
-            try
+            if (topLevel || options.Recurse)
             {
-                if (topLevel || options.Recurse)
-                {
-                    var type = MiniMagic.DetectFileType(fileEntry);
+                var type = MiniMagic.DetectFileType(fileEntry);
 
-                    if (((opts?.RawExtensions?.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ?? false) || type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type)) && options.FileNamePasses(fileEntry.FullPath))
+                if ((opts?.RawExtensions?.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ?? false) || type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type))
+                {
+                    if (options.FileNamePasses(fileEntry.FullPath))
                     {
                         result.Add(fileEntry);
                     }
-                    else
+                }
+                else
+                {
+                    foreach (var extractedResult in Extractors[type].Extract(fileEntry, options, Governor, false))
                     {
-                        foreach (var extractedResult in Extractors[type].Extract(fileEntry, options, Governor, false))
+                        if (options.FileNamePasses(extractedResult.FullPath))
                         {
                             result.Add(extractedResult);
                         }
                     }
                 }
-                else if (options.FileNamePasses(fileEntry.FullPath))
-                {
-                    result.Add(fileEntry);
-                }
             }
-            catch (Exception ex)
+            else if (options.FileNamePasses(fileEntry.FullPath))
             {
-                Logger.Debug(ex, "Error extracting {0}: {1}", fileEntry.FullPath, ex.Message);
-
-                if (options.FileNamePasses(fileEntry.FullPath))
-                {
-                    useRaw = true;
-                    result.Add(fileEntry);
-                }
+                result.Add(fileEntry);
             }
 
             // After we are done with an archive subtract its bytes. Contents have been counted now separately

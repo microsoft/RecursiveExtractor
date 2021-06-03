@@ -45,12 +45,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
             if (entry != null)
             {
-                if (Extractor.IsQuine(entry))
-                {
-                    Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                    throw new OverflowException();
-                }
-
                 if (options.Recurse || topLevel)
                 {
                     await foreach (var extractedFile in Context.ExtractAsync(entry, options, governor, false))
@@ -90,12 +84,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
             if (entry != null)
             {
-                if (Extractor.IsQuine(entry))
-                {
-                    Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                    throw new OverflowException();
-                }
-
                 if (options.Recurse || topLevel)
                 {
                     foreach (var extractedFile in Context.Extract(entry, options, governor, false))
