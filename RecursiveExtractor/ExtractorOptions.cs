@@ -117,10 +117,11 @@ namespace Microsoft.CST.RecursiveExtractor
                     allowed = true;
                 }
             }
-            if (allowed && _denyGlobs.Any(x => x.IsMatch(filename)))
+            if (allowed && _denyGlobs.Any() && _denyGlobs.Any(x => x.IsMatch(filename)))
             {
                 allowed = false;
             }
+
             return allowed;
         }
     }
