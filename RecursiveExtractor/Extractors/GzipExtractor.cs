@@ -93,7 +93,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
             var entry = new FileEntry(newFilename, fs, fileEntry);
 
-            if (entry != null && options.FileNamePasses(entry.FullPath))
+            if (entry != null)
             {
                 if (options.Recurse || topLevel)
                 {

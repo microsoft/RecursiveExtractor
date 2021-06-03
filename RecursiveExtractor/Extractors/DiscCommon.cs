@@ -40,8 +40,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             {
                 using var fs = fsInfo.Open(volume);
                 var diskFiles = fs.GetFiles(fs.Root.FullName, "*.*", SearchOption.AllDirectories).ToList();
-                diskFiles = options.Recurse ? diskFiles :
-                            diskFiles.Where(x => options.FileNamePasses($"{parent?.FullPath}{Path.DirectorySeparatorChar}{x}")).ToList();
 
                 foreach (var file in diskFiles)
                 {
@@ -129,9 +127,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                         governor.CheckResourceGovernor(totalLength);
 
-                        var validFileInfos = options.Recurse ? fileinfos :
-                            fileinfos.Where(x => options.FileNamePasses($"{parent?.FullPath}{Path.DirectorySeparatorChar}{x.name}"));
-
                         fileinfos.AsParallel().ForAll(file =>
                         {
                             if (file.stream != null)
@@ -169,10 +164,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         try
                         {
                             var fi = fs.GetFileInfo(file);
-                            if (!options.FileNamePasses(fi.FullName) && !options.Recurse)
-                            {
-                                continue;
-                            }
                             governor.CheckResourceGovernor(fi.Length);
                             fileStream = fi.OpenRead();
                             creation = fi.CreationTime;

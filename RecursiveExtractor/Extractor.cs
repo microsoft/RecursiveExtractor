@@ -188,6 +188,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <returns>The FileEntries found.</returns>
         public async IAsyncEnumerable<FileEntry> ExtractAsync(string filename, ExtractorOptions? opts = null)
         {
+            opts ??= new ExtractorOptions();
             if (!File.Exists(filename))
             {
                 Logger.Warn("ExtractFile called, but {0} does not exist.", filename);
@@ -197,7 +198,10 @@ namespace Microsoft.CST.RecursiveExtractor
             var fe = new FileEntry(filename, fs, null, false, createTime: File.GetCreationTimeUtc(filename), modifyTime: File.GetLastWriteTimeUtc(filename), accessTime: File.GetLastAccessTimeUtc(filename));
             await foreach (var entry in ExtractAsync(fe, opts))
             {
-                yield return entry;
+                if (opts.FileNamePasses(entry.FullPath))
+                {
+                    yield return entry;
+                }
             }
         }
 
@@ -229,7 +233,10 @@ namespace Microsoft.CST.RecursiveExtractor
                 await foreach (var result in ExtractAsync(fileEntry, opts, governor, true))
                 {
                     governor.GovernorStopwatch.Stop();
-                    yield return result;
+                    if (opts.FileNamePasses(result.FullPath))
+                    {
+                        yield return result;
+                    }
                     governor.GovernorStopwatch.Start();
                 }
             }
@@ -277,7 +284,10 @@ namespace Microsoft.CST.RecursiveExtractor
             using var ms = new MemoryStream(archiveBytes);
             await foreach (var entry in ExtractAsync(new FileEntry(Path.GetFileName(filename), ms, memoryStreamCutoff: opts.MemoryStreamCutoff), opts))
             {
-                yield return entry;
+                if (opts.FileNamePasses(entry.FullPath))
+                {
+                    yield return entry;
+                }
             }
         }
 
@@ -535,7 +545,7 @@ namespace Microsoft.CST.RecursiveExtractor
 
             try
             {
-                if (topLevel || (!topLevel && options.Recurse))
+                if (topLevel || options.Recurse)
                 {
                     var type = MiniMagic.DetectFileType(fileEntry);
 

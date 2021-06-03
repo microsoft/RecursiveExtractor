@@ -93,22 +93,19 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 {
                     governor.CheckResourceGovernor(entry.Size);
                     var name = entry.Key.Replace('/', Path.DirectorySeparatorChar);
-                    if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{name}"))
+                    var newFileEntry = await FileEntry.FromStreamAsync(name, entry.OpenEntryStream(), fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
+                    if (newFileEntry != null)
                     {
-                        var newFileEntry = await FileEntry.FromStreamAsync(name, entry.OpenEntryStream(), fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
-                        if (newFileEntry != null)
+                        if (options.Recurse || topLevel)
                         {
-                            if (options.Recurse || topLevel)
+                            await foreach (var innerEntry in Context.ExtractAsync(newFileEntry, options, governor, false))
                             {
-                                await foreach (var innerEntry in Context.ExtractAsync(newFileEntry, options, governor, false))
-                                {
-                                    yield return innerEntry;
-                                }
+                                yield return innerEntry;
                             }
-                            else
-                            {
-                                yield return newFileEntry;
-                            }
+                        }
+                        else
+                        {
+                            yield return newFileEntry;
                         }
                     }
                 }
@@ -149,18 +146,22 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         {
                             try
                             {
-                                var newFileEntry = new FileEntry(streampair.entry.Key, streampair.Item2, fileEntry, false, streampair.entry.CreatedTime, streampair.entry.LastModifiedTime, streampair.entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
-                                if (options.Recurse || topLevel)
+                                FileEntry newFileEntry = new FileEntry(streampair.entry.Key, streampair.Item2, fileEntry, false, streampair.entry.CreatedTime, streampair.entry.LastModifiedTime, streampair.entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
+
+                                if (newFileEntry != null)
                                 {
-                                    var entries = Context.Extract(newFileEntry, options, governor, false);
-                                    if (entries.Any())
+                                    if (options.Recurse || topLevel)
                                     {
-                                        files.PushRange(entries.ToArray());
+                                        var entries = Context.Extract(newFileEntry, options, governor, false);
+                                        if (entries.Any())
+                                        {
+                                            files.PushRange(entries.ToArray());
+                                        }
                                     }
-                                }
-                                else
-                                {
-                                    files.Push(newFileEntry);
+                                    else
+                                    {
+                                        files.Push(newFileEntry);
+                                    }
                                 }
                             }
                             catch (Exception e)
@@ -188,10 +189,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         try
                         {
                             var name = entry.Key.Replace('/', Path.DirectorySeparatorChar);
-                            if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{name}"))
-                            {
-                                newFileEntry = new FileEntry(name, entry.OpenEntryStream(), fileEntry, false, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
-                            }
+                            newFileEntry = new FileEntry(name, entry.OpenEntryStream(), fileEntry, false, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
                         }
                         catch (Exception e)
                         {

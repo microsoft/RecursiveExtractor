@@ -39,23 +39,20 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 {
                     governor.CheckResourceGovernor(entry.Size);
                     var name = entry.Key.Replace('/', Path.DirectorySeparatorChar);
-                    if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{name}"))
-                    {
-                        var newFileEntry = await FileEntry.FromStreamAsync(name, entry.OpenEntryStream(), fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
+                    var newFileEntry = await FileEntry.FromStreamAsync(name, entry.OpenEntryStream(), fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
 
-                        if (newFileEntry != null)
+                    if (newFileEntry != null)
+                    {
+                        if (options.Recurse || topLevel)
                         {
-                            if (options.Recurse || topLevel)
+                            await foreach (var innerEntry in Context.ExtractAsync(newFileEntry, options, governor, false))
                             {
-                                await foreach (var innerEntry in Context.ExtractAsync(newFileEntry, options, governor, false))
-                                {
-                                    yield return innerEntry;
-                                }
+                                yield return innerEntry;
                             }
-                            else
-                            {
-                                yield return newFileEntry;
-                            }
+                        }
+                        else
+                        {
+                            yield return newFileEntry;
                         }
                     }
                 }
@@ -144,21 +141,18 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                                 try
                                 {
                                     var name = entry.entry.Key.Replace('/', Path.DirectorySeparatorChar);
-                                    if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{name}"))
+                                    var newFileEntry = new FileEntry(name, entry.Item2, fileEntry, false, entry.entry.CreatedTime, entry.entry.LastModifiedTime, entry.entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
+                                    if (options.Recurse || topLevel)
                                     {
-                                        var newFileEntry = new FileEntry(name, entry.Item2, fileEntry, false, entry.entry.CreatedTime, entry.entry.LastModifiedTime, entry.entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
-                                        if (options.Recurse || topLevel)
+                                        var entries = Context.Extract(newFileEntry, options, governor, false);
+                                        if (entries.Any())
                                         {
-                                            var entries = Context.Extract(newFileEntry, options, governor, false);
-                                            if (entries.Any())
-                                            {
-                                                files.PushRange(entries.ToArray());
-                                            }
+                                            files.PushRange(entries.ToArray());
                                         }
-                                        else
-                                        {
-                                            files.Push(newFileEntry);
-                                        }
+                                    }
+                                    else
+                                    {
+                                        files.Push(newFileEntry);
                                     }
                                 }
                                 catch (Exception e) when (e is OverflowException)
@@ -197,21 +191,18 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         governor.CheckResourceGovernor(entry.Size);
                         var name = entry.Key.Replace('/', Path.DirectorySeparatorChar);
-                        if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{name}"))
-                        {
-                            var newFileEntry = new FileEntry(name, entry.OpenEntryStream(), fileEntry, createTime: entry.CreatedTime, modifyTime: entry.LastModifiedTime, accessTime: entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
+                        var newFileEntry = new FileEntry(name, entry.OpenEntryStream(), fileEntry, createTime: entry.CreatedTime, modifyTime: entry.LastModifiedTime, accessTime: entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
 
-                            if (options.Recurse || topLevel)
+                        if (options.Recurse || topLevel)
+                        {
+                            foreach (var innerEntry in Context.Extract(newFileEntry, options, governor, false))
                             {
-                                foreach (var innerEntry in Context.Extract(newFileEntry, options, governor, false))
-                                {
-                                    yield return innerEntry;
-                                }
+                                yield return innerEntry;
                             }
-                            else
-                            {
-                                yield return newFileEntry;
-                            }
+                        }
+                        else
+                        {
+                            yield return newFileEntry;
                         }
                     }
                 }

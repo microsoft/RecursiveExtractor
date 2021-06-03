@@ -94,23 +94,20 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
 
                     var name = zipEntry.Name.Replace('/', Path.DirectorySeparatorChar);
-                    if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{name}"))
-                    {
-                        var newFileEntry = new FileEntry(name, fs, fileEntry, modifyTime: zipEntry.DateTime, memoryStreamCutoff: options.MemoryStreamCutoff);
+                    var newFileEntry = new FileEntry(name, fs, fileEntry, modifyTime: zipEntry.DateTime, memoryStreamCutoff: options.MemoryStreamCutoff);
 
-                        if (newFileEntry != null)
+                    if (newFileEntry != null)
+                    {
+                        if (options.Recurse || topLevel)
                         {
-                            if (options.Recurse || topLevel)
+                            await foreach (var innerEntry in Context.ExtractAsync(newFileEntry, options, governor, false))
                             {
-                                await foreach (var innerEntry in Context.ExtractAsync(newFileEntry, options, governor, false))
-                                {
-                                    yield return innerEntry;
-                                }
+                                yield return innerEntry;
                             }
-                            else
-                            {
-                                yield return newFileEntry;
-                            }
+                        }
+                        else
+                        {
+                            yield return newFileEntry;
                         }
                     }
                 }
@@ -166,21 +163,18 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
 
                     var name = zipEntry.Name.Replace('/', Path.DirectorySeparatorChar);
-                    if (options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{name}"))
-                    {
-                        var newFileEntry = new FileEntry(name, fs, fileEntry, modifyTime: zipEntry.DateTime, memoryStreamCutoff: options.MemoryStreamCutoff);
+                    var newFileEntry = new FileEntry(name, fs, fileEntry, modifyTime: zipEntry.DateTime, memoryStreamCutoff: options.MemoryStreamCutoff);
 
-                        if (options.Recurse || topLevel)
+                    if (options.Recurse || topLevel)
+                    {
+                        foreach (var innerEntry in Context.Extract(newFileEntry, options, governor, false))
                         {
-                            foreach (var innerEntry in Context.Extract(newFileEntry, options, governor, false))
-                            {
-                                yield return innerEntry;
-                            }
+                            yield return innerEntry;
                         }
-                        else
-                        {
-                            yield return newFileEntry;
-                        }
+                    }
+                    else
+                    {
+                        yield return newFileEntry;
                     }
                 }
             }

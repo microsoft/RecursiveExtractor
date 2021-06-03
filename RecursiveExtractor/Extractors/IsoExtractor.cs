@@ -33,7 +33,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             using var cd = new CDReader(fileEntry.Content, true);
-            var entries = cd.Root.GetFiles("*.*", SearchOption.AllDirectories).Where(x => options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{x.FullName}")).ToArray();
+            var entries = cd.Root.GetFiles("*.*", SearchOption.AllDirectories).ToArray();
             if (entries != null)
             {
                 foreach (var file in entries)
@@ -84,7 +84,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             using var cd = new CDReader(fileEntry.Content, true);
-            var entries = cd.Root.GetFiles("*.*", SearchOption.AllDirectories).Where(x => options.FileNamePasses($"{fileEntry.FullPath}{Path.DirectorySeparatorChar}{x.FullName}")).ToArray();
+            var entries = cd.Root.GetFiles("*.*", SearchOption.AllDirectories).ToArray();
             if (entries != null)
             {
                 if (options.Parallel)

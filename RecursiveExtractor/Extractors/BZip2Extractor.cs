@@ -43,7 +43,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
             var entry = await FileEntry.FromStreamAsync(newFilename, fs, fileEntry).ConfigureAwait(false);
 
-            if (entry != null && options.FileNamePasses(entry.FullPath))
+            if (entry != null)
             {
                 if (Extractor.IsQuine(entry))
                 {
@@ -74,41 +74,38 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         {
             var newFilename = Path.GetFileNameWithoutExtension(fileEntry.Name);
 
-            if (options.Recurse || options.FileNamePasses(newFilename))
+            using var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+
+            try
             {
-                using var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+                BZip2.Decompress(fileEntry.Content, fs, false);
+            }
+            catch (Exception e)
+            {
+                Logger.Debug(Extractor.DEBUG_STRING, "BZip2", e.GetType(), e.Message, e.StackTrace);
+                yield break;
+            }
 
-                try
+            var entry = new FileEntry(newFilename, fs, fileEntry);
+
+            if (entry != null)
+            {
+                if (Extractor.IsQuine(entry))
                 {
-                    BZip2.Decompress(fileEntry.Content, fs, false);
+                    Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
+                    throw new OverflowException();
                 }
-                catch (Exception e)
+
+                if (options.Recurse || topLevel)
                 {
-                    Logger.Debug(Extractor.DEBUG_STRING, "BZip2", e.GetType(), e.Message, e.StackTrace);
-                    yield break;
+                    foreach (var extractedFile in Context.Extract(entry, options, governor, false))
+                    {
+                        yield return extractedFile;
+                    }
                 }
-
-                var entry = new FileEntry(newFilename, fs, fileEntry);
-
-                if (entry != null)
+                else
                 {
-                    if (Extractor.IsQuine(entry))
-                    {
-                        Logger.Info(Extractor.IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
-                        throw new OverflowException();
-                    }
-
-                    if (options.Recurse || topLevel)
-                    {
-                        foreach (var extractedFile in Context.Extract(entry, options, governor, false))
-                        {
-                            yield return extractedFile;
-                        }
-                    }
-                    else
-                    {
-                        yield return entry;
-                    }
+                    yield return entry;
                 }
             }
         }
