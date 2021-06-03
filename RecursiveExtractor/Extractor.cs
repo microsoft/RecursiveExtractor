@@ -15,6 +15,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Microsoft.CST.RecursiveExtractor
@@ -410,35 +411,54 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="printNames">If we should print the filename when writing it out to disc.</param>
         public ExtractionStatusCode ExtractToDirectory(string outputDirectory, FileEntry fileEntry, ExtractorOptions? opts = null, bool printNames = false)
         {
-            foreach (var entry in Extract(fileEntry, opts))
+            opts ??= new ExtractorOptions();
+            if (opts.Parallel)
             {
-                var targetPath = Path.Combine(outputDirectory, entry.FullPath);
-                if (Path.GetDirectoryName(targetPath) is string directoryPath && targetPath is string targetPathNotNull)
-                {
-                    try
-                    {
-                        Directory.CreateDirectory(directoryPath);
 
-                        using var fs = new FileStream(targetPathNotNull, FileMode.Create);
-                        entry.Content.CopyTo(fs);
-                        if (printNames)
-                        {
-                            Console.WriteLine("Extracted {0}.", entry.FullPath);
-                        }
-                        Logger.Trace("Extracted {0}", entry.FullPath);
-                    }
-                    catch (Exception e)
-                    {
-                        Logger.Error(e, "Failed to create file at {0}.", targetPathNotNull);
-                        return ExtractionStatusCode.Failure;
-                    }
-                }
-                else
-                {
-                    Logger.Error("Failed to create directory.");
-                    return ExtractionStatusCode.Failure;
-                }
             }
+            else
+            {
+                var exitCode = ExtractionStatusCode.Ok;
+                var cts = new CancellationTokenSource();
+                try
+                {
+                    Parallel.ForEach(Extract(fileEntry, opts), new ParallelOptions() { CancellationToken = cts.Token }, entry =>
+                    {
+                        var targetPath = Path.Combine(outputDirectory, entry.FullPath);
+                        if (Path.GetDirectoryName(targetPath) is string directoryPath && targetPath is string targetPathNotNull)
+                        {
+                            try
+                            {
+                                Directory.CreateDirectory(directoryPath);
+
+                                using var fs = new FileStream(targetPathNotNull, FileMode.Create);
+                                entry.Content.CopyTo(fs);
+                                if (printNames)
+                                {
+                                    Console.WriteLine("Extracted {0}.", entry.FullPath);
+                                }
+                                Logger.Trace("Extracted {0}", entry.FullPath);
+                            }
+                            catch (Exception e)
+                            {
+                                Logger.Error(e, "Failed to create file at {0}.", targetPathNotNull);
+                                cts.Cancel();
+                            }
+                        }
+                        else
+                        {
+                            Logger.Error("Failed to create directory.");
+                            cts.Cancel();
+                        }
+                    });
+                }
+                catch (OperationCanceledException)
+                {
+                    exitCode = ExtractionStatusCode.Failure;
+                }
+                return exitCode;
+            }
+            
             return ExtractionStatusCode.Ok;
         }
 
