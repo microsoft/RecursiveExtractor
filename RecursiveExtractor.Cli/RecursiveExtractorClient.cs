@@ -46,9 +46,11 @@ namespace Microsoft.CST.RecursiveExtractor.Cli
             var extractorOptions = new ExtractorOptions()
             {
                 ExtractSelfOnFail = true,
-                Parallel = true,
+                Parallel = !options.SingleThread,
                 RawExtensions = options.RawExtensions ?? Array.Empty<string>(),
-                Recurse = !options.DisableRecursion
+                Recurse = !options.DisableRecursion,
+                AllowFilters = options.AllowFilters ?? Array.Empty<string>(),
+                DenyFilters = options.DenyFilters ?? Array.Empty<string>()
             };
             if (options.Passwords?.Any() ?? false)
             {
@@ -60,17 +62,8 @@ namespace Microsoft.CST.RecursiveExtractor.Cli
                     }
                 };
             }
-            if (options.AllowFilters != null)
-            {
-                extractorOptions.AllowFilters = options.AllowFilters;
-            }
-            if (options.DenyFilters != null)
-            {
-                extractorOptions.DenyFilters = options.DenyFilters;
-            }
-            var allowRegexes = options.AllowFilters?.Select(x => new Regex(x)) ?? Array.Empty<Regex>();
-            var denyRegexes = options.DenyFilters?.Select(x => new Regex(x)) ?? Array.Empty<Regex>();
-            extractor.ExtractToDirectory(options.Output, options.Input, extractorOptions, allowRegexes, denyRegexes, options.PrintNames);
+
+            extractor.ExtractToDirectory(options.Output, options.Input, extractorOptions, options.PrintNames);
 
             return 0;
         }

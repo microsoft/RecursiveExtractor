@@ -27,6 +27,9 @@ namespace Microsoft.CST.RecursiveExtractor.Cli
         [Option('n', "no-recursion", Required = false, HelpText = "Disable recursive extraction.")]
         public bool DisableRecursion { get; set; }
 
+        [Option('s', "single-thread", Required = false, HelpText = "Disable parallelized extraction.")]
+        public bool SingleThread { get; set; }
+
         [Option(HelpText = "Set logging to 'verbose'.")]
 		public bool Verbose { get; set; }
 
