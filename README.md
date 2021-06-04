@@ -44,13 +44,18 @@ Basic usage is: `RecursiveExtractor --input archive.ext --output outputDirectory
     <li><i>input</i>: The path to the Archive to extract.</li>
     <li><i>output</i>: The path a directory to extract into.</li>
     <li><i>passwords</i>: A comma separated list of passwords to use for archives.</li>
-    <li><i>allow-filters</i>: A comma separated list of regexes to require each extracted file match.</li>
-    <li><i>deny-filters</i>: A comma separated list of regexes to require each extracted file not match.</li>
+    <li><i>allow-globs</i>: A comma separated list of glob patterns to require each extracted file match.</li>
+    <li><i>deny-globs</i>: A comma separated list of glob patterns to require each extracted file not match.</li>
+    <li><i>raw-extensions</i>: A comma separated list of file extensions to not recurse into.</li>
+    <li><i>no-recursion</i>: Don't recurse into sub-archives.</li>
+    <li><i>single-thread</i>: Don't attempt to parallelize extraction.</li>
+    <li><i>printnames</i>: Output the name of each file extracted.</li>
+    
 </ul>
 
 For example, to extract only ".cs" files:
 ```
-RecursiveExtractor --input archive.ext --output outputDirectory --allow-filters .cs$
+RecursiveExtractor --input archive.ext --output outputDirectory --allow-globs **/*.cs
 ```
 
 Run `RecursiveExtractor --help` for more details.
@@ -70,7 +75,7 @@ var path = "path/to/file";
 var extractor = new Extractor();
 foreach(var file in extractor.Extract(path))
 {
-    doSomething(file.Content); //Do Something with the file contents
+    doSomething(file.Content); //Do Something with the file contents (a Stream)
 }
 ```
 
