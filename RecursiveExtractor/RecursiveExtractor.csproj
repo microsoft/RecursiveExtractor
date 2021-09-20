@@ -13,6 +13,7 @@
     <LangVersion>8.0</LangVersion>
     <Nullable>Enable</Nullable>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Description>RecursiveExtractor is able to process the following formats: ar, bzip2, deb, gzip, iso, tar, vhd, vhdx, vmdk, wim, xzip, and zip. RecursiveExtractor automatically detects the archive type and fails gracefully when attempting to process malformed content.</Description>
     <PackageId>Microsoft.CST.RecursiveExtractor</PackageId>
     <PackageTags>unzip extract extractor</PackageTags>
