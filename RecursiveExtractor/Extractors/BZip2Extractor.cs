@@ -71,14 +71,28 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
             using var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
 
+            var failed = false;
+
             try
             {
                 BZip2.Decompress(fileEntry.Content, fs, false);
             }
             catch (Exception e)
             {
-                fileEntry.EntryType = FileEntryType.FailedArchive;
                 Logger.Debug(Extractor.DEBUG_STRING, "BZip2", e.GetType(), e.Message, e.StackTrace);
+                if (!options.ExtractSelfOnFail)
+                {
+                    yield break;
+                }
+                else
+                {
+                    failed = true;
+                }
+            }
+            if (failed)
+            {
+                fileEntry.EntryType = FileEntryType.FailedArchive;
+                yield return fileEntry;
                 yield break;
             }
 

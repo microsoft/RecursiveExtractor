@@ -52,6 +52,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <returns> Extracted files </returns>
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
+            var failed = false;
             IEnumerable<FileEntry>? entries = null;
             try
             {
@@ -65,6 +66,20 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 {
                     throw;
                 }
+                if (!options.ExtractSelfOnFail)
+                {
+                    yield break;
+                }
+                else
+                {
+                    failed = true;
+                }
+            }
+            if (failed)
+            {
+                fileEntry.EntryType = FileEntryType.FailedArchive;
+                yield return fileEntry;
+                yield break;
             }
             if (entries != null)
             {

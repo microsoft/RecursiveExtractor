@@ -283,7 +283,7 @@ namespace Microsoft.CST.RecursiveExtractor
     public enum FileEntryType
     {
         /// <summary>
-        /// A normal archive content file
+        /// A successfully extracted file
         /// </summary>
         Normal,
         /// <summary>
@@ -291,7 +291,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         FailedArchive,
         /// <summary>
-        /// A <see cref="FileEntry"/> containing an archive that was encrypted and could therefore not be extracted.
+        /// A <see cref="FileEntry"/> containing an archive that was encrypted and could not be extracted with the arguments given.
         /// </summary>
         EncryptedArchive
     }

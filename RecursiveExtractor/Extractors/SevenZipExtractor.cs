@@ -86,10 +86,10 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             catch (Exception)
             {
                 needsPassword = true;
+                fileEntry.EntryType = FileEntryType.Normal;
             }
             if (needsPassword is true)
             {
-                fileEntry.EntryType = FileEntryType.EncryptedArchive;
                 var passwordFound = false;
                 foreach (var passwords in options.Passwords.Where(x => x.Key.IsMatch(fileEntry.Name)))
                 {
@@ -110,6 +110,10 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.P7ZIP, fileEntry.FullPath, string.Empty, e.GetType());
                         }
                     }
+                }
+                if (!passwordFound)
+                {
+                    fileEntry.EntryType = FileEntryType.EncryptedArchive;
                 }
             }
             return sevenZipArchive;
