@@ -17,9 +17,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// The constructor takes the Extractor context for recursion.
         /// </summary>
         /// <param name="context">The Extractor context.</param>
-        public SevenZipExtractor(Extractor extractor)
+        public SevenZipExtractor(Extractor context)
         {
-            Context = extractor;
+            Context = context;
         }
         private readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -75,6 +75,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             catch (Exception e)
             {
+                fileEntry.EntryType = FileEntryType.FailedArchive;
                 Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.P7ZIP, fileEntry.FullPath, string.Empty, e.GetType());
             }
             var needsPassword = false;
@@ -88,6 +89,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             if (needsPassword is true)
             {
+                fileEntry.EntryType = FileEntryType.EncryptedArchive;
                 var passwordFound = false;
                 foreach (var passwords in options.Passwords.Where(x => x.Key.IsMatch(fileEntry.Name)))
                 {

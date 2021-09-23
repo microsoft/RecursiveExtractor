@@ -37,6 +37,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             if (rarArchive is null)
             {
+                fileEntry.EntryType = FileEntryType.FailedArchive;
                 return null;
             }
             var needsPassword = false;
@@ -50,6 +51,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             if (needsPassword is true)
             {
+                fileEntry.EntryType = FileEntryType.EncryptedArchive;
                 var passwordFound = false;
                 foreach (var passwords in options.Passwords.Where(x => x.Key.IsMatch(fileEntry.Name)))
                 {
@@ -61,7 +63,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             fileEntry.Content.Position = 0;
                             rarArchive = RarArchive.Open(fileEntry.Content, new SharpCompress.Readers.ReaderOptions() { Password = password, LookForHeader = true });
                             var count = 0; //To do something in the loop
-                            foreach(var entry in rarArchive.Entries)
+                            foreach (var entry in rarArchive.Entries)
                             {
                                 //Just do anything in the loop, but you need to loop over entries to check if the password is correct
                                 count++;
@@ -80,7 +82,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         }
 
         /// <summary>
-        ///     Extracts an a RAR archive
+        ///     Extracts a RAR archive
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
@@ -120,7 +122,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         }
 
         /// <summary>
-        ///     Extracts an a RAR archive
+        ///     Extracts a RAR archive
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>

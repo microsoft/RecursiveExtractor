@@ -59,6 +59,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             catch (Exception e)
             {
+                fileEntry.EntryType = FileEntryType.FailedArchive;
                 Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.DEB, fileEntry.FullPath, string.Empty, e.GetType());
                 if (e is OverflowException)
                 {

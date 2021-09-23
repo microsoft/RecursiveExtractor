@@ -42,7 +42,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             if (baseFile != null)
             {
-                
                 for (var i = 0; i < baseFile.ImageCount; i++)
                 {
                     var image = baseFile.GetImage(i);
@@ -63,7 +62,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         {
                             var name = file.Replace('\\', Path.DirectorySeparatorChar);
                             var newFileEntry = await FileEntry.FromStreamAsync($"{image.FriendlyName}{Path.DirectorySeparatorChar}{name}", stream, fileEntry, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
-                            
+
                             if (options.Recurse || topLevel)
                             {
                                 await foreach (var entry in Context.ExtractAsync(newFileEntry, options, governor, false))
@@ -84,6 +83,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             {
                 if (options.ExtractSelfOnFail)
                 {
+                    fileEntry.EntryType = FileEntryType.FailedArchive;
                     yield return fileEntry;
                 }
             }
@@ -149,7 +149,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                                 {
                                     files.Push(newFileEntry);
                                 }
-                                
                             });
                             fileList.RemoveRange(0, batchSize);
 
@@ -205,6 +204,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             {
                 if (options.ExtractSelfOnFail)
                 {
+                    fileEntry.EntryType = FileEntryType.FailedArchive;
                     yield return fileEntry;
                 }
             }

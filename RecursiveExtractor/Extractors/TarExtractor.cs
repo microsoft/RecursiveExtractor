@@ -23,7 +23,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         internal Extractor Context { get; }
 
         /// <summary>
-        ///     Extracts an a Tar archive
+        ///     Extracts a Tar archive
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
@@ -88,13 +88,14 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             {
                 if (options.ExtractSelfOnFail)
                 {
+                    fileEntry.EntryType = FileEntryType.FailedArchive;
                     yield return fileEntry;
                 }
             }
         }
 
         /// <summary>
-        ///     Extracts an a Tar archive
+        ///     Extracts a Tar archive
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
@@ -154,6 +155,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             {
                 if (options.ExtractSelfOnFail)
                 {
+                    fileEntry.EntryType = FileEntryType.FailedArchive;
                     yield return fileEntry;
                 }
             }

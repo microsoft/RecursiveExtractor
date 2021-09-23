@@ -38,6 +38,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             catch (Exception e)
             {
+                fileEntry.EntryType = FileEntryType.FailedArchive;
                 Logger.Debug(Extractor.DEBUG_STRING, "GZip", e.GetType(), e.Message, e.StackTrace);
                 yield break;
             }

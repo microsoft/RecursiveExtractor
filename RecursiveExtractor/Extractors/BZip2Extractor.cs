@@ -21,6 +21,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         private readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         internal Extractor Context { get; }
+
         /// <summary>
         ///     Extracts an BZip2 file contained in fileEntry.
         /// </summary>
@@ -76,25 +77,23 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             catch (Exception e)
             {
+                fileEntry.EntryType = FileEntryType.FailedArchive;
                 Logger.Debug(Extractor.DEBUG_STRING, "BZip2", e.GetType(), e.Message, e.StackTrace);
                 yield break;
             }
 
             var entry = new FileEntry(newFilename, fs, fileEntry);
 
-            if (entry != null)
+            if (options.Recurse || topLevel)
             {
-                if (options.Recurse || topLevel)
+                foreach (var extractedFile in Context.Extract(entry, options, governor, false))
                 {
-                    foreach (var extractedFile in Context.Extract(entry, options, governor, false))
-                    {
-                        yield return extractedFile;
-                    }
+                    yield return extractedFile;
                 }
-                else
-                {
-                    yield return entry;
-                }
+            }
+            else
+            {
+                yield return entry;
             }
         }
     }

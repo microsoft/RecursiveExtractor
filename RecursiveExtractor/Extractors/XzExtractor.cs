@@ -77,6 +77,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             {
                 if (options.ExtractSelfOnFail)
                 {
+                    fileEntry.EntryType = FileEntryType.FailedArchive;
                     yield return fileEntry;
                 }
             }
@@ -133,6 +134,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             {
                 if (options.ExtractSelfOnFail)
                 {
+                    fileEntry.EntryType = FileEntryType.FailedArchive;
                     yield return fileEntry;
                 }
             }

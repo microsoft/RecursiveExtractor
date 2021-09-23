@@ -18,7 +18,6 @@ namespace Microsoft.CST.RecursiveExtractor
         ///     contained Stream.
         /// </summary>
         /// <param name="name"> </param>
-        /// <param name="parentPath"> </param>
         /// <param name="inputStream"> </param>
         /// <param name="parent"> </param>
         /// <param name="passthroughStream"> </param>
@@ -118,8 +117,6 @@ namespace Microsoft.CST.RecursiveExtractor
                     }
                     catch (Exception f)
                     {
-                        var message = f.Message;
-                        var type = f.GetType();
                         Logger.Debug("Failed to copy stream from {0} ({1}:{2})", printPath, f.GetType(), f.Message);
                     }
                 }
@@ -174,6 +171,11 @@ namespace Microsoft.CST.RecursiveExtractor
         /// The Access time of the file or DateTime.MinValue if unavailable
         /// </summary>
         public DateTime AccessTime { get; }
+        /// <summary>
+        /// The type of the file entry. Normal, FailedArchive or EncryptedArchive.
+        /// This will only be in play of <see cref="ExtractorOptions.ExtractSelfOnFail"/> is <c>true</c>
+        /// </summary>
+        public FileEntryType EntryType { get; set; }
 
         internal bool Passthrough { get; }
 
@@ -254,8 +256,6 @@ namespace Microsoft.CST.RecursiveExtractor
                 }
                 catch (Exception f)
                 {
-                    var message = f.Message;
-                    var type = f.GetType();
                     Logger.Debug("Failed to copy stream from {0} ({1}:{2})", FullPath, f.GetType(), f.Message);
                 }
             }
@@ -275,5 +275,24 @@ namespace Microsoft.CST.RecursiveExtractor
         }
 
         private const int defaultCutoff = 1024 * 1024 * 100;
+    }
+
+    /// <summary>
+    /// The type of a <see cref="FileEntry"/>
+    /// </summary>
+    public enum FileEntryType
+    {
+        /// <summary>
+        /// A normal archive content file
+        /// </summary>
+        Normal,
+        /// <summary>
+        /// An archive that failed to extract due to an error.
+        /// </summary>
+        FailedArchive,
+        /// <summary>
+        /// An archive that was encrypted and could therefore not be extracted.
+        /// </summary>
+        EncryptedArchive
     }
 }

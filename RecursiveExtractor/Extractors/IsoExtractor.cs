@@ -1,5 +1,4 @@
-﻿using DiscUtils;
-using DiscUtils.Iso9660;
+﻿using DiscUtils.Iso9660;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -71,6 +70,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             {
                 if (options.ExtractSelfOnFail)
                 {
+                    fileEntry.EntryType = FileEntryType.FailedArchive;
                     yield return fileEntry;
                 }
             }
@@ -92,7 +92,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     var files = new ConcurrentStack<FileEntry>();
 
                     var batchSize = Math.Min(options.BatchSize, entries.Length);
-                    while(entries.Length > 0)
+                    while (entries.Length > 0)
                     {
                         var selectedFileEntries = entries.Take(batchSize);
                         var fileInfoTuples = new List<(string name, DateTime created, DateTime modified, DateTime accessed, Stream stream)>();
@@ -157,7 +157,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         if (stream != null)
                         {
                             var name = fileInfo.FullName.Replace('/', Path.DirectorySeparatorChar);
-                            var newFileEntry = new FileEntry(name, stream, fileEntry, createTime: file.CreationTime, modifyTime: file.LastWriteTime, accessTime: file.LastAccessTime,memoryStreamCutoff: options.MemoryStreamCutoff);
+                            var newFileEntry = new FileEntry(name, stream, fileEntry, createTime: file.CreationTime, modifyTime: file.LastWriteTime, accessTime: file.LastAccessTime, memoryStreamCutoff: options.MemoryStreamCutoff);
                             if (options.Recurse || topLevel)
                             {
                                 foreach (var entry in Context.Extract(newFileEntry, options, governor, false))
@@ -177,6 +177,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             {
                 if (options.ExtractSelfOnFail)
                 {
+                    fileEntry.EntryType = FileEntryType.FailedArchive;
                     yield return fileEntry;
                 }
             }
