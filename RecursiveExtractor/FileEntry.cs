@@ -287,11 +287,11 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         Normal,
         /// <summary>
-        /// An archive that failed to extract due to an error.
+        /// A <see cref="FileEntry"/> containing an archive that failed to extract due to an error.
         /// </summary>
         FailedArchive,
         /// <summary>
-        /// An archive that was encrypted and could therefore not be extracted.
+        /// A <see cref="FileEntry"/> containing an archive that was encrypted and could therefore not be extracted.
         /// </summary>
         EncryptedArchive
     }

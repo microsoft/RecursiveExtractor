@@ -84,16 +84,19 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
             var entry = new FileEntry(newFilename, fs, fileEntry);
 
-            if (options.Recurse || topLevel)
+            if (entry != null)
             {
-                foreach (var extractedFile in Context.Extract(entry, options, governor, false))
+                if (options.Recurse || topLevel)
                 {
-                    yield return extractedFile;
+                    foreach (var extractedFile in Context.Extract(entry, options, governor, false))
+                    {
+                        yield return extractedFile;
+                    }
                 }
-            }
-            else
-            {
-                yield return entry;
+                else
+                {
+                    yield return entry;
+                }
             }
         }
     }
