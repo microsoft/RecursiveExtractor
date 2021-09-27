@@ -34,9 +34,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             catch (Exception e)
             {
                 Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.RAR, fileEntry.FullPath, string.Empty, e.GetType());
-            }
-            if (rarArchive is null)
-            {
                 return (null, FileEntryType.FailedArchive);
             }
             var needsPassword = false;
@@ -71,13 +68,13 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         }
                         catch (Exception e)
                         {
-                            Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.RAR, fileEntry.FullPath, string.Empty, e.GetType());
+                            Logger.Trace(Extractor.FAILED_PASSWORD_STRING, password, fileEntry.FullPath, ArchiveFileType.RAR, e.GetType(), e.Message);
                         }
                     }
                 }
                 if (!passwordFound)
                 {
-                    return (rarArchive, FileEntryType.EncryptedArchive);
+                    return (null, FileEntryType.EncryptedArchive);
                 }
             }
             return (rarArchive, FileEntryType.Normal);

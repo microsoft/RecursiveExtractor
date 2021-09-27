@@ -290,6 +290,8 @@ namespace Microsoft.CST.RecursiveExtractor
 
         internal const string IS_QUINE_STRING = "Detected Quine {0} in {1}. Aborting Extraction.";
 
+        internal const string FAILED_PASSWORD_STRING = "Password {0} was incorrect for archive {1} of type {2}. ({3}:{4})";
+
         /// <summary>
         ///     Logger for interesting events.
         /// </summary>

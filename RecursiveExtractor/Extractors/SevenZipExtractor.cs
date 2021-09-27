@@ -79,9 +79,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 sevenZipArchive = SevenZipArchive.Open(fileEntry.Content);
             }
             catch (Exception e)
-            {
-                archiveStatus = FileEntryType.FailedArchive;
+            {                
                 Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.P7ZIP, fileEntry.FullPath, string.Empty, e.GetType());
+                return (sevenZipArchive, FileEntryType.FailedArchive);
             }
             var needsPassword = false;
             try
@@ -113,7 +113,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         }
                         catch (Exception e)
                         {
-                            Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.P7ZIP, fileEntry.FullPath, string.Empty, e.GetType());
+                            Logger.Trace(Extractor.FAILED_PASSWORD_STRING, password, fileEntry.FullPath, ArchiveFileType.P7ZIP, e.GetType(), e.Message);
                         }
                     }
                 }
