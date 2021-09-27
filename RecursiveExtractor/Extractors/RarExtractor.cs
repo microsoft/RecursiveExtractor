@@ -24,7 +24,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
         internal Extractor Context { get; }
 
-        private RarArchive? GetRarArchive(FileEntry fileEntry, ExtractorOptions options)
+        private (RarArchive? archive, FileEntryType archiveStatus) GetRarArchive(FileEntry fileEntry, ExtractorOptions options)
         {
             RarArchive? rarArchive = null;
             try
@@ -37,8 +37,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             if (rarArchive is null)
             {
-                fileEntry.EntryType = FileEntryType.FailedArchive;
-                return null;
+                return (null, FileEntryType.FailedArchive);
             }
             var needsPassword = false;
             try
@@ -78,10 +77,10 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 }
                 if (!passwordFound)
                 {
-                    fileEntry.EntryType = FileEntryType.EncryptedArchive;
+                    return (rarArchive, FileEntryType.EncryptedArchive);
                 }
             }
-            return rarArchive;
+            return (rarArchive, FileEntryType.Normal);
         }
 
         /// <summary>
@@ -91,8 +90,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <returns> </returns>
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
-            var rarArchive = GetRarArchive(fileEntry, options);
-            if (rarArchive != null)
+            (var rarArchive, var archiveType) = GetRarArchive(fileEntry, options);
+            fileEntry.EntryType = archiveType;
+            if (rarArchive != null && fileEntry.EntryType == FileEntryType.Normal)
             {
                 foreach (var entry in rarArchive.Entries.Where(x => x.IsComplete && !x.IsDirectory))
                 {
@@ -131,8 +131,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <returns> </returns>
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
-            var rarArchive = GetRarArchive(fileEntry, options);
-            if (rarArchive != null)
+            (var rarArchive, var archiveType) = GetRarArchive(fileEntry, options);
+            fileEntry.EntryType = archiveType;
+            if (rarArchive != null && fileEntry.EntryType == FileEntryType.Normal)
             {
                 var entries = rarArchive.Entries.Where(x => x.IsComplete && !x.IsDirectory);
                 if (options.Parallel)

@@ -76,8 +76,20 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                     if (zipEntry.IsCrypted && !passwordFound)
                     {
-                        zipFile.Password = GetZipPassword(fileEntry, zipFile, zipEntry, options) ?? string.Empty;
-                        passwordFound = true;
+                        if (GetZipPassword(fileEntry, zipFile, zipEntry, options) is string password)
+                        {
+                            zipFile.Password = password;
+                            passwordFound = true;
+                        }
+                        else
+                        {
+                            fileEntry.EntryType = FileEntryType.EncryptedArchive;
+                            if (options.ExtractSelfOnFail)
+                            {
+                                yield return fileEntry;
+                            }
+                            yield break;
+                        }
                     }
 
                     governor.CheckResourceGovernor(zipEntry.Size);
@@ -148,8 +160,20 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                     if (zipEntry.IsCrypted && !passwordFound)
                     {
-                        zipFile.Password = GetZipPassword(fileEntry, zipFile, zipEntry, options) ?? string.Empty;
-                        passwordFound = true;
+                        if (GetZipPassword(fileEntry, zipFile, zipEntry, options) is string password)
+                        {
+                            zipFile.Password = password;
+                            passwordFound = true;
+                        }
+                        else
+                        {
+                            fileEntry.EntryType = FileEntryType.EncryptedArchive;
+                            if (options.ExtractSelfOnFail)
+                            {
+                                yield return fileEntry;
+                            }
+                            yield break;
+                        }
                     }
 
                     try

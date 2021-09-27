@@ -29,11 +29,15 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         ///     Extracts a 7-Zip file contained in fileEntry.
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
+        /// <param name="options">ExtractorOptions for performing the extraction</param>
+        /// <param name="governor">The ResourceGovernor to use.</param>
+        /// <param name="topLevel">Is this the top level archive.</param>
         /// <returns> Extracted files </returns>
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
-            var sevenZipArchive = GetSevenZipArchive(fileEntry, options);
-            if (sevenZipArchive != null)
+            (var sevenZipArchive, var archiveStatus) = GetSevenZipArchive(fileEntry, options);
+            fileEntry.EntryType = archiveStatus;
+            if (sevenZipArchive != null && archiveStatus == FileEntryType.Normal)
             {
                 foreach (var entry in sevenZipArchive.Entries.Where(x => !x.IsDirectory && x.IsComplete).ToList())
                 {
@@ -66,16 +70,17 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
         }
 
-        private SevenZipArchive? GetSevenZipArchive(FileEntry fileEntry, ExtractorOptions options)
+        private (SevenZipArchive? archive, FileEntryType archiveStatus) GetSevenZipArchive(FileEntry fileEntry, ExtractorOptions options)
         {
             SevenZipArchive? sevenZipArchive = null;
+            FileEntryType archiveStatus = FileEntryType.Normal;
             try
             {
                 sevenZipArchive = SevenZipArchive.Open(fileEntry.Content);
             }
             catch (Exception e)
             {
-                fileEntry.EntryType = FileEntryType.FailedArchive;
+                archiveStatus = FileEntryType.FailedArchive;
                 Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.P7ZIP, fileEntry.FullPath, string.Empty, e.GetType());
             }
             var needsPassword = false;
@@ -86,7 +91,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             catch (Exception)
             {
                 needsPassword = true;
-                fileEntry.EntryType = FileEntryType.Normal;
+                archiveStatus = FileEntryType.EncryptedArchive;
             }
             if (needsPassword is true)
             {
@@ -102,6 +107,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             if (sevenZipArchive.TotalUncompressSize > 0)
                             {
                                 passwordFound = true;
+                                fileEntry.EntryType = FileEntryType.Normal;
                                 break;
                             }
                         }
@@ -111,23 +117,23 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         }
                     }
                 }
-                if (!passwordFound)
-                {
-                    fileEntry.EntryType = FileEntryType.EncryptedArchive;
-                }
             }
-            return sevenZipArchive;
+            return (sevenZipArchive, archiveStatus);
         }
 
         /// <summary>
         ///     Extracts a 7-Zip file contained in fileEntry.
         /// </summary>
-        /// <param name="fileEntry"> FileEntry to extract </param>
+        /// <param name="fileEntry">FileEntry to extract </param>
+        /// <param name="options">ExtractorOptions for performing the extraction</param>
+        /// <param name="governor">The ResourceGovernor to use.</param>
+        /// <param name="topLevel">Is this the top level archive.</param>
         /// <returns> Extracted files </returns>
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
-            var sevenZipArchive = GetSevenZipArchive(fileEntry, options);
-            if (sevenZipArchive != null)
+            (var sevenZipArchive, var archiveStatus) = GetSevenZipArchive(fileEntry, options);
+            fileEntry.EntryType = archiveStatus;
+            if (sevenZipArchive != null && archiveStatus == FileEntryType.Normal)
             {
                 var entries = sevenZipArchive.Entries.Where(x => !x.IsDirectory && x.IsComplete).ToList();
                 if (options.Parallel)

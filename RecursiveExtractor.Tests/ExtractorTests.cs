@@ -17,6 +17,38 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
     public class ExtractorTests
     {
         [DataTestMethod]
+        [DataRow("TestDataEncryptedZipCrypto.zip")]
+        [DataRow("TestDataEncryptedAes.zip")]
+        [DataRow("TestDataEncrypted.7z")]
+        [DataRow("TestDataEncrypted.rar4")]
+        public void FileTypeSetCorrectlyForEncryptedArchives(string fileName, int expectedNumFiles = 1)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            var results = extractor.Extract(path, new ExtractorOptions());
+            Assert.AreEqual(expectedNumFiles, results.Count());
+            Assert.AreEqual(FileEntryType.EncryptedArchive, results.First().EntryType);
+        }
+
+        [DataTestMethod]
+        [DataRow("TestDataEncryptedZipCrypto.zip")]
+        [DataRow("TestDataEncryptedAes.zip")]
+        [DataRow("TestDataEncrypted.7z")]
+        [DataRow("TestDataEncrypted.rar4")]
+        public async Task FileTypeSetCorrectlyForEncryptedArchivesAsync(string fileName, int expectedNumFiles = 1)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            var results = new List<FileEntry>();
+            await foreach(var entry in extractor.ExtractAsync(path, new ExtractorOptions()))
+            {
+                results.Add(entry);
+            }
+            Assert.AreEqual(expectedNumFiles, results.Count);
+            Assert.AreEqual(FileEntryType.EncryptedArchive, results.First().EntryType);
+        }
+
+        [DataTestMethod]
         [DataRow("TestData.zip", 5)]
         [DataRow("TestData.7z")]
         [DataRow("TestData.tar", 5)]
