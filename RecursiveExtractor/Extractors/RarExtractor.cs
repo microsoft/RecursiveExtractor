@@ -41,9 +41,14 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             {
                 using var testStream = rarArchive.Entries.First().OpenEntryStream();
             }
-            catch (Exception)
+            catch (SharpCompress.Common.CryptographicException)
             {
                 needsPassword = true;
+            }
+            catch(Exception e)
+            {
+                Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.RAR, fileEntry.FullPath, string.Empty, e.GetType());
+                return (null, FileEntryType.FailedArchive);
             }
             if (needsPassword is true)
             {

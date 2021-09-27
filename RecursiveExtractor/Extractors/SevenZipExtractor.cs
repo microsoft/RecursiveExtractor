@@ -73,7 +73,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         private (SevenZipArchive? archive, FileEntryType archiveStatus) GetSevenZipArchive(FileEntry fileEntry, ExtractorOptions options)
         {
             SevenZipArchive? sevenZipArchive = null;
-            FileEntryType archiveStatus = FileEntryType.Normal;
             try
             {
                 sevenZipArchive = SevenZipArchive.Open(fileEntry.Content);
@@ -86,12 +85,18 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             var needsPassword = false;
             try
             {
+                // This is a workaround because SharpCompress does not expose if a 7z archive is encrypted without trying to decrypt it
                 needsPassword = sevenZipArchive?.TotalUncompressSize == 0;
             }
-            catch (Exception)
+            // SharpCompress throws an ArgumentNullException from AESDecoderStream.ctor when an archive is encrypted but the password is null
+            catch (ArgumentNullException)
             {
                 needsPassword = true;
-                archiveStatus = FileEntryType.EncryptedArchive;
+            }
+            catch (Exception e)
+            {
+                Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.P7ZIP, fileEntry.FullPath, string.Empty, e.GetType());
+                return (sevenZipArchive, FileEntryType.FailedArchive);
             }
             if (needsPassword is true)
             {
@@ -107,8 +112,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             if (sevenZipArchive.TotalUncompressSize > 0)
                             {
                                 passwordFound = true;
-                                fileEntry.EntryType = FileEntryType.Normal;
-                                break;
+                                return (sevenZipArchive, FileEntryType.Normal);
                             }
                         }
                         catch (Exception e)
@@ -117,8 +121,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         }
                     }
                 }
+                return (null, FileEntryType.EncryptedArchive);
             }
-            return (sevenZipArchive, archiveStatus);
+            return (sevenZipArchive, FileEntryType.Normal);
         }
 
         /// <summary>
