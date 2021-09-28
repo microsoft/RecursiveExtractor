@@ -29,17 +29,17 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <returns> </returns>
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
-            using var disk = new DiscUtils.Vhd.Disk(fileEntry.Content, Ownership.None);
             LogicalVolumeInfo[]? logicalVolumes = null;
 
             try
             {
+                using var disk = new DiscUtils.Vhd.Disk(fileEntry.Content, Ownership.None);
                 var manager = new VolumeManager(disk);
                 logicalVolumes = manager.GetLogicalVolumes();
             }
             catch (Exception e)
             {
-                Logger.Debug("Error reading {0} disk at {1} ({2}:{3})", disk.GetType(), fileEntry.FullPath, e.GetType(), e.Message);
+                Logger.Debug("Error reading {0} disk at {1} ({2}:{3})", MiniMagic.DetectFileType(fileEntry), fileEntry.FullPath, e.GetType(), e.Message);
             }
 
             if (logicalVolumes != null)
@@ -69,17 +69,17 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <returns> </returns>
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
-            using var disk = new DiscUtils.Vhd.Disk(fileEntry.Content, Ownership.None);
             LogicalVolumeInfo[]? logicalVolumes = null;
 
             try
             {
+                using var disk = new DiscUtils.Vhd.Disk(fileEntry.Content, Ownership.None);
                 var manager = new VolumeManager(disk);
                 logicalVolumes = manager.GetLogicalVolumes();
             }
             catch (Exception e)
             {
-                Logger.Debug("Error reading {0} disk at {1} ({2}:{3})", disk.GetType(), fileEntry.FullPath, e.GetType(), e.Message);
+                Logger.Debug("Error reading {0} disk at {1} ({2}:{3})", MiniMagic.DetectFileType(fileEntry), fileEntry.FullPath, e.GetType(), e.Message);
             }
 
             if (logicalVolumes != null)

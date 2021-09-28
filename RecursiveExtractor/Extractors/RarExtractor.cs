@@ -30,6 +30,8 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             try
             {
                 rarArchive = RarArchive.Open(fileEntry.Content);
+                // Test for invalid archives. This will throw invalidformatexception
+                var t = rarArchive.IsSolid;
             }
             catch (Exception e)
             {

@@ -609,12 +609,20 @@ namespace Microsoft.CST.RecursiveExtractor
                 }
                 else
                 {
-                    foreach (var extractedResult in Extractors[type].Extract(fileEntry, options, Governor, false))
+                    try
                     {
-                        if (options.FileNamePasses(extractedResult.FullPath))
+                        foreach (var extractedResult in Extractors[type].Extract(fileEntry, options, Governor, false))
                         {
-                            result.Add(extractedResult);
+                            if (options.FileNamePasses(extractedResult.FullPath))
+                            {
+                                result.Add(extractedResult);
+                            }
                         }
+                    }
+                    catch(Exception e)
+                    {
+                        if (e is OverflowException) { throw; }
+                        Logger.Debug(e, "Failed to extract {0}. ({1})", fileEntry.FullPath, e.Message);
                     }
                 }
             }

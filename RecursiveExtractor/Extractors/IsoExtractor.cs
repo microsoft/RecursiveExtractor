@@ -31,9 +31,27 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <returns> </returns>
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
-            using var cd = new CDReader(fileEntry.Content, true);
-            var entries = cd.Root.GetFiles("*.*", SearchOption.AllDirectories).ToArray();
-            if (entries != null)
+            DiscUtils.DiscFileInfo[]? entries = null;
+            var failed = false;
+            try
+            {
+                using var cd = new CDReader(fileEntry.Content, true);
+                entries = cd.Root.GetFiles("*.*", SearchOption.AllDirectories).ToArray();
+            }
+            catch (Exception e)
+            {
+                Logger.Debug("Failed to open ISO {0}. ({1}:{2})", fileEntry.FullPath, e.GetType(), e.Message);
+                failed = true;
+            }
+            if (failed)
+            {
+                if (options.ExtractSelfOnFail)
+                {
+                    fileEntry.EntryType = FileEntryType.FailedArchive;
+                    yield return fileEntry;
+                }
+            }
+            else if (entries != null)
             {
                 foreach (var file in entries)
                 {
@@ -66,14 +84,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
                 }
             }
-            else
-            {
-                if (options.ExtractSelfOnFail)
-                {
-                    fileEntry.EntryType = FileEntryType.FailedArchive;
-                    yield return fileEntry;
-                }
-            }
         }
 
         /// <summary>
@@ -83,9 +93,27 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <returns> </returns>
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
-            using var cd = new CDReader(fileEntry.Content, true);
-            var entries = cd.Root.GetFiles("*.*", SearchOption.AllDirectories).ToArray();
-            if (entries != null)
+            DiscUtils.DiscFileInfo[]? entries = null;
+            var failed = false;
+            try
+            {
+                using var cd = new CDReader(fileEntry.Content, true);
+                entries = cd.Root.GetFiles("*.*", SearchOption.AllDirectories).ToArray();
+            }
+            catch(Exception e)
+            {
+                Logger.Debug("Failed to open ISO {0}. ({1}:{2})", fileEntry.FullPath, e.GetType(), e.Message);
+                failed = true;
+            }
+            if (failed)
+            {
+                if (options.ExtractSelfOnFail)
+                {
+                    fileEntry.EntryType = FileEntryType.FailedArchive;
+                    yield return fileEntry;
+                }
+            }
+            else if (entries != null)
             {
                 if (options.Parallel)
                 {

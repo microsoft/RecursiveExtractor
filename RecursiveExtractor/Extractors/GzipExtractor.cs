@@ -87,7 +87,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             using var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
-
+            var failed = false;
             try
             {
                 GZip.Decompress(fileEntry.Content, fs, false);
@@ -95,6 +95,19 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             catch (Exception e)
             {
                 Logger.Debug(Extractor.DEBUG_STRING, "GZip", e.GetType(), e.Message, e.StackTrace);
+                if (!options.ExtractSelfOnFail)
+                {
+                    yield break;
+                }
+                else
+                {
+                    failed = true;
+                }
+            }
+            if (failed)
+            {
+                fileEntry.EntryType = FileEntryType.FailedArchive;
+                yield return fileEntry;
                 yield break;
             }
 

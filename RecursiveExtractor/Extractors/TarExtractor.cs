@@ -108,15 +108,28 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             tempStream.Position = 0;
             fileEntry.Content.Position = 0;
             TarInputStream? tarStream = null;
+            var failed = false;
             try
             {
                 tarStream = new TarInputStream(tempStream, System.Text.Encoding.UTF8);
+                // Validate that the archive can be read.
+                tarStream.GetNextEntry();
+                tarStream.Reset();
             }
             catch (Exception e)
             {
+                failed = true;
                 Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.TAR, fileEntry.FullPath, string.Empty, e.GetType());
             }
-            if (tarStream != null)
+            if (failed)
+            {
+                if (options.ExtractSelfOnFail)
+                {
+                    fileEntry.EntryType = FileEntryType.FailedArchive;
+                    yield return fileEntry;
+                }
+            }
+            else if (tarStream != null)
             {
                 while ((tarEntry = tarStream.GetNextEntry()) != null)
                 {
@@ -149,14 +162,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         yield return newFileEntry;
                     }
-                }
-            }
-            else
-            {
-                if (options.ExtractSelfOnFail)
-                {
-                    fileEntry.EntryType = FileEntryType.FailedArchive;
-                    yield return fileEntry;
                 }
             }
             tarStream?.Dispose();

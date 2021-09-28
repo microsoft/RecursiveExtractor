@@ -56,13 +56,21 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             ZipFile? zipFile = null;
             try
             {
-                zipFile = new ZipFile(fileEntry.Content);
+                zipFile = new ZipFile(fileEntry.Content, true);
             }
             catch (Exception e)
             {
                 Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.ZIP, fileEntry.FullPath, string.Empty, e.GetType());
             }
-            if (zipFile != null)
+            if (zipFile is null)
+            {
+                fileEntry.EntryType = FileEntryType.FailedArchive;
+                if (options.ExtractSelfOnFail)
+                {
+                    yield return fileEntry;
+                }
+            }
+            else
             {
                 var buffer = new byte[BUFFER_SIZE];
                 var passwordFound = false;
@@ -136,13 +144,21 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             ZipFile? zipFile = null;
             try
             {
-                zipFile = new ZipFile(fileEntry.Content);
+                zipFile = new ZipFile(fileEntry.Content, true);
             }
             catch (Exception e)
             {
                 Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.ZIP, fileEntry.FullPath, string.Empty, e.GetType());
             }
-            if (zipFile != null)
+            if (zipFile is null)
+            {
+                fileEntry.EntryType = FileEntryType.FailedArchive;
+                if (options.ExtractSelfOnFail)
+                {
+                    yield return fileEntry;
+                }
+            }
+            else
             {
                 var buffer = new byte[BUFFER_SIZE];
                 var passwordFound = false;
