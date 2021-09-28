@@ -33,24 +33,24 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             catch (Exception e)
             {
-                Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.RAR, fileEntry.FullPath, string.Empty, e.GetType());
+                Logger.Debug(Extractor.DEBUG_STRING, MiniMagic.DetectFileType(fileEntry), fileEntry.FullPath, string.Empty, e.GetType());
                 return (null, FileEntryType.FailedArchive);
             }
+
             var needsPassword = false;
             try
             {
-                using var testStream = rarArchive.Entries.First().OpenEntryStream();
+                if (rarArchive.Entries.Any(x => x.IsEncrypted) && MiniMagic.DetectFileType(fileEntry) == ArchiveFileType.RAR5)
+                {
+                    return (null, FileEntryType.EncryptedArchive);
+                }
             }
             catch (SharpCompress.Common.CryptographicException)
             {
                 needsPassword = true;
             }
-            catch(Exception e)
-            {
-                Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.RAR, fileEntry.FullPath, string.Empty, e.GetType());
-                return (null, FileEntryType.FailedArchive);
-            }
-            if (needsPassword is true)
+            
+            if (needsPassword)
             {
                 var passwordFound = false;
                 foreach (var passwords in options.Passwords.Where(x => x.Key.IsMatch(fileEntry.Name)))
@@ -196,8 +196,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         FileEntry? newFileEntry = null;
                         try
                         {
+                            var stream = entry.OpenEntryStream();
                             var name = entry.Key.Replace('/', Path.DirectorySeparatorChar);
-                            newFileEntry = new FileEntry(name, entry.OpenEntryStream(), fileEntry, false, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
+                            newFileEntry = new FileEntry(name, stream, fileEntry, false, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
                         }
                         catch (Exception e)
                         {

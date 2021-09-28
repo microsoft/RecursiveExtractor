@@ -70,7 +70,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("TestDataEncryptedAes.zip")]
         [DataRow("TestDataEncrypted.7z")]
         [DataRow("TestDataEncrypted.rar4")]
-        [DataRow("TestDataEncrypted.rar", 3)]
+        [DataRow("TestDataEncrypted.rar")]
         public void FileTypeSetCorrectlyForEncryptedArchives(string fileName, int expectedNumFiles = 1)
         {
             var extractor = new Extractor();
@@ -85,6 +85,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("TestDataEncryptedAes.zip")]
         [DataRow("TestDataEncrypted.7z")]
         [DataRow("TestDataEncrypted.rar4")]
+        [DataRow("TestDataEncrypted.rar")]
         public async Task FileTypeSetCorrectlyForEncryptedArchivesAsync(string fileName, int expectedNumFiles = 1)
         {
             var extractor = new Extractor();
@@ -472,13 +473,29 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
                 new Regex("EncryptedZipCrypto.zip"),
                 new List<string>()
                 {
-                    "AnIncorrectPasswodfgdfgrd",
-                    "TestDatadfgdfg", // ZipCrypto Encrypted
+                    "AnIncorrectPassword",
+                    "TestData", // ZipCrypto Encrypted
                 }
             },
-
             {
-                new Regex("15 000 samlingen.zip"),
+                new Regex("EncryptedAes.zip"),
+                new List<string>()
+                {
+                    "AnIncorrectPassword",
+                    "TestData"  // AES Encrypted
+                }
+            },
+            {
+                new Regex("\\.7z"),
+                new List<string>()
+                {
+                    "AnIncorrectPassword",
+                    "TestData", // TestDataEncrypted.7z
+                    "TestData" // NestedEncrypted.7z
+                }
+            },
+            {
+                new Regex("\\.rar"),
                 new List<string>()
                 {
                     "AnIncorrectPassword",
@@ -492,8 +509,8 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("TestDataEncryptedAes.zip")]
         [DataRow("TestDataEncrypted.7z")]
         [DataRow("TestDataEncrypted.rar4")]
-        // [DataRow("TestDataEncrypted.rar")] // RAR5 is not yet supported by SharpCompress: https://github.com/adamhathcock/sharpcompress/issues/517
-        public void ExtractEncryptedArchive(string fileName, int expectedNumFiles = 1)
+        //[DataRow("TestDataEncrypted.rar")] // RAR5 is not yet supported by SharpCompress: https://github.com/adamhathcock/sharpcompress/issues/517
+        public void ExtractEncryptedArchive(string fileName, int expectedNumFiles = 3)
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
@@ -502,7 +519,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
                 Passwords = TestArchivePasswords
             }).ToList(); // Make this a list so it fully populates
             Assert.AreEqual(expectedNumFiles, results.Count);
-            Assert.AreEqual(expectedNumFiles, results.Count(x => x.EntryType == FileEntryType.EncryptedArchive));
+            Assert.AreEqual(0, results.Count(x => x.EntryType == FileEntryType.EncryptedArchive));
         }
 
         [DataTestMethod]
@@ -510,9 +527,9 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("TestDataEncryptedAes.zip")]
         [DataRow("TestDataEncrypted.7z")]
         [DataRow("TestDataEncrypted.rar4")]
-        // [DataRow("TestDataEncrypted.rar")] // RAR5 is not yet supported by SharpCompress: https://github.com/adamhathcock/sharpcompress/issues/517
+        //[DataRow("TestDataEncrypted.rar")] // RAR5 is not yet supported by SharpCompress: https://github.com/adamhathcock/sharpcompress/issues/517
 
-        public async Task ExtractEncryptedArchiveAsync(string fileName, int expectedNumFiles = 1)
+        public async Task ExtractEncryptedArchiveAsync(string fileName, int expectedNumFiles = 3)
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
@@ -531,7 +548,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
                 }
             }
             Assert.AreEqual(expectedNumFiles, numEntries);
-            Assert.AreEqual(expectedNumFiles, numEntriesEncrypted);
+            Assert.AreEqual(0, numEntriesEncrypted);
         }
 
         [DataTestMethod]
