@@ -27,11 +27,17 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         private (RarArchive? archive, FileEntryType archiveStatus) GetRarArchive(FileEntry fileEntry, ExtractorOptions options)
         {
             RarArchive? rarArchive = null;
+            var needsPassword = false;
+
             try
             {
                 rarArchive = RarArchive.Open(fileEntry.Content);
                 // Test for invalid archives. This will throw invalidformatexception
                 var t = rarArchive.IsSolid;
+            }
+            catch (SharpCompress.Common.CryptographicException)
+            {
+                needsPassword = true;
             }
             catch (Exception e)
             {
@@ -39,15 +45,14 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 return (null, FileEntryType.FailedArchive);
             }
 
-            var needsPassword = false;
             try
             {
-                if (rarArchive.Entries.Any(x => x.IsEncrypted) && MiniMagic.DetectFileType(fileEntry) == ArchiveFileType.RAR5)
+                if (rarArchive?.Entries.Any(x => x.IsEncrypted) ?? false && MiniMagic.DetectFileType(fileEntry) == ArchiveFileType.RAR5)
                 {
                     return (null, FileEntryType.EncryptedArchive);
                 }
             }
-            catch (SharpCompress.Common.CryptographicException)
+            catch (Exception e) when (e is SharpCompress.Common.CryptographicException || e is SharpCompress.Common.InvalidFormatException)
             {
                 needsPassword = true;
             }
