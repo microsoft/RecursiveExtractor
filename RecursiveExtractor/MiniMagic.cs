@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -136,9 +135,8 @@ namespace Microsoft.CST.RecursiveExtractor
                         fileEntry.Content.Read(headerBuffer, 0, 60);
                         fileEntry.Content.Position = initialPosition;
 
-                        var size = int.Parse(Encoding.ASCII.GetString(headerBuffer[48..58])); // header size in bytes
-
-                        if (size > 0)
+                        // header size in bytes
+                        if (int.TryParse(Encoding.ASCII.GetString(headerBuffer[48..58]), out var size) && size > 0)
                         {
                             // Defined ending characters for a header
                             if (headerBuffer[58] == '`' && headerBuffer[59] == '\n')
