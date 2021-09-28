@@ -493,7 +493,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("TestDataEncrypted.7z")]
         [DataRow("TestDataEncrypted.rar4")]
         // [DataRow("TestDataEncrypted.rar")] // RAR5 is not yet supported by SharpCompress: https://github.com/adamhathcock/sharpcompress/issues/517
-        public void ExtractEncryptedArchive(string fileName, int expectedNumFiles = 3)
+        public void ExtractEncryptedArchive(string fileName, int expectedNumFiles = 1)
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
@@ -502,6 +502,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
                 Passwords = TestArchivePasswords
             }).ToList(); // Make this a list so it fully populates
             Assert.AreEqual(expectedNumFiles, results.Count);
+            Assert.AreEqual(expectedNumFiles, results.Count(x => x.EntryType == FileEntryType.EncryptedArchive));
         }
 
         [DataTestMethod]
@@ -511,7 +512,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("TestDataEncrypted.rar4")]
         // [DataRow("TestDataEncrypted.rar")] // RAR5 is not yet supported by SharpCompress: https://github.com/adamhathcock/sharpcompress/issues/517
 
-        public async Task ExtractEncryptedArchiveAsync(string fileName, int expectedNumFiles = 3)
+        public async Task ExtractEncryptedArchiveAsync(string fileName, int expectedNumFiles = 1)
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
@@ -520,11 +521,17 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
                 Passwords = TestArchivePasswords
             });
             var numEntries = 0;
+            var numEntriesEncrypted = 0;
             await foreach (var entry in results)
             {
                 numEntries++;
+                if (entry.EntryType == FileEntryType.EncryptedArchive)
+                {
+                    numEntriesEncrypted++;
+                }
             }
             Assert.AreEqual(expectedNumFiles, numEntries);
+            Assert.AreEqual(expectedNumFiles, numEntriesEncrypted);
         }
 
         [DataTestMethod]
