@@ -58,14 +58,10 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             {
                 entries = DebArchiveFile.GetFileEntries(fileEntry, options, governor);
             }
-            catch (Exception e)
+            catch (Exception e) when (e is not OverflowException)
             {
                 fileEntry.EntryType = FileEntryType.FailedArchive;
                 Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.DEB, fileEntry.FullPath, string.Empty, e.GetType());
-                if (e is OverflowException)
-                {
-                    throw;
-                }
                 if (!options.ExtractSelfOnFail)
                 {
                     yield break;

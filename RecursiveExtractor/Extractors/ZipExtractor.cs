@@ -39,7 +39,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
                     catch (Exception e)
                     {
-                        Logger.Trace(Extractor.FAILED_PASSWORD_STRING, password, fileEntry.FullPath, ArchiveFileType.ZIP, e.GetType(), e.Message);
+                        Logger.Trace(Extractor.FAILED_PASSWORD_STRING, fileEntry.FullPath, ArchiveFileType.ZIP, e.GetType(), e.Message);
                     }
                 }
             }
