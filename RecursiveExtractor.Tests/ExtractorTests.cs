@@ -33,19 +33,19 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow(ArchiveFileType.ISO_9660, new byte[1] { 0x00 }, 32769, "CD001", null, 2048, DisplayName = "iso")]
         [DataRow(ArchiveFileType.VHD, new byte[1] { 0x00 }, 512, null, new byte[] { 0x63, 0x6F, 0x6E, 0x65, 0x63, 0x74, 0x69, 0x78 }, 0x200 - 8, DisplayName = "vhd")]
 
-        public void FileTypeSetCorrectlyForFailingArchives(ArchiveFileType expectedArchiveType, byte[] header, int footerPosition = 0, string footer = null, byte[] footerBytes = null, int padding = 0)
+        public void FileTypeSetCorrectlyForFailingArchives(ArchiveFileType expectedArchiveType, byte[] header, int footerPosition = 0, string? footer = null, byte[]? footerBytes = null, int padding = 0)
         {
             var extractor = new Extractor();
             var fileData = new byte[9];
             Buffer.BlockCopy(header, 0, fileData, 0, header.Length);
             using var ms = new MemoryStream();
             ms.Write(fileData, 0, fileData.Length);
-            if (!string.IsNullOrEmpty(footer) || footerBytes != null)
-            {
-                ms.Position = footerPosition;
-                var footerData = !string.IsNullOrEmpty(footer)
+            var footerData = !string.IsNullOrEmpty(footer)
                     ? System.Text.Encoding.ASCII.GetBytes(footer)
                     : footerBytes;
+            if (footerData != null)
+            {
+                ms.Position = footerPosition;
                 ms.Write(footerData, 0, footerData.Length);
 
                 if (padding > 0)
@@ -56,11 +56,11 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
 
             var fileEntry = new FileEntry(expectedArchiveType.ToString(), ms);
 
-            Assert.AreEqual(expectedArchiveType, MiniMagic.DetectFileType(fileEntry));
+            Assert.AreEqual(expectedArchiveType, fileEntry.ArchiveType);
 
             var results = extractor.Extract(fileEntry, new ExtractorOptions() { ExtractSelfOnFail = true });
             Assert.AreEqual(1, results.Count());
-            Assert.AreEqual(FileEntryType.FailedArchive, results.First().EntryType);
+            Assert.AreEqual(FileEntryStatus.FailedArchive, results.First().EntryStatus);
         }
 
         [DataTestMethod]
@@ -80,19 +80,20 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow(ArchiveFileType.ISO_9660, new byte[1] { 0x00 }, 32769, "CD001", null, 2048, DisplayName = "iso")]
         [DataRow(ArchiveFileType.VHD, new byte[1] { 0x00 }, 512, null, new byte[] { 0x63, 0x6F, 0x6E, 0x65, 0x63, 0x74, 0x69, 0x78 }, 0x200 - 8, DisplayName = "vhd")]
 
-        public async Task FileTypeSetCorrectlyForFailingArchivesAsync(ArchiveFileType expectedArchiveType, byte[] header, int footerPosition = 0, string footer = null, byte[] footerBytes = null, int padding = 0)
+        public async Task FileTypeSetCorrectlyForFailingArchivesAsync(ArchiveFileType expectedArchiveType, byte[] header, int footerPosition = 0, string? footer = null, byte[]? footerBytes = null, int padding = 0)
         {
             var extractor = new Extractor();
             var fileData = new byte[9];
             Buffer.BlockCopy(header, 0, fileData, 0, header.Length);
             using var ms = new MemoryStream();
             ms.Write(fileData, 0, fileData.Length);
-            if (!string.IsNullOrEmpty(footer) || footerBytes != null)
+            var footerData = !string.IsNullOrEmpty(footer)
+                ? System.Text.Encoding.ASCII.GetBytes(footer)
+                : footerBytes;
+            if (footerData != null)
             {
                 ms.Position = footerPosition;
-                var footerData = !string.IsNullOrEmpty(footer)
-                    ? System.Text.Encoding.ASCII.GetBytes(footer)
-                    : footerBytes;
+
                 ms.Write(footerData, 0, footerData.Length);
 
                 if (padding > 0)
@@ -103,12 +104,12 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
 
             var fileEntry = new FileEntry(expectedArchiveType.ToString(), ms);
 
-            Assert.AreEqual(expectedArchiveType, MiniMagic.DetectFileType(fileEntry));
+            Assert.AreEqual(expectedArchiveType, fileEntry.ArchiveType);
 
             var list = await extractor.ExtractAsync(fileEntry, new ExtractorOptions() { ExtractSelfOnFail = true }).ToListAsync();
             
             Assert.AreEqual(1, list.Count);
-            Assert.AreEqual(FileEntryType.FailedArchive, list[0].EntryType);
+            Assert.AreEqual(FileEntryStatus.FailedArchive, list[0].EntryStatus);
         }
 
         [DataTestMethod]
@@ -123,7 +124,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var results = extractor.Extract(path, new ExtractorOptions());
             Assert.AreEqual(expectedNumFiles, results.Count());
-            Assert.AreEqual(FileEntryType.EncryptedArchive, results.First().EntryType);
+            Assert.AreEqual(FileEntryStatus.EncryptedArchive, results.First().EntryStatus);
         }
 
         [DataTestMethod]
@@ -142,7 +143,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
                 results.Add(entry);
             }
             Assert.AreEqual(expectedNumFiles, results.Count);
-            Assert.AreEqual(FileEntryType.EncryptedArchive, results.First().EntryType);
+            Assert.AreEqual(FileEntryStatus.EncryptedArchive, results.First().EntryStatus);
         }
 
         [DataTestMethod]
@@ -565,7 +566,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
                 Passwords = TestArchivePasswords
             }).ToList(); // Make this a list so it fully populates
             Assert.AreEqual(expectedNumFiles, results.Count);
-            Assert.AreEqual(0, results.Count(x => x.EntryType == FileEntryType.EncryptedArchive));
+            Assert.AreEqual(0, results.Count(x => x.EntryStatus == FileEntryStatus.EncryptedArchive));
         }
 
         [DataTestMethod]
@@ -588,7 +589,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             await foreach (var entry in results)
             {
                 numEntries++;
-                if (entry.EntryType == FileEntryType.EncryptedArchive)
+                if (entry.EntryStatus == FileEntryStatus.EncryptedArchive)
                 {
                     numEntriesEncrypted++;
                 }
@@ -620,11 +621,17 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var results = extractor.ExtractAsync(path, new ExtractorOptions());
             var numFound = 0;
-            await foreach (var _ in results)
+            var files = 0;
+            await foreach (var res in results)
             {
                 numFound++;
+                if (res.EntryStatus == FileEntryStatus.Default)
+                {
+                    files++;
+                }
             }
             Assert.AreEqual(expectedNumFiles, numFound);
+            Assert.AreEqual(expectedNumFiles, files);
         }
 
         [DataTestMethod]
@@ -711,12 +718,12 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var fileEntry = new FileEntry("NoName", fs);
 
             // We make sure the expected type matches and we have reset the stream
-            Assert.AreEqual(expectedArchiveFileType, MiniMagic.DetectFileType(fileEntry));
+            Assert.AreEqual(expectedArchiveFileType, fileEntry.ArchiveType);
             Assert.AreEqual(0, fileEntry.Content.Position);
 
             // Should also work if the stream doesn't start at 0
             fileEntry.Content.Position = 10;
-            Assert.AreEqual(expectedArchiveFileType, MiniMagic.DetectFileType(fileEntry));
+            Assert.AreEqual(expectedArchiveFileType, fileEntry.ArchiveType);
             Assert.AreEqual(10, fileEntry.Content.Position);
         }
 

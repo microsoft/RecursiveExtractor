@@ -221,7 +221,7 @@ else
                 await pair.Stream.CopyToAsync(entryStream);
 
                 var entry = await FileEntry.FromStreamAsync(pair.FileInfo.Name, entryStream, null);
-                var type = MiniMagic.DetectFileType(entry);
+                var type = entry.ArchiveType;
                 switch (type)
                 {
                     case ArchiveFileType.RAR:

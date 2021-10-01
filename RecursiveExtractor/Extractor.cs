@@ -307,8 +307,8 @@ namespace Microsoft.CST.RecursiveExtractor
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null, bool topLevel = true)
         {
             var options = opts ?? new ExtractorOptions();
-
             var Governor = governor ?? new ResourceGovernor(options);
+
             if (governor is null)
             {
                 Governor.ResetResourceGovernor(fileEntry.Content);
@@ -324,7 +324,7 @@ namespace Microsoft.CST.RecursiveExtractor
             }
             if (topLevel || (!topLevel && options.Recurse))
             {
-                var type = MiniMagic.DetectFileType(fileEntry);
+                var type = fileEntry.ArchiveType;
 
                 if (((opts?.RawExtensions?.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ?? false) || type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type)))
                 {
@@ -335,6 +335,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 }
                 else
                 {
+                    fileEntry.EntryStatus = FileEntryStatus.Default;
                     await foreach (var result in Extractors[type].ExtractAsync(fileEntry, options, Governor, false))
                     {
                         if (options.FileNamePasses(result.FullPath))
@@ -598,7 +599,7 @@ namespace Microsoft.CST.RecursiveExtractor
 
             if (topLevel || options.Recurse)
             {
-                var type = MiniMagic.DetectFileType(fileEntry);
+                var type = fileEntry.ArchiveType;
 
                 if ((opts?.RawExtensions?.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ?? false) || type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type))
                 {

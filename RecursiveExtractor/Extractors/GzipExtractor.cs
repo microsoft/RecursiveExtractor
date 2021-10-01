@@ -50,7 +50,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             if (failed)
             {
-                fileEntry.EntryType = FileEntryType.FailedArchive;
+                fileEntry.EntryStatus = FileEntryStatus.FailedArchive;
                 yield return fileEntry;
                 yield break;
             }
@@ -106,7 +106,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             if (failed)
             {
-                fileEntry.EntryType = FileEntryType.FailedArchive;
+                fileEntry.EntryStatus = FileEntryStatus.FailedArchive;
                 yield return fileEntry;
                 yield break;
             }

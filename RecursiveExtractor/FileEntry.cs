@@ -122,6 +122,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 }
                 catch (Exception e)
                 {
+                    EntryStatus = FileEntryStatus.FailedFile;
                     Logger.Debug("Failed to copy stream from {0} ({1}:{2})", printPath, e.GetType(), e.Message);
                 }
 
@@ -133,6 +134,11 @@ namespace Microsoft.CST.RecursiveExtractor
                 Content.Position = 0;
             }
         }
+
+        /// <summary>
+        /// Uses MiniMagic to check the binary signature of the Content and return the detected Archive Type
+        /// </summary>
+        public ArchiveFileType ArchiveType => MiniMagic.DetectFileType(Content);
 
         /// <summary>
         /// The Contents of the File
@@ -155,7 +161,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         public string? ParentPath { get; }
         /// <summary>
-        /// Should the Content Stream be disposed when this object is finalized.
+        /// Should the <see cref="Content"/> Stream be disposed when this object is finalized.
         /// Default: true
         /// </summary>
         public bool DisposeOnFinalize { get; set; } = true;
@@ -172,15 +178,17 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         public DateTime AccessTime { get; }
         /// <summary>
-        /// The type of the file entry. Normal, FailedArchive or EncryptedArchive.
-        /// This will only be in play of <see cref="ExtractorOptions.ExtractSelfOnFail"/> is <c>true</c>
+        /// ExtractionStatus metadata.
         /// </summary>
-        public FileEntryType EntryType { get; set; }
+        public FileEntryStatus EntryStatus { get; set; }
 
         internal bool Passthrough { get; }
 
         private const int bufferSize = 4096;
 
+        /// <summary>
+        /// The deconstructor will dispose the <see cref="Content"/> stream if <see cref="DisposeOnFinalize"/> is set.
+        /// </summary>
         ~FileEntry()
         {
             if (DisposeOnFinalize)
@@ -198,6 +206,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <returns>A FileEntry object holding a Copy of the Stream</returns>
         public static async Task<FileEntry> FromStreamAsync(string name, Stream content, FileEntry? parent = null, DateTime? createTime = null, DateTime? modifyTime = null, DateTime? accessTime = null, int? memoryStreamCutoff = null)
         {
+            var status = FileEntryStatus.Default;
             memoryStreamCutoff ??= defaultCutoff;
             if (!content.CanRead || content == null)
             {
@@ -261,6 +270,7 @@ namespace Microsoft.CST.RecursiveExtractor
             }
             catch (Exception e)
             {
+                status = FileEntryStatus.FailedFile;
                 Logger.Debug("Failed to copy stream from {0} ({1}:{2})", FullPath, e.GetType(), e.Message);
             }
 
@@ -270,28 +280,31 @@ namespace Microsoft.CST.RecursiveExtractor
             }
 
             Content.Position = 0;
-
-            return new FileEntry(name, Content, parent, true, createTime, modifyTime, accessTime);
+            return new FileEntry(name, Content, parent, true, createTime, modifyTime, accessTime) { EntryStatus = status };
         }
 
         private const int defaultCutoff = 1024 * 1024 * 100;
     }
 
     /// <summary>
-    /// The type of a <see cref="FileEntry"/>
+    /// Status information about the provenance of this <see cref="FileEntry"/>
     /// </summary>
-    public enum FileEntryType
+    public enum FileEntryStatus
     {
         /// <summary>
-        /// A successfully extracted file
+        /// Status has not been set. Implies no issues.
         /// </summary>
-        Normal,
+        Default,
         /// <summary>
-        /// A <see cref="FileEntry"/> containing an archive that failed to extract due to an error.
+        /// Indicates that creation of this FileEntry was unsuccessful and <see cref="FileEntry.Content"/> for this FileEntry will be empty.
+        /// </summary>
+        FailedFile,
+        /// <summary>
+        /// Indicates that <see cref="FileEntry.Content"/> stream contains an archive which failed to extract. To have failed archives returned as FileEntries from extractors use <see cref="ExtractorOptions.ExtractSelfOnFail"/>.
         /// </summary>
         FailedArchive,
         /// <summary>
-        /// A <see cref="FileEntry"/> containing an archive that was encrypted and could not be extracted with the arguments given.
+        /// Indicates that <see cref="FileEntry.Content"/> contains an archive which failed to decrypt. To have encrypted archives returned as FileEntries from extractors use <see cref="ExtractorOptions.ExtractSelfOnFail"/>.
         /// </summary>
         EncryptedArchive
     }

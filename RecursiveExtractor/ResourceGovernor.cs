@@ -5,21 +5,27 @@ using System.IO;
 
 namespace Microsoft.CST.RecursiveExtractor
 {
+    /// <summary>
+    /// Class that keeps track of bytes processed and time spent processing. Used to Detect ZipBombs etc.
+    /// </summary>
     public class ResourceGovernor
     {
         private readonly ExtractorOptions options;
         private readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
+        /// <summary>
+        /// Create a governor with the given options.
+        /// </summary>
+        /// <param name="opts"></param>
         public ResourceGovernor(ExtractorOptions opts)
         {
-            options = opts;
+            options = opts ?? new ExtractorOptions();
             GovernorStopwatch = new Stopwatch();
         }
 
         internal void ResetResourceGovernor(Stream stream)
         {
             Logger.Trace("ResetResourceGovernor()");
-
             if (stream == null)
             {
                 throw new ArgumentNullException(nameof(stream), "Stream must not be null.");

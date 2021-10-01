@@ -24,7 +24,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
         internal Extractor Context { get; }
 
-        private (RarArchive? archive, FileEntryType archiveStatus) GetRarArchive(FileEntry fileEntry, ExtractorOptions options)
+        private (RarArchive? archive, FileEntryStatus archiveStatus) GetRarArchive(FileEntry fileEntry, ExtractorOptions options)
         {
             RarArchive? rarArchive = null;
             var needsPassword = false;
@@ -41,15 +41,15 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             catch (Exception e)
             {
-                Logger.Debug(Extractor.DEBUG_STRING, MiniMagic.DetectFileType(fileEntry), fileEntry.FullPath, string.Empty, e.GetType());
-                return (null, FileEntryType.FailedArchive);
+                Logger.Debug(Extractor.DEBUG_STRING, fileEntry.ArchiveType, fileEntry.FullPath, string.Empty, e.GetType());
+                return (null, FileEntryStatus.FailedArchive);
             }
 
             try
             {
-                if (rarArchive?.Entries.Any(x => x.IsEncrypted) ?? false && MiniMagic.DetectFileType(fileEntry) == ArchiveFileType.RAR5)
+                if (rarArchive?.Entries.Any(x => x.IsEncrypted) ?? false && fileEntry.ArchiveType == ArchiveFileType.RAR5)
                 {
-                    return (null, FileEntryType.EncryptedArchive);
+                    return (null, FileEntryStatus.EncryptedArchive);
                 }
             }
             catch (Exception e) when (e is SharpCompress.Common.CryptographicException || e is SharpCompress.Common.InvalidFormatException)
@@ -86,10 +86,10 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 }
                 if (!passwordFound)
                 {
-                    return (null, FileEntryType.EncryptedArchive);
+                    return (null, FileEntryStatus.EncryptedArchive);
                 }
             }
-            return (rarArchive, FileEntryType.Normal);
+            return (rarArchive, FileEntryStatus.Default);
         }
 
         /// <summary>
@@ -100,8 +100,8 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             (var rarArchive, var archiveType) = GetRarArchive(fileEntry, options);
-            fileEntry.EntryType = archiveType;
-            if (rarArchive != null && fileEntry.EntryType == FileEntryType.Normal)
+            fileEntry.EntryStatus = archiveType;
+            if (rarArchive != null && fileEntry.EntryStatus == FileEntryStatus.Default)
             {
                 foreach (var entry in rarArchive.Entries.Where(x => x.IsComplete && !x.IsDirectory))
                 {
@@ -141,8 +141,8 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             (var rarArchive, var archiveType) = GetRarArchive(fileEntry, options);
-            fileEntry.EntryType = archiveType;
-            if (rarArchive != null && fileEntry.EntryType == FileEntryType.Normal)
+            fileEntry.EntryStatus = archiveType;
+            if (rarArchive != null && fileEntry.EntryStatus == FileEntryStatus.Default)
             {
                 var entries = rarArchive.Entries.Where(x => x.IsComplete && !x.IsDirectory);
                 if (options.Parallel)

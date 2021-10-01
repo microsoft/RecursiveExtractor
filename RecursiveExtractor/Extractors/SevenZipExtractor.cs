@@ -36,8 +36,8 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             (var sevenZipArchive, var archiveStatus) = GetSevenZipArchive(fileEntry, options);
-            fileEntry.EntryType = archiveStatus;
-            if (sevenZipArchive != null && archiveStatus == FileEntryType.Normal)
+            fileEntry.EntryStatus = archiveStatus;
+            if (sevenZipArchive != null && archiveStatus == FileEntryStatus.Default)
             {
                 foreach (var entry in sevenZipArchive.Entries.Where(x => !x.IsDirectory && x.IsComplete).ToList())
                 {
@@ -70,7 +70,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
         }
 
-        private (SevenZipArchive? archive, FileEntryType archiveStatus) GetSevenZipArchive(FileEntry fileEntry, ExtractorOptions options)
+        private (SevenZipArchive? archive, FileEntryStatus archiveStatus) GetSevenZipArchive(FileEntry fileEntry, ExtractorOptions options)
         {
             SevenZipArchive? sevenZipArchive = null;
             try
@@ -80,7 +80,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             catch (Exception e)
             {                
                 Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.P7ZIP, fileEntry.FullPath, string.Empty, e.GetType());
-                return (sevenZipArchive, FileEntryType.FailedArchive);
+                return (sevenZipArchive, FileEntryStatus.FailedArchive);
             }
             var needsPassword = false;
             try
@@ -96,7 +96,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             catch (Exception e)
             {
                 Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.P7ZIP, fileEntry.FullPath, string.Empty, e.GetType());
-                return (sevenZipArchive, FileEntryType.FailedArchive);
+                return (sevenZipArchive, FileEntryStatus.FailedArchive);
             }
             if (needsPassword is true)
             {
@@ -112,7 +112,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             if (sevenZipArchive.TotalUncompressSize > 0)
                             {
                                 passwordFound = true;
-                                return (sevenZipArchive, FileEntryType.Normal);
+                                return (sevenZipArchive, FileEntryStatus.Default);
                             }
                         }
                         catch (Exception e)
@@ -121,9 +121,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         }
                     }
                 }
-                return (null, FileEntryType.EncryptedArchive);
+                return (null, FileEntryStatus.EncryptedArchive);
             }
-            return (sevenZipArchive, FileEntryType.Normal);
+            return (sevenZipArchive, FileEntryStatus.Default);
         }
 
         /// <summary>
@@ -137,8 +137,8 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             (var sevenZipArchive, var archiveStatus) = GetSevenZipArchive(fileEntry, options);
-            fileEntry.EntryType = archiveStatus;
-            if (sevenZipArchive != null && archiveStatus == FileEntryType.Normal)
+            fileEntry.EntryStatus = archiveStatus;
+            if (sevenZipArchive != null && archiveStatus == FileEntryStatus.Default)
             {
                 var entries = sevenZipArchive.Entries.Where(x => !x.IsDirectory && x.IsComplete).ToList();
                 if (options.Parallel)

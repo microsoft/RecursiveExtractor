@@ -39,7 +39,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             catch (Exception e)
             {
-                Logger.Debug("Error reading {0} disk at {1} ({2}:{3})", MiniMagic.DetectFileType(fileEntry), fileEntry.FullPath, e.GetType(), e.Message);
+                Logger.Debug("Error reading {0} disk at {1} ({2}:{3})", fileEntry.ArchiveType, fileEntry.FullPath, e.GetType(), e.Message);
             }
 
             if (logicalVolumes != null)
@@ -58,7 +58,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             {
                 if (options.ExtractSelfOnFail)
                 {
-                    fileEntry.EntryType = FileEntryType.FailedArchive;
+                    fileEntry.EntryStatus = FileEntryStatus.FailedArchive;
                     yield return fileEntry;
                 }
             }
@@ -82,7 +82,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             catch (Exception e)
             {
-                Logger.Debug("Error reading {0} disk at {1} ({2}:{3})", MiniMagic.DetectFileType(fileEntry), fileEntry.FullPath, e.GetType(), e.Message);
+                Logger.Debug("Error reading {0} disk at {1} ({2}:{3})", fileEntry.ArchiveType, fileEntry.FullPath, e.GetType(), e.Message);
             }
 
             if (logicalVolumes != null)
@@ -101,7 +101,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             {
                 if (options.ExtractSelfOnFail)
                 {
-                    fileEntry.EntryType = FileEntryType.FailedArchive;
+                    fileEntry.EntryStatus = FileEntryStatus.FailedArchive;
                     yield return fileEntry;
                 }
             }

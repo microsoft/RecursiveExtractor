@@ -64,7 +64,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             if (zipFile is null)
             {
-                fileEntry.EntryType = FileEntryType.FailedArchive;
+                fileEntry.EntryStatus = FileEntryStatus.FailedArchive;
                 if (options.ExtractSelfOnFail)
                 {
                     yield return fileEntry;
@@ -91,7 +91,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         }
                         else
                         {
-                            fileEntry.EntryType = FileEntryType.EncryptedArchive;
+                            fileEntry.EntryStatus = FileEntryStatus.EncryptedArchive;
                             if (options.ExtractSelfOnFail)
                             {
                                 yield return fileEntry;
@@ -152,7 +152,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             if (zipFile is null)
             {
-                fileEntry.EntryType = FileEntryType.FailedArchive;
+                fileEntry.EntryStatus = FileEntryStatus.FailedArchive;
                 if (options.ExtractSelfOnFail)
                 {
                     yield return fileEntry;
@@ -183,7 +183,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         }
                         else
                         {
-                            fileEntry.EntryType = FileEntryType.EncryptedArchive;
+                            fileEntry.EntryStatus = FileEntryStatus.EncryptedArchive;
                             if (options.ExtractSelfOnFail)
                             {
                                 yield return fileEntry;
