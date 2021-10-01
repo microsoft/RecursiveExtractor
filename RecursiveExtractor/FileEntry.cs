@@ -21,6 +21,10 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="inputStream"> </param>
         /// <param name="parent"> </param>
         /// <param name="passthroughStream"> </param>
+        /// <param name="createTime"></param>
+        /// <param name="modifyTime"></param>
+        /// <param name="accessTime"></param>
+        /// <param name="memoryStreamCutoff">Size in bytes for maximum size to back with MemoryStream instead of ephemeral FileStream</param>
         public FileEntry(string name, Stream inputStream, FileEntry? parent = null, bool passthroughStream = false, DateTime? createTime = null, DateTime? modifyTime = null, DateTime? accessTime = null, int? memoryStreamCutoff = null)
         {
             memoryStreamCutoff ??= defaultCutoff;
@@ -203,6 +207,10 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="name">Name of the FileEntry</param>
         /// <param name="content">The Stream to parse</param>
         /// <param name="parent">The Parent FileEntry</param>
+        /// <param name="createTime"></param>
+        /// <param name="modifyTime"></param>
+        /// <param name="accessTime"></param>
+        /// <param name="memoryStreamCutoff">Size in bytes for maximum size to back with MemoryStream instead of ephemeral FileStream</param>
         /// <returns>A FileEntry object holding a Copy of the Stream</returns>
         public static async Task<FileEntry> FromStreamAsync(string name, Stream content, FileEntry? parent = null, DateTime? createTime = null, DateTime? modifyTime = null, DateTime? accessTime = null, int? memoryStreamCutoff = null)
         {

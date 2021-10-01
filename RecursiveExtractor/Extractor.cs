@@ -335,7 +335,6 @@ namespace Microsoft.CST.RecursiveExtractor
                 }
                 else
                 {
-                    fileEntry.EntryStatus = FileEntryStatus.Default;
                     await foreach (var result in Extractors[type].ExtractAsync(fileEntry, options, Governor, false))
                     {
                         if (options.FileNamePasses(result.FullPath))
