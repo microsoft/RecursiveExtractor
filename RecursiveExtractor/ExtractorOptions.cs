@@ -106,6 +106,11 @@ namespace Microsoft.CST.RecursiveExtractor
             }
         }
 
+        /// <summary>
+        /// If the file name provided should be extracted given the filter arguments in this ExtractorOptions instance
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <returns></returns>
         public bool FileNamePasses(string filename)
         {
             var allowed = true;

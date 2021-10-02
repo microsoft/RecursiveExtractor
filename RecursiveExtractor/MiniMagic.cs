@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -37,36 +36,37 @@ namespace Microsoft.CST.RecursiveExtractor
     /// </summary>
     public static class MiniMagic
     {
+        /// <summary>
+        /// Detect the type of a file given its path on disk.
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <returns></returns>
         public static ArchiveFileType DetectFileType(string filename)
         {
 #pragma warning disable SEC0116 // Path Tampering Unvalidated File Path
             using var fs = new FileStream(filename, FileMode.Open);
 #pragma warning restore SEC0116 // Path Tampering Unvalidated File Path
-
-            // If you don't pass passthroughStream: true here it will read the entire file into the stream in
-            // FileEntry This way it will only read the bytes minimagic uses
-            var fileEntry = new FileEntry(filename, fs, null, passthroughStream: true);
-            return DetectFileType(fileEntry);
+            return DetectFileType(fs);
         }
 
         /// <summary>
-        ///     Detects the type of a file.
+        /// Detect the type of a file given a stream of its contents.
         /// </summary>
-        /// <param name="fileEntry"> FileEntry containing the file data. </param>
-        /// <returns>The ArchiveFileType detected</returns>
-        public static ArchiveFileType DetectFileType(FileEntry fileEntry)
+        /// <param name="fileStream"></param>
+        /// <returns></returns>
+        public static ArchiveFileType DetectFileType(Stream fileStream)
         {
-            if (fileEntry == null)
+            if (fileStream == null)
             {
                 return ArchiveFileType.UNKNOWN;
             }
-            var initialPosition = fileEntry.Content.Position;
+            var initialPosition = fileStream.Position;
             var buffer = new byte[9];
-            if (fileEntry.Content.Length >= 9)
+            if (fileStream.Length >= 9)
             {
-                fileEntry.Content.Position = 0;
-                fileEntry.Content.Read(buffer, 0, 9);
-                fileEntry.Content.Position = initialPosition;
+                fileStream.Position = 0;
+                fileStream.Read(buffer, 0, 9);
+                fileStream.Position = initialPosition;
 
                 if (buffer[0] == 0x50 && buffer[1] == 0x4B && buffer[2] == 0x03 && buffer[3] == 0x04)
                 {
@@ -104,10 +104,10 @@ namespace Microsoft.CST.RecursiveExtractor
                 }
                 if (Encoding.ASCII.GetString(buffer[0..4]) == "KDMV")
                 {
-                    fileEntry.Content.Position = 512;
+                    fileStream.Position = 512;
                     var secondToken = new byte[21];
-                    fileEntry.Content.Read(secondToken, 0, 21);
-                    fileEntry.Content.Position = initialPosition;
+                    fileStream.Read(secondToken, 0, 21);
+                    fileStream.Position = initialPosition;
 
                     if (Encoding.ASCII.GetString(secondToken) == "# Disk DescriptorFile")
                     {
@@ -118,9 +118,9 @@ namespace Microsoft.CST.RecursiveExtractor
                 if (buffer[0] == 0x21 && buffer[1] == 0x3c && buffer[2] == 0x61 && buffer[3] == 0x72 && buffer[4] == 0x63 && buffer[5] == 0x68 && buffer[6] == 0x3e)
                 {
                     // .deb https://manpages.debian.org/unstable/dpkg-dev/deb.5.en.html
-                    fileEntry.Content.Position = 68;
-                    fileEntry.Content.Read(buffer, 0, 4);
-                    fileEntry.Content.Position = initialPosition;
+                    fileStream.Position = 68;
+                    fileStream.Read(buffer, 0, 4);
+                    fileStream.Position = initialPosition;
 
                     var encoding = new ASCIIEncoding();
                     if (encoding.GetString(buffer[0..4]) == "2.0\n")
@@ -132,13 +132,12 @@ namespace Microsoft.CST.RecursiveExtractor
                         var headerBuffer = new byte[60];
 
                         // Created by GNU ar https://en.wikipedia.org/wiki/Ar_(Unix)#System_V_(or_GNU)_variant
-                        fileEntry.Content.Position = 8;
-                        fileEntry.Content.Read(headerBuffer, 0, 60);
-                        fileEntry.Content.Position = initialPosition;
+                        fileStream.Position = 8;
+                        fileStream.Read(headerBuffer, 0, 60);
+                        fileStream.Position = initialPosition;
 
-                        var size = int.Parse(Encoding.ASCII.GetString(headerBuffer[48..58])); // header size in bytes
-
-                        if (size > 0)
+                        // header size in bytes
+                        if (int.TryParse(Encoding.ASCII.GetString(headerBuffer[48..58]), out var size) && size > 0)
                         {
                             // Defined ending characters for a header
                             if (headerBuffer[58] == '`' && headerBuffer[59] == '\n')
@@ -155,11 +154,11 @@ namespace Microsoft.CST.RecursiveExtractor
                 }
             }
 
-            if (fileEntry.Content.Length >= 262)
+            if (fileStream.Length >= 262)
             {
-                fileEntry.Content.Position = 257;
-                fileEntry.Content.Read(buffer, 0, 5);
-                fileEntry.Content.Position = initialPosition;
+                fileStream.Position = 257;
+                fileStream.Read(buffer, 0, 5);
+                fileStream.Position = initialPosition;
 
                 if (buffer[0] == 0x75 && buffer[1] == 0x73 && buffer[2] == 0x74 && buffer[3] == 0x61 && buffer[4] == 0x72)
                 {
@@ -168,11 +167,11 @@ namespace Microsoft.CST.RecursiveExtractor
             }
 
             // ISO Format https://en.wikipedia.org/wiki/ISO_9660#Overall_structure Reserved space + 1 header
-            if (fileEntry.Content.Length > 32768 + 2048)
+            if (fileStream.Length > 32768 + 2048)
             {
-                fileEntry.Content.Position = 32769;
-                fileEntry.Content.Read(buffer, 0, 5);
-                fileEntry.Content.Position = initialPosition;
+                fileStream.Position = 32769;
+                fileStream.Read(buffer, 0, 5);
+                fileStream.Position = initialPosition;
 
                 if (buffer[0] == 'C' && buffer[1] == 'D' && buffer[2] == '0' && buffer[3] == '0' && buffer[4] == '1')
                 {
@@ -183,22 +182,22 @@ namespace Microsoft.CST.RecursiveExtractor
             //https://www.microsoft.com/en-us/download/details.aspx?id=23850 - 'Hard Disk Footer Format'
             // Unlike other formats the magic string is stored in the footer, which is either the last 511 or 512 bytes
             // The magic string is Magic string "conectix" (63 6F 6E 65 63 74 69 78)
-            if (fileEntry.Content.Length > 512)
+            if (fileStream.Length > 512)
             {
                 var vhdFooterCookie = new byte[] { 0x63, 0x6F, 0x6E, 0x65, 0x63, 0x74, 0x69, 0x78 };
 
-                fileEntry.Content.Position = fileEntry.Content.Length - 0x200; // Footer position
-                fileEntry.Content.Read(buffer, 0, 8);
-                fileEntry.Content.Position = initialPosition;
+                fileStream.Position = fileStream.Length - 0x200; // Footer position
+                fileStream.Read(buffer, 0, 8);
+                fileStream.Position = initialPosition;
 
                 if (vhdFooterCookie.SequenceEqual(buffer[0..8]))
                 {
                     return ArchiveFileType.VHD;
                 }
 
-                fileEntry.Content.Position = fileEntry.Content.Length - 0x1FF; //If created on legacy platform footer is 511 bytes instead
-                fileEntry.Content.Read(buffer, 0, 8);
-                fileEntry.Content.Position = initialPosition;
+                fileStream.Position = fileStream.Length - 0x1FF; //If created on legacy platform footer is 511 bytes instead
+                fileStream.Read(buffer, 0, 8);
+                fileStream.Position = initialPosition;
 
                 if (vhdFooterCookie.SequenceEqual(buffer[0..8]))
                 {
@@ -207,5 +206,12 @@ namespace Microsoft.CST.RecursiveExtractor
             }
             return ArchiveFileType.UNKNOWN;
         }
+
+        /// <summary>
+        ///     Detects the type of a file given a fileEntry
+        /// </summary>
+        /// <param name="fileEntry"> FileEntry containing the file data. </param>
+        /// <returns>The ArchiveFileType detected</returns>
+        public static ArchiveFileType DetectFileType(FileEntry fileEntry) => DetectFileType(fileEntry?.Content ?? new MemoryStream());
     }
 }

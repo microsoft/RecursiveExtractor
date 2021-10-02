@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net5.0;net48</TargetFrameworks>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
     <RootNamespace>Microsoft.CST.RecursiveExtractor.Cli</RootNamespace>
     <copyright>© Microsoft Corporation. All rights reserved.</copyright> 

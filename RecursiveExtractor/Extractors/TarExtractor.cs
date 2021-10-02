@@ -23,7 +23,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         internal Extractor Context { get; }
 
         /// <summary>
-        ///     Extracts an a Tar archive
+        ///     Extracts a Tar archive
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
@@ -46,55 +46,80 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             if (tarStream != null)
             {
-                while ((tarEntry = tarStream.GetNextEntry()) != null)
+                var entries = new List<FileEntry>();
+                var failed = false;
+                try
                 {
-                    if (tarEntry.IsDirectory)
+                    while ((tarEntry = tarStream.GetNextEntry()) != null)
                     {
-                        continue;
-                    }
-
-                    var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
-                    governor.CheckResourceGovernor(tarStream.Length);
-                    try
-                    {
-                        tarStream.CopyEntryContents(fs);
-                    }
-                    catch (Exception e)
-                    {
-                        Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.TAR, fileEntry.FullPath, tarEntry.Name, e.GetType());
-                    }
-
-                    var name = tarEntry.Name.Replace('/', Path.DirectorySeparatorChar);
-                    var newFileEntry = new FileEntry(name, fs, fileEntry, true, memoryStreamCutoff: options.MemoryStreamCutoff);
-
-                    if (newFileEntry != null)
-                    {
-                        if (options.Recurse || topLevel)
+                        if (tarEntry.IsDirectory)
                         {
-                            await foreach (var innerEntry in Context.ExtractAsync(newFileEntry, options, governor, false))
-                            {
-                                yield return innerEntry;
-                            }
+                            continue;
                         }
-                        else
+
+                        var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
+                        governor.CheckResourceGovernor(tarStream.Length);
+                        try
                         {
-                            yield return newFileEntry;
+                            tarStream.CopyEntryContents(fs);
+                        }
+                        catch (Exception e)
+                        {
+                            Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.TAR, fileEntry.FullPath, tarEntry.Name, e.GetType());
+                        }
+
+                        var name = tarEntry.Name.Replace('/', Path.DirectorySeparatorChar);
+                        var newFileEntry = new FileEntry(name, fs, fileEntry, true, memoryStreamCutoff: options.MemoryStreamCutoff);
+
+                        if (newFileEntry != null)
+                        {
+                            entries.Add(newFileEntry);
                         }
                     }
                 }
+                catch(Exception e) when (e is not OverflowException)
+                {
+                    Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.TAR, fileEntry.FullPath, string.Empty, e.GetType());
+                    failed = true;
+                }
+                if (failed)
+                {
+                    if (options.ExtractSelfOnFail)
+                    {
+                        fileEntry.EntryStatus = FileEntryStatus.FailedArchive;
+                        yield return fileEntry;
+                        yield break;
+                    }
+                }
+                foreach (var entry in entries)
+                {
+                    if (options.Recurse || topLevel)
+                    {
+                        await foreach (var innerEntry in Context.ExtractAsync(entry, options, governor, false))
+                        {
+                            yield return innerEntry;
+                        }
+                    }
+                    else
+                    {
+                        yield return entry;
+                    }
+                }
+                    
                 tarStream.Dispose();
             }
             else
             {
                 if (options.ExtractSelfOnFail)
                 {
+                    fileEntry.EntryStatus = FileEntryStatus.FailedArchive;
                     yield return fileEntry;
                 }
             }
         }
 
         /// <summary>
-        ///     Extracts an a Tar archive
+        ///     Extracts a Tar archive
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
@@ -107,15 +132,28 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             tempStream.Position = 0;
             fileEntry.Content.Position = 0;
             TarInputStream? tarStream = null;
+            var failed = false;
             try
             {
                 tarStream = new TarInputStream(tempStream, System.Text.Encoding.UTF8);
+                // Validate that the archive can be read.
+                tarStream.GetNextEntry();
+                tarStream.Reset();
             }
             catch (Exception e)
             {
+                failed = true;
                 Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.TAR, fileEntry.FullPath, string.Empty, e.GetType());
             }
-            if (tarStream != null)
+            if (failed)
+            {
+                if (options.ExtractSelfOnFail)
+                {
+                    fileEntry.EntryStatus = FileEntryStatus.FailedArchive;
+                    yield return fileEntry;
+                }
+            }
+            else if (tarStream != null)
             {
                 while ((tarEntry = tarStream.GetNextEntry()) != null)
                 {
@@ -148,13 +186,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         yield return newFileEntry;
                     }
-                }
-            }
-            else
-            {
-                if (options.ExtractSelfOnFail)
-                {
-                    yield return fileEntry;
                 }
             }
             tarStream?.Dispose();

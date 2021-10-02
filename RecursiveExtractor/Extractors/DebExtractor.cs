@@ -52,18 +52,30 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <returns> Extracted files </returns>
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
+            var failed = false;
             IEnumerable<FileEntry>? entries = null;
             try
             {
                 entries = DebArchiveFile.GetFileEntries(fileEntry, options, governor);
             }
-            catch (Exception e)
+            catch (Exception e) when (e is not OverflowException)
             {
+                fileEntry.EntryStatus = FileEntryStatus.FailedArchive;
                 Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.DEB, fileEntry.FullPath, string.Empty, e.GetType());
-                if (e is OverflowException)
+                if (!options.ExtractSelfOnFail)
                 {
-                    throw;
+                    yield break;
                 }
+                else
+                {
+                    failed = true;
+                }
+            }
+            if (failed)
+            {
+                fileEntry.EntryStatus = FileEntryStatus.FailedArchive;
+                yield return fileEntry;
+                yield break;
             }
             if (entries != null)
             {

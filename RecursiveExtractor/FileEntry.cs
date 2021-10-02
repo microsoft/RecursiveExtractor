@@ -18,10 +18,13 @@ namespace Microsoft.CST.RecursiveExtractor
         ///     contained Stream.
         /// </summary>
         /// <param name="name"> </param>
-        /// <param name="parentPath"> </param>
         /// <param name="inputStream"> </param>
         /// <param name="parent"> </param>
         /// <param name="passthroughStream"> </param>
+        /// <param name="createTime"></param>
+        /// <param name="modifyTime"></param>
+        /// <param name="accessTime"></param>
+        /// <param name="memoryStreamCutoff">Size in bytes for maximum size to back with MemoryStream instead of ephemeral FileStream</param>
         public FileEntry(string name, Stream inputStream, FileEntry? parent = null, bool passthroughStream = false, DateTime? createTime = null, DateTime? modifyTime = null, DateTime? accessTime = null, int? memoryStreamCutoff = null)
         {
             memoryStreamCutoff ??= defaultCutoff;
@@ -118,13 +121,12 @@ namespace Microsoft.CST.RecursiveExtractor
                     }
                     catch (Exception f)
                     {
-                        var message = f.Message;
-                        var type = f.GetType();
                         Logger.Debug("Failed to copy stream from {0} ({1}:{2})", printPath, f.GetType(), f.Message);
                     }
                 }
                 catch (Exception e)
                 {
+                    EntryStatus = FileEntryStatus.FailedFile;
                     Logger.Debug("Failed to copy stream from {0} ({1}:{2})", printPath, e.GetType(), e.Message);
                 }
 
@@ -136,6 +138,11 @@ namespace Microsoft.CST.RecursiveExtractor
                 Content.Position = 0;
             }
         }
+
+        /// <summary>
+        /// Uses MiniMagic to check the binary signature of the Content and return the detected Archive Type
+        /// </summary>
+        public ArchiveFileType ArchiveType => MiniMagic.DetectFileType(Content);
 
         /// <summary>
         /// The Contents of the File
@@ -158,7 +165,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         public string? ParentPath { get; }
         /// <summary>
-        /// Should the Content Stream be disposed when this object is finalized.
+        /// Should the <see cref="Content"/> Stream be disposed when this object is finalized.
         /// Default: true
         /// </summary>
         public bool DisposeOnFinalize { get; set; } = true;
@@ -174,11 +181,18 @@ namespace Microsoft.CST.RecursiveExtractor
         /// The Access time of the file or DateTime.MinValue if unavailable
         /// </summary>
         public DateTime AccessTime { get; }
+        /// <summary>
+        /// ExtractionStatus metadata.
+        /// </summary>
+        public FileEntryStatus EntryStatus { get; set; }
 
         internal bool Passthrough { get; }
 
         private const int bufferSize = 4096;
 
+        /// <summary>
+        /// The deconstructor will dispose the <see cref="Content"/> stream if <see cref="DisposeOnFinalize"/> is set.
+        /// </summary>
         ~FileEntry()
         {
             if (DisposeOnFinalize)
@@ -193,9 +207,14 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="name">Name of the FileEntry</param>
         /// <param name="content">The Stream to parse</param>
         /// <param name="parent">The Parent FileEntry</param>
+        /// <param name="createTime"></param>
+        /// <param name="modifyTime"></param>
+        /// <param name="accessTime"></param>
+        /// <param name="memoryStreamCutoff">Size in bytes for maximum size to back with MemoryStream instead of ephemeral FileStream</param>
         /// <returns>A FileEntry object holding a Copy of the Stream</returns>
         public static async Task<FileEntry> FromStreamAsync(string name, Stream content, FileEntry? parent = null, DateTime? createTime = null, DateTime? modifyTime = null, DateTime? accessTime = null, int? memoryStreamCutoff = null)
         {
+            var status = FileEntryStatus.Default;
             memoryStreamCutoff ??= defaultCutoff;
             if (!content.CanRead || content == null)
             {
@@ -254,13 +273,12 @@ namespace Microsoft.CST.RecursiveExtractor
                 }
                 catch (Exception f)
                 {
-                    var message = f.Message;
-                    var type = f.GetType();
                     Logger.Debug("Failed to copy stream from {0} ({1}:{2})", FullPath, f.GetType(), f.Message);
                 }
             }
             catch (Exception e)
             {
+                status = FileEntryStatus.FailedFile;
                 Logger.Debug("Failed to copy stream from {0} ({1}:{2})", FullPath, e.GetType(), e.Message);
             }
 
@@ -270,10 +288,32 @@ namespace Microsoft.CST.RecursiveExtractor
             }
 
             Content.Position = 0;
-
-            return new FileEntry(name, Content, parent, true, createTime, modifyTime, accessTime);
+            return new FileEntry(name, Content, parent, true, createTime, modifyTime, accessTime) { EntryStatus = status };
         }
 
         private const int defaultCutoff = 1024 * 1024 * 100;
+    }
+
+    /// <summary>
+    /// Status information about the provenance of this <see cref="FileEntry"/>
+    /// </summary>
+    public enum FileEntryStatus
+    {
+        /// <summary>
+        /// Status has not been set. Implies no issues.
+        /// </summary>
+        Default,
+        /// <summary>
+        /// Indicates that creation of this FileEntry was unsuccessful and <see cref="FileEntry.Content"/> for this FileEntry will be empty.
+        /// </summary>
+        FailedFile,
+        /// <summary>
+        /// Indicates that <see cref="FileEntry.Content"/> stream contains an archive which failed to extract. To have failed archives returned as FileEntries from extractors use <see cref="ExtractorOptions.ExtractSelfOnFail"/>.
+        /// </summary>
+        FailedArchive,
+        /// <summary>
+        /// Indicates that <see cref="FileEntry.Content"/> contains an archive which failed to decrypt. To have encrypted archives returned as FileEntries from extractors use <see cref="ExtractorOptions.ExtractSelfOnFail"/>.
+        /// </summary>
+        EncryptedArchive
     }
 }

@@ -523,6 +523,11 @@ namespace Microsoft.CST.RecursiveExtractor
             }
         }
 
+        /// <summary>
+        /// Convert Big Endian bytes to an int 64.
+        /// </summary>
+        /// <param name="value">bytes to convert</param>
+        /// <returns>The value of the int64 or -1 when length of the array is not 8.</returns>
         public static long Int64FromBigEndianBytes(byte[] value)
         {
             if (value.Length == 8)
@@ -536,6 +541,11 @@ namespace Microsoft.CST.RecursiveExtractor
             return -1;
         }
 
+        /// <summary>
+        /// Convert Big Endian bytes to an int 32.
+        /// </summary>
+        /// <param name="value">bytes to convert</param>
+        /// <returns>The value of the int or -1 when length of the array is not 8.</returns>
         public static int IntFromBigEndianBytes(byte[] value)
         {
             if (value.Length == 4)

@@ -17,6 +17,136 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
     public class ExtractorTests
     {
         [DataTestMethod]
+        [DataRow(ArchiveFileType.ZIP, new byte[4] { 0x50, 0x4B, 0x03, 0x04 }, DisplayName = "zip")]
+        [DataRow(ArchiveFileType.GZIP, new byte[2] { 0x1F, 0x8B }, DisplayName = "gzip")]
+        //[DataRow(ArchiveFileType.XZ, new byte[6] { 0xFD, 0x37, 0x7A, 0x58, 0x5A, 0x00 }, DisplayName = "xz")]
+        [DataRow(ArchiveFileType.BZIP2, new byte[3] { 0x42, 0x5A, 0x68 }, DisplayName = "bzip2")]
+        [DataRow(ArchiveFileType.RAR, new byte[7] { 0x52, 0x61, 0x72, 0x21, 0x1A, 0x07, 0x00 }, DisplayName = "rar")]
+        [DataRow(ArchiveFileType.RAR5, new byte[8] { 0x52, 0x61, 0x72, 0x21, 0x1A, 0x07, 0x01, 0x00 }, DisplayName = "rar5")]
+        [DataRow(ArchiveFileType.P7ZIP, new byte[6] { 0x37, 0x7A, 0xBC, 0xAF, 0x27, 0x1C }, DisplayName = "p7zip")]
+        [DataRow(ArchiveFileType.WIM, new byte[5] { 0x4D, 0x53, 0x57, 0x49, 0x4D }, DisplayName = "wim")]
+        [DataRow(ArchiveFileType.VMDK, new byte[4] { 0x4B, 0x44, 0x4D, 0x56 }, 512, "# Disk DescriptorFile", DisplayName = "vmdk")]
+        //[DataRow(ArchiveFileType.DEB, new byte[7] { 0x21, 0x3c, 0x61, 0x72, 0x63, 0x68, 0x3e }, 68, "2.0\n000000000000000000000000000000000000000000000000000000009999", DisplayName = "deb")]
+        //[DataRow(ArchiveFileType.AR, new byte[7] { 0x21, 0x3c, 0x61, 0x72, 0x63, 0x68, 0x3e }, 8, "                                                1         `\n", DisplayName = "ar")] // GnuArExtractor is still able to find entries, even with a minimal file header.
+        [DataRow(ArchiveFileType.VHDX, new byte[8] { 0x76, 0x68, 0x64, 0x78, 0x66, 0x69, 0x6C, 0x65 }, DisplayName = "vhdx")]
+        [DataRow(ArchiveFileType.TAR, new byte[1] { 0x00 }, 257, null, new byte[5] { 0x75, 0x73, 0x74, 0x61, 0x72 }, DisplayName = "tar")]
+        [DataRow(ArchiveFileType.ISO_9660, new byte[1] { 0x00 }, 32769, "CD001", null, 2048, DisplayName = "iso")]
+        [DataRow(ArchiveFileType.VHD, new byte[1] { 0x00 }, 512, null, new byte[] { 0x63, 0x6F, 0x6E, 0x65, 0x63, 0x74, 0x69, 0x78 }, 0x200 - 8, DisplayName = "vhd")]
+
+        public void FileTypeSetCorrectlyForFailingArchives(ArchiveFileType expectedArchiveType, byte[] header, int footerPosition = 0, string? footer = null, byte[]? footerBytes = null, int padding = 0)
+        {
+            var extractor = new Extractor();
+            var fileData = new byte[9];
+            Buffer.BlockCopy(header, 0, fileData, 0, header.Length);
+            using var ms = new MemoryStream();
+            ms.Write(fileData, 0, fileData.Length);
+            var footerData = !string.IsNullOrEmpty(footer)
+                    ? System.Text.Encoding.ASCII.GetBytes(footer)
+                    : footerBytes;
+            if (footerData != null)
+            {
+                ms.Position = footerPosition;
+                ms.Write(footerData, 0, footerData.Length);
+
+                if (padding > 0)
+                {
+                    ms.Write(new byte[padding], 0, padding);
+                }
+            }
+
+            var fileEntry = new FileEntry(expectedArchiveType.ToString(), ms);
+
+            Assert.AreEqual(expectedArchiveType, fileEntry.ArchiveType);
+
+            var results = extractor.Extract(fileEntry, new ExtractorOptions() { ExtractSelfOnFail = true });
+            Assert.AreEqual(1, results.Count());
+            Assert.AreEqual(FileEntryStatus.FailedArchive, results.First().EntryStatus);
+        }
+
+        [DataTestMethod]
+        [DataRow(ArchiveFileType.ZIP, new byte[4] { 0x50, 0x4B, 0x03, 0x04 }, DisplayName = "zip")]
+        [DataRow(ArchiveFileType.GZIP, new byte[2] { 0x1F, 0x8B }, DisplayName = "gzip")]
+        //[DataRow(ArchiveFileType.XZ, new byte[6] { 0xFD, 0x37, 0x7A, 0x58, 0x5A, 0x00 }, DisplayName = "xz")]
+        [DataRow(ArchiveFileType.BZIP2, new byte[3] { 0x42, 0x5A, 0x68 }, DisplayName = "bzip2")]
+        [DataRow(ArchiveFileType.RAR, new byte[7] { 0x52, 0x61, 0x72, 0x21, 0x1A, 0x07, 0x00 }, DisplayName = "rar")]
+        [DataRow(ArchiveFileType.RAR5, new byte[8] { 0x52, 0x61, 0x72, 0x21, 0x1A, 0x07, 0x01, 0x00 }, DisplayName = "rar5")]
+        [DataRow(ArchiveFileType.P7ZIP, new byte[6] { 0x37, 0x7A, 0xBC, 0xAF, 0x27, 0x1C }, DisplayName = "p7zip")]
+        [DataRow(ArchiveFileType.WIM, new byte[5] { 0x4D, 0x53, 0x57, 0x49, 0x4D }, DisplayName = "wim")]
+        [DataRow(ArchiveFileType.VMDK, new byte[4] { 0x4B, 0x44, 0x4D, 0x56 }, 512, "# Disk DescriptorFile", DisplayName = "vmdk")]
+        //[DataRow(ArchiveFileType.DEB, new byte[7] { 0x21, 0x3c, 0x61, 0x72, 0x63, 0x68, 0x3e }, 68, "2.0\n", DisplayName = "deb")]
+        //[DataRow(ArchiveFileType.AR, new byte[7] { 0x21, 0x3c, 0x61, 0x72, 0x63, 0x68, 0x3e }, 8, "                                                1         `\n", DisplayName = "ar")] // GnuArExtractor is still able to find entries, even with a minimal file header.
+        [DataRow(ArchiveFileType.VHDX, new byte[8] { 0x76, 0x68, 0x64, 0x78, 0x66, 0x69, 0x6C, 0x65 }, DisplayName = "vhdx")]
+        [DataRow(ArchiveFileType.TAR, new byte[1] { 0x00 }, 257, null, new byte[5] { 0x75, 0x73, 0x74, 0x61, 0x72 }, DisplayName = "tar")]
+        [DataRow(ArchiveFileType.ISO_9660, new byte[1] { 0x00 }, 32769, "CD001", null, 2048, DisplayName = "iso")]
+        [DataRow(ArchiveFileType.VHD, new byte[1] { 0x00 }, 512, null, new byte[] { 0x63, 0x6F, 0x6E, 0x65, 0x63, 0x74, 0x69, 0x78 }, 0x200 - 8, DisplayName = "vhd")]
+
+        public async Task FileTypeSetCorrectlyForFailingArchivesAsync(ArchiveFileType expectedArchiveType, byte[] header, int footerPosition = 0, string? footer = null, byte[]? footerBytes = null, int padding = 0)
+        {
+            var extractor = new Extractor();
+            var fileData = new byte[9];
+            Buffer.BlockCopy(header, 0, fileData, 0, header.Length);
+            using var ms = new MemoryStream();
+            ms.Write(fileData, 0, fileData.Length);
+            var footerData = !string.IsNullOrEmpty(footer)
+                ? System.Text.Encoding.ASCII.GetBytes(footer)
+                : footerBytes;
+            if (footerData != null)
+            {
+                ms.Position = footerPosition;
+
+                ms.Write(footerData, 0, footerData.Length);
+
+                if (padding > 0)
+                {
+                    ms.Write(new byte[padding], 0, padding);
+                }
+            }
+
+            var fileEntry = new FileEntry(expectedArchiveType.ToString(), ms);
+
+            Assert.AreEqual(expectedArchiveType, fileEntry.ArchiveType);
+
+            var list = await extractor.ExtractAsync(fileEntry, new ExtractorOptions() { ExtractSelfOnFail = true }).ToListAsync();
+            
+            Assert.AreEqual(1, list.Count);
+            Assert.AreEqual(FileEntryStatus.FailedArchive, list[0].EntryStatus);
+        }
+
+        [DataTestMethod]
+        [DataRow("TestDataEncryptedZipCrypto.zip")]
+        [DataRow("TestDataEncryptedAes.zip")]
+        [DataRow("TestDataEncrypted.7z")]
+        [DataRow("TestDataEncrypted.rar4")]
+        [DataRow("TestDataEncrypted.rar")]
+        public void FileTypeSetCorrectlyForEncryptedArchives(string fileName, int expectedNumFiles = 1)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            var results = extractor.Extract(path, new ExtractorOptions());
+            Assert.AreEqual(expectedNumFiles, results.Count());
+            Assert.AreEqual(FileEntryStatus.EncryptedArchive, results.First().EntryStatus);
+        }
+
+        [DataTestMethod]
+        [DataRow("TestDataEncryptedZipCrypto.zip")]
+        [DataRow("TestDataEncryptedAes.zip")]
+        [DataRow("TestDataEncrypted.7z")]
+        [DataRow("TestDataEncrypted.rar4")]
+        [DataRow("TestDataEncrypted.rar")]
+        public async Task FileTypeSetCorrectlyForEncryptedArchivesAsync(string fileName, int expectedNumFiles = 1)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            var results = new List<FileEntry>();
+            await foreach (var entry in extractor.ExtractAsync(path, new ExtractorOptions()))
+            {
+                results.Add(entry);
+            }
+            Assert.AreEqual(expectedNumFiles, results.Count);
+            Assert.AreEqual(FileEntryStatus.EncryptedArchive, results.First().EntryStatus);
+        }
+
+        [DataTestMethod]
         [DataRow("TestData.zip", 5)]
         [DataRow("TestData.7z")]
         [DataRow("TestData.tar", 5)]
@@ -102,7 +232,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var numResults = 0;
-            await foreach(var result in extractor.ExtractAsync(path, new ExtractorOptions() { Recurse = false }))
+            await foreach (var result in extractor.ExtractAsync(path, new ExtractorOptions() { Recurse = false }))
             {
                 numResults++;
             }
@@ -232,7 +362,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var results = extractor.ExtractAsync(path, new ExtractorOptions() { AllowFilters = new string[] { "**/Bar/**", "**/TestData.tar" } });
             var numResults = 0;
-            await foreach(var result in results)
+            await foreach (var result in results)
             {
                 numResults++;
             }
@@ -248,9 +378,9 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("TestData.tar.bz2")]
         [DataRow("TestData.tar.gz")]
         [DataRow("TestData.tar.xz")]
-        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb",0)]
-        [DataRow("TestData.a",0)]
-        [DataRow("TestData.ar",0)]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 0)]
+        [DataRow("TestData.a", 0)]
+        [DataRow("TestData.ar", 0)]
         [DataRow("TestData.iso")]
         [DataRow("TestData.vhdx")]
         [DataRow("TestData.wim")]
@@ -376,7 +506,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var extractor = new Extractor();
             var options = new ExtractorOptions()
             {
-                RawExtensions = RawExtension is null ? new List<string>():new List<string>(){ RawExtension }
+                RawExtensions = RawExtension is null ? new List<string>() : new List<string>() { RawExtension }
             };
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
 
@@ -426,7 +556,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("TestDataEncryptedAes.zip")]
         [DataRow("TestDataEncrypted.7z")]
         [DataRow("TestDataEncrypted.rar4")]
-        // [DataRow("TestDataEncrypted.rar")] // RAR5 is not yet supported by SharpCompress: https://github.com/adamhathcock/sharpcompress/issues/517
+        //[DataRow("TestDataEncrypted.rar")] // RAR5 is not yet supported by SharpCompress: https://github.com/adamhathcock/sharpcompress/issues/517
         public void ExtractEncryptedArchive(string fileName, int expectedNumFiles = 3)
         {
             var extractor = new Extractor();
@@ -436,6 +566,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
                 Passwords = TestArchivePasswords
             }).ToList(); // Make this a list so it fully populates
             Assert.AreEqual(expectedNumFiles, results.Count);
+            Assert.AreEqual(0, results.Count(x => x.EntryStatus == FileEntryStatus.EncryptedArchive));
         }
 
         [DataTestMethod]
@@ -443,7 +574,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("TestDataEncryptedAes.zip")]
         [DataRow("TestDataEncrypted.7z")]
         [DataRow("TestDataEncrypted.rar4")]
-        // [DataRow("TestDataEncrypted.rar")] // RAR5 is not yet supported by SharpCompress: https://github.com/adamhathcock/sharpcompress/issues/517
+        //[DataRow("TestDataEncrypted.rar")] // RAR5 is not yet supported by SharpCompress: https://github.com/adamhathcock/sharpcompress/issues/517
 
         public async Task ExtractEncryptedArchiveAsync(string fileName, int expectedNumFiles = 3)
         {
@@ -454,11 +585,17 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
                 Passwords = TestArchivePasswords
             });
             var numEntries = 0;
-            await foreach(var entry in results)
+            var numEntriesEncrypted = 0;
+            await foreach (var entry in results)
             {
                 numEntries++;
+                if (entry.EntryStatus == FileEntryStatus.EncryptedArchive)
+                {
+                    numEntriesEncrypted++;
+                }
             }
             Assert.AreEqual(expectedNumFiles, numEntries);
+            Assert.AreEqual(0, numEntriesEncrypted);
         }
 
         [DataTestMethod]
@@ -484,11 +621,17 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var results = extractor.ExtractAsync(path, new ExtractorOptions());
             var numFound = 0;
-            await foreach(var _ in results)
+            var files = 0;
+            await foreach (var res in results)
             {
                 numFound++;
+                if (res.EntryStatus == FileEntryStatus.Default)
+                {
+                    files++;
+                }
             }
             Assert.AreEqual(expectedNumFiles, numFound);
+            Assert.AreEqual(expectedNumFiles, files);
         }
 
         [DataTestMethod]
@@ -562,7 +705,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", ArchiveFileType.DEB)]
         [DataRow("TestData.a", ArchiveFileType.AR)]
         [DataRow("TestData.iso", ArchiveFileType.ISO_9660)]
-//        [DataRow("TestData.vhd", ArchiveFileType.VHD)]
+        //        [DataRow("TestData.vhd", ArchiveFileType.VHD)]
         [DataRow("TestData.vhdx", ArchiveFileType.VHDX)]
         [DataRow("TestData.wim", ArchiveFileType.WIM)]
         [DataRow("Empty.vmdk", ArchiveFileType.VMDK)]
@@ -575,12 +718,12 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var fileEntry = new FileEntry("NoName", fs);
 
             // We make sure the expected type matches and we have reset the stream
-            Assert.AreEqual(expectedArchiveFileType, MiniMagic.DetectFileType(fileEntry));
+            Assert.AreEqual(expectedArchiveFileType, fileEntry.ArchiveType);
             Assert.AreEqual(0, fileEntry.Content.Position);
 
             // Should also work if the stream doesn't start at 0
             fileEntry.Content.Position = 10;
-            Assert.AreEqual(expectedArchiveFileType, MiniMagic.DetectFileType(fileEntry));
+            Assert.AreEqual(expectedArchiveFileType, fileEntry.ArchiveType);
             Assert.AreEqual(10, fileEntry.Content.Position);
         }
 
@@ -614,6 +757,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var results = extractor.Extract(path, new ExtractorOptions()).ToList();
             Assert.IsTrue(results.All(x => !x.FullPath.Contains("..")));
         }
+
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {

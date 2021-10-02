@@ -39,7 +39,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
                     catch (Exception e)
                     {
-                        Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.ZIP, fileEntry.FullPath, zipEntry.Name, e.GetType());
+                        Logger.Trace(Extractor.FAILED_PASSWORD_STRING, fileEntry.FullPath, ArchiveFileType.ZIP, e.GetType(), e.Message);
                     }
                 }
             }
@@ -56,13 +56,21 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             ZipFile? zipFile = null;
             try
             {
-                zipFile = new ZipFile(fileEntry.Content);
+                zipFile = new ZipFile(fileEntry.Content, true);
             }
             catch (Exception e)
             {
                 Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.ZIP, fileEntry.FullPath, string.Empty, e.GetType());
             }
-            if (zipFile != null)
+            if (zipFile is null)
+            {
+                fileEntry.EntryStatus = FileEntryStatus.FailedArchive;
+                if (options.ExtractSelfOnFail)
+                {
+                    yield return fileEntry;
+                }
+            }
+            else
             {
                 var buffer = new byte[BUFFER_SIZE];
                 var passwordFound = false;
@@ -76,8 +84,20 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                     if (zipEntry.IsCrypted && !passwordFound)
                     {
-                        zipFile.Password = GetZipPassword(fileEntry, zipFile, zipEntry, options) ?? string.Empty;
-                        passwordFound = true;
+                        if (GetZipPassword(fileEntry, zipFile, zipEntry, options) is string password)
+                        {
+                            zipFile.Password = password;
+                            passwordFound = true;
+                        }
+                        else
+                        {
+                            fileEntry.EntryStatus = FileEntryStatus.EncryptedArchive;
+                            if (options.ExtractSelfOnFail)
+                            {
+                                yield return fileEntry;
+                            }
+                            yield break;
+                        }
                     }
 
                     governor.CheckResourceGovernor(zipEntry.Size);
@@ -124,13 +144,21 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             ZipFile? zipFile = null;
             try
             {
-                zipFile = new ZipFile(fileEntry.Content);
+                zipFile = new ZipFile(fileEntry.Content, true);
             }
             catch (Exception e)
             {
                 Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.ZIP, fileEntry.FullPath, string.Empty, e.GetType());
             }
-            if (zipFile != null)
+            if (zipFile is null)
+            {
+                fileEntry.EntryStatus = FileEntryStatus.FailedArchive;
+                if (options.ExtractSelfOnFail)
+                {
+                    yield return fileEntry;
+                }
+            }
+            else
             {
                 var buffer = new byte[BUFFER_SIZE];
                 var passwordFound = false;
@@ -148,8 +176,20 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                     if (zipEntry.IsCrypted && !passwordFound)
                     {
-                        zipFile.Password = GetZipPassword(fileEntry, zipFile, zipEntry, options) ?? string.Empty;
-                        passwordFound = true;
+                        if (GetZipPassword(fileEntry, zipFile, zipEntry, options) is string password)
+                        {
+                            zipFile.Password = password;
+                            passwordFound = true;
+                        }
+                        else
+                        {
+                            fileEntry.EntryStatus = FileEntryStatus.EncryptedArchive;
+                            if (options.ExtractSelfOnFail)
+                            {
+                                yield return fileEntry;
+                            }
+                            yield break;
+                        }
                     }
 
                     try

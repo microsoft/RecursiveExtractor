@@ -290,6 +290,8 @@ namespace Microsoft.CST.RecursiveExtractor
 
         internal const string IS_QUINE_STRING = "Detected Quine {0} in {1}. Aborting Extraction.";
 
+        internal const string FAILED_PASSWORD_STRING = "Password was incorrect for archive {0} of type {1}. ({2}:{3})";
+
         /// <summary>
         ///     Logger for interesting events.
         /// </summary>
@@ -305,8 +307,8 @@ namespace Microsoft.CST.RecursiveExtractor
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null, bool topLevel = true)
         {
             var options = opts ?? new ExtractorOptions();
-
             var Governor = governor ?? new ResourceGovernor(options);
+
             if (governor is null)
             {
                 Governor.ResetResourceGovernor(fileEntry.Content);
@@ -322,7 +324,7 @@ namespace Microsoft.CST.RecursiveExtractor
             }
             if (topLevel || (!topLevel && options.Recurse))
             {
-                var type = MiniMagic.DetectFileType(fileEntry);
+                var type = fileEntry.ArchiveType;
 
                 if (((opts?.RawExtensions?.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ?? false) || type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type)))
                 {
@@ -596,7 +598,7 @@ namespace Microsoft.CST.RecursiveExtractor
 
             if (topLevel || options.Recurse)
             {
-                var type = MiniMagic.DetectFileType(fileEntry);
+                var type = fileEntry.ArchiveType;
 
                 if ((opts?.RawExtensions?.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ?? false) || type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type))
                 {
@@ -607,12 +609,20 @@ namespace Microsoft.CST.RecursiveExtractor
                 }
                 else
                 {
-                    foreach (var extractedResult in Extractors[type].Extract(fileEntry, options, Governor, false))
+                    try
                     {
-                        if (options.FileNamePasses(extractedResult.FullPath))
+                        foreach (var extractedResult in Extractors[type].Extract(fileEntry, options, Governor, false))
                         {
-                            result.Add(extractedResult);
+                            if (options.FileNamePasses(extractedResult.FullPath))
+                            {
+                                result.Add(extractedResult);
+                            }
                         }
+                    }
+                    catch(Exception e)
+                    {
+                        if (e is OverflowException) { throw; }
+                        Logger.Debug(e, "Failed to extract {0}. ({1})", fileEntry.FullPath, e.Message);
                     }
                 }
             }

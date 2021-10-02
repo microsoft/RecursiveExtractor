@@ -24,31 +24,40 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
         internal Extractor Context { get; }
 
-        private RarArchive? GetRarArchive(FileEntry fileEntry, ExtractorOptions options)
+        private (RarArchive? archive, FileEntryStatus archiveStatus) GetRarArchive(FileEntry fileEntry, ExtractorOptions options)
         {
             RarArchive? rarArchive = null;
+            var needsPassword = false;
+
             try
             {
                 rarArchive = RarArchive.Open(fileEntry.Content);
+                // Test for invalid archives. This will throw invalidformatexception
+                var t = rarArchive.IsSolid;
             }
-            catch (Exception e)
-            {
-                Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.RAR, fileEntry.FullPath, string.Empty, e.GetType());
-            }
-            if (rarArchive is null)
-            {
-                return null;
-            }
-            var needsPassword = false;
-            try
-            {
-                using var testStream = rarArchive.Entries.First().OpenEntryStream();
-            }
-            catch (Exception)
+            catch (SharpCompress.Common.CryptographicException)
             {
                 needsPassword = true;
             }
-            if (needsPassword is true)
+            catch (Exception e)
+            {
+                Logger.Debug(Extractor.DEBUG_STRING, fileEntry.ArchiveType, fileEntry.FullPath, string.Empty, e.GetType());
+                return (null, FileEntryStatus.FailedArchive);
+            }
+
+            try
+            {
+                if (rarArchive?.Entries.Any(x => x.IsEncrypted) ?? false && fileEntry.ArchiveType == ArchiveFileType.RAR5)
+                {
+                    return (null, FileEntryStatus.EncryptedArchive);
+                }
+            }
+            catch (Exception e) when (e is SharpCompress.Common.CryptographicException || e is SharpCompress.Common.InvalidFormatException)
+            {
+                needsPassword = true;
+            }
+            
+            if (needsPassword)
             {
                 var passwordFound = false;
                 foreach (var passwords in options.Passwords.Where(x => x.Key.IsMatch(fileEntry.Name)))
@@ -61,7 +70,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             fileEntry.Content.Position = 0;
                             rarArchive = RarArchive.Open(fileEntry.Content, new SharpCompress.Readers.ReaderOptions() { Password = password, LookForHeader = true });
                             var count = 0; //To do something in the loop
-                            foreach(var entry in rarArchive.Entries)
+                            foreach (var entry in rarArchive.Entries)
                             {
                                 //Just do anything in the loop, but you need to loop over entries to check if the password is correct
                                 count++;
@@ -71,23 +80,28 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         }
                         catch (Exception e)
                         {
-                            Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.RAR, fileEntry.FullPath, string.Empty, e.GetType());
+                            Logger.Trace(Extractor.FAILED_PASSWORD_STRING, fileEntry.FullPath, ArchiveFileType.RAR, e.GetType(), e.Message);
                         }
                     }
                 }
+                if (!passwordFound)
+                {
+                    return (null, FileEntryStatus.EncryptedArchive);
+                }
             }
-            return rarArchive;
+            return (rarArchive, FileEntryStatus.Default);
         }
 
         /// <summary>
-        ///     Extracts an a RAR archive
+        ///     Extracts a RAR archive
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
-            var rarArchive = GetRarArchive(fileEntry, options);
-            if (rarArchive != null)
+            (var rarArchive, var archiveType) = GetRarArchive(fileEntry, options);
+            fileEntry.EntryStatus = archiveType;
+            if (rarArchive != null && fileEntry.EntryStatus == FileEntryStatus.Default)
             {
                 foreach (var entry in rarArchive.Entries.Where(x => x.IsComplete && !x.IsDirectory))
                 {
@@ -120,14 +134,15 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         }
 
         /// <summary>
-        ///     Extracts an a RAR archive
+        ///     Extracts a RAR archive
         /// </summary>
         /// <param name="fileEntry"> </param>
         /// <returns> </returns>
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
-            var rarArchive = GetRarArchive(fileEntry, options);
-            if (rarArchive != null)
+            (var rarArchive, var archiveType) = GetRarArchive(fileEntry, options);
+            fileEntry.EntryStatus = archiveType;
+            if (rarArchive != null && fileEntry.EntryStatus == FileEntryStatus.Default)
             {
                 var entries = rarArchive.Entries.Where(x => x.IsComplete && !x.IsDirectory);
                 if (options.Parallel)
@@ -188,8 +203,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         FileEntry? newFileEntry = null;
                         try
                         {
+                            var stream = entry.OpenEntryStream();
                             var name = entry.Key.Replace('/', Path.DirectorySeparatorChar);
-                            newFileEntry = new FileEntry(name, entry.OpenEntryStream(), fileEntry, false, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
+                            newFileEntry = new FileEntry(name, stream, fileEntry, false, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
                         }
                         catch (Exception e)
                         {
