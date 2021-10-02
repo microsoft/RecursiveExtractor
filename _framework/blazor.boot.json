@@ -51,9 +51,10 @@
       "SharpCompress.dll": "sha256-L8C5RjKfbItW9s\/m331h\/iq7blw9lZcUGSQPNln7qAw=",
       "ICSharpCode.SharpZipLib.dll": "sha256-8TbgTGNIwqbskLuw64qEYJvFrTBjkA\/0wWFY9+DC\/4g=",
       "System.IO.Pipelines.dll": "sha256-o\/PdJLBGKSgIYSBLq6l+GUStgsQ7K0l+eLIHhkVU1o0=",
+      "System.Linq.Async.dll": "sha256-sqHI5nNN3aou6FFH+rIf+QJ57ro6Q9Z5\/GvRIQPtMWY=",
       "Tewr.Blazor.FileReader.dll": "sha256-lMIN2UYL4YZGcohov3e7OoEV\/a7Mw5sRWXTQx2gpX4w=",
-      "RecursiveExtractor.dll": "sha256-A6thV4e\/LuYKbZnLC5arM3OsAs83TF9gpXoRFTI2fPk=",
-      "RecursiveExtractor.Blazor.dll": "sha256-o00Ez5xQH+dCnrEl8nXpLDVfyyDHZJqJC+V\/me\/hfLY=",
+      "RecursiveExtractor.dll": "sha256-dn7t8gI7XMGvW4JeqY\/8XOm1rsRMWKds2yNJbSgajqk=",
+      "RecursiveExtractor.Blazor.dll": "sha256-Mq\/4E+wf07gFZevEci9gYa0W+VV0fjQfFp23oX2rZ9Y=",
       "Microsoft.Win32.Primitives.dll": "sha256-PH2sP9okhyCgu7UOCcBRxlzr7gO4XNz7WlrGny1oY84=",
       "System.Collections.Concurrent.dll": "sha256-2pWvKLJ9QspCk9tsJuTc7XyTipvQQIH3wxNYka7FUJ8=",
       "System.Collections.Immutable.dll": "sha256-iOkWaA8X8V0FYopphiLr5BWpFiHsXT7Fg8LuHGu1Y08=",
@@ -113,7 +114,7 @@
       "System.Threading.Tasks.Parallel.dll": "sha256-8F\/x+96yRTGSb\/1T9cHBO9VL7EP19zpp4pm\/OiCuwik=",
       "System.Threading.dll": "sha256-69JWE\/gITs3JbjIfNmuNICvdOOsie4kgFkSJMdEb1PI=",
       "System.Transactions.Local.dll": "sha256-lbauK135utHf\/ecFucg7vlXuhLix3mDQbpFjMyVeknA=",
-      "System.Private.CoreLib.dll": "sha256-c6SkjH204pZBQxdyF6m7gfTuv38EPdxmXdzn92U8Zpw="
+      "System.Private.CoreLib.dll": "sha256-vH09ePG\/0mDPXl6s4nT7yQ1ZwfDpAqUbWiQcM7XX69E="
     },
     "lazyAssembly": null,
     "pdb": null,

@@ -27,6 +27,20 @@
             <param name="governor">The RsourceGovernor to use</param>
             <returns>The FileEntries found.</returns>
         </member>
+        <member name="M:Microsoft.CST.RecursiveExtractor.ArFile.Int64FromBigEndianBytes(System.Byte[])">
+            <summary>
+            Convert Big Endian bytes to an int 64.
+            </summary>
+            <param name="value">bytes to convert</param>
+            <returns>The value of the int64 or -1 when length of the array is not 8.</returns>
+        </member>
+        <member name="M:Microsoft.CST.RecursiveExtractor.ArFile.IntFromBigEndianBytes(System.Byte[])">
+            <summary>
+            Convert Big Endian bytes to an int 32.
+            </summary>
+            <param name="value">bytes to convert</param>
+            <returns>The value of the int or -1 when length of the array is not 8.</returns>
+        </member>
         <member name="T:Microsoft.CST.RecursiveExtractor.DebArchiveFile">
             <summary>
             Implementation of the Deb Archive format
@@ -50,6 +64,26 @@
             <param name="options">The ExtractorOptions to use</param>
             <param name="governor">The ResourceGovernor to use</param>
             <returns>The FileEntries found</returns>
+        </member>
+        <member name="T:Microsoft.CST.RecursiveExtractor.ExtractionStatusCode">
+            <summary>
+            Status codes for the ExtractToDirectory functions. 
+            </summary>
+        </member>
+        <member name="F:Microsoft.CST.RecursiveExtractor.ExtractionStatusCode.Ok">
+            <summary>
+            Extraction generally successful.
+            </summary>
+        </member>
+        <member name="F:Microsoft.CST.RecursiveExtractor.ExtractionStatusCode.BadArgument">
+            <summary>
+            One of the arguments provided was invalid.
+            </summary>
+        </member>
+        <member name="F:Microsoft.CST.RecursiveExtractor.ExtractionStatusCode.Failure">
+            <summary>
+            There was a critical error extracting.
+            </summary>
         </member>
         <member name="M:Microsoft.CST.RecursiveExtractor.Extractor.#ctor">
             <summary>
@@ -311,6 +345,13 @@
             If set, don't return any files that match these glob filters
             </summary>
         </member>
+        <member name="M:Microsoft.CST.RecursiveExtractor.ExtractorOptions.FileNamePasses(System.String)">
+            <summary>
+            If the file name provided should be extracted given the filter arguments in this ExtractorOptions instance
+            </summary>
+            <param name="filename"></param>
+            <returns></returns>
+        </member>
         <member name="T:Microsoft.CST.RecursiveExtractor.Extractors.BZip2Extractor">
             <summary>
             The implementation for BZip Archives
@@ -494,14 +535,14 @@
         </member>
         <member name="M:Microsoft.CST.RecursiveExtractor.Extractors.RarExtractor.ExtractAsync(Microsoft.CST.RecursiveExtractor.FileEntry,Microsoft.CST.RecursiveExtractor.ExtractorOptions,Microsoft.CST.RecursiveExtractor.ResourceGovernor,System.Boolean)">
             <summary>
-                Extracts an a RAR archive
+                Extracts a RAR archive
             </summary>
             <param name="fileEntry"> </param>
             <returns> </returns>
         </member>
         <member name="M:Microsoft.CST.RecursiveExtractor.Extractors.RarExtractor.Extract(Microsoft.CST.RecursiveExtractor.FileEntry,Microsoft.CST.RecursiveExtractor.ExtractorOptions,Microsoft.CST.RecursiveExtractor.ResourceGovernor,System.Boolean)">
             <summary>
-                Extracts an a RAR archive
+                Extracts a RAR archive
             </summary>
             <param name="fileEntry"> </param>
             <returns> </returns>
@@ -522,13 +563,19 @@
                 Extracts a 7-Zip file contained in fileEntry.
             </summary>
             <param name="fileEntry"> FileEntry to extract </param>
+            <param name="options">ExtractorOptions for performing the extraction</param>
+            <param name="governor">The ResourceGovernor to use.</param>
+            <param name="topLevel">Is this the top level archive.</param>
             <returns> Extracted files </returns>
         </member>
         <member name="M:Microsoft.CST.RecursiveExtractor.Extractors.SevenZipExtractor.Extract(Microsoft.CST.RecursiveExtractor.FileEntry,Microsoft.CST.RecursiveExtractor.ExtractorOptions,Microsoft.CST.RecursiveExtractor.ResourceGovernor,System.Boolean)">
             <summary>
                 Extracts a 7-Zip file contained in fileEntry.
             </summary>
-            <param name="fileEntry"> FileEntry to extract </param>
+            <param name="fileEntry">FileEntry to extract </param>
+            <param name="options">ExtractorOptions for performing the extraction</param>
+            <param name="governor">The ResourceGovernor to use.</param>
+            <param name="topLevel">Is this the top level archive.</param>
             <returns> Extracted files </returns>
         </member>
         <member name="T:Microsoft.CST.RecursiveExtractor.Extractors.TarExtractor">
@@ -544,14 +591,14 @@
         </member>
         <member name="M:Microsoft.CST.RecursiveExtractor.Extractors.TarExtractor.ExtractAsync(Microsoft.CST.RecursiveExtractor.FileEntry,Microsoft.CST.RecursiveExtractor.ExtractorOptions,Microsoft.CST.RecursiveExtractor.ResourceGovernor,System.Boolean)">
             <summary>
-                Extracts an a Tar archive
+                Extracts a Tar archive
             </summary>
             <param name="fileEntry"> </param>
             <returns> </returns>
         </member>
         <member name="M:Microsoft.CST.RecursiveExtractor.Extractors.TarExtractor.Extract(Microsoft.CST.RecursiveExtractor.FileEntry,Microsoft.CST.RecursiveExtractor.ExtractorOptions,Microsoft.CST.RecursiveExtractor.ResourceGovernor,System.Boolean)">
             <summary>
-                Extracts an a Tar archive
+                Extracts a Tar archive
             </summary>
             <param name="fileEntry"> </param>
             <returns> </returns>
@@ -715,10 +762,18 @@
                 contained Stream.
             </summary>
             <param name="name"> </param>
-            <param name="parentPath"> </param>
             <param name="inputStream"> </param>
             <param name="parent"> </param>
             <param name="passthroughStream"> </param>
+            <param name="createTime"></param>
+            <param name="modifyTime"></param>
+            <param name="accessTime"></param>
+            <param name="memoryStreamCutoff">Size in bytes for maximum size to back with MemoryStream instead of ephemeral FileStream</param>
+        </member>
+        <member name="P:Microsoft.CST.RecursiveExtractor.FileEntry.ArchiveType">
+            <summary>
+            Uses MiniMagic to check the binary signature of the Content and return the detected Archive Type
+            </summary>
         </member>
         <member name="P:Microsoft.CST.RecursiveExtractor.FileEntry.Content">
             <summary>
@@ -747,7 +802,7 @@
         </member>
         <member name="P:Microsoft.CST.RecursiveExtractor.FileEntry.DisposeOnFinalize">
             <summary>
-            Should the Content Stream be disposed when this object is finalized.
+            Should the <see cref="P:Microsoft.CST.RecursiveExtractor.FileEntry.Content"/> Stream be disposed when this object is finalized.
             Default: true
             </summary>
         </member>
@@ -766,6 +821,16 @@
             The Access time of the file or DateTime.MinValue if unavailable
             </summary>
         </member>
+        <member name="P:Microsoft.CST.RecursiveExtractor.FileEntry.EntryStatus">
+            <summary>
+            ExtractionStatus metadata.
+            </summary>
+        </member>
+        <member name="M:Microsoft.CST.RecursiveExtractor.FileEntry.Finalize">
+            <summary>
+            The deconstructor will dispose the <see cref="P:Microsoft.CST.RecursiveExtractor.FileEntry.Content"/> stream if <see cref="P:Microsoft.CST.RecursiveExtractor.FileEntry.DisposeOnFinalize"/> is set.
+            </summary>
+        </member>
         <member name="M:Microsoft.CST.RecursiveExtractor.FileEntry.FromStreamAsync(System.String,System.IO.Stream,Microsoft.CST.RecursiveExtractor.FileEntry,System.Nullable{System.DateTime},System.Nullable{System.DateTime},System.Nullable{System.DateTime},System.Nullable{System.Int32})">
             <summary>
             Construct a FileEntry from a Stream Asynchronously
@@ -773,7 +838,36 @@
             <param name="name">Name of the FileEntry</param>
             <param name="content">The Stream to parse</param>
             <param name="parent">The Parent FileEntry</param>
+            <param name="createTime"></param>
+            <param name="modifyTime"></param>
+            <param name="accessTime"></param>
+            <param name="memoryStreamCutoff">Size in bytes for maximum size to back with MemoryStream instead of ephemeral FileStream</param>
             <returns>A FileEntry object holding a Copy of the Stream</returns>
+        </member>
+        <member name="T:Microsoft.CST.RecursiveExtractor.FileEntryStatus">
+            <summary>
+            Status information about the provenance of this <see cref="T:Microsoft.CST.RecursiveExtractor.FileEntry"/>
+            </summary>
+        </member>
+        <member name="F:Microsoft.CST.RecursiveExtractor.FileEntryStatus.Default">
+            <summary>
+            Status has not been set. Implies no issues.
+            </summary>
+        </member>
+        <member name="F:Microsoft.CST.RecursiveExtractor.FileEntryStatus.FailedFile">
+            <summary>
+            Indicates that creation of this FileEntry was unsuccessful and <see cref="P:Microsoft.CST.RecursiveExtractor.FileEntry.Content"/> for this FileEntry will be empty.
+            </summary>
+        </member>
+        <member name="F:Microsoft.CST.RecursiveExtractor.FileEntryStatus.FailedArchive">
+            <summary>
+            Indicates that <see cref="P:Microsoft.CST.RecursiveExtractor.FileEntry.Content"/> stream contains an archive which failed to extract. To have failed archives returned as FileEntries from extractors use <see cref="P:Microsoft.CST.RecursiveExtractor.ExtractorOptions.ExtractSelfOnFail"/>.
+            </summary>
+        </member>
+        <member name="F:Microsoft.CST.RecursiveExtractor.FileEntryStatus.EncryptedArchive">
+            <summary>
+            Indicates that <see cref="P:Microsoft.CST.RecursiveExtractor.FileEntry.Content"/> contains an archive which failed to decrypt. To have encrypted archives returned as FileEntries from extractors use <see cref="P:Microsoft.CST.RecursiveExtractor.ExtractorOptions.ExtractSelfOnFail"/>.
+            </summary>
         </member>
         <member name="T:Microsoft.CST.RecursiveExtractor.FileEntryInfo">
             <summary>
@@ -813,12 +907,37 @@
                 MiniMagic is a tiny implementation of a file type identifier based on binary signatures.
             </summary>
         </member>
+        <member name="M:Microsoft.CST.RecursiveExtractor.MiniMagic.DetectFileType(System.String)">
+            <summary>
+            Detect the type of a file given its path on disk.
+            </summary>
+            <param name="filename"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.CST.RecursiveExtractor.MiniMagic.DetectFileType(System.IO.Stream)">
+            <summary>
+            Detect the type of a file given a stream of its contents.
+            </summary>
+            <param name="fileStream"></param>
+            <returns></returns>
+        </member>
         <member name="M:Microsoft.CST.RecursiveExtractor.MiniMagic.DetectFileType(Microsoft.CST.RecursiveExtractor.FileEntry)">
             <summary>
-                Detects the type of a file.
+                Detects the type of a file given a fileEntry
             </summary>
             <param name="fileEntry"> FileEntry containing the file data. </param>
             <returns>The ArchiveFileType detected</returns>
+        </member>
+        <member name="T:Microsoft.CST.RecursiveExtractor.ResourceGovernor">
+            <summary>
+            Class that keeps track of bytes processed and time spent processing. Used to Detect ZipBombs etc.
+            </summary>
+        </member>
+        <member name="M:Microsoft.CST.RecursiveExtractor.ResourceGovernor.#ctor(Microsoft.CST.RecursiveExtractor.ExtractorOptions)">
+            <summary>
+            Create a governor with the given options.
+            </summary>
+            <param name="opts"></param>
         </member>
         <member name="F:Microsoft.CST.RecursiveExtractor.ResourceGovernor.CurrentOperationProcessedBytesLeft">
             <summary>
