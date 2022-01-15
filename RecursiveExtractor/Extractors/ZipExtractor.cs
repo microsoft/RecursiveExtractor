@@ -105,7 +105,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     using var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
                     try
                     {
-                        var zipStream = zipFile.GetInputStream(zipEntry);
+                        using var zipStream = zipFile.GetInputStream(zipEntry);
                         StreamUtils.Copy(zipStream, fs, buffer);
                     }
                     catch (Exception e)
@@ -194,7 +194,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                     try
                     {
-                        var zipStream = zipFile.GetInputStream(zipEntry);
+                        using var zipStream = zipFile.GetInputStream(zipEntry);
                         StreamUtils.Copy(zipStream, fs, buffer);
                     }
                     catch (Exception e)

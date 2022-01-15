@@ -1,7 +1,7 @@
-﻿using ICSharpCode.SharpZipLib.Tar;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using SharpCompress.Archives.Tar;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
@@ -29,66 +29,48 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <returns> </returns>
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
-            TarEntry tarEntry;
-            // Workaround because TarInputStream closes the underlying stream when it is disposed
-            using var tempStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
-            fileEntry.Content.CopyTo(tempStream);
-            tempStream.Position = 0;
-            fileEntry.Content.Position = 0;
-            TarInputStream? tarStream = null;
-            try
+
+            using TarArchive archive = TarArchive.Open(fileEntry.Content, new SharpCompress.Readers.ReaderOptions()
             {
-                tarStream = new TarInputStream(tempStream, System.Text.Encoding.UTF8);
-            }
-            catch (Exception e)
+                LeaveStreamOpen = true
+            });
+            if (archive is null || archive.TotalSize == 0)
             {
-                Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.TAR, fileEntry.FullPath, string.Empty, e.GetType());
-            }
-            if (tarStream != null)
-            {
-                var entries = new List<FileEntry>();
-                var failed = false;
-                try
+                Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.TAR, fileEntry.FullPath, string.Empty, "Null Archive");
+                if (options.ExtractSelfOnFail)
                 {
-                    while ((tarEntry = tarStream.GetNextEntry()) != null)
+                    fileEntry.EntryStatus = FileEntryStatus.FailedArchive;
+                    yield return fileEntry;
+                }
+            }
+            else
+            {
+                List<FileEntry> entries = new();
+
+                foreach (TarArchiveEntry tarEntry in archive.Entries)
+                {
+                    if (tarEntry.IsDirectory)
                     {
-                        if (tarEntry.IsDirectory)
-                        {
-                            continue;
-                        }
-
-                        var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
-                        governor.CheckResourceGovernor(tarStream.Length);
-                        try
-                        {
-                            tarStream.CopyEntryContents(fs);
-                        }
-                        catch (Exception e)
-                        {
-                            Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.TAR, fileEntry.FullPath, tarEntry.Name, e.GetType());
-                        }
-
-                        var name = tarEntry.Name.Replace('/', Path.DirectorySeparatorChar);
-                        var newFileEntry = new FileEntry(name, fs, fileEntry, true, memoryStreamCutoff: options.MemoryStreamCutoff);
-
-                        if (newFileEntry != null)
-                        {
-                            entries.Add(newFileEntry);
-                        }
+                        continue;
                     }
-                }
-                catch(Exception e) when (e is not OverflowException)
-                {
-                    Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.TAR, fileEntry.FullPath, string.Empty, e.GetType());
-                    failed = true;
-                }
-                if (failed)
-                {
-                    if (options.ExtractSelfOnFail)
+
+                    var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
+                    governor.CheckResourceGovernor(tarEntry.Size);
+                    try
                     {
-                        fileEntry.EntryStatus = FileEntryStatus.FailedArchive;
-                        yield return fileEntry;
-                        yield break;
+                        using Stream tarStream = tarEntry.OpenEntryStream();
+                        tarStream.CopyTo(fs);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.TAR, fileEntry.FullPath, tarEntry.Key, e.GetType());
+                    }
+                    var name = tarEntry.Key.Replace('/', Path.DirectorySeparatorChar);
+                    var newFileEntry = new FileEntry(name, fs, fileEntry, true, memoryStreamCutoff: options.MemoryStreamCutoff);
+
+                    if (newFileEntry is not null)
+                    {
+                        entries.Add(newFileEntry);
                     }
                 }
                 foreach (var entry in entries)
@@ -105,16 +87,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         yield return entry;
                     }
                 }
-                    
-                tarStream.Dispose();
-            }
-            else
-            {
-                if (options.ExtractSelfOnFail)
-                {
-                    fileEntry.EntryStatus = FileEntryStatus.FailedArchive;
-                    yield return fileEntry;
-                }
             }
         }
 
@@ -125,37 +97,22 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <returns> </returns>
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
-            TarEntry tarEntry;
-            // Workaround because TarInputStream closes the underlying stream when it is disposed
-            using var tempStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
-            fileEntry.Content.CopyTo(tempStream);
-            tempStream.Position = 0;
-            fileEntry.Content.Position = 0;
-            TarInputStream? tarStream = null;
-            var failed = false;
-            try
+            using TarArchive archive = TarArchive.Open(fileEntry.Content, new SharpCompress.Readers.ReaderOptions()
             {
-                tarStream = new TarInputStream(tempStream, System.Text.Encoding.UTF8);
-                // Validate that the archive can be read.
-                tarStream.GetNextEntry();
-                tarStream.Reset();
-            }
-            catch (Exception e)
+                LeaveStreamOpen = true
+            });
+            if (archive is null || archive.TotalSize == 0)
             {
-                failed = true;
-                Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.TAR, fileEntry.FullPath, string.Empty, e.GetType());
-            }
-            if (failed)
-            {
+                Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.TAR, fileEntry.FullPath, string.Empty, "Null Archive");
                 if (options.ExtractSelfOnFail)
                 {
                     fileEntry.EntryStatus = FileEntryStatus.FailedArchive;
                     yield return fileEntry;
                 }
             }
-            else if (tarStream != null)
+            else
             {
-                while ((tarEntry = tarStream.GetNextEntry()) != null)
+                foreach (TarArchiveEntry tarEntry in archive.Entries)
                 {
                     if (tarEntry.IsDirectory)
                     {
@@ -163,16 +120,17 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
 
                     var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
-                    governor.CheckResourceGovernor(tarStream.Length);
+                    governor.CheckResourceGovernor(tarEntry.Size);
                     try
                     {
-                        tarStream.CopyEntryContents(fs);
+                        using Stream tarStream = tarEntry.OpenEntryStream();
+                        tarStream.CopyTo(fs);
                     }
                     catch (Exception e)
                     {
-                        Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.TAR, fileEntry.FullPath, tarEntry.Name, e.GetType());
+                        Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.TAR, fileEntry.FullPath, tarEntry.Key, e.GetType());
                     }
-                    var name = tarEntry.Name.Replace('/', Path.DirectorySeparatorChar);
+                    var name = tarEntry.Key.Replace('/', Path.DirectorySeparatorChar);
                     var newFileEntry = new FileEntry(name, fs, fileEntry, true, memoryStreamCutoff: options.MemoryStreamCutoff);
 
                     if (options.Recurse || topLevel)
@@ -188,7 +146,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
                 }
             }
-            tarStream?.Dispose();
         }
 
         private const int bufferSize = 4096;

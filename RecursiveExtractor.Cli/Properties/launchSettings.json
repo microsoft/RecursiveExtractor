@@ -2,7 +2,7 @@
   "profiles": {
     "RecursiveExtractor.Cli": {
       "commandName": "Project",
-      "commandLineArgs": "--input C:\\Users\\gstocco\\ExampleFaultyNumberOfEntriesTwo.tar --output C:\\Users\\gstocco\\ExampleFaultyNumberOfEntriesOut"
+      "commandLineArgs": "--input C:\\Users\\gstocco\\ExampleFaultyNumberOfEntries.tar --output C:\\Users\\gstocco\\ExampleFaultyNumberOfEntriesOut"
     }
   }
 }
