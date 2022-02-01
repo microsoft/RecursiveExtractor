@@ -14,7 +14,7 @@ parameters:
 # Framework version to Publish
 - name: publishFramework
   type: string
-  default: 'netcoreapp3.1'
+  default: 'net6.0'
 # Version of NuGet Tool to use
 - name: nugetVersion
   type: string
@@ -75,6 +75,10 @@ jobs:
       TreatSignatureUpdateFailureAs: 'Warning'
       SignatureFreshness: 'UpToDate'
       TreatStaleSignatureAs: 'Warning'
+  - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
+    displayName: 'Generation Task'
+    inputs:
+        BuildDropPath: 'Packages'
   - task: ArchiveFiles@2
     displayName: Archive Packages
     inputs:
