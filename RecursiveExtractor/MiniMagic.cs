@@ -8,26 +8,77 @@ using System.Text;
 namespace Microsoft.CST.RecursiveExtractor
 {
     /// <summary>
-    ///     ArchiveTypes are the kinds of archive files that this module can process.
+    ///     ArchiveTypes represent the kinds of archive files that this module can process.
     /// </summary>
     public enum ArchiveFileType
     {
+        /// <summary>
+        /// A file not of any of the known types.
+        /// </summary>
         UNKNOWN,
+        /// <summary>
+        /// A zip formatted file. <see cref="Extractors.ZipExtractor"/>
+        /// </summary>
         ZIP,
+        /// <summary>
+        /// A tar formatted file. <see cref="Extractors.TarExtractor"/>
+        /// </summary>
         TAR,
+        /// <summary>
+        /// An xzip formatted file. <see cref="Extractors.XzExtractor"/>
+        /// </summary>
         XZ,
+        /// <summary>
+        /// A gzip formatted file. <see cref="Extractors.GzipExtractor"/>
+        /// </summary>
         GZIP,
+        /// <summary>
+        /// A bzip2 formatted file. <see cref="Extractors.BZip2Extractor"/>
+        /// </summary>
         BZIP2,
+        /// <summary>
+        /// A Rar4 formatted file. <see cref="Extractors.RarExtractor"/>
+        /// </summary>
         RAR,
+        /// <summary>
+        /// A Rar5 formatted file. <see cref="Extractors.RarExtractor"/>
+        /// </summary>
         RAR5,
+        /// <summary>
+        /// An 7zip formatted file. <see cref="Extractors.SevenZipExtractor"/>
+        /// </summary>
         P7ZIP,
+        /// <summary>
+        /// An deb formatted file. <see cref="Extractors.DebExtractor"/>
+        /// </summary>
         DEB,
+        /// <summary>
+        /// An ar formatted file. <see cref="Extractors.GnuArExtractor"/>
+        /// </summary>
         AR,
+        /// <summary>
+        /// An iso disc image. <see cref="Extractors.IsoExtractor"/>
+        /// </summary>
         ISO_9660,
+        /// <summary>
+        /// A VHDX disc image. <see cref="Extractors.VhdxExtractor"/>
+        /// </summary>
         VHDX,
+        /// <summary>
+        /// A VHD disc image. <see cref="Extractors.VhdExtractor"/>
+        /// </summary>
         VHD,
+        /// <summary>
+        /// A wim disc image. <see cref="Extractors.WimExtractor"/>
+        /// </summary>
         WIM,
+        /// <summary>
+        /// An vmdk disc image. <see cref="Extractors.VmdkExtractor"/>
+        /// </summary>
         VMDK,
+        /// <summary>
+        /// Unused.
+        /// </summary>
         INVALID
     }
 
