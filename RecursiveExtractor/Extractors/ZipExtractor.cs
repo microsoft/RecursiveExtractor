@@ -49,7 +49,10 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <summary>
         ///     Extracts an zip file contained in fileEntry.
         /// </summary>
-        /// <param name="fileEntry"> FileEntry to extract </param>
+        /// <param name="fileEntry">The <see cref="FileEntry"/> to extract.</param>
+        /// <param name="options">The <see cref="ExtractorOptions"/> to use for extraction.</param>
+        /// <param name="governor">The <see cref="ResourceGovernor"/> to use for extraction.</param>
+        /// <param name="topLevel">If this should be treated as the top level archive.</param>
         /// <returns> Extracted files </returns>
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
@@ -137,7 +140,10 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <summary>
         ///     Extracts an zip file contained in fileEntry.
         /// </summary>
-        /// <param name="fileEntry"> FileEntry to extract </param>
+        /// <param name="fileEntry">The <see cref="FileEntry"/> to extract.</param>
+        /// <param name="options">The <see cref="ExtractorOptions"/> to use for extraction.</param>
+        /// <param name="governor">The <see cref="ResourceGovernor"/> to use for extraction.</param>
+        /// <param name="topLevel">If this should be treated as the top level archive.</param>
         /// <returns> Extracted files </returns>
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {

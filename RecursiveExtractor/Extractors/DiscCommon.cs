@@ -22,7 +22,8 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <param name="options">Extractor Options to use</param>
         /// <param name="governor">Resource Governor to use</param>
         /// <param name="Context">Extractor context to use</param>
-        /// <param name="parent">The Parent FilEntry</param>
+        /// <param name="parent">The Parent FileEntry</param>
+        /// <param name="topLevel">If this should be treated as the top level archive.</param>
         /// <returns></returns>
         public static async IAsyncEnumerable<FileEntry> DumpLogicalVolumeAsync(LogicalVolumeInfo volume, string parentPath, ExtractorOptions options, ResourceGovernor governor, Extractor Context, FileEntry? parent = null, bool topLevel = true)
         {
@@ -84,7 +85,8 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <param name="governor">Resource Governor to use</param>
         /// <param name="Context">Extractor context to use</param>
         /// <param name="parent">The Parent FilEntry</param>
-        /// <returns></returns>
+        /// <param name="topLevel">If this should be treated as the top level archive.</param>
+        /// <returns>An enumerable of the contained File Entries.</returns>
         public static IEnumerable<FileEntry> DumpLogicalVolume(LogicalVolumeInfo volume, string parentPath, ExtractorOptions options, ResourceGovernor governor, Extractor Context, FileEntry? parent = null, bool topLevel = true)
         {
             DiscUtils.FileSystemInfo[]? fsInfos = null;
