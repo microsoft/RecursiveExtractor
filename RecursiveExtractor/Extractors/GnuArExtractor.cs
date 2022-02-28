@@ -25,11 +25,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <summary>
         ///     Extracts an archive file created with GNU ar
         /// </summary>
-        /// <param name="fileEntry">The <see cref="FileEntry"/> to extract.</param>
-        /// <param name="options">The <see cref="ExtractorOptions"/> to use for extraction.</param>
-        /// <param name="governor">The <see cref="ResourceGovernor"/> to use for extraction.</param>
-        /// <param name="topLevel">If this should be treated as the top level archive.</param>
-        /// <returns> </returns>
+        ///<inheritdoc />
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             await foreach (var entry in ArFile.GetFileEntriesAsync(fileEntry, options, governor))
@@ -51,11 +47,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <summary>
         ///     Extracts an archive file created with GNU ar
         /// </summary>
-        /// <param name="fileEntry">The <see cref="FileEntry"/> to extract.</param>
-        /// <param name="options">The <see cref="ExtractorOptions"/> to use for extraction.</param>
-        /// <param name="governor">The <see cref="ResourceGovernor"/> to use for extraction.</param>
-        /// <param name="topLevel">If this should be treated as the top level archive.</param>
-        /// <returns> </returns>
+        ///<inheritdoc />
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             IEnumerable<FileEntry>? fileEntries = null;
