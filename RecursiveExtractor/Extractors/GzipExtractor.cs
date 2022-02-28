@@ -27,6 +27,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         ///     Gzip only supports a single compressed file, that inner file could itself contain multiple others.
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
+        /// <param name="options">The <see cref="ExtractorOptions"/> to use for extraction.</param>
+        /// <param name="governor">The <see cref="ResourceGovernor"/> to use for extraction.</param>
+        /// <param name="topLevel">If this should be treated as the top level archive.</param>
         /// <returns> Extracted files </returns>
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
@@ -79,10 +82,13 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         }
 
         /// <summary>
-        ///     Extracts an Gzip file contained in fileEntry. Since this function is recursive, even though
+        ///     Extracts a Gzip file contained in fileEntry. Since this function is recursive, even though
         ///     Gzip only supports a single compressed file, that inner file could itself contain multiple others.
         /// </summary>
         /// <param name="fileEntry"> FileEntry to extract </param>
+        /// <param name="options">The <see cref="ExtractorOptions"/> to use for extraction.</param>
+        /// <param name="governor">The <see cref="ResourceGovernor"/> to use for extraction.</param>
+        /// <param name="topLevel">If this should be treated as the top level archive.</param>
         /// <returns> Extracted files </returns>
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {

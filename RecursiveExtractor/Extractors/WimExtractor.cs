@@ -27,8 +27,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <summary>
         ///     Extracts a WIM file contained in fileEntry.
         /// </summary>
-        /// <param name="fileEntry"> FileEntry to extract </param>
-        /// <returns> Extracted files </returns>
+                ///<inheritdoc />
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             DiscUtils.Wim.WimFile? baseFile = null;
@@ -92,8 +91,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <summary>
         ///     Extracts a WIM file contained in fileEntry.
         /// </summary>
-        /// <param name="fileEntry"> FileEntry to extract </param>
-        /// <returns> Extracted files </returns>
+                ///<inheritdoc />
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             DiscUtils.Wim.WimFile? baseFile = null;

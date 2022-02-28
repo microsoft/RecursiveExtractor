@@ -289,7 +289,6 @@ namespace Microsoft.CST.RecursiveExtractor
             while (fileEntry.Content.Length - fileEntry.Content.Position >= 60)
             {
                 fileEntry.Content.Read(headerBuffer, 0, 60);
-                var headerString = Encoding.ASCII.GetString(headerBuffer);
                 if (long.TryParse(Encoding.ASCII.GetString(headerBuffer[48..58]), out var size))// header size in bytes
                 {
                     governor.CheckResourceGovernor(size);

@@ -25,8 +25,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <summary>
         ///     Extracts an archive file created with GNU ar
         /// </summary>
-        /// <param name="fileEntry"> </param>
-        /// <returns> </returns>
+        ///<inheritdoc />
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             await foreach (var entry in ArFile.GetFileEntriesAsync(fileEntry, options, governor))
@@ -48,8 +47,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <summary>
         ///     Extracts an archive file created with GNU ar
         /// </summary>
-        /// <param name="fileEntry"> </param>
-        /// <returns> </returns>
+        ///<inheritdoc />
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             IEnumerable<FileEntry>? fileEntries = null;

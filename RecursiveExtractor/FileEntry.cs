@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Microsoft.CST.RecursiveExtractor
 {
+    /// <summary>
+    /// The FileEntry Class represents a logical file. It is generally constructed from a stream and may correspond to a File on Disk, a Stream or a file extracted from another FileEntry.
+    /// </summary>
     public class FileEntry
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();

@@ -95,8 +95,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <summary>
         ///     Extracts a RAR archive
         /// </summary>
-        /// <param name="fileEntry"> </param>
-        /// <returns> </returns>
+        ///<inheritdoc />
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             (var rarArchive, var archiveType) = GetRarArchive(fileEntry, options);
@@ -136,8 +135,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <summary>
         ///     Extracts a RAR archive
         /// </summary>
-        /// <param name="fileEntry"> </param>
-        /// <returns> </returns>
+        ///<inheritdoc />
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             (var rarArchive, var archiveType) = GetRarArchive(fileEntry, options);

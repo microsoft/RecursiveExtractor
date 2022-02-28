@@ -20,10 +20,13 @@ using System.Threading.Tasks;
 
 namespace Microsoft.CST.RecursiveExtractor
 {
+    /// <summary>
+    /// The main Extractor class.
+    /// </summary>
     public class Extractor
     {
         /// <summary>
-        /// The main Extractor class.
+        /// Instantiate an extractor with the default extractors.
         /// </summary>
         public Extractor()
         {
@@ -143,7 +146,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <summary>
         ///     Check if the fileEntry is a quine
         /// </summary>
-        /// <param name="fileEntry"> </param>
+        /// <param name="fileEntry">The <see cref="FileEntry"/> to extract.</param>
         /// <returns> </returns>
         public static bool IsQuine(FileEntry fileEntry)
         {
@@ -301,8 +304,9 @@ namespace Microsoft.CST.RecursiveExtractor
         /// Extract asynchronously from a FileEntry.
         /// </summary>
         /// <param name="fileEntry">The FileEntry containing the Conteant stream to parse.</param>
-        /// <param name="opts">The ExtractorOptions to use</param>
-        /// <param name="governor">The Resource governor to use (or null to create a new one).</param>
+        /// <param name="opts">The <see cref="ExtractorOptions"/> to use for extraction.</param>
+        /// <param name="governor">The <see cref="ResourceGovernor"/> to use for extraction.</param>
+        /// <param name="topLevel">If this should be treated as the top level archive.</param>
         /// <returns>The FileEntries found.</returns>
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null, bool topLevel = true)
         {
@@ -375,8 +379,6 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="outputDirectory">The directory to extract under. (Will be created if it does not exist).</param>
         /// <param name="filename">The filename to call the stream.</param>
         /// <param name="opts">The ExtractorOptions to use.</param>
-        /// <param name="acceptFilters">An optional list of regexes, when set each entry's FullName must match at least one.</param>
-        /// <param name="denyFilters">An optional list of regexes, when set each entry's FullName must match none.</param>
         /// <param name="printNames">If we should print the filename when writing it out to disc.</param>
         public ExtractionStatusCode ExtractToDirectory(string outputDirectory, string filename, ExtractorOptions? opts = null, bool printNames = false)
         {
@@ -391,8 +393,6 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="filename">The filename to call the stream.</param>
         /// <param name="stream">The Stream to extract.</param>
         /// <param name="opts">The ExtractorOptions to use.</param>
-        /// <param name="acceptFilters">An optional list of regexes, when set each entry's FullName must match at least one.</param>
-        /// <param name="denyFilters">An optional list of regexes, when set each entry's FullName must match none.</param>
         /// <param name="printNames">If we should print the filename when writing it out to disc.</param>
         public ExtractionStatusCode ExtractToDirectory(string outputDirectory, string filename, Stream stream, ExtractorOptions? opts = null, bool printNames = false)
         {
@@ -406,10 +406,8 @@ namespace Microsoft.CST.RecursiveExtractor
         /// Extract the given FileEntry to the given Directory.
         /// </summary>
         /// <param name="outputDirectory">The directory to extract under. (Will be created if it does not exist).</param>
-        /// <param name="filename">The filename to call the stream.</param>
+        /// <param name="fileEntry">The <see cref="FileEntry"/> to extract.</param>
         /// <param name="opts">The ExtractorOptions to use.</param>
-        /// <param name="acceptFilters">An optional list of regexes, when set each entry's FullName must match at least one.</param>
-        /// <param name="denyFilters">An optional list of regexes, when set each entry's FullName must match none.</param>
         /// <param name="printNames">If we should print the filename when writing it out to disc.</param>
         public ExtractionStatusCode ExtractToDirectory(string outputDirectory, FileEntry fileEntry, ExtractorOptions? opts = null, bool printNames = false)
         {
@@ -498,7 +496,6 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="outputDirectory">The directory to extract under. (Will be created if it does not exist).</param>
         /// <param name="filename">The filename to call the stream.</param>
         /// <param name="opts">The ExtractorOptions to use.</param>
-        /// <param name="opts">The ExtractorOptions to use.</param>
         /// <param name="acceptFilters">An optional list of regexes, when set each entry's FullName must match at least one.</param>
         /// <param name="denyFilters">An optional list of regexes, when set each entry's FullName must match none.</param>
         /// <param name="printNames">If we should print the filename when writing it out to disc.</param>
@@ -530,7 +527,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// Extract the given FileEntry to the given Directory asynchronously.
         /// </summary>
         /// <param name="outputDirectory">The directory to extract under. (Will be created if it does not exist).</param>
-        /// <param name="filename">The filename to call the stream.</param>
+        /// <param name="fileEntry">The <see cref="FileEntry"/> to extract.</param>
         /// <param name="opts">The ExtractorOptions to use.</param>
         /// <param name="acceptFilters">An optional list of regexes, when set each entry's FullName must match at least one.</param>
         /// <param name="denyFilters">An optional list of regexes, when set each entry's FullName must match none.</param>
@@ -573,8 +570,9 @@ namespace Microsoft.CST.RecursiveExtractor
         /// Extract from a FileEntry.
         /// </summary>
         /// <param name="fileEntry">The FileEntry containing the Conteant stream to parse.</param>
-        /// <param name="opts">The ExtractorOptions to use</param>
-        /// <param name="governor">The Resource governor to use (or null to create a new one).</param>
+        /// <param name="opts">The <see cref="ExtractorOptions"/> to use for extraction.</param>
+        /// <param name="governor">The <see cref="ResourceGovernor"/> to use for extraction.</param>
+        /// <param name="topLevel">If this should be treated as the top level archive.</param>
         /// <returns>The FileEntries found.</returns>
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null, bool topLevel = true)
         {

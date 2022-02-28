@@ -25,8 +25,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <summary>
         ///     Extracts an a VHDX file
         /// </summary>
-        /// <param name="fileEntry"> </param>
-        /// <returns> </returns>
+        ///<inheritdoc />
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             LogicalVolumeInfo[]? logicalVolumes = null;
@@ -68,8 +67,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <summary>
         ///     Extracts an a VHDX file
         /// </summary>
-        /// <param name="fileEntry"> </param>
-        /// <returns> </returns>
+        ///<inheritdoc />
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             LogicalVolumeInfo[]? logicalVolumes = null;

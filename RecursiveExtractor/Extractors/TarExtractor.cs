@@ -25,8 +25,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <summary>
         ///     Extracts a Tar archive
         /// </summary>
-        /// <param name="fileEntry"> </param>
-        /// <returns> </returns>
+        ///<inheritdoc />
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
 
@@ -93,8 +92,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <summary>
         ///     Extracts a Tar archive
         /// </summary>
-        /// <param name="fileEntry"> </param>
-        /// <returns> </returns>
+        ///<inheritdoc />
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             using TarArchive archive = TarArchive.Open(fileEntry.Content, new SharpCompress.Readers.ReaderOptions()
