@@ -265,8 +265,8 @@ namespace Microsoft.CST.RecursiveExtractor
         public IEnumerable<FileEntry> Extract(string filename, byte[] archiveBytes, ExtractorOptions? opts = null)
         {
             opts ??= new ExtractorOptions();
-            using var ms = new MemoryStream(archiveBytes);
-            return Extract(new FileEntry(filename, ms, memoryStreamCutoff: opts.MemoryStreamCutoff), opts);
+            MemoryStream ms = new MemoryStream(archiveBytes);
+            return Extract(new FileEntry(filename, ms, memoryStreamCutoff: opts.MemoryStreamCutoff, passthroughStream: true), opts);
         }
 
         /// <summary>
@@ -279,8 +279,8 @@ namespace Microsoft.CST.RecursiveExtractor
         public async IAsyncEnumerable<FileEntry> ExtractAsync(string filename, byte[] archiveBytes, ExtractorOptions? opts = null)
         {
             opts ??= new ExtractorOptions();
-            using var ms = new MemoryStream(archiveBytes);
-            await foreach (var entry in ExtractAsync(new FileEntry(Path.GetFileName(filename), ms, memoryStreamCutoff: opts.MemoryStreamCutoff), opts))
+            MemoryStream ms = new MemoryStream(archiveBytes);
+            await foreach (var entry in ExtractAsync(new FileEntry(Path.GetFileName(filename), ms, memoryStreamCutoff: opts.MemoryStreamCutoff, passthroughStream: true), opts))
             {
                 if (opts.FileNamePasses(entry.FullPath))
                 {
@@ -382,8 +382,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="printNames">If we should print the filename when writing it out to disc.</param>
         public ExtractionStatusCode ExtractToDirectory(string outputDirectory, string filename, ExtractorOptions? opts = null, bool printNames = false)
         {
-            using var fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
-            return ExtractToDirectory(outputDirectory, filename, fs, opts, printNames);
+            return ExtractToDirectory(outputDirectory, FileEntry.FromFileName(filename), opts, printNames);
         }
 
         /// <summary>
@@ -397,8 +396,7 @@ namespace Microsoft.CST.RecursiveExtractor
         public ExtractionStatusCode ExtractToDirectory(string outputDirectory, string filename, Stream stream, ExtractorOptions? opts = null, bool printNames = false)
         {
             opts ??= new ExtractorOptions();
-            var file = Path.GetFileName(filename);
-            var fileEntry = new FileEntry(Path.GetFileName(file), stream, memoryStreamCutoff: opts.MemoryStreamCutoff);
+            var fileEntry = new FileEntry(Path.GetFileName(filename), stream, memoryStreamCutoff: opts.MemoryStreamCutoff);
             return ExtractToDirectory(outputDirectory, fileEntry, opts, printNames);
         }
 
@@ -501,8 +499,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="printNames">If we should print the filename when writing it out to disc.</param>
         public async Task<ExtractionStatusCode> ExtractToDirectoryAsync(string outputDirectory, string filename, ExtractorOptions? opts = null, IEnumerable<Regex>? acceptFilters = null, IEnumerable<Regex>? denyFilters = null, bool printNames = false)
         {
-            var fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
-            return await ExtractToDirectoryAsync(outputDirectory, filename, fs, opts, acceptFilters, denyFilters, printNames).ConfigureAwait(false);
+            return await ExtractToDirectoryAsync(outputDirectory, FileEntry.FromFileName(filename), opts, acceptFilters, denyFilters, printNames).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -518,8 +515,7 @@ namespace Microsoft.CST.RecursiveExtractor
         public async Task<ExtractionStatusCode> ExtractToDirectoryAsync(string outputDirectory, string filename, Stream stream, ExtractorOptions? opts = null, IEnumerable<Regex>? acceptFilters = null, IEnumerable<Regex>? denyFilters = null, bool printNames = false)
         {
             opts ??= new ExtractorOptions();
-            var file = Path.GetFileName(filename);
-            var fileEntry = new FileEntry(Path.GetFileName(file), stream, memoryStreamCutoff: opts.MemoryStreamCutoff);
+            var fileEntry = new FileEntry(Path.GetFileName(filename), stream, memoryStreamCutoff: opts.MemoryStreamCutoff);
             return await ExtractToDirectoryAsync(outputDirectory, fileEntry, opts, acceptFilters, denyFilters, printNames).ConfigureAwait(false);
         }
 
@@ -569,7 +565,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <summary>
         /// Extract from a FileEntry.
         /// </summary>
-        /// <param name="fileEntry">The FileEntry containing the Conteant stream to parse.</param>
+        /// <param name="fileEntry">The <see cref="FileEntry"/> containing the Content stream to parse.</param>
         /// <param name="opts">The <see cref="ExtractorOptions"/> to use for extraction.</param>
         /// <param name="governor">The <see cref="ResourceGovernor"/> to use for extraction.</param>
         /// <param name="topLevel">If this should be treated as the top level archive.</param>
