@@ -1,9 +1,5 @@
-RecursiveExtractor/bin
-RecursiveExtractor/obj
-RecursiveExtractor.Blazor/bin
-RecursiveExtractor.Blazor/obj
-RecursiveExtractor.Cli/bin
-RecursiveExtractor.Cli/obj
-RecursiveExtractor.Tests/bin
-RecursiveExtractor.Tests/obj
+bin/
+obj/
+.idea/
 .vs
+RecursiveExtractor.sln.DotSettings.user

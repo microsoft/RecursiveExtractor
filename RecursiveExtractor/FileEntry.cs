@@ -295,6 +295,17 @@ namespace Microsoft.CST.RecursiveExtractor
         }
 
         private const int defaultCutoff = 1024 * 1024 * 100;
+
+        /// <summary>
+        /// Automatically open a Stream from a the <paramref name="filename"/> of a file on disc and construct a FileEntry suitable for Extracting from.
+        /// </summary>
+        /// <param name="filename">The path to the file on disc</param>
+        /// <param name="memoryStreamCutoff">Passed through to the <see cref="FileEntry"/> constructor</param>
+        /// <returns></returns>
+        public static FileEntry FromFileName(string filename, int? memoryStreamCutoff = null)
+        {
+            return new FileEntry(Path.GetFileName(filename), File.OpenRead(filename), memoryStreamCutoff: memoryStreamCutoff, passthroughStream: true, createTime: File.GetCreationTime(filename), accessTime: File.GetLastAccessTime(filename), modifyTime: File.GetLastWriteTime(filename));
+        }
     }
 
     /// <summary>

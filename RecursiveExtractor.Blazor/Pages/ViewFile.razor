@@ -14,7 +14,7 @@
     @if (appData.GuidToFileEntryMap.ContainsKey(Guid))
     {
     <h1>Showing code for: @fileEntry.Name</h1>
-    <pre class="match-braces rainbow-braces line-numbers lang-@Microsoft.DevSkim.Language.FromFileName(fileEntry.Name)" >
+    <pre class="match-braces rainbow-braces line-numbers lang-csharp" > <!-- Get file language from filename without devskim -->
         <code style="display:block; white-space:pre-wrap">
 @Contents
         </code>
@@ -45,7 +45,7 @@ else
 
     public string? Contents { get; set; }
 
-    private FileEntry fileEntry { get; set; }
+    private FileEntry? fileEntry { get; set; }
 
     protected override void OnInitialized()
     {
