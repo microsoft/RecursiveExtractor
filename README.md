@@ -1,7 +1,7 @@
 # About
 ![CodeQL](https://github.com/microsoft/RecursiveExtractor/workflows/CodeQL/badge.svg) ![Nuget](https://img.shields.io/nuget/v/Microsoft.CST.RecursiveExtractor?link=https://www.nuget.org/packages/Microsoft.CST.RecursiveExtractor/&link=https://www.nuget.org/packages/Microsoft.CST.RecursiveExtractor/) ![Nuget](https://img.shields.io/nuget/dt/Microsoft.CST.RecursiveExtractor?link=https://www.nuget.org/packages/Microsoft.CST.RecursiveExtractor/&link=https://www.nuget.org/packages/Microsoft.CST.RecursiveExtractor/)
 
-Recursive Extractor is a Cross-Platform [.NET Standard 2.0 Library](#library), [Progressive Web App](#browser) and [Command Line Program](#cli) for parsing archive files and disk images, including nested archives and disk images.
+Recursive Extractor is a Cross-Platform [.NET Standard 2.0 Library](#library) and [Command Line Program](#cli) for parsing archive files and disk images, including nested archives and disk images.
 
 # Supported File Types
 | | | |
@@ -21,11 +21,6 @@ Recursive Extractor is a Cross-Platform [.NET Standard 2.0 Library](#library), [
 </details>
 
 # Variants
-
-## Browser
-You can run Recursive Extractor directly [in your browser](https://microsoft.github.io/RecursiveExtractor/) and install it as a Progressive Web App.  
-
-It runs entirely locally using [WebAssembly](https://docs.microsoft.com/en-us/aspnet/core/blazor/progressive-web-app?view=aspnetcore-3.1&tabs=visual-studio) with no connectivity requirement.
 
 ## Command Line
 ### Installing
@@ -62,7 +57,7 @@ Run `RecursiveExtractor --help` for more details.
 </details>
 
 ## .NET Standard Library
-Recursive Extractor is available on NuGet as [Microsoft.CST.RecursiveExtractor](https://www.nuget.org/packages/Microsoft.CST.RecursiveExtractor/).
+Recursive Extractor is available on NuGet as [Microsoft.CST.RecursiveExtractor](https://www.nuget.org/packages/Microsoft.CST.RecursiveExtractor/). Recursive Extractor targets netstandard2.0+ and the latest .NET, currently .NET 6.0.
 
 ### Usage
 
@@ -175,9 +170,9 @@ Otherwise, invalid files found while crawling will emit a logger message and be 
 
 # Feedback
 
-If you have any issues or feature requests you can open a new [Issue](https://github.com/microsoft/RecursiveExtractor/issues/new).  
+If you have any issues or feature requests (for example, supporting other formats) you can open a new [Issue](https://github.com/microsoft/RecursiveExtractor/issues/new).  
 
-If you have an archive you are having trouble parsing, please include it in your feedback.
+If you have an archive you are having trouble parsing a specific archive, it is helpful if you can include an archive that demonstrates the issue.
 
 # Dependencies
 
