@@ -311,16 +311,16 @@ namespace Microsoft.CST.RecursiveExtractor
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null, bool topLevel = true)
         {
             var options = opts ?? new ExtractorOptions();
-            var Governor = governor ?? new ResourceGovernor(options);
+            var resourceGovernor = governor ?? new ResourceGovernor(options);
 
             if (governor is null)
             {
-                Governor.ResetResourceGovernor(fileEntry.Content);
+                resourceGovernor.ResetResourceGovernor(fileEntry.Content);
             }
-            Logger.Trace("ExtractFile({0})", fileEntry.FullPath);
+            Logger.Trace("ExtractFile({FullPath})", fileEntry.FullPath);
 
-            Governor.CurrentOperationProcessedBytesLeft -= fileEntry.Content.Length;
-            Governor.CheckResourceGovernor();
+            resourceGovernor.CurrentOperationProcessedBytesLeft -= fileEntry.Content.Length;
+            resourceGovernor.CheckResourceGovernor();
             if (IsQuine(fileEntry))
             {
                 Logger.Info(IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
@@ -329,21 +329,23 @@ namespace Microsoft.CST.RecursiveExtractor
             if (topLevel || (!topLevel && options.Recurse))
             {
                 var type = fileEntry.ArchiveType;
-
-                if (((opts?.RawExtensions?.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ?? false) || type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type)))
+                if (options.IsAcceptableType(type))
                 {
-                    if (options.FileNamePasses(fileEntry.FullPath))
+                    if (((opts?.RawExtensions?.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ?? false) || type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type)))
                     {
-                        yield return fileEntry;
-                    }
-                }
-                else
-                {
-                    await foreach (var result in Extractors[type].ExtractAsync(fileEntry, options, Governor, false))
-                    {
-                        if (options.FileNamePasses(result.FullPath))
+                        if (options.FileNamePasses(fileEntry.FullPath))
                         {
-                            yield return result;
+                            yield return fileEntry;
+                        }
+                    }
+                    else
+                    {
+                        await foreach (var result in Extractors[type].ExtractAsync(fileEntry, options, resourceGovernor, false))
+                        {
+                            if (options.FileNamePasses(result.FullPath))
+                            {
+                                yield return result;
+                            }
                         }
                     }
                 }
@@ -353,26 +355,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 yield return fileEntry;
             }
         }
-
-        private static bool FileNamePasses(string fileName, IEnumerable<Regex>? acceptFilters = null, IEnumerable<Regex>? denyFilters = null)
-        {
-            foreach (var allowRegex in acceptFilters ?? Array.Empty<Regex>())
-            {
-                if (!allowRegex.IsMatch(fileName))
-                {
-                    return false;
-                }
-            }
-            foreach (var denyRegex in denyFilters ?? Array.Empty<Regex>())
-            {
-                if (denyRegex.IsMatch(fileName))
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
+        
         /// <summary>
         /// Extract the given file to the given Directory.
         /// </summary>
@@ -532,7 +515,7 @@ namespace Microsoft.CST.RecursiveExtractor
         {
             await foreach (var entry in ExtractAsync(fileEntry, opts))
             {
-                if (FileNamePasses(entry.FullPath, acceptFilters, denyFilters))
+                if (opts?.FileNamePasses(entry.FullPath) ?? true)
                 {
                     var targetPath = Path.Combine(outputDirectory, entry.FullPath);
                     if (Path.GetDirectoryName(targetPath) is string directoryPath && targetPath is string targetPathNotNull)
@@ -573,15 +556,15 @@ namespace Microsoft.CST.RecursiveExtractor
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null, bool topLevel = true)
         {
             var options = opts ?? new ExtractorOptions();
-            var Governor = governor;
-            if (Governor == null)
+            var resourceGovernor = governor;
+            if (resourceGovernor == null)
             {
-                Governor = new ResourceGovernor(options);
-                Governor.ResetResourceGovernor(fileEntry.Content);
+                resourceGovernor = new ResourceGovernor(options);
+                resourceGovernor.ResetResourceGovernor(fileEntry.Content);
             }
             Logger.Trace("ExtractFile({0})", fileEntry.FullPath);
-            Governor.CurrentOperationProcessedBytesLeft -= fileEntry.Content.Length;
-            Governor.CheckResourceGovernor();
+            resourceGovernor.CurrentOperationProcessedBytesLeft -= fileEntry.Content.Length;
+            resourceGovernor.CheckResourceGovernor();
             if (IsQuine(fileEntry))
             {
                 Logger.Info(IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
@@ -593,30 +576,35 @@ namespace Microsoft.CST.RecursiveExtractor
             if (topLevel || options.Recurse)
             {
                 var type = fileEntry.ArchiveType;
-
-                if ((opts?.RawExtensions?.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ?? false) || type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type))
+                if (options.IsAcceptableType(type))
                 {
-                    if (options.FileNamePasses(fileEntry.FullPath))
+                    if (options.RawExtensions.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ||
+                        type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type))
                     {
-                        result.Add(fileEntry);
-                    }
-                }
-                else
-                {
-                    try
-                    {
-                        foreach (var extractedResult in Extractors[type].Extract(fileEntry, options, Governor, false))
+                        if (options.FileNamePasses(fileEntry.FullPath))
                         {
-                            if (options.FileNamePasses(extractedResult.FullPath))
-                            {
-                                result.Add(extractedResult);
-                            }
+                            result.Add(fileEntry);
                         }
                     }
-                    catch(Exception e)
+                    else
                     {
-                        if (e is OverflowException) { throw; }
-                        Logger.Debug(e, "Failed to extract {0}. ({1})", fileEntry.FullPath, e.Message);
+                        try
+                        {
+                            foreach (var extractedResult in Extractors[type]
+                                         .Extract(fileEntry, options, resourceGovernor, false))
+                            {
+                                if (options.FileNamePasses(extractedResult.FullPath))
+                                {
+                                    result.Add(extractedResult);
+                                }
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            if (e is OverflowException) { throw; }
+
+                            Logger.Debug(e, "Failed to extract {FullPath}. ({Message})", fileEntry.FullPath, e.Message);
+                        }
                     }
                 }
             }
@@ -628,7 +616,7 @@ namespace Microsoft.CST.RecursiveExtractor
             // After we are done with an archive subtract its bytes. Contents have been counted now separately
             if (!useRaw)
             {
-                Governor.CurrentOperationProcessedBytesLeft += fileEntry.Content.Length;
+                resourceGovernor.CurrentOperationProcessedBytesLeft += fileEntry.Content.Length;
             }
 
             return result;

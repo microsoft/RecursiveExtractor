@@ -107,27 +107,29 @@ namespace Microsoft.CST.RecursiveExtractor
         }
 
         /// <summary>
+        /// Allow only the specified archive types to be extracted
+        /// </summary>
+        public IEnumerable<ArchiveFileType> AllowTypes { get; set; } = Array.Empty<ArchiveFileType>();
+
+        /// <summary>
+        /// Prevent the specified archives types from being extracted
+        /// </summary>
+        public IEnumerable<ArchiveFileType> DenyTypes { get; set; } = Array.Empty<ArchiveFileType>();
+
+        /// <summary>
         /// If the file name provided should be extracted given the filter arguments in this ExtractorOptions instance
         /// </summary>
         /// <param name="filename"></param>
         /// <returns></returns>
-        public bool FileNamePasses(string filename)
-        {
-            var allowed = true;
-            if (_allowGlobs.Any())
-            {
-                allowed = false;
-                if (_allowGlobs.Any(x => x.IsMatch(filename)))
-                {
-                    allowed = true;
-                }
-            }
-            if (allowed && _denyGlobs.Any() && _denyGlobs.Any(x => x.IsMatch(filename)))
-            {
-                allowed = false;
-            }
+        public bool FileNamePasses(string filename) => (!_denyGlobs.Any() || (_denyGlobs.Any() && !_denyGlobs.Any(x => x.IsMatch(filename)))) &&
+                                                        (!_allowGlobs.Any() ||
+                                                         _allowGlobs.Any(x => x.IsMatch(filename)));
 
-            return allowed;
-        }
+        /// <summary>
+        /// Checks if the given <see cref="ArchiveFileType"/> is allowable by the set <see cref="DenyTypes"/> and <see cref="AllowTypes"/>.
+        /// </summary>
+        /// <param name="type">The <see cref="ArchiveFileType"/> to check.</param>
+        /// <returns>True if the options allow for extracting the specified type.</returns>
+        public bool IsAcceptableType(ArchiveFileType type) => !DenyTypes.Contains(type) && (!AllowTypes.Any() || AllowTypes.Contains(type));
     }
 }
