@@ -757,6 +757,20 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var results = extractor.Extract(path, new ExtractorOptions()).ToList();
             Assert.IsTrue(results.All(x => !x.FullPath.Contains("..")));
         }
+        
+        [DataTestMethod]
+        [DataRow(ArchiveFileType.ZIP, new[]{ArchiveFileType.ZIP}, new ArchiveFileType[]{}, false)]
+        [DataRow(ArchiveFileType.ZIP, new[]{ArchiveFileType.TAR}, new ArchiveFileType[]{}, true)]
+        [DataRow(ArchiveFileType.ZIP, new ArchiveFileType[]{}, new[]{ArchiveFileType.ZIP}, true)]
+        [DataRow(ArchiveFileType.TAR, new ArchiveFileType[]{}, new[]{ArchiveFileType.ZIP}, false)]
+        [DataRow(ArchiveFileType.ZIP, new[]{ArchiveFileType.ZIP}, new[]{ArchiveFileType.ZIP}, false)]
+
+        public void TestArchiveTypeFilters(ArchiveFileType typeToCheck, IEnumerable<ArchiveFileType> denyTypes,
+            IEnumerable<ArchiveFileType> allowTypes, bool expected)
+        {
+            ExtractorOptions opts = new() {AllowTypes = allowTypes, DenyTypes = denyTypes};
+            Assert.AreEqual(expected, opts.IsAcceptableType(typeToCheck));
+        }
 
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
