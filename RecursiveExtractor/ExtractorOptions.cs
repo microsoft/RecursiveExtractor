@@ -121,7 +121,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         /// <param name="filename"></param>
         /// <returns></returns>
-        public bool FileNamePasses(string filename) => (_denyGlobs.Any() && !_denyGlobs.Any(x => x.IsMatch(filename))) &&
+        public bool FileNamePasses(string filename) => (!_denyGlobs.Any() || (_denyGlobs.Any() && !_denyGlobs.Any(x => x.IsMatch(filename)))) &&
                                                         (!_allowGlobs.Any() ||
                                                          _allowGlobs.Any(x => x.IsMatch(filename)));
 
