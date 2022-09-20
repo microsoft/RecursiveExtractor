@@ -60,6 +60,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     yield return fileEntry;
                 }
             }
+            disk?.Dispose();
         }
 
         /// <summary>
