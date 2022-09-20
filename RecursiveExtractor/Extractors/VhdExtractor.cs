@@ -70,10 +70,11 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             LogicalVolumeInfo[]? logicalVolumes = null;
+            DiscUtils.Vhd.Disk? disk = null;
 
             try
             {
-                using var disk = new DiscUtils.Vhd.Disk(fileEntry.Content, Ownership.None);
+                disk = new DiscUtils.Vhd.Disk(fileEntry.Content, Ownership.None);
                 var manager = new VolumeManager(disk);
                 logicalVolumes = manager.GetLogicalVolumes();
             }
@@ -100,6 +101,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     yield return fileEntry;
                 }
             }
+            disk?.Dispose();
         }
     }
 }
