@@ -383,9 +383,6 @@ namespace Microsoft.CST.RecursiveExtractor
             return ExtractToDirectory(outputDirectory, fileEntry, opts, printNames);
         }
 
-        private static Regex invalidPathChars = new Regex(string.Format("[{0}]", Regex.Escape(new string(System.IO.Path.GetInvalidPathChars()))));
-        private static Regex invalidFileChars = new Regex(string.Format("[{0}]", Regex.Escape(new string(System.IO.Path.GetInvalidFileNameChars()))));
-
         /// <summary>
         /// Extract the given FileEntry to the given Directory.
         /// </summary>
@@ -400,39 +397,33 @@ namespace Microsoft.CST.RecursiveExtractor
             {
                 foreach (var entry in Extract(fileEntry, opts))
                 {
-                    if (Path.GetDirectoryName(entry.FullPath) is { } entryDirectory &&
-                        Path.GetFileName(entry.FullPath) is { } entryFileName)
+                    var targetPath = Path.Combine(outputDirectory, entry.GetSanitizedPath());
+                    if (Path.GetDirectoryName(targetPath) is { } directoryPathNotNull &&
+                        targetPath is { } targetPathNotNull)
                     {
-                        var targetPath = Path.Combine(outputDirectory,
-                            Path.Combine(invalidPathChars.Replace(entryDirectory, "_"),
-                                invalidFileChars.Replace(entryFileName, "_")));
-                        if (Path.GetDirectoryName(targetPath) is { } directoryPathNotNull &&
-                            targetPath is { } targetPathNotNull)
+                        try
                         {
-                            try
-                            {
-                                Directory.CreateDirectory(directoryPathNotNull);
+                            Directory.CreateDirectory(directoryPathNotNull);
 
-                                using var fs = new FileStream(targetPathNotNull, FileMode.Create);
-                                entry.Content.CopyTo(fs);
-                                if (printNames)
-                                {
-                                    Console.WriteLine("Extracted {0}.", entry.FullPath);
-                                }
-
-                                Logger.Trace("Extracted {0}", entry.FullPath);
-                            }
-                            catch (Exception e)
+                            using var fs = new FileStream(targetPathNotNull, FileMode.Create);
+                            entry.Content.CopyTo(fs);
+                            if (printNames)
                             {
-                                Logger.Error(e, "Failed to create file at {0}.", targetPathNotNull);
-                                return ExtractionStatusCode.Failure;
+                                Console.WriteLine("Extracted {0}.", entry.FullPath);
                             }
+
+                            Logger.Trace("Extracted {0}", entry.FullPath);
                         }
-                        else
+                        catch (Exception e)
                         {
-                            Logger.Error("Failed to create directory.");
+                            Logger.Error(e, "Failed to create file at {0}.", targetPathNotNull);
                             return ExtractionStatusCode.Failure;
                         }
+                    }
+                    else
+                    {
+                        Logger.Error("Failed to create directory.");
+                        return ExtractionStatusCode.Failure;
                     }
                 }
             }
@@ -444,38 +435,33 @@ namespace Microsoft.CST.RecursiveExtractor
                 {
                     Parallel.ForEach(Extract(fileEntry, opts), new ParallelOptions() { CancellationToken = cts.Token }, entry =>
                     {
-                        if (Path.GetDirectoryName(entry.FullPath) is { } entryDirectory && Path.GetFileName(entry.FullPath) is {} entryFileName)
-                        {
-                            var targetPath = Path.Combine(outputDirectory,
-                                Path.Combine(invalidPathChars.Replace(entryDirectory, "_"),
-                                    invalidFileChars.Replace(entryFileName, "_")));
-                            if (Path.GetDirectoryName(targetPath) is { } directoryPathNotNull && targetPath is { } targetPathNotNull)
-                            {
-                                try
-                                {
-                                    Directory.CreateDirectory(directoryPathNotNull);
+                        var targetPath = Path.Combine(outputDirectory, entry.GetSanitizedPath());
 
-                                    using var fs = new FileStream(targetPathNotNull, FileMode.Create);
-                                    entry.Content.CopyTo(fs);
-                                    if (printNames)
-                                    {
-                                        Console.WriteLine("Extracted {0}.", entry.FullPath);
-                                    }
-                                    Logger.Trace("Extracted {0}", entry.FullPath);
-                                }
-                                catch (Exception e)
-                                {
-                                    Logger.Error(e, "Failed to create file at {0}.", targetPathNotNull);
-                                    cts.Cancel();
-                                }
-                            }
-                            else
+                        if (Path.GetDirectoryName(targetPath) is { } directoryPathNotNull && targetPath is { } targetPathNotNull)
+                        {
+                            try
                             {
-                                Logger.Error("Failed to create directory.");
+                                Directory.CreateDirectory(directoryPathNotNull);
+
+                                using var fs = new FileStream(targetPathNotNull, FileMode.Create);
+                                entry.Content.CopyTo(fs);
+                                if (printNames)
+                                {
+                                    Console.WriteLine("Extracted {0}.", entry.FullPath);
+                                }
+                                Logger.Trace("Extracted {0}", entry.FullPath);
+                            }
+                            catch (Exception e)
+                            {
+                                Logger.Error(e, "Failed to create file at {0}.", targetPathNotNull);
                                 cts.Cancel();
                             }
                         }
-                        
+                        else
+                        {
+                            Logger.Error("Failed to create directory.");
+                            cts.Cancel();
+                        }
                     });
                 }
                 catch (OperationCanceledException)
@@ -534,38 +520,31 @@ namespace Microsoft.CST.RecursiveExtractor
             {
                 if (opts?.FileNamePasses(entry.FullPath) ?? true)
                 {
-                    if (Path.GetDirectoryName(entry.FullPath) is { } entryDirectory &&
-                        Path.GetFileName(entry.FullPath) is { } entryFileName)
-                    {
-                        var targetPath = Path.Combine(outputDirectory,
-                            Path.Combine(invalidPathChars.Replace(entryDirectory, "_"),
-                                invalidFileChars.Replace(entryFileName, "_")));
-                        if (Path.GetDirectoryName(targetPath) is { } directoryPathNotNull &&
-                            targetPath is { } targetPathNotNull)
-                        {
-                            targetPathNotNull = Path.Combine(directoryPathNotNull,
-                                invalidFileChars.Replace(Path.GetFileName(targetPathNotNull), "_"));
-                            try
-                            {
-                                Directory.CreateDirectory(directoryPathNotNull);
-                                using var fs = new FileStream(targetPathNotNull, FileMode.Create);
-                                await entry.Content.CopyToAsync(fs).ConfigureAwait(false);
-                                if (printNames)
-                                {
-                                    Console.WriteLine("Extracted {0}.", entry.FullPath);
-                                }
+                    var targetPath = Path.Combine(outputDirectory, entry.GetSanitizedPath());
 
-                                Logger.Trace("Extracted {0}", entry.FullPath);
-                            }
-                            catch (Exception e)
-                            {
-                                Logger.Error(e, "Failed to create file at {0}.", targetPathNotNull);
-                            }
-                        }
-                        else
+                    if (Path.GetDirectoryName(targetPath) is { } directoryPathNotNull &&
+                        targetPath is { } targetPathNotNull)
+                    {
+                        try
                         {
-                            Logger.Error("Failed to create directory.");
+                            Directory.CreateDirectory(directoryPathNotNull);
+                            using var fs = new FileStream(targetPathNotNull, FileMode.Create);
+                            await entry.Content.CopyToAsync(fs).ConfigureAwait(false);
+                            if (printNames)
+                            {
+                                Console.WriteLine("Extracted {0}.", entry.FullPath);
+                            }
+
+                            Logger.Trace("Extracted {0}", entry.FullPath);
                         }
+                        catch (Exception e)
+                        {
+                            Logger.Error(e, "Failed to create file at {0}.", targetPathNotNull);
+                        }
+                    }
+                    else
+                    {
+                        Logger.Error("Failed to create directory.");
                     }
                 }
             }

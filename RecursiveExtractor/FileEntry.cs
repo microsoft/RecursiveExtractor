@@ -2,6 +2,7 @@
 
 using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Microsoft.CST.RecursiveExtractor
@@ -188,7 +189,37 @@ namespace Microsoft.CST.RecursiveExtractor
         /// ExtractionStatus metadata.
         /// </summary>
         public FileEntryStatus EntryStatus { get; set; }
+        
+        private static Regex invalidPathChars = new Regex(string.Format("[{0}]", Regex.Escape(new string(System.IO.Path.GetInvalidPathChars()))));
+        private static Regex invalidFileChars = new Regex(string.Format("[{0}]", Regex.Escape(new string(System.IO.Path.GetInvalidFileNameChars()))));
+        
+        /// <summary>
+        /// Returns the full sanitized path of the FileEntry suitable to write to disk
+        /// </summary>
+        /// <returns></returns>
+        public string GetSanitizedPath()
+        {
+            if (ParentPath is { } parentPath)
+            {
+                return
+                    Path.Combine(invalidPathChars.Replace(parentPath, "_"),
+                        invalidFileChars.Replace(Name, "_"));
+            }
+            else
+            {
+                return GetSanitizedName();
+            }
+        }
 
+        /// <summary>
+        /// Returns the sanitized filename the FileEntry suitable to write to disk
+        /// </summary>
+        /// <returns></returns>
+        public string GetSanitizedName()
+        {
+            return invalidFileChars.Replace(Name, "_");
+        }
+        
         internal bool Passthrough { get; }
 
         private const int bufferSize = 4096;
