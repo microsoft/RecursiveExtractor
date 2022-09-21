@@ -383,6 +383,8 @@ namespace Microsoft.CST.RecursiveExtractor
             return ExtractToDirectory(outputDirectory, fileEntry, opts, printNames);
         }
 
+        private static Regex invalidChars = new Regex($"[{Path.GetInvalidPathChars()}");
+        
         /// <summary>
         /// Extract the given FileEntry to the given Directory.
         /// </summary>
@@ -398,13 +400,13 @@ namespace Microsoft.CST.RecursiveExtractor
                 foreach (var entry in Extract(fileEntry, opts))
                 {
                     var targetPath = Path.Combine(outputDirectory, entry.FullPath);
-                    if (Path.GetDirectoryName(targetPath) is string directoryPath && targetPath is string targetPathNotNull)
+                    if (Path.GetDirectoryName(targetPath) is string directoryPathNotNull && targetPath is string targetPathNotNull)
                     {
                         try
                         {
-                            Directory.CreateDirectory(directoryPath);
+                            Directory.CreateDirectory(invalidChars.Replace(directoryPathNotNull,"_"));
 
-                            using var fs = new FileStream(targetPathNotNull, FileMode.Create);
+                            using var fs = new FileStream(invalidChars.Replace(targetPathNotNull,"_"), FileMode.Create);
                             entry.Content.CopyTo(fs);
                             if (printNames)
                             {
@@ -522,8 +524,8 @@ namespace Microsoft.CST.RecursiveExtractor
                     {
                         try
                         {
-                            Directory.CreateDirectory(directoryPath);
-                            using var fs = new FileStream(targetPathNotNull, FileMode.Create);
+                            Directory.CreateDirectory(invalidChars.Replace(directoryPath,"_"));
+                            using var fs = new FileStream(invalidChars.Replace(targetPathNotNull,"_"), FileMode.Create);
                             await entry.Content.CopyToAsync(fs).ConfigureAwait(false);
                             if (printNames)
                             {
