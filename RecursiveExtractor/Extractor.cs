@@ -436,11 +436,11 @@ namespace Microsoft.CST.RecursiveExtractor
                     Parallel.ForEach(Extract(fileEntry, opts), new ParallelOptions() { CancellationToken = cts.Token }, entry =>
                     {
                         var targetPath = Path.Combine(outputDirectory, entry.FullPath);
-                        if (Path.GetDirectoryName(targetPath) is string directoryPath && targetPath is string targetPathNotNull)
+                        if (Path.GetDirectoryName(targetPath) is { } directoryPathNotNull && targetPath is { } targetPathNotNull)
                         {
                             try
                             {
-                                Directory.CreateDirectory(directoryPath);
+                                Directory.CreateDirectory(directoryPathNotNull);
 
                                 using var fs = new FileStream(targetPathNotNull, FileMode.Create);
                                 entry.Content.CopyTo(fs);
@@ -519,13 +519,13 @@ namespace Microsoft.CST.RecursiveExtractor
             {
                 if (opts?.FileNamePasses(entry.FullPath) ?? true)
                 {
-                    var targetPath = Path.Combine(outputDirectory, entry.FullPath);
-                    if (Path.GetDirectoryName(targetPath) is string directoryPath && targetPath is string targetPathNotNull)
+                    var targetPath = Path.Combine(outputDirectory, invalidChars.Replace(entry.FullPath,"_"));
+                    if (Path.GetDirectoryName(targetPath) is { } directoryPathNotNull && targetPath is { } targetPathNotNull)
                     {
                         try
                         {
-                            Directory.CreateDirectory(invalidChars.Replace(directoryPath,"_"));
-                            using var fs = new FileStream(invalidChars.Replace(targetPathNotNull,"_"), FileMode.Create);
+                            Directory.CreateDirectory(directoryPathNotNull);
+                            using var fs = new FileStream(targetPathNotNull, FileMode.Create);
                             await entry.Content.CopyToAsync(fs).ConfigureAwait(false);
                             if (printNames)
                             {
