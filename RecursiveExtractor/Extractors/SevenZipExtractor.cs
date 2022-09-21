@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
@@ -70,32 +71,21 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         private (SevenZipArchive? archive, FileEntryStatus archiveStatus) GetSevenZipArchive(FileEntry fileEntry, ExtractorOptions options)
         {
             SevenZipArchive? sevenZipArchive = null;
+            var needsPassword = false;
             try
             {
                 sevenZipArchive = SevenZipArchive.Open(fileEntry.Content);
+            }
+            catch (Exception e) when (e is SharpCompress.Common.CryptographicException)
+            {
+                needsPassword = true;
             }
             catch (Exception e)
             {                
                 Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.P7ZIP, fileEntry.FullPath, string.Empty, e.GetType());
                 return (sevenZipArchive, FileEntryStatus.FailedArchive);
             }
-            var needsPassword = false;
-            try
-            {
-                // This is a workaround because SharpCompress does not expose if a 7z archive is encrypted without trying to decrypt it
-                needsPassword = sevenZipArchive?.TotalUncompressSize == 0;
-            }
-            // SharpCompress throws an ArgumentNullException from AESDecoderStream.ctor when an archive is encrypted but the password is null
-            catch (ArgumentNullException)
-            {
-                needsPassword = true;
-            }
-            catch (Exception e)
-            {
-                Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.P7ZIP, fileEntry.FullPath, string.Empty, e.GetType());
-                return (sevenZipArchive, FileEntryStatus.FailedArchive);
-            }
-            if (needsPassword is true)
+            if (needsPassword)
             {
                 var passwordFound = false;
                 foreach (var passwords in options.Passwords.Where(x => x.Key.IsMatch(fileEntry.Name)))
