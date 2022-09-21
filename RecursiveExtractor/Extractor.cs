@@ -383,7 +383,7 @@ namespace Microsoft.CST.RecursiveExtractor
             return ExtractToDirectory(outputDirectory, fileEntry, opts, printNames);
         }
 
-        private static Regex invalidChars = new Regex($"[{Path.GetInvalidPathChars()}");
+        private static Regex invalidChars = new Regex(string.Format("[{0}]", Regex.Escape(new string(System.IO.Path.GetInvalidPathChars()))));
         
         /// <summary>
         /// Extract the given FileEntry to the given Directory.
@@ -399,14 +399,14 @@ namespace Microsoft.CST.RecursiveExtractor
             {
                 foreach (var entry in Extract(fileEntry, opts))
                 {
-                    var targetPath = Path.Combine(outputDirectory, entry.FullPath);
+                    var targetPath = Path.Combine(outputDirectory, invalidChars.Replace(entry.FullPath,"_"));
                     if (Path.GetDirectoryName(targetPath) is string directoryPathNotNull && targetPath is string targetPathNotNull)
                     {
                         try
                         {
-                            Directory.CreateDirectory(invalidChars.Replace(directoryPathNotNull,"_"));
+                            Directory.CreateDirectory(directoryPathNotNull);
 
-                            using var fs = new FileStream(invalidChars.Replace(targetPathNotNull,"_"), FileMode.Create);
+                            using var fs = new FileStream(targetPathNotNull, FileMode.Create);
                             entry.Content.CopyTo(fs);
                             if (printNames)
                             {
