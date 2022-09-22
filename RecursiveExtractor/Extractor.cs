@@ -398,8 +398,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 foreach (var entry in Extract(fileEntry, opts))
                 {
                     var targetPath = Path.Combine(outputDirectory, entry.GetSanitizedPath());
-                    if (Path.GetDirectoryName(targetPath) is { } directoryPathNotNull &&
-                        targetPath is { } targetPathNotNull)
+                    if (Path.GetDirectoryName(targetPath) is { } directoryPathNotNull && targetPath is { } targetPathNotNull)
                     {
                         try
                         {
@@ -411,7 +410,6 @@ namespace Microsoft.CST.RecursiveExtractor
                             {
                                 Console.WriteLine("Extracted {0}.", entry.FullPath);
                             }
-
                             Logger.Trace("Extracted {0}", entry.FullPath);
                         }
                         catch (Exception e)
@@ -522,8 +520,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 {
                     var targetPath = Path.Combine(outputDirectory, entry.GetSanitizedPath());
 
-                    if (Path.GetDirectoryName(targetPath) is { } directoryPathNotNull &&
-                        targetPath is { } targetPathNotNull)
+                    if (Path.GetDirectoryName(targetPath) is { } directoryPathNotNull && targetPath is { } targetPathNotNull)
                     {
                         try
                         {
@@ -534,7 +531,6 @@ namespace Microsoft.CST.RecursiveExtractor
                             {
                                 Console.WriteLine("Extracted {0}.", entry.FullPath);
                             }
-
                             Logger.Trace("Extracted {0}", entry.FullPath);
                         }
                         catch (Exception e)
