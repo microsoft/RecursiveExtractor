@@ -44,13 +44,11 @@ namespace Microsoft.CST.RecursiveExtractor
 
             if (parent == null)
             {
-                ParentPath = null;
                 FullPath = name;
             }
             else
             {
-                ParentPath = parent.FullPath;
-                FullPath = $"{ParentPath}{Path.DirectorySeparatorChar}{name}";
+                FullPath = Path.Combine(parent.FullPath,name);
             }
             var printPath = FullPath;
             if (FullPath.Contains(".."))
@@ -167,7 +165,8 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <summary>
         /// The Path to the parent.
         /// </summary>
-        public string? ParentPath { get; }
+        [Obsolete("You probably want the FullPath property instead. If needed, access the Parent object's FullName directly. May be subject to removal in a future release. ")]
+        public string? ParentPath => Parent?.FullPath;
         /// <summary>
         /// Should the <see cref="Content"/> Stream be disposed when this object is finalized.
         /// Default: true
