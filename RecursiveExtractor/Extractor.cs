@@ -383,8 +383,6 @@ namespace Microsoft.CST.RecursiveExtractor
             return ExtractToDirectory(outputDirectory, fileEntry, opts, printNames);
         }
 
-        private static Regex invalidChars = new Regex(string.Format("[{0}]", Regex.Escape(new string(System.IO.Path.GetInvalidPathChars()))));
-        
         /// <summary>
         /// Extract the given FileEntry to the given Directory.
         /// </summary>
@@ -399,8 +397,8 @@ namespace Microsoft.CST.RecursiveExtractor
             {
                 foreach (var entry in Extract(fileEntry, opts))
                 {
-                    var targetPath = Path.Combine(outputDirectory, invalidChars.Replace(entry.FullPath,"_"));
-                    if (Path.GetDirectoryName(targetPath) is string directoryPathNotNull && targetPath is string targetPathNotNull)
+                    var targetPath = Path.Combine(outputDirectory, entry.GetSanitizedPath());
+                    if (Path.GetDirectoryName(targetPath) is { } directoryPathNotNull && targetPath is { } targetPathNotNull)
                     {
                         try
                         {
@@ -435,7 +433,8 @@ namespace Microsoft.CST.RecursiveExtractor
                 {
                     Parallel.ForEach(Extract(fileEntry, opts), new ParallelOptions() { CancellationToken = cts.Token }, entry =>
                     {
-                        var targetPath = Path.Combine(outputDirectory, entry.FullPath);
+                        var targetPath = Path.Combine(outputDirectory, entry.GetSanitizedPath());
+
                         if (Path.GetDirectoryName(targetPath) is { } directoryPathNotNull && targetPath is { } targetPathNotNull)
                         {
                             try
@@ -519,7 +518,8 @@ namespace Microsoft.CST.RecursiveExtractor
             {
                 if (opts?.FileNamePasses(entry.FullPath) ?? true)
                 {
-                    var targetPath = Path.Combine(outputDirectory, invalidChars.Replace(entry.FullPath,"_"));
+                    var targetPath = Path.Combine(outputDirectory, entry.GetSanitizedPath());
+
                     if (Path.GetDirectoryName(targetPath) is { } directoryPathNotNull && targetPath is { } targetPathNotNull)
                     {
                         try

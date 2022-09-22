@@ -2,6 +2,7 @@
 
 using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Microsoft.CST.RecursiveExtractor
@@ -43,13 +44,11 @@ namespace Microsoft.CST.RecursiveExtractor
 
             if (parent == null)
             {
-                ParentPath = null;
                 FullPath = name;
             }
             else
             {
-                ParentPath = parent.FullPath;
-                FullPath = $"{ParentPath}{Path.DirectorySeparatorChar}{name}";
+                FullPath = Path.Combine(parent.FullPath,name);
             }
             var printPath = FullPath;
             if (FullPath.Contains(".."))
@@ -166,7 +165,8 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <summary>
         /// The Path to the parent.
         /// </summary>
-        public string? ParentPath { get; }
+        [Obsolete("You probably want the FullPath property instead. If needed, access the Parent object's FullName directly. May be subject to removal in a future release. ")]
+        public string? ParentPath => Parent?.FullPath;
         /// <summary>
         /// Should the <see cref="Content"/> Stream be disposed when this object is finalized.
         /// Default: true
@@ -188,7 +188,26 @@ namespace Microsoft.CST.RecursiveExtractor
         /// ExtractionStatus metadata.
         /// </summary>
         public FileEntryStatus EntryStatus { get; set; }
-
+        
+        private static readonly Regex InvalidFileChars = new Regex(
+            $"[{Regex.Escape(new string(Path.GetInvalidFileNameChars()))}]");
+        
+        /// <summary>
+        /// Sanitizes the <see cref="FullPath"/> from the values of <see cref="Path.GetInvalidFileNameChars"/>. Leveraged by the ExtractToDirectory methods of <see cref="Extractor"/>
+        /// </summary>
+        /// <param name="replacement">The string value to replace any invalid characters with</param>
+        /// <returns>A sanitized path suitable to attempt to write to disk.</returns>
+        public string GetSanitizedPath(string replacement = "_")
+        {
+            var bits = FullPath.Split(new[]{Path.DirectorySeparatorChar}, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < bits.Length - 1; i++)
+            {
+                bits[i] = InvalidFileChars.Replace(bits[i], replacement);
+            }
+            bits[^1] = InvalidFileChars.Replace(bits[^1], replacement);
+            return Path.Combine(bits);
+        }
+        
         internal bool Passthrough { get; }
 
         private const int bufferSize = 4096;
