@@ -2,6 +2,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -199,16 +200,14 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <returns></returns>
         public string GetSanitizedPath()
         {
-            if (ParentPath is { } parentPath)
+            var bits = FullPath.Split(new[]{"/"}, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < bits.Length - 1; i++)
             {
-                return
-                    Path.Combine(invalidPathChars.Replace(parentPath, "_"),
-                        invalidFileChars.Replace(Name, "_"));
+                bits[i] = invalidFileChars.Replace(bits[i], "_");
             }
-            else
-            {
-                return GetSanitizedName();
-            }
+
+            bits[^1] = invalidFileChars.Replace(bits[^1], "_");
+            return Path.Combine(bits);
         }
 
         /// <summary>
