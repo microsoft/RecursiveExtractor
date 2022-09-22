@@ -200,12 +200,11 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <returns></returns>
         public string GetSanitizedPath()
         {
-            var bits = FullPath.Split(new[]{"/"}, StringSplitOptions.RemoveEmptyEntries);
+            var bits = FullPath.Split(new[]{Path.DirectorySeparatorChar}, StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < bits.Length - 1; i++)
             {
                 bits[i] = invalidFileChars.Replace(bits[i], "_");
             }
-
             bits[^1] = invalidFileChars.Replace(bits[^1], "_");
             return Path.Combine(bits);
         }

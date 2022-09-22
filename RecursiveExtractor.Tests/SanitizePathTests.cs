@@ -18,17 +18,26 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
     public class SanitizePathTests
     {
         [DataTestMethod]
-        [DataRow("a/file/with:colon.name", "a/file/with_colon.name", "a\\file\\with_colon.name")]
-        [DataRow("a/folder:with/colon.name", "a/folder_with/colon.name", "a\\folder_with\\colon.name")]
+        [DataRow("a\\file\\with:colon.name", "a\\file\\with_colon.name")]
+        [DataRow("a\\folder:with\\colon.name", "a\\folder_with\\colon.name")]
 
-        public void TestSanitizePath(string inputPath, string expectedLinuxPath, string expectedWindowsPath)
+        public void TestSanitizePathWindows(string windowsInputPath, string expectedWindowsPath)
         {
-            var entry = new FileEntry(inputPath, Stream.Null);
+            var entry = new FileEntry(windowsInputPath, Stream.Null);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 Assert.AreEqual(expectedWindowsPath, entry.GetSanitizedPath());
             }
-            else
+        }
+        
+        [DataTestMethod]
+        [DataRow("a/file/with:colon.name", "a/file/with_colon.name")]
+        [DataRow("a/folder:with/colon.name", "a/folder_with/colon.name")]
+
+        public void TestSanitizePathLinux(string linuxInputPath, string expectedLinuxPath)
+        {
+            var entry = new FileEntry(linuxInputPath, Stream.Null);
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 Assert.AreEqual(expectedLinuxPath, entry.GetSanitizedPath());
             }
