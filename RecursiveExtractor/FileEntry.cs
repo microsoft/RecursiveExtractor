@@ -195,27 +195,18 @@ namespace Microsoft.CST.RecursiveExtractor
         private static Regex invalidFileChars = new Regex(string.Format("[{0}]", Regex.Escape(new string(System.IO.Path.GetInvalidFileNameChars()))));
         
         /// <summary>
-        /// Returns the full sanitized path of the FileEntry suitable to write to disk
+        /// Sanitizes the <see cref="FullPath"/> from the values of <see cref="Path.GetInvalidFileNameChars"/>. Leveraged by the ExtractToDirectory methods of <see cref="Extractor"/>
         /// </summary>
-        /// <returns></returns>
-        public string GetSanitizedPath()
+        /// <returns>A sanitized path suitable to attempt to write to disk.</returns>
+        public string GetSanitizedPath(string replacement = "_")
         {
             var bits = FullPath.Split(new[]{Path.DirectorySeparatorChar}, StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < bits.Length - 1; i++)
             {
-                bits[i] = invalidFileChars.Replace(bits[i], "_");
+                bits[i] = invalidFileChars.Replace(bits[i], replacement);
             }
-            bits[^1] = invalidFileChars.Replace(bits[^1], "_");
+            bits[^1] = invalidFileChars.Replace(bits[^1], replacement);
             return Path.Combine(bits);
-        }
-
-        /// <summary>
-        /// Returns the sanitized filename the FileEntry suitable to write to disk
-        /// </summary>
-        /// <returns></returns>
-        public string GetSanitizedName()
-        {
-            return invalidFileChars.Replace(Name, "_");
         }
         
         internal bool Passthrough { get; }
