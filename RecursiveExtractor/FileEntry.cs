@@ -2,6 +2,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -15,20 +16,19 @@ namespace Microsoft.CST.RecursiveExtractor
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         /// <summary>
-        ///     Constructs a FileEntry object from a Stream. If passthroughStream is set to true, and the
-        ///     stream is seekable, it will directly use inputStream. If passthroughStream is false or it is
-        ///     not seekable, it will copy the full contents of inputStream to a new internal FileStream and
-        ///     attempt to reset the position of inputstream. The finalizer for this class Disposes the
-        ///     contained Stream.
+        ///     Constructs a FileEntry object from a Stream.
+        ///     The finalizer for this class Disposes the <see cref="Content"/> unless <see cref="DisposeOnFinalize"/> is false.
         /// </summary>
-        /// <param name="name"> </param>
-        /// <param name="inputStream"> </param>
-        /// <param name="parent"> </param>
-        /// <param name="passthroughStream"> </param>
-        /// <param name="createTime"></param>
-        /// <param name="modifyTime"></param>
-        /// <param name="accessTime"></param>
-        /// <param name="memoryStreamCutoff">Size in bytes for maximum size to back with MemoryStream instead of ephemeral FileStream</param>
+        /// <param name="name">The logical path that identifies the contents in the FileEntry, used to construct <see cref="FullPath"/></param>
+        /// <param name="inputStream">The stream to use for <see cref="Content"/></param>
+        /// <param name="parent">The parent <see cref="FileEntry"/> this was extracted from</param>
+        /// <param name="passthroughStream">If <see cref="passthroughStream"/> is true and <see cref="inputStream"/> is seekable will use the provided stream directly.
+        ///     Otherwise, the full contents of <see cref="inputStream"/> is copied to a new internal <see cref="Stream"/></param>
+        /// <param name="createTime">Specify the <see cref="CreateTime"/></param>
+        /// <param name="modifyTime">Specify the <see cref="ModifyTime"/></param>
+        /// <param name="accessTime">Specify the <see cref="AccessTime"/></param>
+        /// <param name="memoryStreamCutoff">When specified, if <see cref="inputStream"/> is of length less than this value a <see cref="MemoryStream"/> will be used for backing.
+        /// If it is greater than this value instead a <see cref="FileStream"/> with DeleteOnClose will be used instead. If unspecified, always use <see cref="MemoryStream"/></param>
         public FileEntry(string name, Stream inputStream, FileEntry? parent = null, bool passthroughStream = false, DateTime? createTime = null, DateTime? modifyTime = null, DateTime? accessTime = null, int? memoryStreamCutoff = null)
         {
             memoryStreamCutoff ??= defaultCutoff;
@@ -51,17 +51,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 FullPath = Path.Combine(parent.FullPath,name);
             }
             var printPath = FullPath;
-            if (FullPath.Contains(".."))
-            {
-                Logger.Info("ZipSlip detected in {0}. Removing unsafe path elements and extracting.", FullPath);
-                // Replace .. for ZipSlip - https://snyk.io/research/zip-slip-vulnerability
-                FullPath = FullPath.Replace("..", "");
-                var doubleSeparator = $"{Path.DirectorySeparatorChar}{Path.DirectorySeparatorChar}";
-                while (FullPath.Contains(doubleSeparator))
-                {
-                    FullPath = FullPath.Replace(doubleSeparator, $"{Path.DirectorySeparatorChar}");
-                }
-            }
+            FullPath = ZipSlipSanitize(FullPath);
 
             if (inputStream == null)
             {
@@ -165,7 +155,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <summary>
         /// The Path to the parent.
         /// </summary>
-        [Obsolete("You probably want the FullPath property instead. If needed, access the Parent object's FullName directly. May be subject to removal in a future release. ")]
+        [Obsolete("If needed, access the Parent object's FullName directly. May be subject to removal in a future release. ")]
         public string? ParentPath => Parent?.FullPath;
         /// <summary>
         /// Should the <see cref="Content"/> Stream be disposed when this object is finalized.
@@ -189,24 +179,20 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         public FileEntryStatus EntryStatus { get; set; }
         
+        /// <summary>
+        /// Regular expression to find characters that are not valid in filenames/paths on this system.
+        /// Uses <see cref="Path.GetInvalidFileNameChars"/> excluding <see cref="Path.DirectorySeparatorChar"/>
+        ///  so it can be run on full paths including existing separators we want to retain.
+        /// </summary>
         private static readonly Regex InvalidFileChars = new Regex(
-            $"[{Regex.Escape(new string(Path.GetInvalidFileNameChars()))}]");
-        
+            $"[{Regex.Escape(new string(Path.GetInvalidFileNameChars().Where(x => x != Path.DirectorySeparatorChar).ToArray()))}]");
+
         /// <summary>
         /// Sanitizes the <see cref="FullPath"/> from the values of <see cref="Path.GetInvalidFileNameChars"/>. Leveraged by the ExtractToDirectory methods of <see cref="Extractor"/>
         /// </summary>
         /// <param name="replacement">The string value to replace any invalid characters with</param>
         /// <returns>A sanitized path suitable to attempt to write to disk.</returns>
-        public string GetSanitizedPath(string replacement = "_")
-        {
-            var bits = FullPath.Split(new[]{Path.DirectorySeparatorChar}, StringSplitOptions.RemoveEmptyEntries);
-            for (int i = 0; i < bits.Length - 1; i++)
-            {
-                bits[i] = InvalidFileChars.Replace(bits[i], replacement);
-            }
-            bits[^1] = InvalidFileChars.Replace(bits[^1], replacement);
-            return Path.Combine(bits);
-        }
+        public string GetSanitizedPath(string replacement = "_") => InvalidFileChars.Replace(FullPath, replacement);
         
         internal bool Passthrough { get; }
 
@@ -226,14 +212,15 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <summary>
         /// Construct a FileEntry from a Stream Asynchronously
         /// </summary>
-        /// <param name="name">Name of the FileEntry</param>
-        /// <param name="content">The Stream to parse</param>
-        /// <param name="parent">The Parent FileEntry</param>
-        /// <param name="createTime"></param>
-        /// <param name="modifyTime"></param>
-        /// <param name="accessTime"></param>
-        /// <param name="memoryStreamCutoff">Size in bytes for maximum size to back with MemoryStream instead of ephemeral FileStream</param>
-        /// <returns>A FileEntry object holding a Copy of the Stream</returns>
+        /// <param name="name">The logical path that identifies the contents in the FileEntry, used to construct <see cref="FullPath"/></param>
+        /// <param name="content">The stream to use for <see cref="Content"/></param>
+        /// <param name="parent">The parent <see cref="FileEntry"/> this was extracted from</param>
+        /// <param name="createTime">Specify the <see cref="CreateTime"/></param>
+        /// <param name="modifyTime">Specify the <see cref="ModifyTime"/></param>
+        /// <param name="accessTime">Specify the <see cref="AccessTime"/></param>
+        /// <param name="memoryStreamCutoff">When specified, if <see cref="content"/> is of length less than this value a <see cref="MemoryStream"/> will be used for backing.
+        /// If it is greater than this value instead a <see cref="FileStream"/> with DeleteOnClose will be used instead. If unspecified, always use <see cref="MemoryStream"/></param>
+        /// <returns>A FileEntry object holding a Copy of the Stream as its <see cref="Content"/></returns>
         public static async Task<FileEntry> FromStreamAsync(string name, Stream content, FileEntry? parent = null, DateTime? createTime = null, DateTime? modifyTime = null, DateTime? accessTime = null, int? memoryStreamCutoff = null)
         {
             var status = FileEntryStatus.Default;
@@ -244,18 +231,17 @@ namespace Microsoft.CST.RecursiveExtractor
             }
 
             // Used for Debug statements
-            string FullPath;
+            string printPath;
 
-            if (parent == null)
+            if (parent?.FullPath == null)
             {
-                FullPath = name;
+                printPath = name;
             }
             else
             {
-                FullPath = $"{parent?.FullPath}{Path.DirectorySeparatorChar}{name}";
+                printPath = Path.Combine(parent.FullPath, name);
             }
             Stream Content;
-
             try
             {
                 if (content.Length > memoryStreamCutoff)
@@ -295,13 +281,13 @@ namespace Microsoft.CST.RecursiveExtractor
                 }
                 catch (Exception f)
                 {
-                    Logger.Debug("Failed to copy stream from {0} ({1}:{2})", FullPath, f.GetType(), f.Message);
+                    Logger.Debug("Failed to copy stream from {0} ({1}:{2})", printPath, f.GetType(), f.Message);
                 }
             }
             catch (Exception e)
             {
                 status = FileEntryStatus.FailedFile;
-                Logger.Debug("Failed to copy stream from {0} ({1}:{2})", FullPath, e.GetType(), e.Message);
+                Logger.Debug("Failed to copy stream from {0} ({1}:{2})", printPath, e.GetType(), e.Message);
             }
 
             if (content.CanSeek && content.Position != 0)
@@ -311,6 +297,28 @@ namespace Microsoft.CST.RecursiveExtractor
 
             Content.Position = 0;
             return new FileEntry(name, Content, parent, true, createTime, modifyTime, accessTime) { EntryStatus = status };
+        }
+
+        /// <summary>
+        /// Replace .. for ZipSlip and remove any doubled up directory separators as a result - https://snyk.io/research/zip-slip-vulnerability
+        /// </summary>
+        /// <param name="fullPath">The path to sanitize</param>
+        /// <param name="replacement">The string to replace .. with</param>
+        /// <returns>A path without ZipSlip</returns>
+        private static string ZipSlipSanitize(string fullPath, string replacement = "")
+        {
+            if (fullPath.Contains(".."))
+            {
+                Logger.Info("ZipSlip detected in {Path}. Removing unsafe path elements and extracting", fullPath);
+                fullPath = fullPath.Replace("..", replacement);
+                var doubleSeparator = $"{Path.DirectorySeparatorChar}{Path.DirectorySeparatorChar}";
+                while (fullPath.Contains(doubleSeparator))
+                {
+                    fullPath = fullPath.Replace(doubleSeparator, $"{Path.DirectorySeparatorChar}");
+                }
+            }
+
+            return fullPath;
         }
 
         private const int defaultCutoff = 1024 * 1024 * 100;
