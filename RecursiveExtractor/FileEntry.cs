@@ -190,8 +190,8 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         public FileEntryStatus EntryStatus { get; set; }
         
-        private static Regex invalidPathChars = new Regex(string.Format("[{0}]", Regex.Escape(new string(System.IO.Path.GetInvalidPathChars()))));
-        private static Regex invalidFileChars = new Regex(string.Format("[{0}]", Regex.Escape(new string(System.IO.Path.GetInvalidFileNameChars()))));
+        private static readonly Regex InvalidFileChars = new Regex(
+            $"[{Regex.Escape(new string(Path.GetInvalidFileNameChars()))}]");
         
         /// <summary>
         /// Sanitizes the <see cref="FullPath"/> from the values of <see cref="Path.GetInvalidFileNameChars"/>. Leveraged by the ExtractToDirectory methods of <see cref="Extractor"/>
@@ -203,9 +203,9 @@ namespace Microsoft.CST.RecursiveExtractor
             var bits = FullPath.Split(new[]{Path.DirectorySeparatorChar}, StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < bits.Length - 1; i++)
             {
-                bits[i] = invalidFileChars.Replace(bits[i], replacement);
+                bits[i] = InvalidFileChars.Replace(bits[i], replacement);
             }
-            bits[^1] = invalidFileChars.Replace(bits[^1], replacement);
+            bits[^1] = InvalidFileChars.Replace(bits[^1], replacement);
             return Path.Combine(bits);
         }
         
