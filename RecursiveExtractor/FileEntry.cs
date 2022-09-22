@@ -197,6 +197,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <summary>
         /// Sanitizes the <see cref="FullPath"/> from the values of <see cref="Path.GetInvalidFileNameChars"/>. Leveraged by the ExtractToDirectory methods of <see cref="Extractor"/>
         /// </summary>
+        /// <param name="replacement">The string value to replace any invalid characters with</param>
         /// <returns>A sanitized path suitable to attempt to write to disk.</returns>
         public string GetSanitizedPath(string replacement = "_")
         {
