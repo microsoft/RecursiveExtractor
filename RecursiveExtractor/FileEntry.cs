@@ -2,6 +2,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -165,7 +166,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <summary>
         /// The Path to the parent.
         /// </summary>
-        [Obsolete("You probably want the FullPath property instead. If needed, access the Parent object's FullName directly. May be subject to removal in a future release. ")]
+        [Obsolete("If needed, access the Parent object's FullName directly. May be subject to removal in a future release. ")]
         public string? ParentPath => Parent?.FullPath;
         /// <summary>
         /// Should the <see cref="Content"/> Stream be disposed when this object is finalized.
@@ -190,22 +191,14 @@ namespace Microsoft.CST.RecursiveExtractor
         public FileEntryStatus EntryStatus { get; set; }
         
         private static readonly Regex InvalidFileChars = new Regex(
-            $"[{Regex.Escape(new string(Path.GetInvalidFileNameChars()))}]");
-        
+            $"[{Regex.Escape(new string(Path.GetInvalidFileNameChars().Where(x => x != Path.DirectorySeparatorChar).ToArray()))}]");
+
         /// <summary>
         /// Sanitizes the <see cref="FullPath"/> from the values of <see cref="Path.GetInvalidFileNameChars"/>. Leveraged by the ExtractToDirectory methods of <see cref="Extractor"/>
         /// </summary>
         /// <param name="replacement">The string value to replace any invalid characters with</param>
         /// <returns>A sanitized path suitable to attempt to write to disk.</returns>
-        public string GetSanitizedPath(string replacement = "_")
-        {
-            var bits = FullPath.Split(new[]{Path.DirectorySeparatorChar}, StringSplitOptions.RemoveEmptyEntries);
-            for (int i = 0; i < bits.Length ; i++)
-            {
-                bits[i] = InvalidFileChars.Replace(bits[i], replacement);
-            }
-            return Path.Combine(bits);
-        }
+        public string GetSanitizedPath(string replacement = "_") => InvalidFileChars.Replace(FullPath, replacement);
         
         internal bool Passthrough { get; }
 
