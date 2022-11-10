@@ -6,6 +6,10 @@ parameters:
 # Version of Dotnet SDK to use
 - name: dotnetVersion
   type: string
+  default: '7.0.x'
+# Version of framework to test
+- name: testFramework
+  type: string
   default: '6.0.x'
 # Version of NuGet Tool to use
 - name: nugetVersion
