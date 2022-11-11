@@ -36,13 +36,6 @@ jobs:
     inputs:
       versionSpec: ${{ parameters.nugetVersion }}
   - task: DotNetCoreCLI@2
-    displayName: Dotnet Restore
-    inputs:
-      command: 'restore'
-      projects: ${{ parameters.projectPath }}
-      arguments: -f ${{ parameters.testFramework }} 
-      verbosityRestore: 'Normal'
-  - task: DotNetCoreCLI@2
     displayName: Dotnet Test
     inputs:
       command: 'test'
