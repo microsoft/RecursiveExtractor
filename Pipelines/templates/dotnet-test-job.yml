@@ -40,6 +40,7 @@ jobs:
     inputs:
       command: 'restore'
       projects: ${{ parameters.projectPath }}
+      arguments: -f ${{ parameters.testFramework }} 
       verbosityRestore: 'Normal'
   - task: DotNetCoreCLI@2
     displayName: Dotnet Test
@@ -47,4 +48,4 @@ jobs:
       command: 'test'
       publishTestResults: true
       projects: ${{ parameters.projectPath }}
-      arguments: --collect:"XPlat Code Coverage"
+      arguments: -f ${{ parameters.testFramework }} --collect:"XPlat Code Coverage"
