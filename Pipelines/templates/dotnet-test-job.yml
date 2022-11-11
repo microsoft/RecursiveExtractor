@@ -10,7 +10,7 @@ parameters:
 # Version of framework to test
 - name: testFramework
   type: string
-  default: '6.0.x'
+  default: 'net7.0'
 # Version of NuGet Tool to use
 - name: nugetVersion
   type: string

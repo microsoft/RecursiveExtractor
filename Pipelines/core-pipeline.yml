@@ -29,13 +29,13 @@ stages:
   jobs:
   - template: templates/dotnet-test-job.yml
     parameters:
+      jobName: "test"
       dotnetVersion: '7.0.x'
       testFramework: 'net7.0'
       projectPath: 'RecursiveExtractor.Tests/RecursiveExtractor.Tests.csproj'
-- stage: Test LTS
-  jobs:
   - template: templates/dotnet-test-job.yml
     parameters:
+      jobName: "test_LTS"
       dotnetVersion: '6.0.x'
       testFramework: 'net6.0'
       projectPath: 'RecursiveExtractor.Tests/RecursiveExtractor.Tests.csproj'
