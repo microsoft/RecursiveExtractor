@@ -7,10 +7,10 @@ parameters:
 - name: dotnetVersion
   type: string
   default: '7.0.x'
-# Version of framework to test
-- name: testFramework
+  # Version of Dotnet SDK to use
+- name: dotnetVersionLTS
   type: string
-  default: 'net7.0'
+  default: '6.0.x'
 # Version of NuGet Tool to use
 - name: nugetVersion
   type: string
@@ -22,7 +22,7 @@ parameters:
 
 jobs:
 - job: ${{ parameters.jobName }}
-  displayName: Dotnet Test
+  displayName: Dotnet Test ${{ parameters.testFramework }}
   pool:
     vmImage: 'windows-latest'
   steps:
@@ -30,15 +30,16 @@ jobs:
     displayName: Install Dotnet SDK
     inputs:
       packageType: 'sdk'
-      version: ${{ parameters.dotnetVersion }}
-  - task: NuGetToolInstaller@1
-    displayName: Install Nuget Tool
+      version: ${{ parameters.dotnetVersionLTS }}
+  - task: UseDotNet@2
+    displayName: Install Dotnet SDK
     inputs:
-      versionSpec: ${{ parameters.nugetVersion }}
+      packageType: 'sdk'
+      version: ${{ parameters.dotnetVersion }}
   - task: DotNetCoreCLI@2
     displayName: Dotnet Test
     inputs:
       command: 'test'
       publishTestResults: true
       projects: ${{ parameters.projectPath }}
-      arguments: -f ${{ parameters.testFramework }} --collect:"XPlat Code Coverage"
+      arguments: --collect:"XPlat Code Coverage"
