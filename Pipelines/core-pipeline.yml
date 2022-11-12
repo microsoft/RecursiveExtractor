@@ -29,7 +29,9 @@ stages:
   jobs:
   - template: templates/dotnet-test-job.yml
     parameters:
-      dotnetVersion: '6.0.x'
+      jobName: "test"
+      dotnetVersion: '7.0.x'      
+      dotnetVersionLTS: '6.0.x'
       projectPath: 'RecursiveExtractor.Tests/RecursiveExtractor.Tests.csproj'
 
 - stage: SDL
