@@ -22,7 +22,7 @@ parameters:
 
 jobs:
 - job: ${{ parameters.jobName }}
-  displayName: Dotnet Test ${{ parameters.testFramework }}
+  displayName: Dotnet Test
   pool:
     vmImage: 'windows-latest'
   steps:
