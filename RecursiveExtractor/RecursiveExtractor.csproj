@@ -46,7 +46,7 @@
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
   </ItemGroup>
 
-  <ItemGroup>    
+  <ItemGroup>
     <None Include="..\icon-128.png" Pack="true" PackagePath="" />
   </ItemGroup>
   
