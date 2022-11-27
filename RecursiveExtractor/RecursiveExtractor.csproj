@@ -20,7 +20,7 @@
     <PackageVersion>0.0.0-placeholder</PackageVersion>
     <PackageProjectUrl>https://github.com/microsoft/RecursiveExtractor</PackageProjectUrl>
     <PackageIcon>icon-128.png</PackageIcon>
-    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
@@ -47,7 +47,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\LICENSE.txt" Pack="true" PackagePath="" />
     <None Include="..\icon-128.png" Pack="true" PackagePath="" />
   </ItemGroup>
   
