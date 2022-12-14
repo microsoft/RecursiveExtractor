@@ -6,9 +6,8 @@
     <Version>0.0.0-placeholder</Version>
     <Company>Microsoft</Company>
     <Authors>Microsoft</Authors>
-    <copyright>© Microsoft Corporation. All rights reserved.</copyright> 
-    <RepositoryType>GitHub</RepositoryType>
-    <RepositoryUrl>https://github.com/Microsoft/RecursiveExtractor</RepositoryUrl>
+    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <Configurations>Debug;Release</Configurations>
     <LangVersion>10.0</LangVersion>
     <Nullable>Enable</Nullable>
@@ -20,7 +19,7 @@
     <PackageVersion>0.0.0-placeholder</PackageVersion>
     <PackageProjectUrl>https://github.com/microsoft/RecursiveExtractor</PackageProjectUrl>
     <PackageIcon>icon-128.png</PackageIcon>
-    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
@@ -40,6 +39,7 @@
     <PackageReference Include="DiscUtils.Xfs" Version="0.16.13" />
     <PackageReference Include="Glob" Version="1.1.9" />
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="6.0.0" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
     <PackageReference Include="NLog" Version="5.0.4" />
     <PackageReference Include="SharpCompress" Version="0.32.2" />
     <PackageReference Include="SharpZipLib" Version="1.4.0" />
@@ -47,7 +47,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\LICENSE.txt" Pack="true" PackagePath="" />
     <None Include="..\icon-128.png" Pack="true" PackagePath="" />
   </ItemGroup>
   
