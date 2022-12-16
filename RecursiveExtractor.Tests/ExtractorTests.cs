@@ -313,6 +313,32 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var results = extractor.Extract(path, new ExtractorOptions());
             Assert.AreEqual(expectedNumFiles, results.Count());
         }
+        
+        [DataTestMethod]
+        [DataRow("TestDataCorrupt.tar")]
+        public void ExtractCorruptArchiveExpectedToFail(string fileName)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            var results = extractor.Extract(path, new ExtractorOptions()).ToList();
+
+            Assert.AreEqual(1, results.Count);
+            var actualNumberOfFailedArchives = results.Count(x => x.EntryStatus == FileEntryStatus.FailedArchive);
+            Assert.AreEqual(1, actualNumberOfFailedArchives);
+        }
+
+        [DataTestMethod]
+        [DataRow("TestDataCorrupt.tar.zip")]
+        public void ExtractArchiveWithNestedCorruptArchiveExpectedNotToFail(string fileName)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            var results = extractor.Extract(path, new ExtractorOptions()).ToList();
+            
+            Assert.AreEqual(2, results.Count); // contains Lorem.txt + random file that happens to be a corrupt tar file.
+            var actualNumberOfFailedArchives = results.Count(x => x.EntryStatus == FileEntryStatus.FailedArchive);
+            Assert.AreEqual(0, actualNumberOfFailedArchives);
+        }
 
         [DataTestMethod]
         [DataRow("TestData.zip", 5)]

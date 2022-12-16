@@ -575,7 +575,15 @@ namespace Microsoft.CST.RecursiveExtractor
             List<FileEntry> result = new List<FileEntry>();
             var useRaw = false;
 
-            if (topLevel || options.Recurse)
+            if (topLevel && fileEntry.ArchiveType == ArchiveFileType.UNKNOWN)
+            {
+                if (options.FileNamePasses(fileEntry.FullPath))
+                {
+                    fileEntry.EntryStatus = FileEntryStatus.FailedArchive;
+                    result.Add(fileEntry);
+                }
+            }
+            else if (topLevel || options.Recurse)
             {
                 var type = fileEntry.ArchiveType;
                 if (options.IsAcceptableType(type))
