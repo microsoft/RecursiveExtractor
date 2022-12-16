@@ -51,7 +51,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         {
             var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
-            var newpath = Path.GetTempFileName();
+            var newpath = TempPath.GetTempFilePath();
             File.Copy(path, newpath,true);
             RecursiveExtractorClient.ExtractCommand(new ExtractCommandOptions()
             {
@@ -78,7 +78,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         {
             var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
-            var newpath = Path.GetTempFileName();
+            var newpath = TempPath.GetTempFilePath();
             File.Copy(path, newpath, true);
             RecursiveExtractorClient.ExtractCommand(new ExtractCommandOptions()
             {

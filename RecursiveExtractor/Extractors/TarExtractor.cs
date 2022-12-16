@@ -53,7 +53,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         continue;
                     }
 
-                    var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
+                    var fs = new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
                     governor.CheckResourceGovernor(tarEntry.Size);
                     try
                     {
@@ -117,7 +117,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         continue;
                     }
 
-                    var fs = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
+                    var fs = new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
                     governor.CheckResourceGovernor(tarEntry.Size);
                     try
                     {
