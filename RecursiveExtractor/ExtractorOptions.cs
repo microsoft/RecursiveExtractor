@@ -117,6 +117,11 @@ namespace Microsoft.CST.RecursiveExtractor
         public IEnumerable<ArchiveFileType> DenyTypes { get; set; } = Array.Empty<ArchiveFileType>();
 
         /// <summary>
+        /// Always expect the TopLevel to be extracted to be an archive.
+        /// </summary>
+        public bool RequireTopLevelToBeArchive { get; set; } = false;
+
+        /// <summary>
         /// If the file name provided should be extracted given the filter arguments in this ExtractorOptions instance
         /// </summary>
         /// <param name="filename"></param>

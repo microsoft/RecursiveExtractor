@@ -315,31 +315,67 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         }
         
         [DataTestMethod]
-        [DataRow("TestDataCorrupt.tar")]
-        public void ExtractCorruptArchiveExpectedToFail(string fileName)
+        [DataRow("TestDataCorrupt.tar", false, 0, 1)]
+        [DataRow("TestDataCorrupt.tar", true, 1, 1)]
+        [DataRow("TestDataCorrupt.tar.zip", false, 0, 2)]
+        [DataRow("TestDataCorrupt.tar.zip", true, 0, 2)]
+        public void ExtractCorruptArchive(string fileName, bool requireTopLevelToBeArchive, int expectedNumFailures, int expectedNumFiles)
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
-            var results = extractor.Extract(path, new ExtractorOptions()).ToList();
+            var results = extractor.Extract(path, new ExtractorOptions(){ RequireTopLevelToBeArchive = requireTopLevelToBeArchive }).ToList();
 
-            Assert.AreEqual(1, results.Count);
+            Assert.AreEqual(expectedNumFiles, results.Count);
             var actualNumberOfFailedArchives = results.Count(x => x.EntryStatus == FileEntryStatus.FailedArchive);
-            Assert.AreEqual(1, actualNumberOfFailedArchives);
+            Assert.AreEqual(expectedNumFailures, actualNumberOfFailedArchives);
         }
 
         [DataTestMethod]
-        [DataRow("TestDataCorrupt.tar.zip")]
-        public void ExtractArchiveWithNestedCorruptArchiveExpectedNotToFail(string fileName)
+        [DataRow("Lorem.txt", true, 1)]
+        [DataRow("Lorem.txt", false, 0)]
+        public void ExtractFlatFile(string fileName, bool requireTopLevelToBeArchive, int expectedNumFailures)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestData", fileName);
+            var results = extractor.Extract(path, new ExtractorOptions(){ RequireTopLevelToBeArchive = requireTopLevelToBeArchive }).ToList();
+            
+            Assert.AreEqual(1, results.Count);
+            var actualNumberOfFailedArchives = results.Count(x => x.EntryStatus == FileEntryStatus.FailedArchive);
+            Assert.AreEqual(expectedNumFailures, actualNumberOfFailedArchives);
+        }
+
+        [DataTestMethod]
+        [DataRow("TestDataCorrupt.tar", false, 0, 1)]
+        [DataRow("TestDataCorrupt.tar", true, 1, 1)]
+        [DataRow("TestDataCorrupt.tar.zip", false, 0, 2)]
+        [DataRow("TestDataCorrupt.tar.zip", true, 0, 2)]
+        public async Task ExtractCorruptArchiveAsync(string fileName, bool requireTopLevelToBeArchive, int expectedNumFailures, int expectedNumFiles)
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
-            var results = extractor.Extract(path, new ExtractorOptions()).ToList();
+            var results = await extractor.ExtractAsync(path,
+                new ExtractorOptions() { RequireTopLevelToBeArchive = requireTopLevelToBeArchive }).ToListAsync();
             
-            Assert.AreEqual(2, results.Count); // contains Lorem.txt + random file that happens to be a corrupt tar file.
+
+            Assert.AreEqual(expectedNumFiles, results.Count);
             var actualNumberOfFailedArchives = results.Count(x => x.EntryStatus == FileEntryStatus.FailedArchive);
-            Assert.AreEqual(0, actualNumberOfFailedArchives);
+            Assert.AreEqual(expectedNumFailures, actualNumberOfFailedArchives);
         }
 
+        [DataTestMethod]
+        [DataRow("Lorem.txt", true, 1)]
+        [DataRow("Lorem.txt", false, 0)]
+        public async Task ExtractFlatFileAsync(string fileName, bool requireTopLevelToBeArchive, int expectedNumFailures)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestData", fileName);
+            var results = await extractor.ExtractAsync(path, new ExtractorOptions(){ RequireTopLevelToBeArchive = requireTopLevelToBeArchive }).ToListAsync();
+            
+            Assert.AreEqual(1, results.Count);
+            var actualNumberOfFailedArchives = results.Count(x => x.EntryStatus == FileEntryStatus.FailedArchive);
+            Assert.AreEqual(expectedNumFailures, actualNumberOfFailedArchives);
+        }
+        
         [DataTestMethod]
         [DataRow("TestData.zip", 5)]
         [DataRow("TestData.7z")]
