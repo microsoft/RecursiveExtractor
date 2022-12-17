@@ -225,7 +225,6 @@ namespace Microsoft.CST.RecursiveExtractor
             fileEntry = new FileEntry(file, stream, memoryStreamCutoff: opts.MemoryStreamCutoff);
             governor.ResetResourceGovernor(stream);
             
-
             if (fileEntry != null)
             {
                 await foreach (var result in ExtractAsync(fileEntry, opts, governor, true))
@@ -334,7 +333,7 @@ namespace Microsoft.CST.RecursiveExtractor
                     yield return fileEntry;
                 }
             }
-            if (topLevel || options.Recurse)
+            else if (topLevel || options.Recurse)
             {
                 var type = fileEntry.ArchiveType;
                 if (options.IsAcceptableType(type))
