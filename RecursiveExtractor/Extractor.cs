@@ -225,7 +225,6 @@ namespace Microsoft.CST.RecursiveExtractor
             fileEntry = new FileEntry(file, stream, memoryStreamCutoff: opts.MemoryStreamCutoff);
             governor.ResetResourceGovernor(stream);
             
-
             if (fileEntry != null)
             {
                 await foreach (var result in ExtractAsync(fileEntry, opts, governor, true))
@@ -326,7 +325,15 @@ namespace Microsoft.CST.RecursiveExtractor
                 Logger.Info(IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
                 throw new OverflowException();
             }
-            if (topLevel || (!topLevel && options.Recurse))
+            if (options.RequireTopLevelToBeArchive && topLevel && fileEntry.ArchiveType == ArchiveFileType.UNKNOWN)
+            {
+                if (options.FileNamePasses(fileEntry.FullPath))
+                {
+                    fileEntry.EntryStatus = FileEntryStatus.FailedArchive;
+                    yield return fileEntry;
+                }
+            }
+            else if (topLevel || options.Recurse)
             {
                 var type = fileEntry.ArchiveType;
                 if (options.IsAcceptableType(type))
@@ -548,7 +555,7 @@ namespace Microsoft.CST.RecursiveExtractor
         }
 
         /// <summary>
-        /// Extract from a FileEntry.
+        /// Opportunistically extract from a FileEntry.
         /// </summary>
         /// <param name="fileEntry">The <see cref="FileEntry"/> containing the Content stream to parse.</param>
         /// <param name="opts">The <see cref="ExtractorOptions"/> to use for extraction.</param>
@@ -575,7 +582,15 @@ namespace Microsoft.CST.RecursiveExtractor
             List<FileEntry> result = new List<FileEntry>();
             var useRaw = false;
 
-            if (topLevel || options.Recurse)
+            if (options.RequireTopLevelToBeArchive && topLevel && fileEntry.ArchiveType == ArchiveFileType.UNKNOWN)
+            {
+                if (options.FileNamePasses(fileEntry.FullPath))
+                {
+                    fileEntry.EntryStatus = FileEntryStatus.FailedArchive;
+                    result.Add(fileEntry);
+                }
+            }
+            else if (topLevel || options.Recurse)
             {
                 var type = fileEntry.ArchiveType;
                 if (options.IsAcceptableType(type))

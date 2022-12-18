@@ -313,7 +313,69 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var results = extractor.Extract(path, new ExtractorOptions());
             Assert.AreEqual(expectedNumFiles, results.Count());
         }
+        
+        [DataTestMethod]
+        [DataRow("TestDataCorrupt.tar", false, 0, 1)]
+        [DataRow("TestDataCorrupt.tar", true, 1, 1)]
+        [DataRow("TestDataCorrupt.tar.zip", false, 0, 2)]
+        [DataRow("TestDataCorrupt.tar.zip", true, 0, 2)]
+        public void ExtractCorruptArchive(string fileName, bool requireTopLevelToBeArchive, int expectedNumFailures, int expectedNumFiles)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            var results = extractor.Extract(path, new ExtractorOptions(){ RequireTopLevelToBeArchive = requireTopLevelToBeArchive }).ToList();
 
+            Assert.AreEqual(expectedNumFiles, results.Count);
+            var actualNumberOfFailedArchives = results.Count(x => x.EntryStatus == FileEntryStatus.FailedArchive);
+            Assert.AreEqual(expectedNumFailures, actualNumberOfFailedArchives);
+        }
+
+        [DataTestMethod]
+        [DataRow("Lorem.txt", true, 1)]
+        [DataRow("Lorem.txt", false, 0)]
+        public void ExtractFlatFile(string fileName, bool requireTopLevelToBeArchive, int expectedNumFailures)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestData", fileName);
+            var results = extractor.Extract(path, new ExtractorOptions(){ RequireTopLevelToBeArchive = requireTopLevelToBeArchive }).ToList();
+            
+            Assert.AreEqual(1, results.Count);
+            var actualNumberOfFailedArchives = results.Count(x => x.EntryStatus == FileEntryStatus.FailedArchive);
+            Assert.AreEqual(expectedNumFailures, actualNumberOfFailedArchives);
+        }
+
+        [DataTestMethod]
+        [DataRow("TestDataCorrupt.tar", false, 0, 1)]
+        [DataRow("TestDataCorrupt.tar", true, 1, 1)]
+        [DataRow("TestDataCorrupt.tar.zip", false, 0, 2)]
+        [DataRow("TestDataCorrupt.tar.zip", true, 0, 2)]
+        public async Task ExtractCorruptArchiveAsync(string fileName, bool requireTopLevelToBeArchive, int expectedNumFailures, int expectedNumFiles)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            var results = await extractor.ExtractAsync(path,
+                new ExtractorOptions() { RequireTopLevelToBeArchive = requireTopLevelToBeArchive }).ToListAsync();
+            
+
+            Assert.AreEqual(expectedNumFiles, results.Count);
+            var actualNumberOfFailedArchives = results.Count(x => x.EntryStatus == FileEntryStatus.FailedArchive);
+            Assert.AreEqual(expectedNumFailures, actualNumberOfFailedArchives);
+        }
+
+        [DataTestMethod]
+        [DataRow("Lorem.txt", true, 1)]
+        [DataRow("Lorem.txt", false, 0)]
+        public async Task ExtractFlatFileAsync(string fileName, bool requireTopLevelToBeArchive, int expectedNumFailures)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestData", fileName);
+            var results = await extractor.ExtractAsync(path, new ExtractorOptions(){ RequireTopLevelToBeArchive = requireTopLevelToBeArchive }).ToListAsync();
+            
+            Assert.AreEqual(1, results.Count);
+            var actualNumberOfFailedArchives = results.Count(x => x.EntryStatus == FileEntryStatus.FailedArchive);
+            Assert.AreEqual(expectedNumFailures, actualNumberOfFailedArchives);
+        }
+        
         [DataTestMethod]
         [DataRow("TestData.zip", 5)]
         [DataRow("TestData.7z")]
