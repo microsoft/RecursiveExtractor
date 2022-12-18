@@ -78,7 +78,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 {
                     if (inputStream.Length > memoryStreamCutoff)
                     {
-                        Content = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
+                        Content = new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
                     }
                     else
                     {
@@ -87,7 +87,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 }
                 catch (Exception)
                 {
-                    Content = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
+                    Content = new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
                 }
 
                 long? initialPosition = null;
@@ -246,7 +246,7 @@ namespace Microsoft.CST.RecursiveExtractor
             {
                 if (content.Length > memoryStreamCutoff)
                 {
-                    Content = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.Asynchronous | FileOptions.DeleteOnClose);
+                    Content = new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.Asynchronous | FileOptions.DeleteOnClose);
                 }
                 else
                 {
@@ -255,7 +255,7 @@ namespace Microsoft.CST.RecursiveExtractor
             }
             catch (Exception)
             {
-                Content = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.Asynchronous | FileOptions.DeleteOnClose);
+                Content = new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.Asynchronous | FileOptions.DeleteOnClose);
             }
 
             long? initialPosition = null;
