@@ -217,7 +217,7 @@ else
                     value = e.Position;
                     this.StateHasChanged();
                 };
-                var entryStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+                var entryStream = new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
                 await pair.Stream.CopyToAsync(entryStream);
 
                 var entry = await FileEntry.FromStreamAsync(pair.FileInfo.Name, entryStream, null);
