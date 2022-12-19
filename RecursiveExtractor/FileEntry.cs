@@ -14,7 +14,7 @@ namespace Microsoft.CST.RecursiveExtractor
     public class FileEntry
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-
+        
         /// <summary>
         ///     Constructs a FileEntry object from a Stream.
         ///     The finalizer for this class Disposes the <see cref="Content"/> unless <see cref="DisposeOnFinalize"/> is false.
@@ -22,13 +22,12 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="name">The logical path that identifies the contents in the FileEntry, used to construct <see cref="FullPath"/></param>
         /// <param name="inputStream">The stream to use for <see cref="Content"/></param>
         /// <param name="parent">The parent <see cref="FileEntry"/> this was extracted from</param>
-        /// <param name="passthroughStream">If <see cref="passthroughStream"/> is true and <see cref="inputStream"/> is seekable will use the provided stream directly.
-        ///     Otherwise, the full contents of <see cref="inputStream"/> is copied to a new internal <see cref="Stream"/></param>
-        /// <param name="createTime">Specify the <see cref="CreateTime"/></param>
-        /// <param name="modifyTime">Specify the <see cref="ModifyTime"/></param>
-        /// <param name="accessTime">Specify the <see cref="AccessTime"/></param>
-        /// <param name="memoryStreamCutoff">When specified, if <see cref="inputStream"/> is of length less than this value a <see cref="MemoryStream"/> will be used for backing.
-        /// If it is greater than this value instead a <see cref="FileStream"/> with DeleteOnClose will be used instead. If unspecified, always use <see cref="MemoryStream"/></param>
+        /// <param name="passthroughStream">If true and provided stream is seekable, FileEntry will directly use the provided stream for <see cref="Content"/>. Otherwise, the full contents are copied to a new <see cref="Stream"/></param>
+        /// <param name="createTime">Specify the <see cref="FileEntry.CreateTime"/></param>
+        /// <param name="modifyTime">Specify the <see cref="FileEntry.ModifyTime"/></param>
+        /// <param name="accessTime">Specify the <see cref="FileEntry.AccessTime"/></param>
+        /// <param name="memoryStreamCutoff">When specified, if the provided stream is of length less than this value a <see cref="MemoryStream"/> will be used for backing. If it is greater than this value instead a <see cref="FileStream"/> with DeleteOnClose will be used instead. If unspecified, always use <see cref="MemoryStream"/></param>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="inputStream"/> is null.</exception>
         public FileEntry(string name, Stream inputStream, FileEntry? parent = null, bool passthroughStream = false, DateTime? createTime = null, DateTime? modifyTime = null, DateTime? accessTime = null, int? memoryStreamCutoff = null)
         {
             memoryStreamCutoff ??= defaultCutoff;
@@ -42,14 +41,7 @@ namespace Microsoft.CST.RecursiveExtractor
 
             Name = Path.GetFileName(name);
 
-            if (parent == null)
-            {
-                FullPath = name;
-            }
-            else
-            {
-                FullPath = Path.Combine(parent.FullPath,name);
-            }
+            FullPath = parent == null ? name : Path.Combine(parent.FullPath,name);
             var printPath = FullPath;
             FullPath = ZipSlipSanitize(FullPath);
 
@@ -218,7 +210,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="createTime">Specify the <see cref="CreateTime"/></param>
         /// <param name="modifyTime">Specify the <see cref="ModifyTime"/></param>
         /// <param name="accessTime">Specify the <see cref="AccessTime"/></param>
-        /// <param name="memoryStreamCutoff">When specified, if <see cref="content"/> is of length less than this value a <see cref="MemoryStream"/> will be used for backing.
+        /// <param name="memoryStreamCutoff">When specified, if <see cref="Content"/> is of length less than this value a <see cref="MemoryStream"/> will be used for backing.
         /// If it is greater than this value instead a <see cref="FileStream"/> with DeleteOnClose will be used instead. If unspecified, always use <see cref="MemoryStream"/></param>
         /// <returns>A FileEntry object holding a Copy of the Stream as its <see cref="Content"/></returns>
         public static async Task<FileEntry> FromStreamAsync(string name, Stream content, FileEntry? parent = null, DateTime? createTime = null, DateTime? modifyTime = null, DateTime? accessTime = null, int? memoryStreamCutoff = null)
