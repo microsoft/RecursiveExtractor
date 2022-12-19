@@ -579,7 +579,6 @@ namespace Microsoft.CST.RecursiveExtractor
                 Logger.Info(IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
                 throw new OverflowException();
             }
-            List<FileEntry> result = new List<FileEntry>();
             var useRaw = false;
 
             if (options.RequireTopLevelToBeArchive && topLevel && fileEntry.ArchiveType == ArchiveFileType.UNKNOWN)
@@ -587,7 +586,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 if (options.FileNamePasses(fileEntry.FullPath))
                 {
                     fileEntry.EntryStatus = FileEntryStatus.FailedArchive;
-                    result.Add(fileEntry);
+                    yield return fileEntry;
                 }
             }
             else if (topLevel || options.Recurse)
@@ -600,34 +599,25 @@ namespace Microsoft.CST.RecursiveExtractor
                     {
                         if (options.FileNamePasses(fileEntry.FullPath))
                         {
-                            result.Add(fileEntry);
+                            yield return fileEntry;
                         }
                     }
                     else
                     {
-                        try
+                        foreach (var extractedResult in Extractors[type]
+                                     .Extract(fileEntry, options, resourceGovernor, false))
                         {
-                            foreach (var extractedResult in Extractors[type]
-                                         .Extract(fileEntry, options, resourceGovernor, false))
+                            if (options.FileNamePasses(extractedResult.FullPath))
                             {
-                                if (options.FileNamePasses(extractedResult.FullPath))
-                                {
-                                    result.Add(extractedResult);
-                                }
+                                yield return extractedResult;
                             }
-                        }
-                        catch (Exception e)
-                        {
-                            if (e is OverflowException) { throw; }
-
-                            Logger.Debug(e, "Failed to extract {FullPath}. ({Message})", fileEntry.FullPath, e.Message);
                         }
                     }
                 }
             }
             else if (options.FileNamePasses(fileEntry.FullPath))
             {
-                result.Add(fileEntry);
+                yield return fileEntry;
             }
 
             // After we are done with an archive subtract its bytes. Contents have been counted now separately
@@ -635,8 +625,6 @@ namespace Microsoft.CST.RecursiveExtractor
             {
                 resourceGovernor.CurrentOperationProcessedBytesLeft += fileEntry.Content.Length;
             }
-
-            return result;
         }
     }
 }
