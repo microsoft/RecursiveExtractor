@@ -143,85 +143,32 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             if (rarArchive != null && fileEntry.EntryStatus == FileEntryStatus.Default)
             {
                 var entries = rarArchive.Entries.Where(x => x.IsComplete && !x.IsDirectory);
-                if (options.Parallel)
+                foreach (var entry in entries)
                 {
-                    var files = new ConcurrentStack<FileEntry>();
-
-                    while (entries.Any())
+                    governor.CheckResourceGovernor(entry.Size);
+                    FileEntry? newFileEntry = null;
+                    try
                     {
-                        var batchSize = Math.Min(options.BatchSize, entries.Count());
-
-                        var streams = entries.Take(batchSize).Select(entry => (entry, entry.OpenEntryStream())).ToList();
-
-                        governor.CheckResourceGovernor(streams.Sum(x => x.Item2.Length));
-
-                        streams.AsParallel().ForAll(streampair =>
-                        {
-                            try
-                            {
-                                FileEntry newFileEntry = new FileEntry(streampair.entry.Key, streampair.Item2, fileEntry, false, streampair.entry.CreatedTime, streampair.entry.LastModifiedTime, streampair.entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
-
-                                if (newFileEntry != null)
-                                {
-                                    if (options.Recurse || topLevel)
-                                    {
-                                        var entries = Context.Extract(newFileEntry, options, governor, false);
-                                        if (entries.Any())
-                                        {
-                                            files.PushRange(entries.ToArray());
-                                        }
-                                    }
-                                    else
-                                    {
-                                        files.Push(newFileEntry);
-                                    }
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.RAR, fileEntry.FullPath, streampair.entry.Key, e.GetType());
-                            }
-                        });
-                        governor.CheckResourceGovernor(0);
-
-                        entries = entries.Skip(streams.Count);
-
-                        while (files.TryPop(out var result))
-                        {
-                            if (result != null)
-                                yield return result;
-                        }
+                        var stream = entry.OpenEntryStream();
+                        var name = entry.Key.Replace('/', Path.DirectorySeparatorChar);
+                        newFileEntry = new FileEntry(name, stream, fileEntry, false, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
                     }
-                }
-                else
-                {
-                    foreach (var entry in entries)
+                    catch (Exception e)
                     {
-                        governor.CheckResourceGovernor(entry.Size);
-                        FileEntry? newFileEntry = null;
-                        try
+                        Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.RAR, fileEntry.FullPath, entry.Key, e.GetType());
+                    }
+                    if (newFileEntry != null)
+                    {
+                        if (options.Recurse || topLevel)
                         {
-                            var stream = entry.OpenEntryStream();
-                            var name = entry.Key.Replace('/', Path.DirectorySeparatorChar);
-                            newFileEntry = new FileEntry(name, stream, fileEntry, false, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
-                        }
-                        catch (Exception e)
-                        {
-                            Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.RAR, fileEntry.FullPath, entry.Key, e.GetType());
-                        }
-                        if (newFileEntry != null)
-                        {
-                            if (options.Recurse || topLevel)
+                            foreach (var innerEntry in Context.Extract(newFileEntry, options, governor, false))
                             {
-                                foreach (var innerEntry in Context.Extract(newFileEntry, options, governor, false))
-                                {
-                                    yield return innerEntry;
-                                }
+                                yield return innerEntry;
                             }
-                            else
-                            {
-                                yield return newFileEntry;
-                            }
+                        }
+                        else
+                        {
+                            yield return newFileEntry;
                         }
                     }
                 }
