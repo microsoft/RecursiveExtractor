@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CST.RecursiveExtractor.Cli;
+using System.Threading;
 
 namespace Microsoft.CST.RecursiveExtractor.Tests
 {
@@ -31,18 +32,46 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("TestData.wim")]
         [DataRow("EmptyFile.txt", 1)]
         [DataRow("TestDataArchivesNested.Zip", 52)]
-        public void ExtractArchive(string fileName, int expectedNumFiles = 3)
+        public void ExtractArchiveParallel(string fileName, int expectedNumFiles = 3)
+        {
+            ExtractArchive(fileName, expectedNumFiles, false);
+        }
+
+        internal void ExtractArchive(string fileName, int expectedNumFiles, bool singleThread)
         {
             var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
-            RecursiveExtractorClient.ExtractCommand(new ExtractCommandOptions() { Input = path, Output = directory, Verbose = true, PrintNames = true});
+            RecursiveExtractorClient.ExtractCommand(new ExtractCommandOptions() { Input = path, Output = directory, Verbose = true, SingleThread = singleThread});
             var files = Array.Empty<string>();
+            Thread.Sleep(100);
             if (Directory.Exists(directory))
             {
                 files = Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories).ToArray();
                 Directory.Delete(directory, true);
             }
             Assert.AreEqual(expectedNumFiles, files.Length);
+        }
+        
+        [DataTestMethod]
+        [DataRow("TestData.zip", 5)]
+        [DataRow("TestData.7z")]
+        [DataRow("TestData.tar", 6)]
+        [DataRow("TestData.rar")]
+        [DataRow("TestData.rar4")]
+        [DataRow("TestData.tar.bz2", 6)]
+        [DataRow("TestData.tar.gz", 6)]
+        [DataRow("TestData.tar.xz")]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
+        [DataRow("TestData.a")]
+        [DataRow("TestData.bsd.ar")]
+        [DataRow("TestData.iso")]
+        [DataRow("TestData.vhdx")]
+        [DataRow("TestData.wim")]
+        [DataRow("EmptyFile.txt", 1)]
+        [DataRow("TestDataArchivesNested.Zip", 52)]
+        public void ExtractArchiveSingleThread(string fileName, int expectedNumFiles = 3)
+        {
+            ExtractArchive(fileName, expectedNumFiles, true);
         }
 
         [DataTestMethod]
