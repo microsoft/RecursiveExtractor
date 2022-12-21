@@ -413,7 +413,8 @@ namespace Microsoft.CST.RecursiveExtractor
                             Directory.CreateDirectory(directoryPathNotNull);
 
                             using var fs = new FileStream(targetPathNotNull, FileMode.Create);
-                            entry.Content.CopyTo(fs);
+                            using var contentStream = entry.Content;
+                            contentStream.CopyTo(fs);
                             if (printNames)
                             {
                                 Console.WriteLine("Extracted {0}.", entry.FullPath);
@@ -476,7 +477,8 @@ namespace Microsoft.CST.RecursiveExtractor
                                     Directory.CreateDirectory(directoryPathNotNull);
 
                                     using var fs = new FileStream(targetPathNotNull, FileMode.Create);
-                                    entry.Content.CopyTo(fs);
+                                    using var contentStream = entry.Content;
+                                    contentStream.CopyTo(fs);
                                     if (printNames)
                                     {
                                         Console.WriteLine("Extracted {0}.", entry.FullPath);
@@ -563,7 +565,8 @@ namespace Microsoft.CST.RecursiveExtractor
                         {
                             Directory.CreateDirectory(directoryPathNotNull);
                             using var fs = new FileStream(targetPathNotNull, FileMode.Create);
-                            await entry.Content.CopyToAsync(fs).ConfigureAwait(false);
+                            using var contentStream = entry.Content;
+                            await contentStream.CopyToAsync(fs).ConfigureAwait(false);
                             if (printNames)
                             {
                                 Console.WriteLine("Extracted {0}.", entry.FullPath);
