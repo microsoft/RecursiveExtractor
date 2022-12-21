@@ -163,12 +163,39 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("TestData.wim")]
         [DataRow("EmptyFile.txt", 1)]
         [DataRow("TestDataArchivesNested.Zip", 52)]
-        public void ExtractArchiveToDirectory(string fileName, int expectedNumFiles = 3)
+        public void ExtractArchiveToDirectoryParallel(string fileName, int expectedNumFiles = 3)
+        {
+            ExtractArchiveToDirectory(fileName, expectedNumFiles, true);
+        }
+        
+        [DataTestMethod]
+        [DataRow("TestData.zip", 5)]
+        [DataRow("TestData.7z")]
+        [DataRow("TestData.tar", 6)]
+        [DataRow("TestData.rar")]
+        [DataRow("TestData.rar4")]
+        [DataRow("TestData.tar.bz2", 6)]
+        [DataRow("TestData.tar.gz", 6)]
+        [DataRow("TestData.tar.xz")]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
+        [DataRow("TestData.a")]
+        [DataRow("TestData.bsd.ar")]
+        [DataRow("TestData.iso")]
+        [DataRow("TestData.vhdx")]
+        [DataRow("TestData.wim")]
+        [DataRow("EmptyFile.txt", 1)]
+        [DataRow("TestDataArchivesNested.Zip", 52)]
+        public void ExtractArchiveToDirectorySingleThread(string fileName, int expectedNumFiles = 3)
+        {
+            ExtractArchiveToDirectory(fileName, expectedNumFiles, false);
+        }
+        
+        internal void ExtractArchiveToDirectory(string fileName, int expectedNumFiles, bool parallel)
         {
             var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var extractor = new Extractor();
-            extractor.ExtractToDirectory(directory, path);
+            extractor.ExtractToDirectory(directory, path, new ExtractorOptions(){Parallel = parallel});
             var files = Array.Empty<string>();
             if (Directory.Exists(directory))
             {
