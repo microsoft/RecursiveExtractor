@@ -2,6 +2,8 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
@@ -88,30 +90,51 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 if (options.Parallel)
                 {
                     var files = new ConcurrentStack<FileEntry>();
-
-                    while (entries.Any())
+                    using var enumerator = entries.GetEnumerator();
+                    ConcurrentBag<FileEntry> entryBatch = new();
+                    bool moreAvailable = enumerator.MoveNext();
+                    while (moreAvailable)
                     {
-                        var batchSize = Math.Min(options.BatchSize, entries.Count());
-                        var selectedEntries = entries.Take(batchSize);
-
-                        selectedEntries.AsParallel().ForAll(entry =>
+                        entryBatch = new();
+                        for (int i = 0; i < options.BatchSize; i++)
                         {
-                            if (options.Recurse || topLevel)
+                            entryBatch.Add(enumerator.Current);
+                            moreAvailable = enumerator.MoveNext();
+                            if (!moreAvailable)
                             {
-                                var newEntries = Context.Extract(entry, options, governor, false).ToArray();
-                                if (newEntries.Length > 0)
+                                break;
+                            }
+                        }
+
+                        if (entryBatch.Count == 0)
+                        {
+                            break;
+                        }
+
+                        try
+                        {
+                            Parallel.ForEach(entryBatch, new ParallelOptions(),
+                            entry =>
+                            {
+                                if (options.Recurse || topLevel)
                                 {
-                                    files.PushRange(newEntries);
+                                    var newEntries = Context.Extract(entry, options, governor, false).ToArray();
+                                    if (newEntries.Length > 0)
+                                    {
+                                        files.PushRange(newEntries);
+                                    }
                                 }
-                            }
-                            else
-                            {
-                                files.Push(entry);
-                            }
-                        });
-
-                        entries = entries.Skip(batchSize);
-
+                                else
+                                {
+                                    files.Push(entry);
+                                }
+                            });
+                        }
+                        catch (AggregateException e) when (e.InnerException is OverflowException or TimeoutException)
+                        {
+                            throw e.InnerException;
+                        }
+                        
                         while (files.TryPop(out var result))
                         {
                             if (result != null)

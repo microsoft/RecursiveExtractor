@@ -22,17 +22,16 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="name">The logical path that identifies the contents in the FileEntry, used to construct <see cref="FullPath"/></param>
         /// <param name="inputStream">The stream to use for <see cref="Content"/></param>
         /// <param name="parent">The parent <see cref="FileEntry"/> this was extracted from</param>
-        /// <param name="passthroughStream">If <see cref="passthroughStream"/> is true and <see cref="inputStream"/> is seekable will use the provided stream directly.
-        ///     Otherwise, the full contents of <see cref="inputStream"/> is copied to a new internal <see cref="Stream"/></param>
-        /// <param name="createTime">Specify the <see cref="CreateTime"/></param>
-        /// <param name="modifyTime">Specify the <see cref="ModifyTime"/></param>
-        /// <param name="accessTime">Specify the <see cref="AccessTime"/></param>
-        /// <param name="memoryStreamCutoff">When specified, if <see cref="inputStream"/> is of length less than this value a <see cref="MemoryStream"/> will be used for backing.
-        /// If it is greater than this value instead a <see cref="FileStream"/> with DeleteOnClose will be used instead. If unspecified, always use <see cref="MemoryStream"/></param>
-        public FileEntry(string name, Stream inputStream, FileEntry? parent = null, bool passthroughStream = false, DateTime? createTime = null, DateTime? modifyTime = null, DateTime? accessTime = null, int? memoryStreamCutoff = null)
+        /// <param name="passthroughStream">If true and provided stream is seekable, FileEntry will directly use the provided stream for <see cref="Content"/>. Otherwise, the full contents are copied to a new <see cref="Stream"/></param>
+        /// <param name="createTime">Specify the <see cref="FileEntry.CreateTime"/></param>
+        /// <param name="modifyTime">Specify the <see cref="FileEntry.ModifyTime"/></param>
+        /// <param name="accessTime">Specify the <see cref="FileEntry.AccessTime"/></param>
+        /// <param name="memoryStreamCutoff">When specified, if the provided stream is of length less than this value a <see cref="MemoryStream"/> will be used for backing. If it is greater than this value instead a <see cref="FileStream"/> with DeleteOnClose will be used instead. If unspecified, always use <see cref="MemoryStream"/> except for very large files.</param>
+        /// <param name="backingFileStreamBufferSize">Optionally specify the size of the FileStream buffers</param>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="inputStream"/> is null.</exception>
+        public FileEntry(string name, Stream inputStream, FileEntry? parent = null, bool passthroughStream = false, DateTime? createTime = null, DateTime? modifyTime = null, DateTime? accessTime = null, int? memoryStreamCutoff = null, int backingFileStreamBufferSize = 4096)
         {
             memoryStreamCutoff ??= defaultCutoff;
-
             Parent = parent;
             Passthrough = passthroughStream;
 
@@ -42,14 +41,7 @@ namespace Microsoft.CST.RecursiveExtractor
 
             Name = Path.GetFileName(name);
 
-            if (parent == null)
-            {
-                FullPath = name;
-            }
-            else
-            {
-                FullPath = Path.Combine(parent.FullPath,name);
-            }
+            FullPath = parent == null ? name : Path.Combine(parent.FullPath,name);
             var printPath = FullPath;
             FullPath = ZipSlipSanitize(FullPath);
 
@@ -62,72 +54,60 @@ namespace Microsoft.CST.RecursiveExtractor
             {
                 Content = new MemoryStream();
             }
-
-            // We want to be able to seek, so ensure any passthrough stream is Seekable
-            if (passthroughStream && inputStream.CanSeek)
-            {
-                Content = inputStream;
-                if (Content.Position != 0)
-                {
-                    Content.Position = 0;
-                }
-            }
             else
             {
-                try
+                // We want to be able to seek, so ensure any passthrough stream is Seekable
+                if (passthroughStream && inputStream.CanSeek)
                 {
-                    if (inputStream.Length > memoryStreamCutoff)
+                    Content = inputStream;
+                    if (Content.Position != 0)
                     {
-                        Content = new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
-                    }
-                    else
-                    {
-                        Content = new MemoryStream();
+                        Content.Position = 0;
                     }
                 }
-                catch (Exception)
+                else
                 {
-                    Content = new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
-                }
+                    Content = StreamFactory.GenerateAppropriateBackingStream(memoryStreamCutoff, inputStream, backingFileStreamBufferSize);
 
-                long? initialPosition = null;
+                    long? initialPosition = null;
 
-                if (inputStream.CanSeek)
-                {
-                    initialPosition = inputStream.Position;
-                    if (inputStream.Position != 0)
+                    if (inputStream.CanSeek)
                     {
-                        inputStream.Position = 0;
+                        initialPosition = inputStream.Position;
+                        if (inputStream.Position != 0)
+                        {
+                            inputStream.Position = 0;
+                        }
                     }
-                }
 
-                try
-                {
-                    inputStream.CopyTo(Content);
-                }
-                catch (NotSupportedException)
-                {
                     try
                     {
-                        Task.Run(() => inputStream.CopyToAsync(Content)).Wait();
+                        inputStream.CopyTo(Content);
                     }
-                    catch (Exception f)
+                    catch (NotSupportedException)
                     {
-                        Logger.Debug("Failed to copy stream from {0} ({1}:{2})", printPath, f.GetType(), f.Message);
+                        try
+                        {
+                            Task.Run(() => inputStream.CopyToAsync(Content)).Wait();
+                        }
+                        catch (Exception f)
+                        {
+                            Logger.Debug("Failed to copy stream from {0} ({1}:{2})", printPath, f.GetType(), f.Message);
+                        }
                     }
-                }
-                catch (Exception e)
-                {
-                    EntryStatus = FileEntryStatus.FailedFile;
-                    Logger.Debug("Failed to copy stream from {0} ({1}:{2})", printPath, e.GetType(), e.Message);
-                }
+                    catch (Exception e)
+                    {
+                        EntryStatus = FileEntryStatus.FailedFile;
+                        Logger.Debug("Failed to copy stream from {0} ({1}:{2})", printPath, e.GetType(), e.Message);
+                    }
 
-                if (inputStream.CanSeek && inputStream.Position != 0)
-                {
-                    inputStream.Position = initialPosition ?? 0;
-                }
+                    if (inputStream.CanSeek && inputStream.Position != 0)
+                    {
+                        inputStream.Position = initialPosition ?? 0;
+                    }
 
-                Content.Position = 0;
+                    Content.Position = 0;
+                }
             }
         }
 
@@ -192,11 +172,19 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         /// <param name="replacement">The string value to replace any invalid characters with</param>
         /// <returns>A sanitized path suitable to attempt to write to disk.</returns>
-        public string GetSanitizedPath(string replacement = "_") => InvalidFileChars.Replace(FullPath, replacement);
+        public string GetSanitizedPath(string replacement = "_") => SanitizePath(FullPath, replacement);
+
+        /// <summary>
+        /// Sanitizes a provided path
+        /// </summary>
+        /// <param name="path">Path to Sanitize</param>
+        /// <param name="replacement">The replacement character to use for invalid characters</param>
+        /// <returns>A sanitized path suitable to write to disk</returns>
+        public static string SanitizePath(string path, string replacement = "_") => InvalidFileChars.Replace(path, replacement);
         
         internal bool Passthrough { get; }
 
-        private const int bufferSize = 4096;
+        private int bufferSize = 4096;
 
         /// <summary>
         /// The deconstructor will dispose the <see cref="Content"/> stream if <see cref="DisposeOnFinalize"/> is set.
@@ -218,10 +206,11 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="createTime">Specify the <see cref="CreateTime"/></param>
         /// <param name="modifyTime">Specify the <see cref="ModifyTime"/></param>
         /// <param name="accessTime">Specify the <see cref="AccessTime"/></param>
-        /// <param name="memoryStreamCutoff">When specified, if <see cref="content"/> is of length less than this value a <see cref="MemoryStream"/> will be used for backing.
+        /// <param name="memoryStreamCutoff">When specified, if <see cref="Content"/> is of length less than this value a <see cref="MemoryStream"/> will be used for backing.
         /// If it is greater than this value instead a <see cref="FileStream"/> with DeleteOnClose will be used instead. If unspecified, always use <see cref="MemoryStream"/></param>
+        /// <param name="backingFileStreamBufferSize">Optionally specify the size of the FileStream buffers</param>
         /// <returns>A FileEntry object holding a Copy of the Stream as its <see cref="Content"/></returns>
-        public static async Task<FileEntry> FromStreamAsync(string name, Stream content, FileEntry? parent = null, DateTime? createTime = null, DateTime? modifyTime = null, DateTime? accessTime = null, int? memoryStreamCutoff = null)
+        public static async Task<FileEntry> FromStreamAsync(string name, Stream content, FileEntry? parent = null, DateTime? createTime = null, DateTime? modifyTime = null, DateTime? accessTime = null, int? memoryStreamCutoff = null, int backingFileStreamBufferSize = 4096)
         {
             var status = FileEntryStatus.Default;
             memoryStreamCutoff ??= defaultCutoff;
@@ -241,22 +230,9 @@ namespace Microsoft.CST.RecursiveExtractor
             {
                 printPath = Path.Combine(parent.FullPath, name);
             }
-            Stream Content;
-            try
-            {
-                if (content.Length > memoryStreamCutoff)
-                {
-                    Content = new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.Asynchronous | FileOptions.DeleteOnClose);
-                }
-                else
-                {
-                    Content = new MemoryStream();
-                }
-            }
-            catch (Exception)
-            {
-                Content = new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.Asynchronous | FileOptions.DeleteOnClose);
-            }
+
+            Stream Content = StreamFactory.GenerateAppropriateBackingStream(memoryStreamCutoff, content,
+                backingFileStreamBufferSize);
 
             long? initialPosition = null;
 
@@ -321,6 +297,10 @@ namespace Microsoft.CST.RecursiveExtractor
             return fullPath;
         }
 
+        /// <summary>
+        /// 1024 * 1024 * 100 bytes = 100 MB
+        /// Default max size for memory streams before using FileStreams
+        /// </summary>
         private const int defaultCutoff = 1024 * 1024 * 100;
 
         /// <summary>

@@ -9,11 +9,11 @@ using DiscUtils.Setup;
 using DiscUtils.Xfs;
 using Microsoft.CST.RecursiveExtractor.Extractors;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -101,7 +101,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry1"> </param>
         /// <param name="fileEntry2"> </param>
-        /// <returns> </returns>
+        /// <returns>True if the Content of two FileEntries are identical</returns>
         public static bool AreIdentical(FileEntry fileEntry1, FileEntry fileEntry2)
         {
             var stream1 = fileEntry1.Content;
@@ -147,7 +147,7 @@ namespace Microsoft.CST.RecursiveExtractor
         ///     Check if the fileEntry is a quine
         /// </summary>
         /// <param name="fileEntry">The <see cref="FileEntry"/> to extract.</param>
-        /// <returns> </returns>
+        /// <returns>True if the FileEntry is a identical to any of its predecessors</returns>
         public static bool IsQuine(FileEntry fileEntry)
         {
             var next = fileEntry.Parent;
@@ -171,7 +171,8 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         /// <param name="filename">The path to the file to extract.</param>
         /// <param name="opts">The ExtractorOptions to use.</param>
-        /// <returns>The FileEntries found.</returns>
+        /// <returns>An enumeration of the FileEntry objects extracted</returns>
+        /// <remarks>Undefined behavior when enumerated multiple times. To operate on the enumeration in parallel, use a batching technique.</remarks>
         public IEnumerable<FileEntry> Extract(string filename, ExtractorOptions? opts = null)
         {
             if (!File.Exists(filename))
@@ -189,7 +190,8 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         /// <param name="filename">The path to the file to extract.</param>
         /// <param name="opts">The ExtractorOptions to use.</param>
-        /// <returns>The FileEntries found.</returns>
+        /// <returns>An enumeration of the FileEntry objects extracted</returns>
+        /// <remarks>Undefined behavior when enumerated multiple times. To operate on the enumeration in parallel, use a batching technique.</remarks>
         public async IAsyncEnumerable<FileEntry> ExtractAsync(string filename, ExtractorOptions? opts = null)
         {
             opts ??= new ExtractorOptions();
@@ -215,7 +217,8 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="filename">The filename to call the Stream.</param>
         /// <param name="stream">The Stream to parse.</param>
         /// <param name="opts">The ExtractorOptions to use.</param>
-        /// <returns>The FileEntries found.</returns>
+        /// <returns>An enumeration of the FileEntry objects extracted</returns>
+        /// <remarks>Undefined behavior when enumerated multiple times. To operate on the enumeration in parallel, use a batching technique.</remarks>
         public async IAsyncEnumerable<FileEntry> ExtractAsync(string filename, Stream stream, ExtractorOptions? opts = null)
         {
             opts ??= new ExtractorOptions();
@@ -246,7 +249,8 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="filename">The filename to use for the stream.</param>
         /// <param name="stream">The Stream to extract from</param>
         /// <param name="opts">The Extractor Options to use.</param>
-        /// <returns></returns>
+        /// <returns>An enumeration of the FileEntry objects extracted</returns>
+        /// <remarks>Undefined behavior when enumerated multiple times. To operate on the enumeration in parallel, use a batching technique.</remarks>
         public IEnumerable<FileEntry> Extract(string filename, Stream stream, ExtractorOptions? opts = null)
         {
             opts ??= new ExtractorOptions();
@@ -260,7 +264,8 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="filename">The filename to use for the root.</param>
         /// <param name="archiveBytes">The bytes to extract.</param>
         /// <param name="opts">The Extractor options.</param>
-        /// <returns></returns>
+        /// <returns>An enumeration of the FileEntry objects extracted</returns>
+        /// <remarks>Undefined behavior when enumerated multiple times. To operate on the enumeration in parallel, use a batching technique.</remarks>
         public IEnumerable<FileEntry> Extract(string filename, byte[] archiveBytes, ExtractorOptions? opts = null)
         {
             opts ??= new ExtractorOptions();
@@ -275,6 +280,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="archiveBytes">The bytes to extract.</param>
         /// <param name="opts">The Extractor options.</param>
         /// <returns>The FileEntrys found.</returns>
+        /// <remarks>Undefined behavior when enumerated multiple times. To operate on the enumeration in parallel, use a batching technique.</remarks>
         public async IAsyncEnumerable<FileEntry> ExtractAsync(string filename, byte[] archiveBytes, ExtractorOptions? opts = null)
         {
             opts ??= new ExtractorOptions();
@@ -307,6 +313,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="governor">The <see cref="ResourceGovernor"/> to use for extraction.</param>
         /// <param name="topLevel">If this should be treated as the top level archive.</param>
         /// <returns>The FileEntries found.</returns>
+        /// <remarks>Undefined behavior when enumerated multiple times. To operate on the enumeration in parallel, use a batching technique.</remarks>
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null, bool topLevel = true)
         {
             var options = opts ?? new ExtractorOptions();
@@ -412,7 +419,8 @@ namespace Microsoft.CST.RecursiveExtractor
                             Directory.CreateDirectory(directoryPathNotNull);
 
                             using var fs = new FileStream(targetPathNotNull, FileMode.Create);
-                            entry.Content.CopyTo(fs);
+                            using var contentStream = entry.Content;
+                            contentStream.CopyTo(fs);
                             if (printNames)
                             {
                                 Console.WriteLine("Extracted {0}.", entry.FullPath);
@@ -438,36 +446,65 @@ namespace Microsoft.CST.RecursiveExtractor
                 var cts = new CancellationTokenSource();
                 try
                 {
-                    Parallel.ForEach(Extract(fileEntry, opts), new ParallelOptions() { CancellationToken = cts.Token }, entry =>
+                    ConcurrentBag<string> paths = new();
+                    var extractedEnumeration = Extract(fileEntry, opts);
+                    using var enumerator = extractedEnumeration.GetEnumerator();
+                    // Move to the first element to prepare
+                    ConcurrentBag<FileEntry> entryBatch = new();
+                    bool moreAvailable = enumerator.MoveNext();
+                    while (moreAvailable)
                     {
-                        var targetPath = Path.Combine(outputDirectory, entry.GetSanitizedPath());
-
-                        if (Path.GetDirectoryName(targetPath) is { } directoryPathNotNull && targetPath is { } targetPathNotNull)
+                        entryBatch = new();
+                        for (int i = 0; i < opts.BatchSize; i++)
                         {
-                            try
+                            entryBatch.Add(enumerator.Current);
+                            moreAvailable = enumerator.MoveNext();
+                            if (!moreAvailable)
                             {
-                                Directory.CreateDirectory(directoryPathNotNull);
-
-                                using var fs = new FileStream(targetPathNotNull, FileMode.Create);
-                                entry.Content.CopyTo(fs);
-                                if (printNames)
-                                {
-                                    Console.WriteLine("Extracted {0}.", entry.FullPath);
-                                }
-                                Logger.Trace("Extracted {0}", entry.FullPath);
+                                break;
                             }
-                            catch (Exception e)
+                        }
+
+                        if (entryBatch.Count == 0)
+                        {
+                            break;
+                        }
+
+                        Parallel.ForEach(entryBatch, new ParallelOptions() { CancellationToken = cts.Token }, entry =>
+                        {
+                            var targetPath = Path.Combine(outputDirectory, entry.GetSanitizedPath());
+
+                            if (Path.GetDirectoryName(targetPath) is { } directoryPathNotNull && targetPath is { } targetPathNotNull)
                             {
-                                Logger.Error(e, "Failed to create file at {0}.", targetPathNotNull);
+                                paths.Add(targetPathNotNull);
+                                try
+                                {
+                                    Directory.CreateDirectory(directoryPathNotNull);
+
+                                    using var fs = new FileStream(targetPathNotNull, FileMode.Create);
+                                    using var contentStream = entry.Content;
+                                    contentStream.CopyTo(fs);
+                                    if (printNames)
+                                    {
+                                        Console.WriteLine("Extracted {0}.", entry.FullPath);
+                                    }
+                                    Logger.Trace("Extracted {0}", entry.FullPath);
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine(paths.Count);
+                                    Logger.Error(e, "Failed to create file at {0}.", targetPathNotNull);
+                                    cts.Cancel();
+                                }
+                            }
+                            else
+                            {
+                                Logger.Error("Failed to create directory.");
                                 cts.Cancel();
                             }
-                        }
-                        else
-                        {
-                            Logger.Error("Failed to create directory.");
-                            cts.Cancel();
-                        }
-                    });
+                        });
+                    }
+                    
                 }
                 catch (OperationCanceledException)
                 {
@@ -533,7 +570,8 @@ namespace Microsoft.CST.RecursiveExtractor
                         {
                             Directory.CreateDirectory(directoryPathNotNull);
                             using var fs = new FileStream(targetPathNotNull, FileMode.Create);
-                            await entry.Content.CopyToAsync(fs).ConfigureAwait(false);
+                            using var contentStream = entry.Content;
+                            await contentStream.CopyToAsync(fs).ConfigureAwait(false);
                             if (printNames)
                             {
                                 Console.WriteLine("Extracted {0}.", entry.FullPath);
@@ -562,6 +600,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="governor">The <see cref="ResourceGovernor"/> to use for extraction.</param>
         /// <param name="topLevel">If this should be treated as the top level archive.</param>
         /// <returns>The FileEntries found.</returns>
+        /// <remarks>Undefined behavior when enumerated multiple times. To operate on the enumeration in parallel, use a batching technique.</remarks>
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null, bool topLevel = true)
         {
             var options = opts ?? new ExtractorOptions();
@@ -579,15 +618,13 @@ namespace Microsoft.CST.RecursiveExtractor
                 Logger.Info(IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
                 throw new OverflowException();
             }
-            List<FileEntry> result = new List<FileEntry>();
-            var useRaw = false;
 
             if (options.RequireTopLevelToBeArchive && topLevel && fileEntry.ArchiveType == ArchiveFileType.UNKNOWN)
             {
                 if (options.FileNamePasses(fileEntry.FullPath))
                 {
                     fileEntry.EntryStatus = FileEntryStatus.FailedArchive;
-                    result.Add(fileEntry);
+                    yield return fileEntry;
                 }
             }
             else if (topLevel || options.Recurse)
@@ -595,48 +632,33 @@ namespace Microsoft.CST.RecursiveExtractor
                 var type = fileEntry.ArchiveType;
                 if (options.IsAcceptableType(type))
                 {
+                    resourceGovernor.CurrentOperationProcessedBytesLeft -= fileEntry.Content.Length;
+
                     if (options.RawExtensions.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ||
                         type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type))
                     {
                         if (options.FileNamePasses(fileEntry.FullPath))
                         {
-                            result.Add(fileEntry);
+                            yield return fileEntry;
                         }
                     }
                     else
                     {
-                        try
+                        foreach (var extractedResult in Extractors[type]
+                                     .Extract(fileEntry, options, resourceGovernor, false))
                         {
-                            foreach (var extractedResult in Extractors[type]
-                                         .Extract(fileEntry, options, resourceGovernor, false))
+                            if (options.FileNamePasses(extractedResult.FullPath))
                             {
-                                if (options.FileNamePasses(extractedResult.FullPath))
-                                {
-                                    result.Add(extractedResult);
-                                }
+                                yield return extractedResult;
                             }
-                        }
-                        catch (Exception e)
-                        {
-                            if (e is OverflowException) { throw; }
-
-                            Logger.Debug(e, "Failed to extract {FullPath}. ({Message})", fileEntry.FullPath, e.Message);
                         }
                     }
                 }
             }
             else if (options.FileNamePasses(fileEntry.FullPath))
             {
-                result.Add(fileEntry);
+                yield return fileEntry;
             }
-
-            // After we are done with an archive subtract its bytes. Contents have been counted now separately
-            if (!useRaw)
-            {
-                resourceGovernor.CurrentOperationProcessedBytesLeft += fileEntry.Content.Length;
-            }
-
-            return result;
         }
     }
 }

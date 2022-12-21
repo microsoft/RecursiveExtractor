@@ -2,6 +2,8 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
+using System.Threading.Tasks;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
@@ -67,32 +69,50 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             {
                 if (options.Parallel)
                 {
-                    while (fileEntries.Any())
+                    ConcurrentBag<FileEntry> batch = new();
+                    using var enumerator = fileEntries.GetEnumerator();
+                    
+                    bool hasMore = enumerator.MoveNext();
+                    while (hasMore)
                     {
-                        var tempStore = new ConcurrentStack<FileEntry>();
-                        var selectedEntries = fileEntries.Take(options.BatchSize);
-                        selectedEntries.AsParallel().ForAll(arEntry =>
+                        batch = new();
+                        ConcurrentStack<FileEntry> tempStore = new();
+                        for (int i = 0; i < options.BatchSize; i++)
                         {
-                            if (options.Recurse || topLevel)
+                            batch.Add(enumerator.Current);
+                            hasMore = enumerator.MoveNext();
+                            if (!hasMore)
                             {
-                                var entries = Context.Extract(arEntry, options, governor, false).ToArray();
-                                if (entries.Any())
+                                break;
+                            }
+                        }
+
+                        try
+                        {
+                            Parallel.ForEach(batch, arEntry =>
+                            {
+                                if (options.Recurse || topLevel)
                                 {
-                                    tempStore.PushRange(entries);
+                                    var entries = Context.Extract(arEntry, options, governor, false).ToArray();
+                                    if (entries.Any())
+                                    {
+                                        tempStore.PushRange(entries);
+                                    }
                                 }
-                            }
-                            else
-                            {
-                                tempStore.Push(arEntry);
-                            }
-                        });
-
-                        fileEntries = fileEntries.Skip(selectedEntries.Count());
-
-                        while (tempStore.TryPop(out var result))
+                                else
+                                {
+                                    tempStore.Push(arEntry);
+                                }
+                            });
+                        }
+                        catch (AggregateException e) when (e.InnerException is OverflowException or TimeoutException)
                         {
-                            if (result != null)
-                                yield return result;
+                            throw e.InnerException;
+                        }
+
+                        foreach (var entry in tempStore)
+                        {
+                            yield return entry;
                         }
                     }
                 }

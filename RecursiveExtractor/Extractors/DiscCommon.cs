@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
@@ -111,7 +112,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         var batchSize = Math.Min(options.BatchSize, diskFiles.Count);
                         var range = diskFiles.GetRange(0, batchSize);
-                        var fileinfos = new List<(string name, DateTime created, DateTime modified, DateTime accessed, Stream stream)>();
+                        var fileinfos =
+                            new List<(string name, DateTime created, DateTime modified, DateTime accessed, Stream stream
+                                )>();
                         long totalLength = 0;
                         foreach (var r in range)
                         {
@@ -119,35 +122,49 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             {
                                 var fi = fs.GetFileInfo(r);
                                 totalLength += fi.Length;
-                                fileinfos.Add((fi.FullName, fi.CreationTime, fi.LastWriteTime, fi.LastAccessTime, fi.OpenRead()));
+                                fileinfos.Add((fi.FullName, fi.CreationTime, fi.LastWriteTime, fi.LastAccessTime,
+                                    fi.OpenRead()));
                             }
                             catch (Exception e)
                             {
-                                Logger.Debug("Failed to get FileInfo from {0} in Volume {1} @ {2} ({3}:{4})", r, volume.Identity, parentPath, e.GetType(), e.Message);
+                                Logger.Debug("Failed to get FileInfo from {0} in Volume {1} @ {2} ({3}:{4})", r,
+                                    volume.Identity, parentPath, e.GetType(), e.Message);
                             }
                         }
 
                         governor.CheckResourceGovernor(totalLength);
 
-                        fileinfos.AsParallel().ForAll(file =>
+                        try
                         {
-                            if (file.stream != null)
+                            Parallel.ForEach(fileinfos, new ParallelOptions(), file =>
                             {
-                                var newFileEntry = new FileEntry($"{volume.Identity}{Path.DirectorySeparatorChar}{file.name}", file.stream, parent, false, file.created, file.modified, file.accessed, memoryStreamCutoff: options.MemoryStreamCutoff);
-                                if (options.Recurse || topLevel)
+                                if (file.stream != null)
                                 {
-                                    var newEntries = Context.Extract(newFileEntry, options, governor, false).ToArray();
-                                    if (newEntries.Length > 0)
+                                    var newFileEntry =
+                                        new FileEntry($"{volume.Identity}{Path.DirectorySeparatorChar}{file.name}",
+                                            file.stream, parent, false, file.created, file.modified, file.accessed,
+                                            memoryStreamCutoff: options.MemoryStreamCutoff);
+                                    if (options.Recurse || topLevel)
                                     {
-                                        files.PushRange(newEntries);
+                                        var newEntries = Context.Extract(newFileEntry, options, governor, false)
+                                            .ToArray();
+                                        if (newEntries.Length > 0)
+                                        {
+                                            files.PushRange(newEntries);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        files.Push(newFileEntry);
                                     }
                                 }
-                                else
-                                {
-                                    files.Push(newFileEntry);
-                                }
-                            }
-                        });
+                            });
+                        }
+                        catch (AggregateException e) when (e.InnerException is OverflowException or TimeoutException)
+                        {
+                            throw e.InnerException;
+                        }
+                        
                         diskFiles.RemoveRange(0, batchSize);
 
                         while (files.TryPop(out var result))

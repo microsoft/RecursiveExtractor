@@ -83,7 +83,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                     if (zipEntry.IsCrypted && !passwordFound)
                     {
-                        if (GetZipPassword(fileEntry, zipFile, zipEntry, options) is string password)
+                        if (GetZipPassword(fileEntry, zipFile, zipEntry, options) is { } password)
                         {
                             zipFile.Password = password;
                             passwordFound = true;
@@ -101,33 +101,32 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                     governor.CheckResourceGovernor(zipEntry.Size);
 
-                    using var fs = new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
+                    Stream? target = null;
                     try
                     {
                         using var zipStream = zipFile.GetInputStream(zipEntry);
-                        StreamUtils.Copy(zipStream, fs, buffer);
+                        target = StreamFactory.GenerateAppropriateBackingStream(options, zipStream);
+                        StreamUtils.Copy(zipStream, target, buffer);
                     }
                     catch (Exception e)
                     {
                         Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.ZIP, fileEntry.FullPath, zipEntry.Name, e.GetType());
                     }
 
+                    target ??= new MemoryStream();
                     var name = zipEntry.Name.Replace('/', Path.DirectorySeparatorChar);
-                    var newFileEntry = new FileEntry(name, fs, fileEntry, modifyTime: zipEntry.DateTime, memoryStreamCutoff: options.MemoryStreamCutoff);
+                    var newFileEntry = new FileEntry(name, target, fileEntry, modifyTime: zipEntry.DateTime, memoryStreamCutoff: options.MemoryStreamCutoff);
 
-                    if (newFileEntry != null)
+                    if (options.Recurse || topLevel)
                     {
-                        if (options.Recurse || topLevel)
+                        await foreach (var innerEntry in Context.ExtractAsync(newFileEntry, options, governor, false))
                         {
-                            await foreach (var innerEntry in Context.ExtractAsync(newFileEntry, options, governor, false))
-                            {
-                                yield return innerEntry;
-                            }
+                            yield return innerEntry;
                         }
-                        else
-                        {
-                            yield return newFileEntry;
-                        }
+                    }
+                    else
+                    {
+                        yield return newFileEntry;
                     }
                 }
             }

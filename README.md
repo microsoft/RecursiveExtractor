@@ -164,9 +164,61 @@ catch(OverflowException)
 
 ## Exceptions
 RecursiveExtractor protects against [ZipSlip](https://snyk.io/research/zip-slip-vulnerability), [Quines, and Zip Bombs](https://en.wikipedia.org/wiki/Zip_bomb).
-Calls to Extract will throw an `OverflowException` when a Quine or Zip bomb is detected.
+Calls to Extract will throw an `OverflowException` when a Quine or Zip bomb is detected and a `TimeOutException` if `EnableTiming` is set and the specified time period has elapsed before completion.
 
 Otherwise, invalid files found while crawling will emit a logger message and be skipped.  RecursiveExtractor uses NLog for logging.
+
+## Notes on Enumeration
+
+### Multiple Enumeration
+You should not iterate the Enumeration returned from the `Extract` and `ExtractAsync` interfaces multiple times, if you need to do so, convert the Enumeration to the collection of your choice first.
+
+### Parallel Enumeration
+If you want to enumerate the output with parallelization you should use a batching mechanism, for example:
+
+```csharp
+var extractedEnumeration = Extract(fileEntry, opts);
+using var enumerator = extractedEnumeration.GetEnumerator();
+ConcurrentBag<FileEntry> entryBatch = new();
+bool moreAvailable = enumerator.MoveNext();
+while (moreAvailable)
+{
+    entryBatch = new();
+    for (int i = 0; i < BatchSize; i++)
+    {
+        entryBatch.Add(enumerator.Current);
+        moreAvailable = enumerator.MoveNext();
+        if (!moreAvailable)
+        {
+            break;
+        }
+    }
+
+    if (entryBatch.Count == 0)
+    {
+        break;
+    }
+
+    // Run your parallel processing on the batch
+    Parallel.ForEach(entryBatch, new ParallelOptions() { CancellationToken = cts.Token }, entry =>
+    {
+        // Do something with each FileEntry
+    }
+}
+```
+
+### Disposing During Enumeration
+If you are working with a very large archive or in particularly constrained environment you can reduce memory/file handle usage for the Content streams in each FileEntry by disposing as you iterate.
+
+```csharp
+var results = extractor.Extract(path);
+foreach(var file in results)
+{
+    using var theStream = file.Content;
+    // Do something with the stream.
+    _ = theStream.ReadByte();
+}
+```
 
 # Feedback
 

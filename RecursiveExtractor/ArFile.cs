@@ -146,9 +146,8 @@ namespace Microsoft.CST.RecursiveExtractor
                                 {
                                     filename = entry.Item2;
                                 }
-                                var entryStream = innerSize > options.MemoryStreamCutoff ?
-                                    new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose) :
-                                    (Stream)new MemoryStream((int)innerSize);
+
+                                var entryStream = StreamFactory.GenerateAppropriateBackingStream(options, innerSize);
                                 CopyStreamBytes(fileEntry.Content, entryStream, innerSize);
                                 yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true);
                             }
@@ -218,9 +217,7 @@ namespace Microsoft.CST.RecursiveExtractor
                                 {
                                     filename = innerEntry.Item2;
                                 }
-                                var entryStream = innerSize > options.MemoryStreamCutoff ?
-                                    new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose) :
-                                    (Stream)new MemoryStream((int)innerSize);
+                                var entryStream = StreamFactory.GenerateAppropriateBackingStream(options, innerSize);
                                 CopyStreamBytes(fileEntry.Content, entryStream, innerSize);
 
                                 yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true);
@@ -241,18 +238,14 @@ namespace Microsoft.CST.RecursiveExtractor
                                 Logger.Debug("Expected to find a filename at index {0}", index);
                             }
                         }
-                        var entryStream = size > options.MemoryStreamCutoff ?
-                                    new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose) :
-                                    (Stream)new MemoryStream((int)size);
+                        var entryStream = StreamFactory.GenerateAppropriateBackingStream(options, size);
                         CopyStreamBytes(fileEntry.Content, entryStream, size);
 
                         yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true); ;
                     }
                     else
                     {
-                        var entryStream = size > options.MemoryStreamCutoff ?
-                                    new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose) :
-                                    (Stream)new MemoryStream((int)size);
+                        var entryStream = StreamFactory.GenerateAppropriateBackingStream(options, size);
                         CopyStreamBytes(fileEntry.Content, entryStream, size);
 
                         yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true);
@@ -332,9 +325,7 @@ namespace Microsoft.CST.RecursiveExtractor
                             // This should move us right to the file
                             await fileEntry.Content.ReadAsync(nameSpan, 0, nameLength).ConfigureAwait(false);
 
-                            var entryStream = size - nameLength > options.MemoryStreamCutoff ?
-                                                                new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose) :
-                                                                (Stream)new MemoryStream((int)size - nameLength);
+                            var entryStream = StreamFactory.GenerateAppropriateBackingStream(options, size - nameLength);
                             // The name length is included in the total size reported in the header
                             await CopyStreamBytesAsync(fileEntry.Content, entryStream, size - nameLength).ConfigureAwait(false);
 
@@ -401,9 +392,7 @@ namespace Microsoft.CST.RecursiveExtractor
                                 {
                                     filename = entry.Item2;
                                 }
-                                var entryStream = innerSize > options.MemoryStreamCutoff ?
-                                    new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose) :
-                                    (Stream)new MemoryStream((int)innerSize);
+                                var entryStream = StreamFactory.GenerateAppropriateBackingStream(options, innerSize);
                                 await CopyStreamBytesAsync(fileEntry.Content, entryStream, innerSize).ConfigureAwait(false);
                                 yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true);
                             }
@@ -474,9 +463,7 @@ namespace Microsoft.CST.RecursiveExtractor
                                     filename = innerEntry.Item2;
                                 }
 
-                                var entryStream = innerSize > options.MemoryStreamCutoff ?
-                                    new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose) :
-                                    (Stream)new MemoryStream((int)innerSize);
+                                var entryStream = StreamFactory.GenerateAppropriateBackingStream(options, innerSize);
                                 await CopyStreamBytesAsync(fileEntry.Content, entryStream, innerSize).ConfigureAwait(false);
                                 yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true);
                             }
@@ -496,17 +483,13 @@ namespace Microsoft.CST.RecursiveExtractor
                                 Logger.Debug("Expected to find a filename at index {0}", index);
                             }
                         }
-                        var entryStream = size > options.MemoryStreamCutoff ?
-                            new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose) :
-                            (Stream)new MemoryStream((int)size);
+                        var entryStream = StreamFactory.GenerateAppropriateBackingStream(options, size);
                         CopyStreamBytes(fileEntry.Content, entryStream, size);
                         yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true);
                     }
                     else
                     {
-                        var entryStream = size > options.MemoryStreamCutoff ?
-                            new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose) :
-                            (Stream)new MemoryStream((int)size);
+                        var entryStream = StreamFactory.GenerateAppropriateBackingStream(options, size);
                         await CopyStreamBytesAsync(fileEntry.Content, entryStream, size).ConfigureAwait(false);
                         yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true);
                     }

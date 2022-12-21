@@ -58,9 +58,9 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
 
             Assert.AreEqual(expectedArchiveType, fileEntry.ArchiveType);
 
-            var results = extractor.Extract(fileEntry, new ExtractorOptions() { ExtractSelfOnFail = true });
+            var results = extractor.Extract(fileEntry, new ExtractorOptions() { ExtractSelfOnFail = true }).ToList();
             Assert.AreEqual(1, results.Count());
-            Assert.AreEqual(FileEntryStatus.FailedArchive, results.First().EntryStatus);
+            Assert.AreEqual(FileEntryStatus.FailedArchive, results[0].EntryStatus);
         }
 
         [DataTestMethod]
@@ -122,7 +122,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
-            var results = extractor.Extract(path, new ExtractorOptions());
+            var results = extractor.Extract(path, new ExtractorOptions(){Parallel = false}).ToList();
             Assert.AreEqual(expectedNumFiles, results.Count());
             Assert.AreEqual(FileEntryStatus.EncryptedArchive, results.First().EntryStatus);
         }
@@ -162,13 +162,40 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("TestData.vhdx")]
         [DataRow("TestData.wim")]
         [DataRow("EmptyFile.txt", 1)]
-        [DataRow("TestDataArchivesNested.Zip", 52)]
-        public void ExtractArchiveToDirectory(string fileName, int expectedNumFiles = 3)
+        [DataRow("TestDataArchivesNested.Zip", 54)]
+        public void ExtractArchiveToDirectoryParallel(string fileName, int expectedNumFiles = 3)
         {
-            var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            ExtractArchiveToDirectory(fileName, expectedNumFiles, true);
+        }
+        
+        [DataTestMethod]
+        [DataRow("TestData.zip", 5)]
+        [DataRow("TestData.7z")]
+        [DataRow("TestData.tar", 6)]
+        [DataRow("TestData.rar")]
+        [DataRow("TestData.rar4")]
+        [DataRow("TestData.tar.bz2", 6)]
+        [DataRow("TestData.tar.gz", 6)]
+        [DataRow("TestData.tar.xz")]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
+        [DataRow("TestData.a")]
+        [DataRow("TestData.bsd.ar")]
+        [DataRow("TestData.iso")]
+        [DataRow("TestData.vhdx")]
+        [DataRow("TestData.wim")]
+        [DataRow("EmptyFile.txt", 1)]
+        [DataRow("TestDataArchivesNested.Zip", 54)]
+        public void ExtractArchiveToDirectorySingleThread(string fileName, int expectedNumFiles = 3)
+        {
+            ExtractArchiveToDirectory(fileName, expectedNumFiles, false);
+        }
+        
+        internal void ExtractArchiveToDirectory(string fileName, int expectedNumFiles, bool parallel)
+        {
+            var directory = TestPathHelpers.GetFreshTestDirectory();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var extractor = new Extractor();
-            extractor.ExtractToDirectory(directory, path);
+            extractor.ExtractToDirectory(directory, path, new ExtractorOptions(){Parallel = parallel});
             var files = Array.Empty<string>();
             if (Directory.Exists(directory))
             {
@@ -194,10 +221,10 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("TestData.vhdx")]
         [DataRow("TestData.wim")]
         [DataRow("EmptyFile.txt", 1)]
-        [DataRow("TestDataArchivesNested.Zip", 52)]
+        [DataRow("TestDataArchivesNested.Zip", 54)]
         public async Task ExtractArchiveToDirectoryAsync(string fileName, int expectedNumFiles = 3)
         {
-            var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            var directory = TestPathHelpers.GetFreshTestDirectory();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var extractor = new Extractor();
             Assert.AreEqual(ExtractionStatusCode.Ok, await extractor.ExtractToDirectoryAsync(directory, path).ConfigureAwait(false));
@@ -310,8 +337,218 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
-            var results = extractor.Extract(path, new ExtractorOptions());
+            var results = extractor.Extract(path, new ExtractorOptions()).ToList();
             Assert.AreEqual(expectedNumFiles, results.Count());
+        }
+        
+        [DataTestMethod]
+        [DataRow("TestData.7z", 3, false)]
+        [DataRow("TestData.tar", 6, false)]
+        [DataRow("TestData.rar", 3, false)]
+        [DataRow("TestData.rar4", 3, false)]
+        [DataRow("TestData.tar.bz2", 6, false)]
+        [DataRow("TestData.tar.gz", 6, false)]
+        [DataRow("TestData.tar.xz", 3, false)]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8, false)]
+        [DataRow("TestData.a", 3, false)]
+        [DataRow("TestData.bsd.ar", 3, false)]
+        [DataRow("TestData.iso", 3, false)]
+        [DataRow("TestData.vhdx", 3, false)]
+        [DataRow("TestData.wim", 3, false)]
+        [DataRow("EmptyFile.txt", 1, false)]
+        [DataRow("TestData.zip", 5, true)]
+        [DataRow("TestData.7z", 3, true)]
+        [DataRow("TestData.tar", 6, true)]
+        [DataRow("TestData.rar", 3, true)]
+        [DataRow("TestData.rar4", 3, true)]
+        [DataRow("TestData.tar.bz2", 6, true)]
+        [DataRow("TestData.tar.gz", 6, true)]
+        [DataRow("TestData.tar.xz", 3, true)]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8, true)]
+        [DataRow("TestData.a", 3, true)]
+        [DataRow("TestData.bsd.ar", 3, true)]
+        [DataRow("TestData.iso", 3, true)]
+        [DataRow("TestData.vhdx", 3, true)]
+        [DataRow("TestData.wim", 3, true)]
+        [DataRow("EmptyFile.txt", 1, true)]
+        [DataRow("TestDataArchivesNested.Zip", 54, true)]
+        [DataRow("TestDataArchivesNested.Zip", 54, false)]
+        public void TimeoutTest(string fileName, int expectedNumFiles = 3, bool parallel = false)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            Assert.ThrowsException<TimeoutException>(() =>
+            {
+                var results = extractor.Extract(path, new ExtractorOptions(){Parallel = parallel, EnableTiming = true, Timeout = new TimeSpan(0,0,0,0, 0)});
+                int count = 0;
+                foreach (var result in results)
+                {
+                    count++;
+                }
+
+                // We should not be able to get to all the files
+                Assert.Fail();
+            });
+        }
+        
+        [DataTestMethod]
+        [DataRow("TestData.7z", 3, false)]
+        [DataRow("TestData.tar", 6, false)]
+        [DataRow("TestData.rar", 3, false)]
+        [DataRow("TestData.rar4", 3, false)]
+        [DataRow("TestData.tar.bz2", 6, false)]
+        [DataRow("TestData.tar.gz", 6, false)]
+        [DataRow("TestData.tar.xz", 3, false)]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8, false)]
+        [DataRow("TestData.a", 3, false)]
+        [DataRow("TestData.bsd.ar", 3, false)]
+        [DataRow("TestData.iso", 3, false)]
+        [DataRow("TestData.vhdx", 3, false)]
+        [DataRow("TestData.wim", 3, false)]
+        [DataRow("EmptyFile.txt", 1, false)]
+        [DataRow("TestData.zip", 5, true)]
+        [DataRow("TestData.7z", 3, true)]
+        [DataRow("TestData.tar", 6, true)]
+        [DataRow("TestData.rar", 3, true)]
+        [DataRow("TestData.rar4", 3, true)]
+        [DataRow("TestData.tar.bz2", 6, true)]
+        [DataRow("TestData.tar.gz", 6, true)]
+        [DataRow("TestData.tar.xz", 3, true)]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8, true)]
+        [DataRow("TestData.a", 3, true)]
+        [DataRow("TestData.bsd.ar", 3, true)]
+        [DataRow("TestData.iso", 3, true)]
+        [DataRow("TestData.vhdx", 3, true)]
+        [DataRow("TestData.wim", 3, true)]
+        [DataRow("EmptyFile.txt", 1, true)]
+        [DataRow("TestDataArchivesNested.Zip", 54, true)]
+        [DataRow("TestDataArchivesNested.Zip", 54, false)]
+        [DataRow("TestDataArchivesNested.Zip", 54, true)]
+        [DataRow("TestDataArchivesNested.Zip", 54, false)]
+        public async Task TimeoutTestAsync(string fileName, int expectedNumFiles = 3, bool parallel = false)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            await Assert.ThrowsExceptionAsync<TimeoutException>(async () =>
+            {
+                var results = extractor.ExtractAsync(path, new ExtractorOptions(){Parallel = parallel, EnableTiming = true, Timeout = new TimeSpan(0,0,0,0, 0)});
+                int count = 0;
+                await foreach (var result in results)
+                {
+                    count++;
+                }
+
+                // We should not be able to get to all the files
+                Assert.Fail();
+            });
+        }
+        
+        [DataTestMethod]
+        [DataRow("TestData.7z", 3, false)]
+        [DataRow("TestData.tar", 6, false)]
+        [DataRow("TestData.rar", 3, false)]
+        [DataRow("TestData.rar4", 3, false)]
+        [DataRow("TestData.tar.bz2", 6, false)]
+        [DataRow("TestData.tar.gz", 6, false)]
+        [DataRow("TestData.tar.xz", 3, false)]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8, false)]
+        [DataRow("TestData.a", 3, false)]
+        [DataRow("TestData.bsd.ar", 3, false)]
+        [DataRow("TestData.iso", 3, false)]
+        [DataRow("TestData.vhdx", 3, false)]
+        [DataRow("TestData.wim", 3, false)]
+        [DataRow("EmptyFile.txt", 1, false)]
+        [DataRow("TestData.zip", 5, true)]
+        [DataRow("TestData.7z", 3, true)]
+        [DataRow("TestData.tar", 6, true)]
+        [DataRow("TestData.rar", 3, true)]
+        [DataRow("TestData.rar4", 3, true)]
+        [DataRow("TestData.tar.bz2", 6, true)]
+        [DataRow("TestData.tar.gz", 6, true)]
+        [DataRow("TestData.tar.xz", 3, true)]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8, true)]
+        [DataRow("TestData.a", 3, true)]
+        [DataRow("TestData.bsd.ar", 3, true)]
+        [DataRow("TestData.iso", 3, true)]
+        [DataRow("TestData.vhdx", 3, true)]
+        [DataRow("TestData.wim", 3, true)]
+        [DataRow("EmptyFile.txt", 1, true)]
+        [DataRow("TestDataArchivesNested.Zip", 54, true)]
+        [DataRow("TestDataArchivesNested.Zip", 54, false)]
+        [DataRow("TestDataArchivesNested.Zip", 54, true)]
+        [DataRow("TestDataArchivesNested.Zip", 54, false)]
+        public void ExtractArchiveAndDisposeWhileEnumerating(string fileName, int expectedNumFiles = 3, bool parallel = false)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            var results = extractor.Extract(path, new ExtractorOptions(){Parallel = parallel});
+            var disposedResults = new List<FileEntry>();
+            foreach(var file in results)
+            {
+                disposedResults.Add(file);
+                using var theStream = file.Content;
+                // Do something with the stream.
+                _ = theStream.ReadByte();
+            }
+            Assert.AreEqual(expectedNumFiles, disposedResults.Count);
+            foreach (var disposedResult in disposedResults)
+            {
+                Assert.ThrowsException<ObjectDisposedException>(() => disposedResult.Content.Position);
+            }
+        }
+        
+        [DataTestMethod]
+        [DataRow("TestData.7z", 3, false)]
+        [DataRow("TestData.tar", 6, false)]
+        [DataRow("TestData.rar", 3, false)]
+        [DataRow("TestData.rar4", 3, false)]
+        [DataRow("TestData.tar.bz2", 6, false)]
+        [DataRow("TestData.tar.gz", 6, false)]
+        [DataRow("TestData.tar.xz", 3, false)]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8, false)]
+        [DataRow("TestData.a", 3, false)]
+        [DataRow("TestData.bsd.ar", 3, false)]
+        [DataRow("TestData.iso", 3, false)]
+        [DataRow("TestData.vhdx", 3, false)]
+        [DataRow("TestData.wim", 3, false)]
+        [DataRow("EmptyFile.txt", 1, false)]
+        [DataRow("TestData.zip", 5, true)]
+        [DataRow("TestData.7z", 3, true)]
+        [DataRow("TestData.tar", 6, true)]
+        [DataRow("TestData.rar", 3, true)]
+        [DataRow("TestData.rar4", 3, true)]
+        [DataRow("TestData.tar.bz2", 6, true)]
+        [DataRow("TestData.tar.gz", 6, true)]
+        [DataRow("TestData.tar.xz", 3, true)]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8, true)]
+        [DataRow("TestData.a", 3, true)]
+        [DataRow("TestData.bsd.ar", 3, true)]
+        [DataRow("TestData.iso", 3, true)]
+        [DataRow("TestData.vhdx", 3, true)]
+        [DataRow("TestData.wim", 3, true)]
+        [DataRow("EmptyFile.txt", 1, true)]
+        [DataRow("TestDataArchivesNested.Zip", 54, true)]
+        [DataRow("TestDataArchivesNested.Zip", 54, false)]
+        [DataRow("TestDataArchivesNested.Zip", 54, true)]
+        [DataRow("TestDataArchivesNested.Zip", 54, false)]
+        public async Task ExtractArchiveAndDisposeWhileEnumeratingAsync(string fileName, int expectedNumFiles = 3, bool parallel = false)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            var results = extractor.ExtractAsync(path, new ExtractorOptions(){Parallel = parallel});
+            var disposedResults = new List<FileEntry>();
+            await foreach(var file in results)
+            {
+                disposedResults.Add(file);
+                using var theStream = file.Content;
+                // Do something with the stream.
+                _ = theStream.ReadByte();
+            }
+            Assert.AreEqual(expectedNumFiles, disposedResults.Count);
+            foreach (var disposedResult in disposedResults)
+            {
+                Assert.ThrowsException<ObjectDisposedException>(() => disposedResult.Content.Position);
+            }
         }
         
         [DataTestMethod]
@@ -397,7 +634,9 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
-            var results = extractor.Extract(path, new ExtractorOptions() { Parallel = true });
+            var results = extractor.Extract(path, new ExtractorOptions() { Parallel = true }).ToList();
+            var names = results.Select(x => x.FullPath);
+            var stringOfNames = string.Join("\n", names);
             Assert.AreEqual(expectedNumFiles, results.Count());
         }
 
@@ -830,6 +1069,12 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         {
             ExtractorOptions opts = new() {AllowTypes = allowTypes, DenyTypes = denyTypes};
             Assert.AreEqual(expected, opts.IsAcceptableType(typeToCheck));
+        }
+
+        [ClassCleanup]
+        public static void ClassCleanup()
+        {
+            TestPathHelpers.DeleteTestDirectory();
         }
 
         [ClassInitialize]
