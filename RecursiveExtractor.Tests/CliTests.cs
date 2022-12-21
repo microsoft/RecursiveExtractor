@@ -39,7 +39,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
 
         internal void ExtractArchive(string fileName, int expectedNumFiles, bool singleThread)
         {
-            var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            var directory = TestPathHelpers.GetFreshTestDirectory();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             RecursiveExtractorClient.ExtractCommand(new ExtractCommandOptions() { Input = path, Output = directory, Verbose = true, SingleThread = singleThread});
             var files = Array.Empty<string>();
@@ -78,7 +78,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("TestDataForFilters.7z")]
         public void ExtractArchiveWithAllowFilters(string fileName, int expectedNumFiles = 1)
         {
-            var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            var directory = TestPathHelpers.GetFreshTestDirectory();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var newpath = TempPath.GetTempFilePath();
             File.Copy(path, newpath,true);
@@ -105,7 +105,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("TestDataForFilters.7z")]
         public void ExtractArchiveWithDenyFilters(string fileName, int expectedNumFiles = 2)
         {
-            var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            var directory = TestPathHelpers.GetFreshTestDirectory();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var newpath = TempPath.GetTempFilePath();
             File.Copy(path, newpath, true);
@@ -134,7 +134,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("TestDataEncrypted.rar4")]
         public void ExtractEncryptedArchive(string fileName, int expectedNumFiles = 3)
         {
-            var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            var directory = TestPathHelpers.GetFreshTestDirectory();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var passwords = ExtractorTests.TestArchivePasswords.Values.SelectMany(x => x);
             RecursiveExtractorClient.ExtractCommand(new ExtractCommandOptions() { Input = path, Output = directory, Verbose = true, Passwords = passwords });

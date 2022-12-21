@@ -192,7 +192,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         
         internal void ExtractArchiveToDirectory(string fileName, int expectedNumFiles, bool parallel)
         {
-            var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            var directory = TestPathHelpers.GetFreshTestDirectory();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var extractor = new Extractor();
             extractor.ExtractToDirectory(directory, path, new ExtractorOptions(){Parallel = parallel});
@@ -224,7 +224,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("TestDataArchivesNested.Zip", 54)]
         public async Task ExtractArchiveToDirectoryAsync(string fileName, int expectedNumFiles = 3)
         {
-            var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            var directory = TestPathHelpers.GetFreshTestDirectory();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var extractor = new Extractor();
             Assert.AreEqual(ExtractionStatusCode.Ok, await extractor.ExtractToDirectoryAsync(directory, path).ConfigureAwait(false));
