@@ -470,7 +470,6 @@ namespace Microsoft.CST.RecursiveExtractor
                             break;
                         }
 
-                        var names = entryBatch.Select(x => x.FullPath);
                         Parallel.ForEach(entryBatch, new ParallelOptions() { CancellationToken = cts.Token }, entry =>
                         {
                             var targetPath = Path.Combine(outputDirectory, entry.GetSanitizedPath());
