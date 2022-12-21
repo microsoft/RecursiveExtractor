@@ -15,6 +15,13 @@ public static class TestPathHelpers
 
     public static void DeleteTestDirectory()
     {
-        Directory.Delete(Path.Combine(Path.GetTempPath(), TestTempFolderName), true);
+        try
+        {
+            Directory.Delete(Path.Combine(Path.GetTempPath(), TestTempFolderName), true);
+        }
+        catch (DirectoryNotFoundException)
+        {
+            // Not an error. Not every test makes the folder.
+        }
     }
 }
