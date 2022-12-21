@@ -171,7 +171,7 @@ Otherwise, invalid files found while crawling will emit a logger message and be 
 ## Notes on Enumeration
 
 ### Multiple Enumeration
-You should not iterate the `IEnumerable` returned from the `Extract` and `ExtractAsync` interfaces multiple times, if you need to do so, convert the Enumeration to the collection of your choice first.
+You should not iterate the Enumeration returned from the `Extract` and `ExtractAsync` interfaces multiple times, if you need to do so, convert the Enumeration to the collection of your choice first.
 
 ### Parallel Enumeration
 If you want to enumerate the output with parallelization you should use a batching mechanism, for example:
@@ -179,7 +179,6 @@ If you want to enumerate the output with parallelization you should use a batchi
 ```csharp
 var extractedEnumeration = Extract(fileEntry, opts);
 using var enumerator = extractedEnumeration.GetEnumerator();
-// Move to the first element to prepare
 ConcurrentBag<FileEntry> entryBatch = new();
 bool moreAvailable = enumerator.MoveNext();
 while (moreAvailable)
@@ -209,7 +208,7 @@ while (moreAvailable)
 ```
 
 ### Disposing During Enumeration
-If you are working with a very large archive or in particularly constrained environment you can reduce memory.file handle usage for the Content streams in each FileEntry by disposing as you iterate.
+If you are working with a very large archive or in particularly constrained environment you can reduce memory/file handle usage for the Content streams in each FileEntry by disposing as you iterate.
 
 ```csharp
 var results = extractor.Extract(path);
