@@ -790,7 +790,6 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         }
 
         [DataTestMethod]
-        [DataRow("droste.zip")]
         [DataRow("10GB.7z.bz2")]
         [DataRow("10GB.gz.bz2")]
         [DataRow("10GB.rar.bz2")]
@@ -798,7 +797,6 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("10GB.zip.bz2")]
         [DataRow("zblg.zip")]
         [DataRow("zbsm.zip")]
-        [DataRow("zbxl.zip")]
         [ExpectedException(typeof(OverflowException))]
         public void TestQuineBombs(string fileName)
         {
