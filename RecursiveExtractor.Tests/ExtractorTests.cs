@@ -344,13 +344,78 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataTestMethod]
         [DataRow("TestDataArchivesNested.Zip", 54, true)]
         [DataRow("TestDataArchivesNested.Zip", 54, false)]
-        public void ExtractArchiveAndDisposeTest(string fileName, int expectedNumFiles, bool parallel)
+        public void TimeoutTest(string fileName, int expectedNumFiles, bool parallel)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            Assert.ThrowsException<TimeoutException>(() =>
+            {
+                var results = extractor.Extract(path, new ExtractorOptions(){Parallel = parallel, EnableTiming = true, Timeout = new TimeSpan(0,0,0,0, 10)});
+                int count = 0;
+                foreach (var result in results)
+                {
+                    count++;
+                }
+
+                // We should not be able to get to all the files
+                Assert.Fail();
+            });
+        }
+        
+        [DataTestMethod]
+        [DataRow("TestDataArchivesNested.Zip", 54, true)]
+        [DataRow("TestDataArchivesNested.Zip", 54, false)]
+        public async Task TimeoutTestAsync(string fileName, int expectedNumFiles, bool parallel)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            await Assert.ThrowsExceptionAsync<TimeoutException>(async () =>
+            {
+                var results = extractor.ExtractAsync(path, new ExtractorOptions(){Parallel = parallel, EnableTiming = true, Timeout = new TimeSpan(0,0,0,0, 10)});
+                int count = 0;
+                await foreach (var result in results)
+                {
+                    count++;
+                }
+
+                // We should not be able to get to all the files
+                Assert.Fail();
+            });
+        }
+        
+        [DataTestMethod]
+        [DataRow("TestDataArchivesNested.Zip", 54, true)]
+        [DataRow("TestDataArchivesNested.Zip", 54, false)]
+        public void ExtractArchiveAndDisposeWhileEnumerating(string fileName, int expectedNumFiles, bool parallel)
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var results = extractor.Extract(path, new ExtractorOptions(){Parallel = parallel});
             var disposedResults = new List<FileEntry>();
-            foreach(var file in extractor.Extract(path))
+            foreach(var file in results)
+            {
+                disposedResults.Add(file);
+                using var theStream = file.Content;
+                // Do something with the stream.
+                _ = theStream.ReadByte();
+            }
+            Assert.AreEqual(expectedNumFiles, disposedResults.Count);
+            foreach (var disposedResult in disposedResults)
+            {
+                Assert.ThrowsException<ObjectDisposedException>(() => disposedResult.Content.Position);
+            }
+        }
+        
+        [DataTestMethod]
+        [DataRow("TestDataArchivesNested.Zip", 54, true)]
+        [DataRow("TestDataArchivesNested.Zip", 54, false)]
+        public async Task ExtractArchiveAndDisposeWhileEnumeratingAsync(string fileName, int expectedNumFiles, bool parallel)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            var results = extractor.ExtractAsync(path, new ExtractorOptions(){Parallel = parallel});
+            var disposedResults = new List<FileEntry>();
+            await foreach(var file in results)
             {
                 disposedResults.Add(file);
                 using var theStream = file.Content;
