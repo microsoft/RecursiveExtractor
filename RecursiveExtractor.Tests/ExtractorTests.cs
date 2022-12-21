@@ -342,6 +342,29 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         }
         
         [DataTestMethod]
+        [DataRow("TestDataArchivesNested.Zip", 54, true)]
+        [DataRow("TestDataArchivesNested.Zip", 54, false)]
+        public void ExtractArchiveAndDisposeTest(string fileName, int expectedNumFiles, bool parallel)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            var results = extractor.Extract(path, new ExtractorOptions(){Parallel = parallel});
+            var disposedResults = new List<FileEntry>();
+            foreach(var file in extractor.Extract(path))
+            {
+                disposedResults.Add(file);
+                using var theStream = file.Content;
+                // Do something with the stream.
+                _ = theStream.ReadByte();
+            }
+            Assert.AreEqual(expectedNumFiles, disposedResults.Count);
+            foreach (var disposedResult in disposedResults)
+            {
+                Assert.ThrowsException<ObjectDisposedException>(() => disposedResult.Content.Position);
+            }
+        }
+        
+        [DataTestMethod]
         [DataRow("TestDataCorrupt.tar", false, 0, 1)]
         [DataRow("TestDataCorrupt.tar", true, 1, 1)]
         [DataRow("TestDataCorrupt.tar.zip", false, 0, 2)]
