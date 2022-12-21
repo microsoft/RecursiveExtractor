@@ -861,6 +861,12 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             Assert.AreEqual(expected, opts.IsAcceptableType(typeToCheck));
         }
 
+        [ClassCleanup]
+        public static void ClassCleanup()
+        {
+            TestPathHelpers.DeleteTestDirectory();
+        }
+
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {

@@ -172,7 +172,15 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         /// <param name="replacement">The string value to replace any invalid characters with</param>
         /// <returns>A sanitized path suitable to attempt to write to disk.</returns>
-        public string GetSanitizedPath(string replacement = "_") => InvalidFileChars.Replace(FullPath, replacement);
+        public string GetSanitizedPath(string replacement = "_") => SanitizePath(FullPath, replacement);
+
+        /// <summary>
+        /// Sanitizes a provided path
+        /// </summary>
+        /// <param name="path">Path to Sanitize</param>
+        /// <param name="replacement">The replacement character to use for invalid characters</param>
+        /// <returns>A sanitized path suitable to write to disk</returns>
+        public static string SanitizePath(string path, string replacement = "_") => InvalidFileChars.Replace(path, replacement);
         
         internal bool Passthrough { get; }
 

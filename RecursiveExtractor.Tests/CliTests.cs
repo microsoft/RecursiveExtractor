@@ -147,6 +147,12 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             Assert.AreEqual(expectedNumFiles, files.Length);
         }
 
+        [ClassCleanup]
+        public static void ClassCleanup()
+        {
+            TestPathHelpers.DeleteTestDirectory();
+        }
+        
         protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }
