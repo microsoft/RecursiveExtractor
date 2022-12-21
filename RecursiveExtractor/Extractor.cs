@@ -9,6 +9,7 @@ using DiscUtils.Setup;
 using DiscUtils.Xfs;
 using Microsoft.CST.RecursiveExtractor.Extractors;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -439,36 +440,65 @@ namespace Microsoft.CST.RecursiveExtractor
                 var cts = new CancellationTokenSource();
                 try
                 {
-                    Parallel.ForEach(Extract(fileEntry, opts), new ParallelOptions() { CancellationToken = cts.Token }, entry =>
+                    ConcurrentBag<string> paths = new();
+                    var extractedEnumeration = Extract(fileEntry, opts);
+                    using var enumerator = extractedEnumeration.GetEnumerator();
+                    // Move to the first element to prepare
+                    ConcurrentBag<FileEntry> entryBatch = new();
+                    bool moreAvailable = enumerator.MoveNext();
+                    while (moreAvailable)
                     {
-                        var targetPath = Path.Combine(outputDirectory, entry.GetSanitizedPath());
-
-                        if (Path.GetDirectoryName(targetPath) is { } directoryPathNotNull && targetPath is { } targetPathNotNull)
+                        entryBatch = new();
+                        for (int i = 0; i < opts.BatchSize; i++)
                         {
-                            try
+                            entryBatch.Add(enumerator.Current);
+                            moreAvailable = enumerator.MoveNext();
+                            if (!moreAvailable)
                             {
-                                Directory.CreateDirectory(directoryPathNotNull);
-
-                                using var fs = new FileStream(targetPathNotNull, FileMode.Create);
-                                entry.Content.CopyTo(fs);
-                                if (printNames)
-                                {
-                                    Console.WriteLine("Extracted {0}.", entry.FullPath);
-                                }
-                                Logger.Trace("Extracted {0}", entry.FullPath);
+                                break;
                             }
-                            catch (Exception e)
+                        }
+
+                        if (entryBatch.Count == 0)
+                        {
+                            break;
+                        }
+
+                        var names = entryBatch.Select(x => x.FullPath);
+                        Parallel.ForEach(entryBatch, new ParallelOptions() { CancellationToken = cts.Token }, entry =>
+                        {
+                            var targetPath = Path.Combine(outputDirectory, entry.GetSanitizedPath());
+
+                            if (Path.GetDirectoryName(targetPath) is { } directoryPathNotNull && targetPath is { } targetPathNotNull)
                             {
-                                Logger.Error(e, "Failed to create file at {0}.", targetPathNotNull);
+                                paths.Add(targetPathNotNull);
+                                try
+                                {
+                                    Directory.CreateDirectory(directoryPathNotNull);
+
+                                    using var fs = new FileStream(targetPathNotNull, FileMode.Create);
+                                    entry.Content.CopyTo(fs);
+                                    if (printNames)
+                                    {
+                                        Console.WriteLine("Extracted {0}.", entry.FullPath);
+                                    }
+                                    Logger.Trace("Extracted {0}", entry.FullPath);
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine(paths.Count);
+                                    Logger.Error(e, "Failed to create file at {0}.", targetPathNotNull);
+                                    cts.Cancel();
+                                }
+                            }
+                            else
+                            {
+                                Logger.Error("Failed to create directory.");
                                 cts.Cancel();
                             }
-                        }
-                        else
-                        {
-                            Logger.Error("Failed to create directory.");
-                            cts.Cancel();
-                        }
-                    });
+                        });
+                    }
+                    
                 }
                 catch (OperationCanceledException)
                 {

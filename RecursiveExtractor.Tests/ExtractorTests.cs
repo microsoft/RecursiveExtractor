@@ -162,7 +162,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("TestData.vhdx")]
         [DataRow("TestData.wim")]
         [DataRow("EmptyFile.txt", 1)]
-        [DataRow("TestDataArchivesNested.Zip", 52)]
+        [DataRow("TestDataArchivesNested.Zip", 54)]
         public void ExtractArchiveToDirectoryParallel(string fileName, int expectedNumFiles = 3)
         {
             ExtractArchiveToDirectory(fileName, expectedNumFiles, true);
@@ -184,7 +184,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("TestData.vhdx")]
         [DataRow("TestData.wim")]
         [DataRow("EmptyFile.txt", 1)]
-        [DataRow("TestDataArchivesNested.Zip", 52)]
+        [DataRow("TestDataArchivesNested.Zip", 54)]
         public void ExtractArchiveToDirectorySingleThread(string fileName, int expectedNumFiles = 3)
         {
             ExtractArchiveToDirectory(fileName, expectedNumFiles, false);
@@ -221,7 +221,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         [DataRow("TestData.vhdx")]
         [DataRow("TestData.wim")]
         [DataRow("EmptyFile.txt", 1)]
-        [DataRow("TestDataArchivesNested.Zip", 52)]
+        [DataRow("TestDataArchivesNested.Zip", 54)]
         public async Task ExtractArchiveToDirectoryAsync(string fileName, int expectedNumFiles = 3)
         {
             var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
@@ -337,7 +337,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
-            var results = extractor.Extract(path, new ExtractorOptions());
+            var results = extractor.Extract(path, new ExtractorOptions()).ToList();
             Assert.AreEqual(expectedNumFiles, results.Count());
         }
         
@@ -424,7 +424,9 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
-            var results = extractor.Extract(path, new ExtractorOptions() { Parallel = true });
+            var results = extractor.Extract(path, new ExtractorOptions() { Parallel = true }).ToList();
+            var names = results.Select(x => x.FullPath);
+            var stringOfNames = string.Join("\n", names);
             Assert.AreEqual(expectedNumFiles, results.Count());
         }
 

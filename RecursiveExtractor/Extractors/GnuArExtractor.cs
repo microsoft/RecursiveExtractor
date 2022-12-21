@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
@@ -67,11 +68,25 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             {
                 if (options.Parallel)
                 {
-                    while (fileEntries.Any())
+                    ConcurrentBag<FileEntry> batch = new();
+                    using var enumerator = fileEntries.GetEnumerator();
+                    
+                    bool hasMore = enumerator.MoveNext();
+                    while (hasMore)
                     {
-                        var tempStore = new ConcurrentStack<FileEntry>();
-                        var selectedEntries = fileEntries.Take(options.BatchSize).ToArray();
-                        selectedEntries.AsParallel().ForAll(arEntry =>
+                        batch = new();
+                        ConcurrentStack<FileEntry> tempStore = new();
+                        for (int i = 0; i < options.BatchSize; i++)
+                        {
+                            batch.Add(enumerator.Current);
+                            hasMore = enumerator.MoveNext();
+                            if (!hasMore)
+                            {
+                                break;
+                            }
+                        }
+                        
+                        batch.AsParallel().ForAll(arEntry =>
                         {
                             if (options.Recurse || topLevel)
                             {
@@ -87,12 +102,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             }
                         });
 
-                        fileEntries = fileEntries.Skip(selectedEntries.Length);
-
-                        while (tempStore.TryPop(out var result))
+                        foreach (var entry in tempStore)
                         {
-                            if (result != null)
-                                yield return result;
+                            yield return entry;
                         }
                     }
                 }
