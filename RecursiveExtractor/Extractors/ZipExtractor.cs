@@ -105,7 +105,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     try
                     {
                         using var zipStream = zipFile.GetInputStream(zipEntry);
-                        target = StreamFactory.GenerateAppropriateBackingStream(options, zipStream.Length);
+                        target = StreamFactory.GenerateAppropriateBackingStream(options, zipStream);
                         StreamUtils.Copy(zipStream, target, buffer);
                     }
                     catch (Exception e)
