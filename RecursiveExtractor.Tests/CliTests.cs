@@ -35,7 +35,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         {
             var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
-            RecursiveExtractorClient.ExtractCommand(new ExtractCommandOptions() { Input = path, Output = directory, Verbose = true });
+            RecursiveExtractorClient.ExtractCommand(new ExtractCommandOptions() { Input = path, Output = directory, Verbose = true, PrintNames = true});
             var files = Array.Empty<string>();
             if (Directory.Exists(directory))
             {

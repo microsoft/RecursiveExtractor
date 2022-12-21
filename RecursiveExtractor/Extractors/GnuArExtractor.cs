@@ -70,7 +70,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     while (fileEntries.Any())
                     {
                         var tempStore = new ConcurrentStack<FileEntry>();
-                        var selectedEntries = fileEntries.Take(options.BatchSize);
+                        var selectedEntries = fileEntries.Take(options.BatchSize).ToArray();
                         selectedEntries.AsParallel().ForAll(arEntry =>
                         {
                             if (options.Recurse || topLevel)
@@ -87,7 +87,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             }
                         });
 
-                        fileEntries = fileEntries.Skip(selectedEntries.Count());
+                        fileEntries = fileEntries.Skip(selectedEntries.Length);
 
                         while (tempStore.TryPop(out var result))
                         {

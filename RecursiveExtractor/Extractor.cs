@@ -307,6 +307,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="governor">The <see cref="ResourceGovernor"/> to use for extraction.</param>
         /// <param name="topLevel">If this should be treated as the top level archive.</param>
         /// <returns>The FileEntries found.</returns>
+        /// <remarks>Undefined behavior when enumerated multiple times.</remarks>
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null, bool topLevel = true)
         {
             var options = opts ?? new ExtractorOptions();
@@ -562,6 +563,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="governor">The <see cref="ResourceGovernor"/> to use for extraction.</param>
         /// <param name="topLevel">If this should be treated as the top level archive.</param>
         /// <returns>The FileEntries found.</returns>
+        /// <remarks>Undefined behavior when enumerated multiple times.</remarks>
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null, bool topLevel = true)
         {
             var options = opts ?? new ExtractorOptions();

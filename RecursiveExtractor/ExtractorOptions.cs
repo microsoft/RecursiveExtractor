@@ -75,6 +75,11 @@ namespace Microsoft.CST.RecursiveExtractor
         public bool Recurse { get; set; } = true;
 
         /// <summary>
+        /// Buffer size to use for FileStream backed FileEntries.
+        /// </summary>
+        public int FileStreamBufferSize { get; set; } = 4096;
+
+        /// <summary>
         /// If set, only return files that match these glob filters
         /// </summary>
         public IEnumerable<string> AllowFilters

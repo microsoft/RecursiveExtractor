@@ -58,9 +58,9 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
 
             Assert.AreEqual(expectedArchiveType, fileEntry.ArchiveType);
 
-            var results = extractor.Extract(fileEntry, new ExtractorOptions() { ExtractSelfOnFail = true });
+            var results = extractor.Extract(fileEntry, new ExtractorOptions() { ExtractSelfOnFail = true }).ToList();
             Assert.AreEqual(1, results.Count());
-            Assert.AreEqual(FileEntryStatus.FailedArchive, results.First().EntryStatus);
+            Assert.AreEqual(FileEntryStatus.FailedArchive, results[0].EntryStatus);
         }
 
         [DataTestMethod]
@@ -122,7 +122,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         {
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
-            var results = extractor.Extract(path, new ExtractorOptions());
+            var results = extractor.Extract(path, new ExtractorOptions(){Parallel = false}).ToList();
             Assert.AreEqual(expectedNumFiles, results.Count());
             Assert.AreEqual(FileEntryStatus.EncryptedArchive, results.First().EntryStatus);
         }

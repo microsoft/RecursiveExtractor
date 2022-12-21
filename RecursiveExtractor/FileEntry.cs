@@ -14,7 +14,7 @@ namespace Microsoft.CST.RecursiveExtractor
     public class FileEntry
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-        
+
         /// <summary>
         ///     Constructs a FileEntry object from a Stream.
         ///     The finalizer for this class Disposes the <see cref="Content"/> unless <see cref="DisposeOnFinalize"/> is false.
@@ -26,12 +26,12 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="createTime">Specify the <see cref="FileEntry.CreateTime"/></param>
         /// <param name="modifyTime">Specify the <see cref="FileEntry.ModifyTime"/></param>
         /// <param name="accessTime">Specify the <see cref="FileEntry.AccessTime"/></param>
-        /// <param name="memoryStreamCutoff">When specified, if the provided stream is of length less than this value a <see cref="MemoryStream"/> will be used for backing. If it is greater than this value instead a <see cref="FileStream"/> with DeleteOnClose will be used instead. If unspecified, always use <see cref="MemoryStream"/></param>
+        /// <param name="memoryStreamCutoff">When specified, if the provided stream is of length less than this value a <see cref="MemoryStream"/> will be used for backing. If it is greater than this value instead a <see cref="FileStream"/> with DeleteOnClose will be used instead. If unspecified, always use <see cref="MemoryStream"/> except for very large files.</param>
+        /// <param name="backingFileStreamBufferSize">Optionally specify the size of the FileStream buffers</param>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="inputStream"/> is null.</exception>
-        public FileEntry(string name, Stream inputStream, FileEntry? parent = null, bool passthroughStream = false, DateTime? createTime = null, DateTime? modifyTime = null, DateTime? accessTime = null, int? memoryStreamCutoff = null)
+        public FileEntry(string name, Stream inputStream, FileEntry? parent = null, bool passthroughStream = false, DateTime? createTime = null, DateTime? modifyTime = null, DateTime? accessTime = null, int? memoryStreamCutoff = null, int backingFileStreamBufferSize = 4096)
         {
             memoryStreamCutoff ??= defaultCutoff;
-
             Parent = parent;
             Passthrough = passthroughStream;
 
@@ -54,72 +54,60 @@ namespace Microsoft.CST.RecursiveExtractor
             {
                 Content = new MemoryStream();
             }
-
-            // We want to be able to seek, so ensure any passthrough stream is Seekable
-            if (passthroughStream && inputStream.CanSeek)
-            {
-                Content = inputStream;
-                if (Content.Position != 0)
-                {
-                    Content.Position = 0;
-                }
-            }
             else
             {
-                try
+                // We want to be able to seek, so ensure any passthrough stream is Seekable
+                if (passthroughStream && inputStream.CanSeek)
                 {
-                    if (inputStream.Length > memoryStreamCutoff)
+                    Content = inputStream;
+                    if (Content.Position != 0)
                     {
-                        Content = new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
-                    }
-                    else
-                    {
-                        Content = new MemoryStream();
+                        Content.Position = 0;
                     }
                 }
-                catch (Exception)
+                else
                 {
-                    Content = new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
-                }
+                    Content = StreamFactory.GenerateAppropriateBackingStream(memoryStreamCutoff, inputStream, backingFileStreamBufferSize);
 
-                long? initialPosition = null;
+                    long? initialPosition = null;
 
-                if (inputStream.CanSeek)
-                {
-                    initialPosition = inputStream.Position;
-                    if (inputStream.Position != 0)
+                    if (inputStream.CanSeek)
                     {
-                        inputStream.Position = 0;
+                        initialPosition = inputStream.Position;
+                        if (inputStream.Position != 0)
+                        {
+                            inputStream.Position = 0;
+                        }
                     }
-                }
 
-                try
-                {
-                    inputStream.CopyTo(Content);
-                }
-                catch (NotSupportedException)
-                {
                     try
                     {
-                        Task.Run(() => inputStream.CopyToAsync(Content)).Wait();
+                        inputStream.CopyTo(Content);
                     }
-                    catch (Exception f)
+                    catch (NotSupportedException)
                     {
-                        Logger.Debug("Failed to copy stream from {0} ({1}:{2})", printPath, f.GetType(), f.Message);
+                        try
+                        {
+                            Task.Run(() => inputStream.CopyToAsync(Content)).Wait();
+                        }
+                        catch (Exception f)
+                        {
+                            Logger.Debug("Failed to copy stream from {0} ({1}:{2})", printPath, f.GetType(), f.Message);
+                        }
                     }
-                }
-                catch (Exception e)
-                {
-                    EntryStatus = FileEntryStatus.FailedFile;
-                    Logger.Debug("Failed to copy stream from {0} ({1}:{2})", printPath, e.GetType(), e.Message);
-                }
+                    catch (Exception e)
+                    {
+                        EntryStatus = FileEntryStatus.FailedFile;
+                        Logger.Debug("Failed to copy stream from {0} ({1}:{2})", printPath, e.GetType(), e.Message);
+                    }
 
-                if (inputStream.CanSeek && inputStream.Position != 0)
-                {
-                    inputStream.Position = initialPosition ?? 0;
-                }
+                    if (inputStream.CanSeek && inputStream.Position != 0)
+                    {
+                        inputStream.Position = initialPosition ?? 0;
+                    }
 
-                Content.Position = 0;
+                    Content.Position = 0;
+                }
             }
         }
 
@@ -188,7 +176,7 @@ namespace Microsoft.CST.RecursiveExtractor
         
         internal bool Passthrough { get; }
 
-        private const int bufferSize = 4096;
+        private int bufferSize = 4096;
 
         /// <summary>
         /// The deconstructor will dispose the <see cref="Content"/> stream if <see cref="DisposeOnFinalize"/> is set.
@@ -212,8 +200,9 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="accessTime">Specify the <see cref="AccessTime"/></param>
         /// <param name="memoryStreamCutoff">When specified, if <see cref="Content"/> is of length less than this value a <see cref="MemoryStream"/> will be used for backing.
         /// If it is greater than this value instead a <see cref="FileStream"/> with DeleteOnClose will be used instead. If unspecified, always use <see cref="MemoryStream"/></param>
+        /// <param name="backingFileStreamBufferSize">Optionally specify the size of the FileStream buffers</param>
         /// <returns>A FileEntry object holding a Copy of the Stream as its <see cref="Content"/></returns>
-        public static async Task<FileEntry> FromStreamAsync(string name, Stream content, FileEntry? parent = null, DateTime? createTime = null, DateTime? modifyTime = null, DateTime? accessTime = null, int? memoryStreamCutoff = null)
+        public static async Task<FileEntry> FromStreamAsync(string name, Stream content, FileEntry? parent = null, DateTime? createTime = null, DateTime? modifyTime = null, DateTime? accessTime = null, int? memoryStreamCutoff = null, int backingFileStreamBufferSize = 4096)
         {
             var status = FileEntryStatus.Default;
             memoryStreamCutoff ??= defaultCutoff;
@@ -233,22 +222,9 @@ namespace Microsoft.CST.RecursiveExtractor
             {
                 printPath = Path.Combine(parent.FullPath, name);
             }
-            Stream Content;
-            try
-            {
-                if (content.Length > memoryStreamCutoff)
-                {
-                    Content = new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.Asynchronous | FileOptions.DeleteOnClose);
-                }
-                else
-                {
-                    Content = new MemoryStream();
-                }
-            }
-            catch (Exception)
-            {
-                Content = new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.Asynchronous | FileOptions.DeleteOnClose);
-            }
+
+            Stream Content = StreamFactory.GenerateAppropriateBackingStream(memoryStreamCutoff, content,
+                backingFileStreamBufferSize);
 
             long? initialPosition = null;
 
@@ -313,6 +289,10 @@ namespace Microsoft.CST.RecursiveExtractor
             return fullPath;
         }
 
+        /// <summary>
+        /// 1024 * 1024 * 100 bytes = 100 MB
+        /// Default max size for memory streams before using FileStreams
+        /// </summary>
         private const int defaultCutoff = 1024 * 1024 * 100;
 
         /// <summary>
