@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
@@ -128,16 +129,33 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 if (options.Parallel)
                 {
                     var files = new ConcurrentStack<FileEntry>();
-
-                    while (entries.Count > 0)
+                    using var enumerator = entries.GetEnumerator();
+                    ConcurrentBag<SevenZipArchiveEntry> entryBatch = new();
+                    bool moreAvailable = enumerator.MoveNext();
+                    while (moreAvailable)
                     {
+                        entryBatch = new();
+                        for (int i = 0; i < options.BatchSize; i++)
+                        {
+                            entryBatch.Add(enumerator.Current);
+                            moreAvailable = enumerator.MoveNext();
+                            if (!moreAvailable)
+                            {
+                                break;
+                            }
+                        }
+
+                        if (entryBatch.Count == 0)
+                        {
+                            break;
+                        }
                         var batchSize = Math.Min(options.BatchSize, entries.Count);
-                        var selectedEntries = entries.GetRange(0, batchSize).Select(entry => (entry, entry.OpenEntryStream()));
+                        var selectedEntries = entries.GetRange(0, batchSize).Select(entry => (entry, entry.OpenEntryStream())).ToArray();
                         governor.CheckResourceGovernor(selectedEntries.Sum(x => x.entry.Size));
 
                         try
                         {
-                            selectedEntries.AsParallel().ForAll(entry =>
+                            Parallel.ForEach(selectedEntries,entry =>
                             {
                                 try
                                 {
@@ -167,13 +185,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                                 }
                             });
                         }
-                        catch (Exception e) when (e is AggregateException)
+                        catch (AggregateException e) when (e.InnerException is OverflowException or TimeoutException)
                         {
-                            if (e.InnerException?.GetType() == typeof(OverflowException))
-                            {
-                                throw e.InnerException;
-                            }
-                            throw;
+                            throw e.InnerException;
                         }
 
                         governor.CheckResourceGovernor(0);

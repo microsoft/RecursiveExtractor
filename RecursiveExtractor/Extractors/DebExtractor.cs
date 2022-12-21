@@ -89,7 +89,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             {
                 if (options.Parallel)
                 {
-                    CancellationTokenSource cts = new();
                     var files = new ConcurrentStack<FileEntry>();
                     using var enumerator = entries.GetEnumerator();
                     ConcurrentBag<FileEntry> entryBatch = new();
@@ -114,7 +113,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                         try
                         {
-                            Parallel.ForEach(entryBatch, new ParallelOptions() { CancellationToken = cts.Token },
+                            Parallel.ForEach(entryBatch, new ParallelOptions(),
                             entry =>
                             {
                                 if (options.Recurse || topLevel)
@@ -131,9 +130,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                                 }
                             });
                         }
-                        catch (AggregateException e) when (e.InnerException is TimeoutException timeoutException)
+                        catch (AggregateException e) when (e.InnerException is OverflowException or TimeoutException)
                         {
-                            throw timeoutException;
+                            throw e.InnerException;
                         }
                         
                         while (files.TryPop(out var result))

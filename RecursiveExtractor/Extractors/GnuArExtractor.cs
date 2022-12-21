@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
+using System.Threading.Tasks;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
@@ -85,22 +86,29 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                                 break;
                             }
                         }
-                        
-                        batch.AsParallel().ForAll(arEntry =>
+
+                        try
                         {
-                            if (options.Recurse || topLevel)
+                            Parallel.ForEach(batch, arEntry =>
                             {
-                                var entries = Context.Extract(arEntry, options, governor, false).ToArray();
-                                if (entries.Any())
+                                if (options.Recurse || topLevel)
                                 {
-                                    tempStore.PushRange(entries);
+                                    var entries = Context.Extract(arEntry, options, governor, false).ToArray();
+                                    if (entries.Any())
+                                    {
+                                        tempStore.PushRange(entries);
+                                    }
                                 }
-                            }
-                            else
-                            {
-                                tempStore.Push(arEntry);
-                            }
-                        });
+                                else
+                                {
+                                    tempStore.Push(arEntry);
+                                }
+                            });
+                        }
+                        catch (AggregateException e) when (e.InnerException is OverflowException or TimeoutException)
+                        {
+                            throw e.InnerException;
+                        }
 
                         foreach (var entry in tempStore)
                         {
