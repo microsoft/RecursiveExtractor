@@ -101,7 +101,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry1"> </param>
         /// <param name="fileEntry2"> </param>
-        /// <returns> </returns>
+        /// <returns>True if the Content of two FileEntries are identical</returns>
         public static bool AreIdentical(FileEntry fileEntry1, FileEntry fileEntry2)
         {
             var stream1 = fileEntry1.Content;
@@ -147,7 +147,7 @@ namespace Microsoft.CST.RecursiveExtractor
         ///     Check if the fileEntry is a quine
         /// </summary>
         /// <param name="fileEntry">The <see cref="FileEntry"/> to extract.</param>
-        /// <returns> </returns>
+        /// <returns>True if the FileEntry is a identical to any of its predecessors</returns>
         public static bool IsQuine(FileEntry fileEntry)
         {
             var next = fileEntry.Parent;
@@ -171,7 +171,8 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         /// <param name="filename">The path to the file to extract.</param>
         /// <param name="opts">The ExtractorOptions to use.</param>
-        /// <returns>The FileEntries found.</returns>
+        /// <returns>An enumeration of the FileEntry objects extracted</returns>
+        /// <remarks>Undefined behavior when enumerated multiple times. To operate on the enumeration in parallel, use a batching technique.</remarks>
         public IEnumerable<FileEntry> Extract(string filename, ExtractorOptions? opts = null)
         {
             if (!File.Exists(filename))
@@ -189,7 +190,8 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         /// <param name="filename">The path to the file to extract.</param>
         /// <param name="opts">The ExtractorOptions to use.</param>
-        /// <returns>The FileEntries found.</returns>
+        /// <returns>An enumeration of the FileEntry objects extracted</returns>
+        /// <remarks>Undefined behavior when enumerated multiple times. To operate on the enumeration in parallel, use a batching technique.</remarks>
         public async IAsyncEnumerable<FileEntry> ExtractAsync(string filename, ExtractorOptions? opts = null)
         {
             opts ??= new ExtractorOptions();
@@ -215,7 +217,8 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="filename">The filename to call the Stream.</param>
         /// <param name="stream">The Stream to parse.</param>
         /// <param name="opts">The ExtractorOptions to use.</param>
-        /// <returns>The FileEntries found.</returns>
+        /// <returns>An enumeration of the FileEntry objects extracted</returns>
+        /// <remarks>Undefined behavior when enumerated multiple times. To operate on the enumeration in parallel, use a batching technique.</remarks>
         public async IAsyncEnumerable<FileEntry> ExtractAsync(string filename, Stream stream, ExtractorOptions? opts = null)
         {
             opts ??= new ExtractorOptions();
@@ -246,7 +249,8 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="filename">The filename to use for the stream.</param>
         /// <param name="stream">The Stream to extract from</param>
         /// <param name="opts">The Extractor Options to use.</param>
-        /// <returns></returns>
+        /// <returns>An enumeration of the FileEntry objects extracted</returns>
+        /// <remarks>Undefined behavior when enumerated multiple times. To operate on the enumeration in parallel, use a batching technique.</remarks>
         public IEnumerable<FileEntry> Extract(string filename, Stream stream, ExtractorOptions? opts = null)
         {
             opts ??= new ExtractorOptions();
@@ -260,7 +264,8 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="filename">The filename to use for the root.</param>
         /// <param name="archiveBytes">The bytes to extract.</param>
         /// <param name="opts">The Extractor options.</param>
-        /// <returns></returns>
+        /// <returns>An enumeration of the FileEntry objects extracted</returns>
+        /// <remarks>Undefined behavior when enumerated multiple times. To operate on the enumeration in parallel, use a batching technique.</remarks>
         public IEnumerable<FileEntry> Extract(string filename, byte[] archiveBytes, ExtractorOptions? opts = null)
         {
             opts ??= new ExtractorOptions();
@@ -275,6 +280,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="archiveBytes">The bytes to extract.</param>
         /// <param name="opts">The Extractor options.</param>
         /// <returns>The FileEntrys found.</returns>
+        /// <remarks>Undefined behavior when enumerated multiple times. To operate on the enumeration in parallel, use a batching technique.</remarks>
         public async IAsyncEnumerable<FileEntry> ExtractAsync(string filename, byte[] archiveBytes, ExtractorOptions? opts = null)
         {
             opts ??= new ExtractorOptions();
@@ -307,7 +313,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="governor">The <see cref="ResourceGovernor"/> to use for extraction.</param>
         /// <param name="topLevel">If this should be treated as the top level archive.</param>
         /// <returns>The FileEntries found.</returns>
-        /// <remarks>Undefined behavior when enumerated multiple times.</remarks>
+        /// <remarks>Undefined behavior when enumerated multiple times. To operate on the enumeration in parallel, use a batching technique.</remarks>
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null, bool topLevel = true)
         {
             var options = opts ?? new ExtractorOptions();
@@ -595,7 +601,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="governor">The <see cref="ResourceGovernor"/> to use for extraction.</param>
         /// <param name="topLevel">If this should be treated as the top level archive.</param>
         /// <returns>The FileEntries found.</returns>
-        /// <remarks>Undefined behavior when enumerated multiple times.</remarks>
+        /// <remarks>Undefined behavior when enumerated multiple times. To operate on the enumeration in parallel, use a batching technique.</remarks>
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions? opts = null, ResourceGovernor? governor = null, bool topLevel = true)
         {
             var options = opts ?? new ExtractorOptions();
