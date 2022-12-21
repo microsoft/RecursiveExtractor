@@ -610,7 +610,6 @@ namespace Microsoft.CST.RecursiveExtractor
                 Logger.Info(IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
                 throw new OverflowException();
             }
-            var useRaw = false;
 
             if (options.RequireTopLevelToBeArchive && topLevel && fileEntry.ArchiveType == ArchiveFileType.UNKNOWN)
             {
@@ -625,6 +624,8 @@ namespace Microsoft.CST.RecursiveExtractor
                 var type = fileEntry.ArchiveType;
                 if (options.IsAcceptableType(type))
                 {
+                    resourceGovernor.CurrentOperationProcessedBytesLeft -= fileEntry.Content.Length;
+
                     if (options.RawExtensions.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ||
                         type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type))
                     {
@@ -649,12 +650,6 @@ namespace Microsoft.CST.RecursiveExtractor
             else if (options.FileNamePasses(fileEntry.FullPath))
             {
                 yield return fileEntry;
-            }
-
-            // After we are done with an archive subtract its bytes. Contents have been counted now separately
-            if (!useRaw)
-            {
-                resourceGovernor.CurrentOperationProcessedBytesLeft += fileEntry.Content.Length;
             }
         }
     }
