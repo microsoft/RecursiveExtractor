@@ -149,8 +149,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         {
                             break;
                         }
-                        var batchSize = Math.Min(options.BatchSize, entries.Count);
-                        var selectedEntries = entries.GetRange(0, batchSize).Select(entry => (entry, entry.OpenEntryStream())).ToArray();
+                        var selectedEntries = entryBatch.Select(entry => (entry, entry.OpenEntryStream())).ToArray();
                         governor.CheckResourceGovernor(selectedEntries.Sum(x => x.entry.Size));
 
                         try
@@ -191,7 +190,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         }
 
                         governor.CheckResourceGovernor(0);
-                        entries.RemoveRange(0, batchSize);
 
                         while (files.TryPop(out var result))
                         {
