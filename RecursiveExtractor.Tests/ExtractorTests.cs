@@ -147,6 +147,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         }
 
         [DataTestMethod]
+        [DataRow("100Trees.7z", 101)]
         [DataRow("TestData.zip", 5)]
         [DataRow("TestData.7z")]
         [DataRow("TestData.tar", 6)]
@@ -169,6 +170,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         }
         
         [DataTestMethod]
+        [DataRow("100Trees.7z", 101)]
         [DataRow("TestData.zip", 5)]
         [DataRow("TestData.7z")]
         [DataRow("TestData.tar", 6)]
@@ -195,7 +197,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var directory = TestPathHelpers.GetFreshTestDirectory();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var extractor = new Extractor();
-            extractor.ExtractToDirectory(directory, path, new ExtractorOptions(){Parallel = parallel});
+            extractor.ExtractToDirectory(directory, path, new ExtractorOptions(){Parallel = parallel, MaxExtractedBytesRatio = 500});
             var files = Array.Empty<string>();
             if (Directory.Exists(directory))
             {
@@ -206,7 +208,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         }
 
         [DataTestMethod]
-        [DataRow("100trees.7z", 100)]
+        [DataRow("100Trees.7z", 101)]
         [DataRow("TestData.zip", 5)]
         [DataRow("TestData.7z")]
         [DataRow("TestData.tar", 6)]
@@ -239,7 +241,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         }
 
         [DataTestMethod]
-        [DataRow("100trees.7z", 100)]
+        [DataRow("100Trees.7z", 101)]
         [DataRow("TestData.zip", 5)]
         [DataRow("TestData.7z")]
         [DataRow("TestData.tar", 6)]
@@ -269,7 +271,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         }
 
         [DataTestMethod]
-        [DataRow("100trees.7z", 100)]
+        [DataRow("100Trees.7z", 101)]
         [DataRow("TestData.zip", 5)]
         [DataRow("TestData.7z")]
         [DataRow("TestData.tar", 6)]
@@ -295,7 +297,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         }
 
         [DataTestMethod]
-        [DataRow("100trees.7z", 100)]
+        [DataRow("100Trees.7z", 101)]
         [DataRow("TestData.zip", 5)]
         [DataRow("TestData.7z")]
         [DataRow("TestData.tar", 6)]
