@@ -325,7 +325,7 @@ namespace Microsoft.CST.RecursiveExtractor
             }
             Logger.Trace("ExtractFile({FullPath})", fileEntry.FullPath);
 
-            resourceGovernor.CurrentOperationProcessedBytesLeft -= fileEntry.Content.Length;
+            resourceGovernor.AdjustRemainingBytes(-fileEntry.Content.Length);
             resourceGovernor.CheckResourceGovernor();
             if (IsQuine(fileEntry))
             {
@@ -611,7 +611,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 resourceGovernor.ResetResourceGovernor(fileEntry.Content);
             }
             Logger.Trace("ExtractFile({0})", fileEntry.FullPath);
-            resourceGovernor.CurrentOperationProcessedBytesLeft -= fileEntry.Content.Length;
+            resourceGovernor.AdjustRemainingBytes(-fileEntry.Content.Length);
             resourceGovernor.CheckResourceGovernor();
             if (IsQuine(fileEntry))
             {
@@ -632,7 +632,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 var type = fileEntry.ArchiveType;
                 if (options.IsAcceptableType(type))
                 {
-                    resourceGovernor.CurrentOperationProcessedBytesLeft -= fileEntry.Content.Length;
+                    resourceGovernor.AdjustRemainingBytes(-fileEntry.Content.Length);
 
                     if (options.RawExtensions.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ||
                         type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type))

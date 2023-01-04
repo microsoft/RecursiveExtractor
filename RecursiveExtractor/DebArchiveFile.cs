@@ -36,7 +36,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 if (int.TryParse(Encoding.ASCII.GetString(fileSizeBytes).Trim(), out var fileSize))
                 {
                     governor.CheckResourceGovernor(fileSize);
-                    governor.CurrentOperationProcessedBytesLeft -= fileSize;
+                    governor.AdjustRemainingBytes(-fileSize);
 
                     var entryContent = new byte[fileSize];
                     fileEntry.Content.Read(entryContent, 0, fileSize);
@@ -76,7 +76,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 if (int.TryParse(Encoding.ASCII.GetString(fileSizeBytes).Trim(), out var fileSize))
                 {
                     governor.CheckResourceGovernor(fileSize);
-                    governor.CurrentOperationProcessedBytesLeft -= fileSize;
+                    governor.AdjustRemainingBytes(-fileSize);
 
                     var entryContent = new byte[fileSize];
                     await fileEntry.Content.ReadAsync(entryContent, 0, fileSize).ConfigureAwait(false);

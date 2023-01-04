@@ -1,19 +1,19 @@
 ﻿// Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 
+using Microsoft.CST.RecursiveExtractor;
+using Microsoft.CST.RecursiveExtractor.Cli;
+using Microsoft.CST.RecursiveExtractor.Tests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NLog;
+using RecursiveExtractor.Tests.ExtractorTests;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.CST.RecursiveExtractor.Cli;
 using System.Threading;
 
-namespace Microsoft.CST.RecursiveExtractor.Tests
+namespace RecursiveExtractor.Tests.CliTests
 {
     [TestClass]
-    public class ExtractorCliTests
+    public class CliTests
     {
         [DataTestMethod]
         [DataRow("TestData.zip", 5)]
@@ -136,7 +136,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         {
             var directory = TestPathHelpers.GetFreshTestDirectory();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
-            var passwords = ExtractorTests.TestArchivePasswords.Values.SelectMany(x => x);
+            var passwords = EncryptedArchiveTests.TestArchivePasswords.Values.SelectMany(x => x);
             RecursiveExtractorClient.ExtractCommand(new ExtractCommandOptions() { Input = path, Output = directory, Verbose = true, Passwords = passwords });
             var files = Array.Empty<string>();
             if (Directory.Exists(directory))
