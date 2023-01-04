@@ -120,7 +120,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     var batchSize = Math.Min(options.BatchSize, entries.Length);
                     while (entries.Length > 0)
                     {
-                        var selectedFileEntries = entries.Take(batchSize);
+                        var selectedFileEntries = entries.Take(batchSize).ToArray();
                         var fileInfoTuples = new List<(string name, DateTime created, DateTime modified, DateTime accessed, Stream stream)>();
 
                         foreach (var selectedFileEntry in selectedFileEntries)
@@ -156,7 +156,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             }
                         });
 
-                        entries = entries[batchSize..];
+                        entries = entries[selectedFileEntries.Length..];
 
                         while (files.TryPop(out var result))
                         {

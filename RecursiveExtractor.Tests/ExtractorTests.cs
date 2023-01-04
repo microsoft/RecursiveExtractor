@@ -1049,6 +1049,31 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Bombs", fileName);
             _ = extractor.Extract(path, new ExtractorOptions() { MemoryStreamCutoff = 1024 * 1024 * 1024 }).ToList();
         }
+        
+        [DataTestMethod]
+        [DataRow("TestData.zip", 5)]
+        [DataRow("TestData.7z")]
+        [DataRow("TestData.tar", 6)]
+        [DataRow("TestData.rar")]
+        [DataRow("TestData.rar4")]
+        [DataRow("TestData.tar.bz2", 6)]
+        [DataRow("TestData.tar.gz", 6)]
+        [DataRow("TestData.tar.xz")]
+        [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
+        [DataRow("TestData.a")]
+        [DataRow("TestData.bsd.ar")]
+        [DataRow("TestData.iso")]
+        [DataRow("TestData.vhdx")]
+        [DataRow("TestData.wim")]
+        [DataRow("EmptyFile.txt", 1)]
+        [DataRow("TestDataArchivesNested.Zip", 54)]        
+        public void ExtractArchiveSmallBatchSize(string fileName, int expectedNumFiles = 3)
+        {
+            var extractor = new Extractor();
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+            var results = extractor.Extract(path, new ExtractorOptions() { Parallel = true, BatchSize = 2 });
+            Assert.AreEqual(expectedNumFiles, results.Count(entry => entry.EntryStatus == FileEntryStatus.Default));
+        }
 
         [DataTestMethod]
         [DataRow("zip-slip-win.zip")]
