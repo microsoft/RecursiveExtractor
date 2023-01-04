@@ -147,6 +147,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         }
 
         [DataTestMethod]
+        [DataRow("100Trees.7z", 101)]
         [DataRow("TestData.zip", 5)]
         [DataRow("TestData.7z")]
         [DataRow("TestData.tar", 6)]
@@ -169,6 +170,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         }
         
         [DataTestMethod]
+        [DataRow("100Trees.7z", 101)]
         [DataRow("TestData.zip", 5)]
         [DataRow("TestData.7z")]
         [DataRow("TestData.tar", 6)]
@@ -195,7 +197,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var directory = TestPathHelpers.GetFreshTestDirectory();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var extractor = new Extractor();
-            extractor.ExtractToDirectory(directory, path, new ExtractorOptions(){Parallel = parallel});
+            extractor.ExtractToDirectory(directory, path, new ExtractorOptions(){Parallel = parallel, MaxExtractedBytesRatio = 500});
             var files = Array.Empty<string>();
             if (Directory.Exists(directory))
             {
@@ -206,6 +208,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         }
 
         [DataTestMethod]
+        [DataRow("100Trees.7z", 101)]
         [DataRow("TestData.zip", 5)]
         [DataRow("TestData.7z")]
         [DataRow("TestData.tar", 6)]
@@ -238,6 +241,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         }
 
         [DataTestMethod]
+        [DataRow("100Trees.7z", 101)]
         [DataRow("TestData.zip", 5)]
         [DataRow("TestData.7z")]
         [DataRow("TestData.tar", 6)]
@@ -267,6 +271,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
         }
 
         [DataTestMethod]
+        [DataRow("100Trees.7z", 101)]
         [DataRow("TestData.zip", 5)]
         [DataRow("TestData.7z")]
         [DataRow("TestData.tar", 6)]
@@ -288,10 +293,11 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var results = extractor.Extract(path, new ExtractorOptions() { Parallel = true, Recurse = false });
-            Assert.AreEqual(expectedNumFiles, results.Count());
+            Assert.AreEqual(expectedNumFiles, results.Count(entry => entry.EntryStatus == FileEntryStatus.Default));
         }
 
         [DataTestMethod]
+        [DataRow("100Trees.7z", 101)]
         [DataRow("TestData.zip", 5)]
         [DataRow("TestData.7z")]
         [DataRow("TestData.tar", 6)]
@@ -313,7 +319,7 @@ namespace Microsoft.CST.RecursiveExtractor.Tests
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var results = extractor.Extract(path, new ExtractorOptions() { Recurse = false });
-            Assert.AreEqual(expectedNumFiles, results.Count());
+            Assert.AreEqual(expectedNumFiles, results.Count(entry => entry.EntryStatus == FileEntryStatus.Default));
         }
 
         [DataTestMethod]
