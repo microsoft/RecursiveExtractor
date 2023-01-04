@@ -3,6 +3,9 @@ using System.IO;
 
 namespace Microsoft.CST.RecursiveExtractor;
 
+/// <summary>
+/// Static class with static Methods to generate the correct type of backing stream based on the length of hte target stream and the <see cref="ExtractorOptions"/>.
+/// </summary>
 public static class StreamFactory
 {
     /// <summary>
