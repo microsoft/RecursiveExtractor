@@ -37,7 +37,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 if (long.TryParse(Encoding.ASCII.GetString(headerBuffer[48..58]), out var size))// header size in bytes
                 {
                     governor.CheckResourceGovernor(size);
-                    governor.CurrentOperationProcessedBytesLeft -= size;
+                    governor.AdjustRemainingBytes(-size);
                     var filename = Encoding.ASCII.GetString(headerBuffer[0..16]).Trim();
 
                     // Header with list of file names
@@ -285,7 +285,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 if (long.TryParse(Encoding.ASCII.GetString(headerBuffer[48..58]), out var size))// header size in bytes
                 {
                     governor.CheckResourceGovernor(size);
-                    governor.CurrentOperationProcessedBytesLeft -= size;
+                    governor.AdjustRemainingBytes(-size);
                     var filename = Encoding.ASCII.GetString(headerBuffer[0..16]).Trim();
 
                     // Header with list of file names

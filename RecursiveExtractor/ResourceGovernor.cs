@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 
 namespace Microsoft.CST.RecursiveExtractor
 {
@@ -57,8 +58,20 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <summary>
         ///     Stores the number of bytes left before we abort (denial of service).
         /// </summary>
-        internal long CurrentOperationProcessedBytesLeft = -1;
+        private long CurrentOperationProcessedBytesLeft = -1;
 
+        /// <summary>
+        /// Adjust the amount of bytes remaining.
+        /// </summary>
+        /// <param name="ChangeAmount"></param>
+        internal void AdjustRemainingBytes(long ChangeAmount)
+        {
+            lock (this)
+            {
+                CurrentOperationProcessedBytesLeft += ChangeAmount;
+            }
+        }
+        
         /// <summary>
         ///     Times extraction operations to avoid denial of service.
         /// </summary>
