@@ -126,97 +126,22 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             if (sevenZipArchive != null && archiveStatus == FileEntryStatus.Default)
             {
                 var entries = sevenZipArchive.Entries.Where(x => !x.IsDirectory && x.IsComplete).ToList();
-                if (options.Parallel)
+                foreach (var entry in entries)
                 {
-                    var files = new ConcurrentStack<FileEntry>();
-                    using var enumerator = entries.GetEnumerator();
-                    ConcurrentBag<SevenZipArchiveEntry> entryBatch = new();
-                    bool moreAvailable = enumerator.MoveNext();
-                    while (moreAvailable)
+                    governor.CheckResourceGovernor(entry.Size);
+                    var name = entry.Key.Replace('/', Path.DirectorySeparatorChar);
+                    var newFileEntry = new FileEntry(name, entry.OpenEntryStream(), fileEntry, createTime: entry.CreatedTime, modifyTime: entry.LastModifiedTime, accessTime: entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
+
+                    if (options.Recurse || topLevel)
                     {
-                        entryBatch = new();
-                        for (int i = 0; i < options.BatchSize; i++)
+                        foreach (var innerEntry in Context.Extract(newFileEntry, options, governor, false))
                         {
-                            entryBatch.Add(enumerator.Current);
-                            moreAvailable = enumerator.MoveNext();
-                            if (!moreAvailable)
-                            {
-                                break;
-                            }
-                        }
-
-                        if (entryBatch.Count == 0)
-                        {
-                            break;
-                        }
-                        var selectedEntries = entryBatch.Select(entry => (entry, entry.OpenEntryStream())).ToArray();
-                        governor.CheckResourceGovernor(selectedEntries.Sum(x => x.entry.Size));
-
-                        try
-                        {
-                            Parallel.ForEach(selectedEntries,entry =>
-                            {
-                                try
-                                {
-                                    var name = entry.entry.Key.Replace('/', Path.DirectorySeparatorChar);
-                                    var newFileEntry = new FileEntry(name, entry.Item2, fileEntry, false, entry.entry.CreatedTime, entry.entry.LastModifiedTime, entry.entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
-                                    if (options.Recurse || topLevel)
-                                    {
-                                        var entries = Context.Extract(newFileEntry, options, governor, false);
-                                        if (entries.Any())
-                                        {
-                                            files.PushRange(entries.ToArray());
-                                        }
-                                    }
-                                    else
-                                    {
-                                        files.Push(newFileEntry);
-                                    }
-                                }
-                                catch (Exception e) when (e is OverflowException)
-                                {
-                                    Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.P7ZIP, fileEntry.FullPath, entry.entry.Key, e.GetType());
-                                    throw;
-                                }
-                                catch (Exception e)
-                                {
-                                    Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.P7ZIP, fileEntry.FullPath, entry.entry.Key, e.GetType());
-                                }
-                            });
-                        }
-                        catch (AggregateException e) when (e.InnerException is OverflowException or TimeoutException)
-                        {
-                            throw e.InnerException;
-                        }
-
-                        governor.CheckResourceGovernor(0);
-
-                        while (files.TryPop(out var result))
-                        {
-                            if (result != null)
-                                yield return result;
+                            yield return innerEntry;
                         }
                     }
-                }
-                else
-                {
-                    foreach (var entry in entries)
+                    else
                     {
-                        governor.CheckResourceGovernor(entry.Size);
-                        var name = entry.Key.Replace('/', Path.DirectorySeparatorChar);
-                        var newFileEntry = new FileEntry(name, entry.OpenEntryStream(), fileEntry, createTime: entry.CreatedTime, modifyTime: entry.LastModifiedTime, accessTime: entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
-
-                        if (options.Recurse || topLevel)
-                        {
-                            foreach (var innerEntry in Context.Extract(newFileEntry, options, governor, false))
-                            {
-                                yield return innerEntry;
-                            }
-                        }
-                        else
-                        {
-                            yield return newFileEntry;
-                        }
+                        yield return newFileEntry;
                     }
                 }
             }
