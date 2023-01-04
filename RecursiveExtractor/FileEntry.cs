@@ -183,9 +183,7 @@ namespace Microsoft.CST.RecursiveExtractor
         public static string SanitizePath(string path, string replacement = "_") => InvalidFileChars.Replace(path, replacement);
         
         internal bool Passthrough { get; }
-
-        private int bufferSize = 4096;
-
+        
         /// <summary>
         /// The deconstructor will dispose the <see cref="Content"/> stream if <see cref="DisposeOnFinalize"/> is set.
         /// </summary>
