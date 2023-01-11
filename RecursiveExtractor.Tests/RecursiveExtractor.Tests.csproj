@@ -13,9 +13,9 @@
     <PackageReference Include="DiscUtils.HfsPlus" Version="0.16.13" />
     <PackageReference Include="DiscUtils.SquashFs" Version="0.16.13" />
     <PackageReference Include="DiscUtils.Xfs" Version="0.16.13" />
-    <PackageReference Include="MSTest.TestAdapter" Version="3.0.1" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.0.1" />
-    <PackageReference Include="NLog.Extensions.Logging" Version="5.2.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.0.2" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.0.2" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="5.2.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
   </ItemGroup>
 
