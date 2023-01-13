@@ -55,7 +55,7 @@ namespace Microsoft.CST.RecursiveExtractor
         public int BatchSize { get; set; } = 50;
 
         /// <summary>
-        /// Run in parallel when possible
+        /// When extracting to directory, if extracted entries should be written to disk in parallel.
         /// </summary>
         public bool Parallel { get; set; }
 
