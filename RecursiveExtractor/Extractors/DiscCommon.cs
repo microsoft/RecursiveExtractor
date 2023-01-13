@@ -104,109 +104,37 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             {
                 using var fs = fsInfo.Open(volume);
                 var diskFiles = fs.GetFiles(fs.Root.FullName, "*.*", SearchOption.AllDirectories).ToList();
-                if (options.Parallel)
+                
+                foreach (var file in diskFiles)
                 {
-                    var files = new ConcurrentStack<FileEntry>();
-
-                    while (diskFiles.Count > 0)
+                    Stream? fileStream = null;
+                    (DateTime? creation, DateTime? modification, DateTime? access) = (null, null, null);
+                    try
                     {
-                        var batchSize = Math.Min(options.BatchSize, diskFiles.Count);
-                        var range = diskFiles.GetRange(0, batchSize);
-                        var fileinfos =
-                            new List<(string name, DateTime created, DateTime modified, DateTime accessed, Stream stream
-                                )>();
-                        long totalLength = 0;
-                        foreach (var r in range)
-                        {
-                            try
-                            {
-                                var fi = fs.GetFileInfo(r);
-                                totalLength += fi.Length;
-                                fileinfos.Add((fi.FullName, fi.CreationTime, fi.LastWriteTime, fi.LastAccessTime,
-                                    fi.OpenRead()));
-                            }
-                            catch (Exception e)
-                            {
-                                Logger.Debug("Failed to get FileInfo from {0} in Volume {1} @ {2} ({3}:{4})", r,
-                                    volume.Identity, parentPath, e.GetType(), e.Message);
-                            }
-                        }
-
-                        governor.CheckResourceGovernor(totalLength);
-
-                        try
-                        {
-                            Parallel.ForEach(fileinfos, new ParallelOptions(), file =>
-                            {
-                                if (file.stream != null)
-                                {
-                                    var newFileEntry =
-                                        new FileEntry($"{volume.Identity}{Path.DirectorySeparatorChar}{file.name}",
-                                            file.stream, parent, false, file.created, file.modified, file.accessed,
-                                            memoryStreamCutoff: options.MemoryStreamCutoff);
-                                    if (options.Recurse || topLevel)
-                                    {
-                                        var newEntries = Context.Extract(newFileEntry, options, governor, false)
-                                            .ToArray();
-                                        if (newEntries.Length > 0)
-                                        {
-                                            files.PushRange(newEntries);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        files.Push(newFileEntry);
-                                    }
-                                }
-                            });
-                        }
-                        catch (AggregateException e) when (e.InnerException is OverflowException or TimeoutException)
-                        {
-                            throw e.InnerException;
-                        }
-                        
-                        diskFiles.RemoveRange(0, batchSize);
-
-                        while (files.TryPop(out var result))
-                        {
-                            if (result != null)
-                                yield return result;
-                        }
+                        var fi = fs.GetFileInfo(file);
+                        governor.CheckResourceGovernor(fi.Length);
+                        fileStream = fi.OpenRead();
+                        creation = fi.CreationTime;
+                        modification = fi.LastWriteTime;
+                        access = fi.LastAccessTime;
                     }
-                }
-                else
-                {
-                    foreach (var file in diskFiles)
+                    catch (Exception e)
                     {
-                        Stream? fileStream = null;
-                        (DateTime? creation, DateTime? modification, DateTime? access) = (null, null, null);
-                        try
+                        Logger.Debug(e, "Failed to open {0} in volume {1}", file, volume.Identity);
+                    }
+                    if (fileStream != null)
+                    {
+                        var newFileEntry = new FileEntry($"{volume.Identity}{Path.DirectorySeparatorChar}{file}", fileStream, parent, false, creation, modification, access, memoryStreamCutoff: options.MemoryStreamCutoff);
+                        if (options.Recurse || topLevel)
                         {
-                            var fi = fs.GetFileInfo(file);
-                            governor.CheckResourceGovernor(fi.Length);
-                            fileStream = fi.OpenRead();
-                            creation = fi.CreationTime;
-                            modification = fi.LastWriteTime;
-                            access = fi.LastAccessTime;
-                        }
-                        catch (Exception e)
-                        {
-                            Logger.Debug(e, "Failed to open {0} in volume {1}", file, volume.Identity);
-                        }
-                        if (fileStream != null)
-                        {
-                            var newFileEntry = new FileEntry($"{volume.Identity}{Path.DirectorySeparatorChar}{file}", fileStream, parent, false, creation, modification, access, memoryStreamCutoff: options.MemoryStreamCutoff);
-                            if (options.Recurse || topLevel)
+                            foreach (var extractedFile in Context.Extract(newFileEntry, options, governor, false))
                             {
-                                foreach (var extractedFile in Context.Extract(newFileEntry, options, governor, false))
-                                {
-                                    yield return extractedFile;
-                                }
+                                yield return extractedFile;
                             }
-                            else
-                            {
-                                yield return newFileEntry;
-                            }
+                        }
+                        else
+                        {
+                            yield return newFileEntry;
                         }
                     }
                 }

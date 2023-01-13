@@ -634,6 +634,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 {
                     resourceGovernor.AdjustRemainingBytes(-fileEntry.Content.Length);
 
+                    // If this file should be treated as a raw file, and not extracted, just yield it
                     if (options.RawExtensions.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ||
                         type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type))
                     {
@@ -642,6 +643,7 @@ namespace Microsoft.CST.RecursiveExtractor
                             yield return fileEntry;
                         }
                     }
+                    // Otherwise yield all the results from its extraction
                     else
                     {
                         foreach (var extractedResult in Extractors[type]

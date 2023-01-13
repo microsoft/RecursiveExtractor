@@ -105,95 +105,39 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             if (baseFile != null)
             {
-                if (options.Parallel)
+                for (var i = 0; i < baseFile.ImageCount; i++)
                 {
-                    var files = new ConcurrentStack<FileEntry>();
-
-                    for (var i = 0; i < baseFile.ImageCount; i++)
+                    var image = baseFile.GetImage(i);
+                    foreach (var file in image.GetFiles(image.Root.FullName, "*.*", SearchOption.AllDirectories))
                     {
-                        var image = baseFile.GetImage(i);
-                        var fileList = image.GetFiles(image.Root.FullName, "*.*", SearchOption.AllDirectories).ToList();
-                        while (fileList.Count > 0)
+                        Stream? stream = null;
+                        try
                         {
-                            var batchSize = Math.Min(options.BatchSize, fileList.Count);
-                            var range = fileList.Take(batchSize);
-                            var streamsAndNames = new List<(DiscFileInfo, Stream)>();
-                            foreach (var file in range)
-                            {
-                                try
-                                {
-                                    var info = image.GetFileInfo(file);
-                                    var read = info.OpenRead();
-                                    streamsAndNames.Add((info, read));
-                                }
-                                catch (Exception e)
-                                {
-                                    Logger.Debug("Error reading {0} from WIM {1} ({2}:{3})", file, image.FriendlyName, e.GetType(), e.Message);
-                                }
-                            }
-                            governor.CheckResourceGovernor(streamsAndNames.Sum(x => x.Item1.Length));
-                            streamsAndNames.AsParallel().ForAll(file =>
-                            {
-                                var newFileEntry = new FileEntry($"{image.FriendlyName}\\{file.Item1.FullName}", file.Item2, fileEntry, memoryStreamCutoff: options.MemoryStreamCutoff);
-                                if (options.Recurse || topLevel)
-                                {
-                                    var entries = Context.Extract(newFileEntry, options, governor, false);
-                                    if (entries.Any())
-                                    {
-                                        files.PushRange(entries.ToArray());
-                                    }
-                                }
-                                else
-                                {
-                                    files.Push(newFileEntry);
-                                }
-                            });
-                            fileList.RemoveRange(0, batchSize);
-
-                            while (files.TryPop(out var result))
-                            {
-                                if (result != null)
-                                    yield return result;
-                            }
+                            var info = image.GetFileInfo(file);
+                            stream = info.OpenRead();
+                            governor.CheckResourceGovernor(info.Length);
                         }
-                    }
-                }
-                else
-                {
-                    for (var i = 0; i < baseFile.ImageCount; i++)
-                    {
-                        var image = baseFile.GetImage(i);
-                        foreach (var file in image.GetFiles(image.Root.FullName, "*.*", SearchOption.AllDirectories))
+                        catch (Exception e)
                         {
-                            Stream? stream = null;
-                            try
-                            {
-                                var info = image.GetFileInfo(file);
-                                stream = info.OpenRead();
-                                governor.CheckResourceGovernor(info.Length);
-                            }
-                            catch (Exception e)
-                            {
-                                Logger.Debug("Error reading {0} from WIM {1} ({2}:{3})", file, image.FriendlyName, e.GetType(), e.Message);
-                            }
-                            if (stream != null)
-                            {
-                                var name = file.Replace('\\', Path.DirectorySeparatorChar);
+                            Logger.Debug("Error reading {0} from WIM {1} ({2}:{3})", file, image.FriendlyName, e.GetType(), e.Message);
+                        }
+                        if (stream != null)
+                        {
+                            var name = file.Replace('\\', Path.DirectorySeparatorChar);
 
-                                var newFileEntry = new FileEntry($"{image.FriendlyName}{Path.DirectorySeparatorChar}{name}", stream, fileEntry, memoryStreamCutoff: options.MemoryStreamCutoff);
-                                if (options.Recurse || topLevel)
+                            var newFileEntry = new FileEntry($"{image.FriendlyName}{Path.DirectorySeparatorChar}{name}", stream, fileEntry, memoryStreamCutoff: options.MemoryStreamCutoff);
+                            if (options.Recurse || topLevel)
+                            {
+                                foreach (var extractedFile in Context.Extract(newFileEntry, options, governor, false))
                                 {
-                                    foreach (var extractedFile in Context.Extract(newFileEntry, options, governor, false))
-                                    {
-                                        yield return extractedFile;
-                                    }
+                                    yield return extractedFile;
                                 }
-                                else
-                                {
-                                    yield return newFileEntry;
-                                }
-                                stream.Dispose();
                             }
+                            else
+                            {
+                                yield return newFileEntry;
+                            }
+                            stream.Dispose();
                         }
                     }
                 }
