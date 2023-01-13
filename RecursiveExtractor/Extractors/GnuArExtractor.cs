@@ -67,70 +67,18 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             if (fileEntries != null)
             {
-                if (options.Parallel)
+                foreach (var entry in fileEntries)
                 {
-                    ConcurrentBag<FileEntry> batch = new();
-                    using var enumerator = fileEntries.GetEnumerator();
-                    
-                    bool hasMore = enumerator.MoveNext();
-                    while (hasMore)
+                    if (options.Recurse || topLevel)
                     {
-                        batch = new();
-                        ConcurrentStack<FileEntry> tempStore = new();
-                        for (int i = 0; i < options.BatchSize; i++)
+                        foreach (var extractedFile in Context.Extract(entry, options, governor, false))
                         {
-                            batch.Add(enumerator.Current);
-                            hasMore = enumerator.MoveNext();
-                            if (!hasMore)
-                            {
-                                break;
-                            }
-                        }
-
-                        try
-                        {
-                            Parallel.ForEach(batch, arEntry =>
-                            {
-                                if (options.Recurse || topLevel)
-                                {
-                                    var entries = Context.Extract(arEntry, options, governor, false).ToArray();
-                                    if (entries.Any())
-                                    {
-                                        tempStore.PushRange(entries);
-                                    }
-                                }
-                                else
-                                {
-                                    tempStore.Push(arEntry);
-                                }
-                            });
-                        }
-                        catch (AggregateException e) when (e.InnerException is OverflowException or TimeoutException)
-                        {
-                            throw e.InnerException;
-                        }
-
-                        foreach (var entry in tempStore)
-                        {
-                            yield return entry;
+                            yield return extractedFile;
                         }
                     }
-                }
-                else
-                {
-                    foreach (var entry in fileEntries)
+                    else
                     {
-                        if (options.Recurse || topLevel)
-                        {
-                            foreach (var extractedFile in Context.Extract(entry, options, governor, false))
-                            {
-                                yield return extractedFile;
-                            }
-                        }
-                        else
-                        {
-                            yield return entry;
-                        }
+                        yield return entry;
                     }
                 }
             }
