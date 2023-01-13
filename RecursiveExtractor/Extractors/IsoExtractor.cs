@@ -113,88 +113,33 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             else if (entries != null)
             {
-                if (options.Parallel)
+                foreach (var file in entries)
                 {
-                    var files = new ConcurrentStack<FileEntry>();
-
-                    var batchSize = Math.Min(options.BatchSize, entries.Length);
-                    while (entries.Length > 0)
+                    var fileInfo = file;
+                    governor.CheckResourceGovernor(fileInfo.Length);
+                    Stream? stream = null;
+                    try
                     {
-                        var selectedFileEntries = entries.Take(batchSize).ToArray();
-                        var fileInfoTuples = new List<(string name, DateTime created, DateTime modified, DateTime accessed, Stream stream)>();
-
-                        foreach (var selectedFileEntry in selectedFileEntries)
-                        {
-                            try
-                            {
-                                var stream = selectedFileEntry.OpenRead();
-
-                                fileInfoTuples.Add((selectedFileEntry.FullName.Replace('/', Path.DirectorySeparatorChar), selectedFileEntry.CreationTime, selectedFileEntry.LastWriteTime, selectedFileEntry.LastAccessTime, stream));
-                            }
-                            catch (Exception e)
-                            {
-                                Logger.Debug("Failed to get FileInfo or OpenStream from {0} in ISO {1} ({2}:{3})", selectedFileEntry, fileEntry.FullPath, e.GetType(), e.Message);
-                            }
-                        }
-
-                        governor.CheckResourceGovernor(fileInfoTuples.Sum(x => x.stream.Length));
-
-                        fileInfoTuples.AsParallel().ForAll(cdFile =>
-                        {
-                            var newFileEntry = new FileEntry(cdFile.name, cdFile.stream, fileEntry, false, cdFile.created, cdFile.modified, cdFile.accessed, memoryStreamCutoff: options.MemoryStreamCutoff);
-                            if (options.Recurse || topLevel)
-                            {
-                                var entries = Context.Extract(newFileEntry, options, governor, false);
-                                if (entries.Any())
-                                {
-                                    files.PushRange(entries.ToArray());
-                                }
-                            }
-                            else
-                            {
-                                files.Push(newFileEntry);
-                            }
-                        });
-
-                        entries = entries[selectedFileEntries.Length..];
-
-                        while (files.TryPop(out var result))
-                        {
-                            if (result != null)
-                                yield return result;
-                        }
+                        stream = fileInfo.OpenRead();
                     }
-                }
-                else
-                {
-                    foreach (var file in entries)
+                    catch (Exception e)
                     {
-                        var fileInfo = file;
-                        governor.CheckResourceGovernor(fileInfo.Length);
-                        Stream? stream = null;
-                        try
+                        Logger.Debug("Failed to extract {0} from ISO {1}. ({2}:{3})", fileInfo.FullName, fileEntry.FullPath, e.GetType(), e.Message);
+                    }
+                    if (stream != null)
+                    {
+                        var name = fileInfo.FullName.Replace('/', Path.DirectorySeparatorChar);
+                        var newFileEntry = new FileEntry(name, stream, fileEntry, createTime: file.CreationTime, modifyTime: file.LastWriteTime, accessTime: file.LastAccessTime, memoryStreamCutoff: options.MemoryStreamCutoff);
+                        if (options.Recurse || topLevel)
                         {
-                            stream = fileInfo.OpenRead();
-                        }
-                        catch (Exception e)
-                        {
-                            Logger.Debug("Failed to extract {0} from ISO {1}. ({2}:{3})", fileInfo.FullName, fileEntry.FullPath, e.GetType(), e.Message);
-                        }
-                        if (stream != null)
-                        {
-                            var name = fileInfo.FullName.Replace('/', Path.DirectorySeparatorChar);
-                            var newFileEntry = new FileEntry(name, stream, fileEntry, createTime: file.CreationTime, modifyTime: file.LastWriteTime, accessTime: file.LastAccessTime, memoryStreamCutoff: options.MemoryStreamCutoff);
-                            if (options.Recurse || topLevel)
+                            foreach (var entry in Context.Extract(newFileEntry, options, governor, false))
                             {
-                                foreach (var entry in Context.Extract(newFileEntry, options, governor, false))
-                                {
-                                    yield return entry;
-                                }
+                                yield return entry;
                             }
-                            else
-                            {
-                                yield return newFileEntry;
-                            }
+                        }
+                        else
+                        {
+                            yield return newFileEntry;
                         }
                     }
                 }
