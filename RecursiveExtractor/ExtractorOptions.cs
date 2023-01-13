@@ -17,7 +17,7 @@ namespace Microsoft.CST.RecursiveExtractor
         private IEnumerable<Glob> _denyGlobs = Array.Empty<Glob>();
 
         /// <summary>
-        /// Maximum number of bytes before using a FileStream. Default 100MB
+        ///     Maximum number of bytes before using a FileStream. Default 100MB
         /// </summary>
         public int MemoryStreamCutoff { get; set; } = 1024 * 1024 * 100;
 
@@ -50,37 +50,37 @@ namespace Microsoft.CST.RecursiveExtractor
         public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(300);
 
         /// <summary>
-        /// Batch size to use for parallel
+        ///     Batch size to use when Parallel is set.
         /// </summary>
         public int BatchSize { get; set; } = 50;
 
         /// <summary>
-        /// When extracting to directory, if extracted entries should be written to disk in parallel.
+        ///     When extracting to directory, if extracted entries should be written to disk in parallel.
         /// </summary>
         public bool Parallel { get; set; }
 
         /// <summary>
-        /// Parse these extensions as raw, don't traverse them.
+        ///     Parse these extensions as raw, don't extract any files from them. For example `.iso` to not extract from iso files.
         /// </summary>
         public IEnumerable<string> RawExtensions { get; set; } = Array.Empty<string>();
 
         /// <summary>
-        /// Passwords to use
+        ///     Dictionary of passwords to use. The Key is a Regex which matches the files to the associated Values against.
         /// </summary>
         public Dictionary<Regex, List<string>> Passwords { get; set; } = new Dictionary<Regex, List<string>>();
 
         /// <summary>
-        /// Should extraction recurse into archives
+        ///     Should extraction recurse into archives, extracting archives contained in the top level archive.
         /// </summary>
         public bool Recurse { get; set; } = true;
 
         /// <summary>
-        /// Buffer size to use for FileStream backed FileEntries.
+        ///     Buffer size to use for FileStream backed FileEntries.
         /// </summary>
         public int FileStreamBufferSize { get; set; } = 4096;
 
         /// <summary>
-        /// If set, only return files that match these glob filters
+        ///     If set, only return files that match these glob filters when checked against the full path of the file.
         /// </summary>
         public IEnumerable<string> AllowFilters
         {
@@ -96,7 +96,7 @@ namespace Microsoft.CST.RecursiveExtractor
         }
 
         /// <summary>
-        /// If set, don't return any files that match these glob filters
+        ///     If set, don't return any files that match these glob filters when checked against the full path of the file.
         /// </summary>
         public IEnumerable<string> DenyFilters
         {
@@ -112,22 +112,22 @@ namespace Microsoft.CST.RecursiveExtractor
         }
 
         /// <summary>
-        /// Allow only the specified archive types to be extracted
+        ///     Allow only the specified archive types to be extracted
         /// </summary>
         public IEnumerable<ArchiveFileType> AllowTypes { get; set; } = Array.Empty<ArchiveFileType>();
 
         /// <summary>
-        /// Prevent the specified archives types from being extracted
+        ///     Prevent the specified archives types from being extracted
         /// </summary>
         public IEnumerable<ArchiveFileType> DenyTypes { get; set; } = Array.Empty<ArchiveFileType>();
 
         /// <summary>
-        /// Always expect the TopLevel to be extracted to be an archive.
+        ///     Always expect the TopLevel to be an archive and mark as FailedArchive if it is not. When not set, extracting a flat file is not an error.
         /// </summary>
         public bool RequireTopLevelToBeArchive { get; set; } = false;
 
         /// <summary>
-        /// If the file name provided should be extracted given the filter arguments in this ExtractorOptions instance
+        ///     If the file name provided should be extracted given the filter arguments in this ExtractorOptions instance
         /// </summary>
         /// <param name="filename"></param>
         /// <returns></returns>
@@ -136,7 +136,7 @@ namespace Microsoft.CST.RecursiveExtractor
                                                          _allowGlobs.Any(x => x.IsMatch(filename)));
 
         /// <summary>
-        /// Checks if the given <see cref="ArchiveFileType"/> is allowable by the set <see cref="DenyTypes"/> and <see cref="AllowTypes"/>.
+        ///     Helper method to checks if the given <see cref="ArchiveFileType"/> is allowable by the set <see cref="DenyTypes"/> and <see cref="AllowTypes"/>.
         /// </summary>
         /// <param name="type">The <see cref="ArchiveFileType"/> to check.</param>
         /// <returns>True if the options allow for extracting the specified type.</returns>
