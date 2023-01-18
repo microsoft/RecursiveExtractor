@@ -61,6 +61,10 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         ISO_9660,
         /// <summary>
+        /// An UDF disc image. <see cref="Extractors.UdfExtractor"/>
+        /// </summary>
+        UDF,
+        /// <summary>
         /// A VHDX disc image. <see cref="Extractors.VhdxExtractor"/>
         /// </summary>
         VHDX,
