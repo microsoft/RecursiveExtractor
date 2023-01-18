@@ -61,6 +61,10 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         ISO_9660,
         /// <summary>
+        /// An UDF disc image. <see cref="Extractors.UdfExtractor"/>
+        /// </summary>
+        UDF,
+        /// <summary>
         /// A VHDX disc image. <see cref="Extractors.VhdxExtractor"/>
         /// </summary>
         VHDX,
@@ -227,6 +231,10 @@ namespace Microsoft.CST.RecursiveExtractor
                 if (buffer[0] == 'C' && buffer[1] == 'D' && buffer[2] == '0' && buffer[3] == '0' && buffer[4] == '1')
                 {
                     return ArchiveFileType.ISO_9660;
+                }
+                else if (buffer[0] == 'B' && buffer[1] == 'E' && buffer[2] == 'A' && buffer[3] == '0' && buffer[4] == '1')
+                {
+                    return ArchiveFileType.UDF;
                 }
             }
 
