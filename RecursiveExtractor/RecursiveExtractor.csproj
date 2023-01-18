@@ -32,6 +32,7 @@
     <PackageReference Include="DiscUtils.HfsPlus" Version="0.16.13" />
     <PackageReference Include="DiscUtils.Iso9660" Version="0.16.13" />
     <PackageReference Include="DiscUtils.Ntfs" Version="0.16.13" />
+    <PackageReference Include="DiscUtils.Udf" Version="0.16.13" />
     <PackageReference Include="DiscUtils.Vhd" Version="0.16.13" />
     <PackageReference Include="DiscUtils.Vhdx" Version="0.16.13" />
     <PackageReference Include="DiscUtils.Vmdk" Version="0.16.13" />
