@@ -51,6 +51,7 @@ namespace Microsoft.CST.RecursiveExtractor
             SetExtractor(ArchiveFileType.AR, new GnuArExtractor(this));
             SetExtractor(ArchiveFileType.GZIP, new GzipExtractor(this));
             SetExtractor(ArchiveFileType.ISO_9660, new IsoExtractor(this));
+            SetExtractor(ArchiveFileType.UDF, new UdfExtractor(this));
             SetExtractor(ArchiveFileType.RAR, new RarExtractor(this));
             SetExtractor(ArchiveFileType.RAR5, new RarExtractor(this));
             SetExtractor(ArchiveFileType.P7ZIP, new SevenZipExtractor(this));
