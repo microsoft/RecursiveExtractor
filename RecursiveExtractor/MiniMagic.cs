@@ -232,7 +232,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 {
                     return ArchiveFileType.ISO_9660;
                 }
-                else if (buffer[0] == 'B' && buffer[1] == 'E' && buffer[2] == 'A' && buffer[3] == '0' && buffer[4] == '1')
+                if (buffer[0] == 'B' && buffer[1] == 'E' && buffer[2] == 'A' && buffer[3] == '0' && buffer[4] == '1')
                 {
                     return ArchiveFileType.UDF;
                 }

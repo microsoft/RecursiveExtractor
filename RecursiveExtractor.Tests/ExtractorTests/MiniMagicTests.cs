@@ -19,7 +19,7 @@ public class MiniMagicTests : BaseExtractorTestClass
     [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", ArchiveFileType.DEB)]
     [DataRow("TestData.a", ArchiveFileType.AR)]
     [DataRow("TestData.iso", ArchiveFileType.ISO_9660)]
-    //        [DataRow("TestData.vhd", ArchiveFileType.VHD)]
+    [DataRow("UdfTest.iso", ArchiveFileType.UDF)]
     [DataRow("TestData.vhdx", ArchiveFileType.VHDX)]
     [DataRow("TestData.wim", ArchiveFileType.WIM)]
     [DataRow("Empty.vmdk", ArchiveFileType.VMDK)]
