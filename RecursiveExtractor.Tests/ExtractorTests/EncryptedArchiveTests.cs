@@ -58,10 +58,10 @@ public class EncryptedArchiveTests : BaseExtractorTestClass
     {
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
-        var results = extractor.Extract(path, new ExtractorOptions() { Passwords = TestArchivePasswords })
+        var results = extractor.Extract(path, new ExtractorOptions() { Passwords = TestArchivePasswords, ExtractSelfOnFail = false })
             .ToList(); // Make this a list so it fully populates
         Assert.AreEqual(expectedNumFiles, results.Count);
-        Assert.AreEqual(0, results.Count(x => x.EntryStatus == FileEntryStatus.EncryptedArchive));
+        Assert.AreEqual(0, results.Count(x => x.EntryStatus == FileEntryStatus.EncryptedArchive || x.EntryStatus == FileEntryStatus.FailedArchive));
     }
 
     [DataTestMethod]
@@ -76,13 +76,13 @@ public class EncryptedArchiveTests : BaseExtractorTestClass
     {
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
-        var results = extractor.ExtractAsync(path, new ExtractorOptions() { Passwords = TestArchivePasswords });
+        var results = extractor.ExtractAsync(path, new ExtractorOptions() { Passwords = TestArchivePasswords, ExtractSelfOnFail = false });
         var numEntries = 0;
         var numEntriesEncrypted = 0;
         await foreach (var entry in results)
         {
             numEntries++;
-            if (entry.EntryStatus == FileEntryStatus.EncryptedArchive)
+            if (entry.EntryStatus == FileEntryStatus.EncryptedArchive || entry.EntryStatus == FileEntryStatus.FailedArchive)
             {
                 numEntriesEncrypted++;
             }
