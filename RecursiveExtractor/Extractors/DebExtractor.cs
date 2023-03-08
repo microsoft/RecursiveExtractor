@@ -69,7 +69,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             catch (Exception e) when (e is not OverflowException)
             {
                 fileEntry.EntryStatus = FileEntryStatus.FailedArchive;
-                Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.DEB, fileEntry.FullPath, string.Empty, e.GetType());
+                Logger.Debug(Extractor.FAILED_PARSING_ERROR_MESSAGE_STRING, ArchiveFileType.DEB, fileEntry.FullPath, string.Empty, e.GetType());
                 if (!options.ExtractSelfOnFail)
                 {
                     yield break;

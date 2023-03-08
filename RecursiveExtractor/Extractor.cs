@@ -295,11 +295,11 @@ namespace Microsoft.CST.RecursiveExtractor
             }
         }
 
-        internal const string DEBUG_STRING = "Failed parsing archive of type {0} {1}:{2} ({3})";
+        internal const string FAILED_PARSING_ERROR_MESSAGE_STRING = "Failed parsing archive of type {0} {1}:{2} ({3})";
 
-        internal const string IS_QUINE_STRING = "Detected Quine {0} in {1}. Aborting Extraction.";
+        internal const string IS_QUINE_ERROR_MESSAGE_STRING = "Detected Quine {0} in {1}. Aborting Extraction.";
 
-        internal const string FAILED_PASSWORD_STRING = "Password was incorrect for archive {0} of type {1}. ({2}:{3})";
+        internal const string FAILED_PASSWORD_ERROR_MESSAGE_STRING = "Password was incorrect for archive {0} of type {1}. ({2}:{3})";
 
         /// <summary>
         ///     Logger for interesting events.
@@ -330,7 +330,7 @@ namespace Microsoft.CST.RecursiveExtractor
             resourceGovernor.CheckResourceGovernor();
             if (IsQuine(fileEntry))
             {
-                Logger.Info(IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
+                Logger.Info(IS_QUINE_ERROR_MESSAGE_STRING, fileEntry.Name, fileEntry.FullPath);
                 throw new OverflowException();
             }
             if (options.RequireTopLevelToBeArchive && topLevel && fileEntry.ArchiveType == ArchiveFileType.UNKNOWN)
@@ -616,7 +616,7 @@ namespace Microsoft.CST.RecursiveExtractor
             resourceGovernor.CheckResourceGovernor();
             if (IsQuine(fileEntry))
             {
-                Logger.Info(IS_QUINE_STRING, fileEntry.Name, fileEntry.FullPath);
+                Logger.Info(IS_QUINE_ERROR_MESSAGE_STRING, fileEntry.Name, fileEntry.FullPath);
                 throw new OverflowException();
             }
 

@@ -92,7 +92,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             catch (Exception e)
             {                
-                Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.P7ZIP, fileEntry.FullPath, string.Empty, e.GetType());
+                Logger.Debug(Extractor.FAILED_PARSING_ERROR_MESSAGE_STRING, ArchiveFileType.P7ZIP, fileEntry.FullPath, string.Empty, e.GetType());
                 return (sevenZipArchive, FileEntryStatus.FailedArchive);
             }
             if (needsPassword)
@@ -117,7 +117,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                                 var bytes = new byte[1];
                                 if ((entryStream?.Read(bytes, 0, 1) ?? 0) == 0)
                                 {
-                                    Logger.Trace(Extractor.FAILED_PASSWORD_STRING, fileEntry.FullPath, ArchiveFileType.P7ZIP);
+                                    Logger.Trace(Extractor.FAILED_PASSWORD_ERROR_MESSAGE_STRING, fileEntry.FullPath, ArchiveFileType.P7ZIP);
                                     continue;
                                 }
                                 return (sevenZipArchive, FileEntryStatus.Default);
@@ -130,7 +130,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         }
                         catch (Exception e)
                         {
-                            Logger.Trace(Extractor.FAILED_PASSWORD_STRING, fileEntry.FullPath, ArchiveFileType.P7ZIP, e.GetType(), e.Message);
+                            Logger.Trace(Extractor.FAILED_PASSWORD_ERROR_MESSAGE_STRING, fileEntry.FullPath, ArchiveFileType.P7ZIP, e.GetType(), e.Message);
                         }
                     }
                 }

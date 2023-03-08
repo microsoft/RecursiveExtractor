@@ -40,7 +40,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             catch (Exception e)
             {
-                Logger.Debug(Extractor.DEBUG_STRING, "BZip2", e.GetType(), e.Message, e.StackTrace);
+                Logger.Debug(Extractor.FAILED_PARSING_ERROR_MESSAGE_STRING, "BZip2", e.GetType(), e.Message, e.StackTrace);
                 if (!options.ExtractSelfOnFail)
                 {
                     yield break;
@@ -98,7 +98,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             catch (Exception e)
             {
-                Logger.Debug(Extractor.DEBUG_STRING, "BZip2", e.GetType(), e.Message, e.StackTrace);
+                Logger.Debug(Extractor.FAILED_PARSING_ERROR_MESSAGE_STRING, "BZip2", e.GetType(), e.Message, e.StackTrace);
                 if (!options.ExtractSelfOnFail)
                 {
                     yield break;

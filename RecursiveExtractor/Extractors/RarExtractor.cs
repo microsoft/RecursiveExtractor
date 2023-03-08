@@ -45,7 +45,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             catch (Exception e)
             {
-                Logger.Debug(Extractor.DEBUG_STRING, fileEntry.ArchiveType, fileEntry.FullPath, string.Empty, e.GetType());
+                Logger.Debug(Extractor.FAILED_PARSING_ERROR_MESSAGE_STRING, fileEntry.ArchiveType, fileEntry.FullPath, string.Empty, e.GetType());
                 return (null, FileEntryStatus.FailedArchive);
             }
 
@@ -78,7 +78,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         }
                         catch (Exception e)
                         {
-                            Logger.Trace(Extractor.FAILED_PASSWORD_STRING, fileEntry.FullPath, ArchiveFileType.RAR, e.GetType(), e.Message);
+                            Logger.Trace(Extractor.FAILED_PASSWORD_ERROR_MESSAGE_STRING, fileEntry.FullPath, ArchiveFileType.RAR, e.GetType(), e.Message);
                         }
                     }
                 }
@@ -153,7 +153,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
                     catch (Exception e)
                     {
-                        Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.RAR, fileEntry.FullPath, entry.Key, e.GetType());
+                        Logger.Debug(Extractor.FAILED_PARSING_ERROR_MESSAGE_STRING, ArchiveFileType.RAR, fileEntry.FullPath, entry.Key, e.GetType());
                     }
                     if (newFileEntry != null)
                     {
