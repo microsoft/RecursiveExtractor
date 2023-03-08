@@ -76,6 +76,10 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             try
             {
                 sevenZipArchive = SevenZipArchive.Open(fileEntry.Content);
+                if (sevenZipArchive.Entries.Any(x => x.IsEncrypted))
+                {
+                    needsPassword = true;
+                }
             }
             catch (Exception e) when (e is SharpCompress.Common.CryptographicException)
             {
@@ -97,6 +101,13 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         try
                         {
                             sevenZipArchive = SevenZipArchive.Open(fileEntry.Content, new SharpCompress.Readers.ReaderOptions() { Password = password });
+                            var entry = sevenZipArchive.Entries.FirstOrDefault(x => x.IsEncrypted && x.Size > 0);
+                            var entryStream = entry?.OpenEntryStream();
+                            var bytes = new byte[1];
+                            if ((entryStream?.Read(bytes, 0, 1) ?? 0) == 0)
+                            {
+                                Logger.Trace(Extractor.FAILED_PASSWORD_STRING, fileEntry.FullPath, ArchiveFileType.P7ZIP);
+                            }
                             if (sevenZipArchive.TotalUncompressSize > 0)
                             {
                                 passwordFound = true;
