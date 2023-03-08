@@ -76,14 +76,23 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             try
             {
                 sevenZipArchive = SevenZipArchive.Open(fileEntry.Content);
+                if (sevenZipArchive.Entries.Where(x => !x.IsDirectory).Any(x => x.IsEncrypted))
+                {
+                    needsPassword = true;
+                }
             }
             catch (Exception e) when (e is SharpCompress.Common.CryptographicException)
             {
                 needsPassword = true;
             }
+            // Unencrypted archives throw null reference exception on the .IsEncrypted property
+            catch (NullReferenceException)
+            {
+                return (sevenZipArchive, FileEntryStatus.Default);
+            }
             catch (Exception e)
             {                
-                Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.P7ZIP, fileEntry.FullPath, string.Empty, e.GetType());
+                Logger.Debug(Extractor.FAILED_PARSING_ERROR_MESSAGE_STRING, ArchiveFileType.P7ZIP, fileEntry.FullPath, string.Empty, e.GetType());
                 return (sevenZipArchive, FileEntryStatus.FailedArchive);
             }
             if (needsPassword)
@@ -97,15 +106,31 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         try
                         {
                             sevenZipArchive = SevenZipArchive.Open(fileEntry.Content, new SharpCompress.Readers.ReaderOptions() { Password = password });
-                            if (sevenZipArchive.TotalUncompressSize > 0)
+                            // When filenames are encrypted we can't access the size of individual files
+                            // But if we can accesss the total uncompressed size we have the right password
+                            try
                             {
-                                passwordFound = true;
+                                var entry = sevenZipArchive.Entries.Where(x => !x.IsDirectory).FirstOrDefault(x => x.IsEncrypted && x.Size > 0);
+                                // When filenames are plain, we can access the properties, so the previous statement won't throw
+                                // Instead we need to check that we can actually read from the stream
+                                using var entryStream = entry?.OpenEntryStream();
+                                var bytes = new byte[1];
+                                if ((entryStream?.Read(bytes, 0, 1) ?? 0) == 0)
+                                {
+                                    Logger.Trace(Extractor.FAILED_PASSWORD_ERROR_MESSAGE_STRING, fileEntry.FullPath, ArchiveFileType.P7ZIP);
+                                    continue;
+                                }
                                 return (sevenZipArchive, FileEntryStatus.Default);
                             }
+                            catch (Exception)
+                            {
+                                continue;
+                            }
+                            
                         }
                         catch (Exception e)
                         {
-                            Logger.Trace(Extractor.FAILED_PASSWORD_STRING, fileEntry.FullPath, ArchiveFileType.P7ZIP, e.GetType(), e.Message);
+                            Logger.Trace(Extractor.FAILED_PASSWORD_ERROR_MESSAGE_STRING, fileEntry.FullPath, ArchiveFileType.P7ZIP, e.GetType(), e.Message);
                         }
                     }
                 }

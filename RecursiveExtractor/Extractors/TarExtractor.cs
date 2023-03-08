@@ -35,7 +35,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             });
             if (archive is null || archive.TotalSize == 0)
             {
-                Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.TAR, fileEntry.FullPath, string.Empty, "Null Archive");
+                Logger.Debug(Extractor.FAILED_PARSING_ERROR_MESSAGE_STRING, ArchiveFileType.TAR, fileEntry.FullPath, string.Empty, "Null Archive");
                 if (options.ExtractSelfOnFail)
                 {
                     fileEntry.EntryStatus = FileEntryStatus.FailedArchive;
@@ -62,7 +62,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
                     catch (Exception e)
                     {
-                        Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.TAR, fileEntry.FullPath, tarEntry.Key, e.GetType());
+                        Logger.Debug(Extractor.FAILED_PARSING_ERROR_MESSAGE_STRING, ArchiveFileType.TAR, fileEntry.FullPath, tarEntry.Key, e.GetType());
                     }
                     var name = tarEntry.Key.Replace('/', Path.DirectorySeparatorChar);
                     // Remove leading ./
@@ -99,7 +99,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             });
             if (archive is null || archive.TotalSize == 0)
             {
-                Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.TAR, fileEntry.FullPath, string.Empty, "Null Archive");
+                Logger.Debug(Extractor.FAILED_PARSING_ERROR_MESSAGE_STRING, ArchiveFileType.TAR, fileEntry.FullPath, string.Empty, "Null Archive");
                 if (options.ExtractSelfOnFail)
                 {
                     fileEntry.EntryStatus = FileEntryStatus.FailedArchive;
@@ -124,7 +124,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
                     catch (Exception e)
                     {
-                        Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.TAR, fileEntry.FullPath, tarEntry.Key, e.GetType());
+                        Logger.Debug(Extractor.FAILED_PARSING_ERROR_MESSAGE_STRING, ArchiveFileType.TAR, fileEntry.FullPath, tarEntry.Key, e.GetType());
                     }
                     var name = tarEntry.Key.Replace('/', Path.DirectorySeparatorChar);
                     // Remove leading ./

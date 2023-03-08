@@ -36,7 +36,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             catch (Exception e)
             {
-                Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.XZ, fileEntry.FullPath, string.Empty, e.GetType());
+                Logger.Debug(Extractor.FAILED_PARSING_ERROR_MESSAGE_STRING, ArchiveFileType.XZ, fileEntry.FullPath, string.Empty, e.GetType());
             }
             if (xzStream != null)
             {
@@ -95,7 +95,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             catch (Exception e)
             {
-                Logger.Debug(Extractor.DEBUG_STRING, ArchiveFileType.XZ, fileEntry.FullPath, string.Empty, e.GetType());
+                Logger.Debug(Extractor.FAILED_PARSING_ERROR_MESSAGE_STRING, ArchiveFileType.XZ, fileEntry.FullPath, string.Empty, e.GetType());
             }
             if (xzStream != null)
             {

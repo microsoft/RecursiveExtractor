@@ -51,15 +51,17 @@ public class EncryptedArchiveTests : BaseExtractorTestClass
     [DataRow("TestDataEncryptedAes.zip")]
     [DataRow("TestDataEncrypted.7z")]
     [DataRow("TestDataEncrypted.rar4")]
+    [DataRow("EncryptedWithPlainNames.7z")]
+    [DataRow("EncryptedWithPlainNames.rar4")]
     //[DataRow("TestDataEncrypted.rar")] // RAR5 is not yet supported by SharpCompress: https://github.com/adamhathcock/sharpcompress/issues/517
     public void ExtractEncryptedArchive(string fileName, int expectedNumFiles = 3)
     {
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
-        var results = extractor.Extract(path, new ExtractorOptions() { Passwords = TestArchivePasswords })
+        var results = extractor.Extract(path, new ExtractorOptions() { Passwords = TestArchivePasswords, ExtractSelfOnFail = false })
             .ToList(); // Make this a list so it fully populates
         Assert.AreEqual(expectedNumFiles, results.Count);
-        Assert.AreEqual(0, results.Count(x => x.EntryStatus == FileEntryStatus.EncryptedArchive));
+        Assert.AreEqual(0, results.Count(x => x.EntryStatus == FileEntryStatus.EncryptedArchive || x.EntryStatus == FileEntryStatus.FailedArchive));
     }
 
     [DataTestMethod]
@@ -67,18 +69,20 @@ public class EncryptedArchiveTests : BaseExtractorTestClass
     [DataRow("TestDataEncryptedAes.zip")]
     [DataRow("TestDataEncrypted.7z")]
     [DataRow("TestDataEncrypted.rar4")]
+    [DataRow("EncryptedWithPlainNames.7z")]
+    [DataRow("EncryptedWithPlainNames.rar4")]
     //[DataRow("TestDataEncrypted.rar")] // RAR5 is not yet supported by SharpCompress: https://github.com/adamhathcock/sharpcompress/issues/517
     public async Task ExtractEncryptedArchiveAsync(string fileName, int expectedNumFiles = 3)
     {
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
-        var results = extractor.ExtractAsync(path, new ExtractorOptions() { Passwords = TestArchivePasswords });
+        var results = extractor.ExtractAsync(path, new ExtractorOptions() { Passwords = TestArchivePasswords, ExtractSelfOnFail = false });
         var numEntries = 0;
         var numEntriesEncrypted = 0;
         await foreach (var entry in results)
         {
             numEntries++;
-            if (entry.EntryStatus == FileEntryStatus.EncryptedArchive)
+            if (entry.EntryStatus == FileEntryStatus.EncryptedArchive || entry.EntryStatus == FileEntryStatus.FailedArchive)
             {
                 numEntriesEncrypted++;
             }
@@ -107,8 +111,7 @@ public class EncryptedArchiveTests : BaseExtractorTestClass
             new Regex("\\.7z"), new List<string>()
             {
                 "AnIncorrectPassword",
-                "TestData", // TestDataEncrypted.7z
-                "TestData" // NestedEncrypted.7z
+                "TestData", // TestDataEncrypted.7z, EncryptedWithPlainNames.7z, NestedEncrypted.7z
             }
         },
         { new Regex("\\.rar"), new List<string>() { "AnIncorrectPassword", "TestData" } }
