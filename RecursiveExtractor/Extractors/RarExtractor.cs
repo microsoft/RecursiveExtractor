@@ -34,6 +34,10 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 rarArchive = RarArchive.Open(fileEntry.Content);
                 // Test for invalid archives. This will throw invalidformatexception
                 var t = rarArchive.IsSolid;
+                if (rarArchive.Entries.Any(x => x.IsEncrypted))
+                {
+                    needsPassword = true;
+                }
             }
             catch (SharpCompress.Common.CryptographicException)
             {
@@ -45,16 +49,10 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 return (null, FileEntryStatus.FailedArchive);
             }
 
-            try
+            // RAR5 encryption is not supported by SharpCompress
+            if (needsPassword && fileEntry.ArchiveType == ArchiveFileType.RAR5)
             {
-                if (rarArchive?.Entries.Any(x => x.IsEncrypted) ?? false && fileEntry.ArchiveType == ArchiveFileType.RAR5)
-                {
-                    return (null, FileEntryStatus.EncryptedArchive);
-                }
-            }
-            catch (Exception e) when (e is SharpCompress.Common.CryptographicException || e is SharpCompress.Common.InvalidFormatException)
-            {
-                needsPassword = true;
+                return (null, FileEntryStatus.EncryptedArchive);
             }
             
             if (needsPassword)
@@ -69,14 +67,14 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         {
                             fileEntry.Content.Position = 0;
                             rarArchive = RarArchive.Open(fileEntry.Content, new SharpCompress.Readers.ReaderOptions() { Password = password, LookForHeader = true });
-                            var count = 0; //To do something in the loop
-                            foreach (var entry in rarArchive.Entries)
+                            var byt = new byte[1];
+                            var encryptedEntry = rarArchive.Entries.FirstOrDefault(x => x.IsEncrypted && x.Size > 0);
+                            using var entryStream = encryptedEntry.OpenEntryStream();
+                            if (entryStream.Read(byt, 0, 1) > 0)
                             {
-                                //Just do anything in the loop, but you need to loop over entries to check if the password is correct
-                                count++;
+                                passwordFound = true;
+                                break;
                             }
-                            passwordFound = true;
-                            break;
                         }
                         catch (Exception e)
                         {

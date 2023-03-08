@@ -51,6 +51,8 @@ public class EncryptedArchiveTests : BaseExtractorTestClass
     [DataRow("TestDataEncryptedAes.zip")]
     [DataRow("TestDataEncrypted.7z")]
     [DataRow("TestDataEncrypted.rar4")]
+    [DataRow("EncryptedWithPlainNames.7z", 1)]
+    [DataRow("EncryptedWithPlainNames.rar4", 1)]
     //[DataRow("TestDataEncrypted.rar")] // RAR5 is not yet supported by SharpCompress: https://github.com/adamhathcock/sharpcompress/issues/517
     public void ExtractEncryptedArchive(string fileName, int expectedNumFiles = 3)
     {
@@ -67,6 +69,8 @@ public class EncryptedArchiveTests : BaseExtractorTestClass
     [DataRow("TestDataEncryptedAes.zip")]
     [DataRow("TestDataEncrypted.7z")]
     [DataRow("TestDataEncrypted.rar4")]
+    [DataRow("EncryptedWithPlainNames.7z", 1)]
+    [DataRow("EncryptedWithPlainNames.rar4", 1)]
     //[DataRow("TestDataEncrypted.rar")] // RAR5 is not yet supported by SharpCompress: https://github.com/adamhathcock/sharpcompress/issues/517
     public async Task ExtractEncryptedArchiveAsync(string fileName, int expectedNumFiles = 3)
     {
@@ -108,9 +112,10 @@ public class EncryptedArchiveTests : BaseExtractorTestClass
             {
                 "AnIncorrectPassword",
                 "TestData", // TestDataEncrypted.7z
-                "TestData" // NestedEncrypted.7z
+                "TestData", // NestedEncrypted.7z
+                "asdf" // EncryptedWithPlainNames.7z
             }
         },
-        { new Regex("\\.rar"), new List<string>() { "AnIncorrectPassword", "TestData" } }
+        { new Regex("\\.rar"), new List<string>() { "AnIncorrectPassword", "TestData", "asdf" } }
     };
 }
