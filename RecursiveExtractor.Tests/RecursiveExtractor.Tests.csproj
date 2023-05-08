@@ -279,5 +279,11 @@
     <None Update="TestData\TestDataArchives\UdfTestWithMultiSystem.iso">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="TestData\Bombs\zoneinfo-2010g.tar">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\Malformed\zoneinfo-2010g.tar">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>
