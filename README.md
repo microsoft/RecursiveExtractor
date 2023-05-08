@@ -57,7 +57,7 @@ Run `RecursiveExtractor --help` for more details.
 </details>
 
 ## .NET Standard Library
-Recursive Extractor is available on NuGet as [Microsoft.CST.RecursiveExtractor](https://www.nuget.org/packages/Microsoft.CST.RecursiveExtractor/). Recursive Extractor targets netstandard2.0+ and the latest .NET, currently .NET 6.0.
+Recursive Extractor is available on NuGet as [Microsoft.CST.RecursiveExtractor](https://www.nuget.org/packages/Microsoft.CST.RecursiveExtractor/). Recursive Extractor targets netstandard2.0+ and the latest .NET, currently .NET 6.0 and .NET 7.0.
 
 ### Usage
 
@@ -133,7 +133,7 @@ public DateTime AccessTime { get; }
 <details>
 <summary>Extracting Encrypted Archives</summary>
 <br/>
-You can provide passwords to use to decrypt archives, paired with a Regex that will operate against the Name of the Archive.
+You can provide passwords to use to decrypt archives, paired with a Regex that will operate against the Name of the Archive to determine on which archies to try the password
 
 ```csharp
 var path = "/Path/To/Your/Archive"
@@ -217,14 +217,15 @@ foreach(var file in results)
     using var theStream = file.Content;
     // Do something with the stream.
     _ = theStream.ReadByte();
-}
+    // The stream is disposed here from the using statement
+} 
 ```
 
 # Feedback
 
 If you have any issues or feature requests (for example, supporting other formats) you can open a new [Issue](https://github.com/microsoft/RecursiveExtractor/issues/new).  
 
-If you have an archive you are having trouble parsing a specific archive, it is helpful if you can include an archive that demonstrates the issue.
+If you are having trouble parsing a specific archive of one of the supported formats, it is helpful if you can include an sample archive with your report that demonstrates the issue.
 
 # Dependencies
 
