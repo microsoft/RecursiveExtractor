@@ -84,7 +84,7 @@ public class TestQuinesAndSlip : BaseExtractorTestClass
     }
     
     [DataTestMethod]
-    [DataRow("zoneinfo-2010g.tar")] // This isn't itself a bomb, but sharpcompress has an issue which results in an overflow exception
+    [DataRow("zoneinfo-2010g.tar")] // This is a malformed archive which will trigger an overflow with sharpcompress https://github.com/adamhathcock/sharpcompress/issues/736
     [ExpectedException(typeof(OverflowException))]
     public void TestMalformedArchives(string fileName)
     {
@@ -94,7 +94,7 @@ public class TestQuinesAndSlip : BaseExtractorTestClass
     }
     
     [DataTestMethod]
-    [DataRow("zoneinfo-2010g.tar")] // This isn't itself a bomb, but sharpcompress has an issue which results in an overflow exception
+    [DataRow("zoneinfo-2010g.tar")] // This is a malformed archive which will trigger an overflow with sharpcompress https://github.com/adamhathcock/sharpcompress/issues/736
     [ExpectedException(typeof(OverflowException))]
     public async Task TestMalformedArchivesAsync(string fileName)
     {

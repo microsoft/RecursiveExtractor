@@ -133,7 +133,7 @@ public DateTime AccessTime { get; }
 <details>
 <summary>Extracting Encrypted Archives</summary>
 <br/>
-You can provide passwords to use to decrypt archives, paired with a Regex that will operate against the Name of the Archive to determine on which archies to try the password
+You can provide passwords to use to decrypt archives, paired with a Regular Expression that will operate against the Name of the Archive to determine on which archives to try the passwords in each List.
 
 ```csharp
 var path = "/Path/To/Your/Archive"
