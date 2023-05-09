@@ -14,7 +14,10 @@ namespace RecursiveExtractor.Tests.ExtractorTests
     [TestClass]
     public class ExpectedNumFilesTests : BaseExtractorTestClass
     {
-        
+     
+        /// <summary>
+        /// Mapping from Test archive name to expected number of files to extract
+        /// </summary>
         public static IEnumerable<object[]> ArchiveData
         {
             get
@@ -44,7 +47,10 @@ namespace RecursiveExtractor.Tests.ExtractorTests
             }
         }
         
-        public static IEnumerable<object[]> NoRecusionData
+        /// <summary>
+        /// Mapping from Test archive name to expected number of files to extract when recursion is disabled
+        /// </summary>
+        public static IEnumerable<object[]> NoRecursionData
         {
             get
             {
@@ -66,7 +72,8 @@ namespace RecursiveExtractor.Tests.ExtractorTests
                     new object[] { "TestData.vhdx", 3 },
                     new object[] { "TestData.wim", 3 },
                     new object[] { "EmptyFile.txt", 1 },
-                    new object[] { "TestDataArchivesNested.Zip", 14 }
+                    new object[] { "TestDataArchivesNested.Zip", 14 },
+                    new object[] { "UdfTestWithMultiSystem.iso", 3 }
                 };
             }
         }
@@ -126,7 +133,7 @@ namespace RecursiveExtractor.Tests.ExtractorTests
         }
 
         [TestMethod]
-        [DynamicData(nameof(NoRecusionData))]
+        [DynamicData(nameof(NoRecursionData))]
         public async Task ExtractArchiveAsyncNoRecursion(string fileName, int expectedNumFiles)
         {
             var extractor = new Extractor();
@@ -142,7 +149,7 @@ namespace RecursiveExtractor.Tests.ExtractorTests
         }
 
         [TestMethod]
-        [DynamicData(nameof(NoRecusionData))]
+        [DynamicData(nameof(NoRecursionData))]
         public void ExtractArchiveParallelNoRecursion(string fileName, int expectedNumFiles)
         {
             var extractor = new Extractor();
@@ -154,7 +161,7 @@ namespace RecursiveExtractor.Tests.ExtractorTests
         }
 
         [TestMethod]
-        [DynamicData(nameof(NoRecusionData))]
+        [DynamicData(nameof(NoRecursionData))]
         public void ExtractArchiveNoRecursion(string fileName, int expectedNumFiles)
         {
             var extractor = new Extractor();

@@ -39,10 +39,12 @@ namespace Microsoft.CST.RecursiveExtractor
             ModifyTime = modifyTime ?? DateTime.MinValue;
             AccessTime = accessTime ?? DateTime.MinValue;
 
+            name = SanitizePath(name);
             Name = Path.GetFileName(name);
 
             FullPath = parent == null ? name : Path.Combine(parent.FullPath,name);
             var printPath = FullPath;
+
             FullPath = ZipSlipSanitize(FullPath);
 
             if (inputStream == null)

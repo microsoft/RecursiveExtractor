@@ -68,8 +68,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             fileEntry.Content.Position = 0;
                             rarArchive = RarArchive.Open(fileEntry.Content, new SharpCompress.Readers.ReaderOptions() { Password = password, LookForHeader = true });
                             var byt = new byte[1];
-                            var encryptedEntry = rarArchive.Entries.FirstOrDefault(x => x.IsEncrypted && x.Size > 0);
-                            using var entryStream = encryptedEntry.OpenEntryStream();
+                            var encryptedEntry = rarArchive.Entries.FirstOrDefault(x => x is { IsEncrypted: true, Size: > 0 });
+                            // Justification for !: Because we use FirstOrDefault encryptedEntry may be null, but we have a catch below for it
+                            using var entryStream = encryptedEntry!.OpenEntryStream();
                             if (entryStream.Read(byt, 0, 1) > 0)
                             {
                                 passwordFound = true;

@@ -33,7 +33,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             {
                 LeaveStreamOpen = true
             });
-            if (archive is null || archive.TotalSize == 0)
+            if (archive is null)
             {
                 Logger.Debug(Extractor.FAILED_PARSING_ERROR_MESSAGE_STRING, ArchiveFileType.TAR, fileEntry.FullPath, string.Empty, "Null Archive");
                 if (options.ExtractSelfOnFail)
@@ -52,7 +52,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         continue;
                     }
-
                     var fs = new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
                     governor.CheckResourceGovernor(tarEntry.Size);
                     try
@@ -70,6 +69,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         name = name[2..];
                     }
+                    
                     var newFileEntry = new FileEntry(name, fs, fileEntry, true, memoryStreamCutoff: options.MemoryStreamCutoff);
 
                     if (options.Recurse || topLevel)
@@ -97,7 +97,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             {
                 LeaveStreamOpen = true
             });
-            if (archive is null || archive.TotalSize == 0)
+            if (archive is null)
             {
                 Logger.Debug(Extractor.FAILED_PARSING_ERROR_MESSAGE_STRING, ArchiveFileType.TAR, fileEntry.FullPath, string.Empty, "Null Archive");
                 if (options.ExtractSelfOnFail)
