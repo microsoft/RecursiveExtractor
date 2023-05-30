@@ -50,7 +50,7 @@ stages:
 - stage: SDL
   dependsOn: []
   jobs:
-  - template: templates/sdl-job.yml
+  - template: sdl-job.yml@templates
       
 - stage: Build
   dependsOn: Test
