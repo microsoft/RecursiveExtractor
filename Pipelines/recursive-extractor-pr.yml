@@ -53,18 +53,27 @@ stages:
   - template: sdl-job.yml@templates
       
 - stage: Build
-  dependsOn: Test
+  dependsOn:
+  - Test
   jobs:
-  - template: templates/nuget-build-job.yml
+  - template: nuget-build-job.yml@templates
     parameters:
       jobName: 'pack_lib'
+      buildConfiguration: ${{ variables.BuildConfiguration }}
+      dotnetVersion: ${{ variables.DotnetVersion }}
       projectPath: 'RecursiveExtractor/RecursiveExtractor.csproj'
       projectName: 'RecursiveExtractor'
-  - template: templates/nuget-build-job-framework.yml
+      preBuild:
+      - template: nbgv-set-version-steps.yml@templates
+  - template: nuget-build-job.yml@templates
     parameters:
       jobName: 'pack_cli'
+      buildConfiguration: ${{ variables.BuildConfiguration }}
+      dotnetVersion: ${{ variables.DotnetVersion }}
       projectPath: 'RecursiveExtractor.Cli/RecursiveExtractor.Cli.csproj'
       projectName: 'RecursiveExtractor_CLI'
+      preBuild:
+      - template: nbgv-set-version-steps.yml@templates
 
 # - stage: Release
 #   dependsOn:
