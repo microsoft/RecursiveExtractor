@@ -16,6 +16,13 @@ pr:
     include:
     - main
 
+resources:
+  repositories:
+    - repository: templates
+      type: git
+      name: SecurityEngineering/OSS-Tools-Pipeline-Templates
+      ref: refs/tags/v1.0.6
+
 stages:
 - stage: Test
   dependsOn: []
@@ -31,8 +38,6 @@ stages:
   dependsOn: []
   jobs:
   - template: templates/sdl-job.yml
-    parameters:
-      serviceTreeID: '1f6713ed-e0f1-4691-93a2-7e01bcf04acb'
       
 - stage: Build
   dependsOn: Test
