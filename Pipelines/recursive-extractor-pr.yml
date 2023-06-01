@@ -37,7 +37,12 @@ stages:
   dependsOn: []
   jobs:
   - template: sdl-job.yml@templates
-      
+    parameters:
+      preScan:
+      - template: policheck-exclusion-steps.yml@templates
+        parameters:
+          ExcludeFolderPathFull: 'RecursiveExtractor.Tests'
+
 - stage: Build
   dependsOn:
   - Test
