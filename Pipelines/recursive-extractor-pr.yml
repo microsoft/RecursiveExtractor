@@ -41,7 +41,7 @@ stages:
       preScan:
       - template: policheck-exclusion-steps.yml@templates
         parameters:
-          ExcludeFolderPathFull: 'RecursiveExtractor.Tests'
+          ExcludeFolderPathStart: 'RecursiveExtractor.Tests'
       policheckExclusionFile: $(Build.SourcesDirectory)/PolicheckExclusions.xml
 
 - stage: Build
