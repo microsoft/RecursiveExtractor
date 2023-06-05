@@ -1,0 +1,289 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net7.0;net6.0</TargetFrameworks>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.1" />
+        <PackageReference Include="MSTest.TestAdapter" Version="3.0.4" />
+        <PackageReference Include="MSTest.TestFramework" Version="3.0.4" />
+        <PackageReference Include="coverlet.collector" Version="6.0.0">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\RecursiveExtractor.Cli\RecursiveExtractor.Cli.csproj" />
+      <ProjectReference Include="..\RecursiveExtractor.Tests\RecursiveExtractor.Tests.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Update="..\RecursiveExtractor.Tests\TestData\10GB.7z.bz2">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\10GB.bz2">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\10GB.gz.bz2">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\10GB.rar.bz2">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\10GB.xz.bz2">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\10GB.zip.bz2">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Bombs\10GB.7z.bz2">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Bombs\10GB.bz2">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Bombs\10GB.gz.bz2">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Bombs\10GB.rar.bz2">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Bombs\10GB.xz.bz2">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Bombs\10GB.zip.bz2">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Bombs\zblg.zip">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Bombs\zbsm.zip">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Bombs\zip-slip-win.tar">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Bombs\zip-slip-win.zip">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Bombs\zip-slip.tar">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Bombs\zip-slip.zip">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\droste.zip">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Empty.vmdk">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\EmptyFile.txt">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Nested.zip">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\NestedEncrypted.7z">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\SharedEncrypted.7z">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\SharedEncrypted.rar">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\SharedEncrypted.rar4">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\SharedEncrypted.zip">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\SharedEncryptedAES.zip">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\100trees.7z">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\Empty.vmdk">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\EmptyFile.txt">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\EncryptedWithPlainNames.7z">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\EncryptedWithPlainNames.rar4">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\Lorem.txt">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\sysvbanner_1.0-17fakesync1_amd64.deb">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\TestData.7z">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\TestData.a">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\TestData.bsd.ar">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\TestData.iso">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\TestData.rar">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\TestData.rar4">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\TestData.tar">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\TestData.tar.bz2">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\TestData.tar.gz">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\TestData.tar.xz">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\TestData.vhdx">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\TestData.wim">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\TestData.zip">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\TestDataArchivesNested.zip">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\TestDataCorrupt.tar">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\TestDataCorrupt.tar.zip">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\TestDataEncrypted.7z">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\TestDataEncrypted.rar">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\TestDataEncrypted.rar4">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\TestDataEncryptedAES.zip">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\TestDataEncryptedZipCrypto.zip">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\TestDataForFilters.7z">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TextFile.md">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Shared.7z">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Shared.a">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Shared.ar">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Shared.deb">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Shared.iso">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Shared.rar">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Shared.rar4">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Shared.tar">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Shared.tar.bz2">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Shared.tar.gz">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Shared.tar.xz">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Shared.vhd">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Shared.vhdx">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Shared.wim">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Shared.zip">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\sysvbanner_1.0-17fakesync1_amd64.deb">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\zblg.zip">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Shared.bsd.ar">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\zbsm.zip">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\zbxl.zip">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\zip-slip-win.tar">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\zip-slip-win.zip">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\zip-slip.tar">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\zip-slip.zip">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\..\RecursiveExtractor.Tests\TestData\Lorem.txt">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\UdfTest.iso">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\TestDataArchives\UdfTestWithMultiSystem.iso">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Bombs\zoneinfo-2010g.tar">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="..\RecursiveExtractor.Tests\TestData\Malformed\zoneinfo-2010g.tar">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+</Project>
