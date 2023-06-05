@@ -66,8 +66,3 @@ stages:
       projectName: 'RecursiveExtractor_CLI'
       preBuild:
       - template: nbgv-set-version-steps.yml@templates
-      - task: UseDotNet@2
-        displayName: Install Dotnet SDK
-        inputs:
-          packageType: 'sdk'
-          version: 6.x
