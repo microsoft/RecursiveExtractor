@@ -27,11 +27,18 @@ stages:
   jobs:
   - template: dotnet-test-job.yml@templates
     parameters:
-      jobName: 'dotnet_test_windows'
+      jobName: 'lib_dotnet_test_windows'
       dotnetVersion: ${{ variables.DotnetVersion }}
       dotnetVersionLTS: ${{ variables.DotnetVersionLTS }}
       vmImage: 'oss-tools-win2022_1es-managed'
       projectPath: 'RecursiveExtractor.Tests/RecursiveExtractor.Tests.csproj'
+  - template: dotnet-test-job.yml@templates
+    parameters:
+      jobName: 'cli_dotnet_test_windows'
+      dotnetVersion: ${{ variables.DotnetVersion }}
+      dotnetVersionLTS: ${{ variables.DotnetVersionLTS }}
+      vmImage: 'oss-tools-win2022_1es-managed'
+      projectPath: 'RecursiveExtractor.Cli.Tests/RecursiveExtractor.Cli.Tests.csproj'
 
 - stage: SDL
   dependsOn: []
