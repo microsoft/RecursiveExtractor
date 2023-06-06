@@ -1,7 +1,7 @@
 # Azure Pipelines
 # https://aka.ms/yaml
 
-name: RecursiveExtractor_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
+name: RecursiveExtractor_Release_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
 trigger:
   batch: true
   branches:
@@ -11,61 +11,90 @@ trigger:
     include:
     - RecursiveExtractor
     - RecursiveExtractor.Cli
-pr:
-  branches:
-    include:
-    - main
-  paths:
-    include:
-    - Pipelines
-    - RecursiveExtractor
-    - RecursiveExtractor.Blazor
-    - RecursiveExtractor.Cli
-    - RecursiveExtractor.Tests
-    - RecursiveExtractor.sln
+pr: none
+
+resources:
+  repositories:
+    - repository: templates
+      type: git
+      name: SecurityEngineering/OSS-Tools-Pipeline-Templates
+      ref: refs/tags/v1.0.7
+
+variables:
+  BuildConfiguration: 'Release'
+  DotnetVersion: '7.0.x'
+  DotnetVersionLTS: '6.0.x'
 
 stages:
 - stage: Test
+  dependsOn: []
   jobs:
-  - template: templates/dotnet-test-job.yml
+  - template: dotnet-test-job.yml@templates
     parameters:
-      jobName: "test"
-      dotnetVersion: '7.0.x'      
-      dotnetVersionLTS: '6.0.x'
+      jobName: 'lib_dotnet_test_windows'
+      dotnetVersion: ${{ variables.DotnetVersion }}
+      dotnetVersionLTS: ${{ variables.DotnetVersionLTS }}
+      vmImage: 'oss-tools-win2022_1es-managed'
       projectPath: 'RecursiveExtractor.Tests/RecursiveExtractor.Tests.csproj'
+  - template: dotnet-test-job.yml@templates
+    parameters:
+      jobName: 'cli_dotnet_test_windows'
+      dotnetVersion: ${{ variables.DotnetVersion }}
+      dotnetVersionLTS: ${{ variables.DotnetVersionLTS }}
+      vmImage: 'oss-tools-win2022_1es-managed'
+      projectPath: 'RecursiveExtractor.Cli.Tests/RecursiveExtractor.Cli.Tests.csproj'
 
 - stage: SDL
-  dependsOn: Test
+  dependsOn: []
   jobs:
-  - template: templates/sdl-job.yml
+  - template: sdl-job.yml@templates
     parameters:
-      serviceTreeID: '1f6713ed-e0f1-4691-93a2-7e01bcf04acb'
-      
+      preScan:
+      - template: policheck-exclusion-steps.yml@templates
+        parameters:
+          ExcludeFolderPathStart: 'RecursiveExtractor.Tests'
+      policheckExclusionFile: $(Build.SourcesDirectory)/PolicheckExclusions.xml
+
 - stage: Build
-  dependsOn: Test
+  dependsOn:
+  - Test
   jobs:
-  - template: templates/nuget-build-job.yml
+  - template: nuget-build-job.yml@templates
     parameters:
       jobName: 'pack_lib'
+      buildConfiguration: ${{ variables.BuildConfiguration }}
+      dotnetVersion: ${{ variables.DotnetVersion }}
       projectPath: 'RecursiveExtractor/RecursiveExtractor.csproj'
       projectName: 'RecursiveExtractor'
-  - template: templates/nuget-build-job-framework.yml
+      preBuild:
+      - template: nbgv-set-version-steps.yml@templates
+  - template: nuget-build-job.yml@templates
     parameters:
       jobName: 'pack_cli'
+      buildConfiguration: ${{ variables.BuildConfiguration }}
+      dotnetVersion: ${{ variables.DotnetVersion }}
       projectPath: 'RecursiveExtractor.Cli/RecursiveExtractor.Cli.csproj'
       projectName: 'RecursiveExtractor_CLI'
+      preBuild:
+      - template: nbgv-set-version-steps.yml@templates
 
 - stage: Release
   dependsOn:
   - SDL
   - Build
-  condition: and(succeeded(), in(variables['Build.Reason'], 'IndividualCI', 'BatchedCI'))
+  condition: succeeded()
   jobs:
   - job: sign_hash_release
     displayName: Code Sign, Generate Hashes, Publish Public Releases
     pool:
-      vmImage: 'windows-latest'
+      name: 'OSS-Tools-1ESPool'
+      vmImage: 'oss-tools-win2022_1es-managed'
     steps:
+    - task: UseDotNet@2 # For ESRP. Do not use variable.
+      inputs:
+        packageType: 'sdk'
+        version: '6.0.x'
+    - template: nbgv-set-version-steps.yml@templates
     - task: DownloadBuildArtifacts@0
       displayName: Download Unsigned Archives
       inputs:
@@ -80,7 +109,7 @@ stages:
         destinationFolder: '$(Build.BinariesDirectory)'
         cleanDestinationFolder: false
         overwriteExistingFiles: true
-    - task: AntiMalware@3
+    - task: AntiMalware@4
       displayName: Anti-Malware Scan
       inputs:
         InputType: 'Basic'
@@ -91,14 +120,7 @@ stages:
         TreatSignatureUpdateFailureAs: 'Warning'
         SignatureFreshness: 'UpToDate'
         TreatStaleSignatureAs: 'Warning'
-    - task: CodeInspector@2
-      inputs:
-           ProductId: '1f6713ed-e0f1-4691-93a2-7e01bcf04acb'
-    - task: UseDotNet@2
-      inputs:
-        packageType: 'sdk'
-        version: '2.1.804'
-    - task: EsrpCodeSigning@1
+    - task: EsrpCodeSigning@3
       displayName: Code Sign Nuget Packages
       inputs:
         ConnectedServiceName: 'RecursiveExtractor_CodeSign'

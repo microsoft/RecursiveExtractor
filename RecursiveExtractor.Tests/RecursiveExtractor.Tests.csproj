@@ -8,20 +8,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.1" />
     <PackageReference Include="DiscUtils.Btrfs" Version="0.16.13" />
     <PackageReference Include="DiscUtils.HfsPlus" Version="0.16.13" />
     <PackageReference Include="DiscUtils.SquashFs" Version="0.16.13" />
     <PackageReference Include="DiscUtils.Xfs" Version="0.16.13" />
-    <PackageReference Include="MSTest.TestAdapter" Version="3.0.2" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.0.2" />
-    <PackageReference Include="NLog.Extensions.Logging" Version="5.2.3" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.0.4" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.0.4" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="5.3.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\RecursiveExtractor\RecursiveExtractor.csproj" />
-    <ProjectReference Include="..\RecursiveExtractor.Cli\RecursiveExtractor.Cli.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="TestData\10GB.7z.bz2">
