@@ -162,11 +162,11 @@ stages:
       inputs:
         targetPath: '$(Build.StagingDirectory)'
         artifact: 'Signed_Binaries'
-    # - task: NuGetCommand@2
-    #   displayName: Publish NuGet Packages
-    #   inputs:
-    #     command: 'push'
-    #     packagesToPush: '$(Build.StagingDirectory)/*.nupkg'
-    #     nuGetFeedType: 'external'
-    #     publishFeedCredentials: 'CST-E Nuget CI'
-    #     verbosityPush: 'Normal'
+    - task: NuGetCommand@2
+      displayName: Publish NuGet Packages
+      inputs:
+        command: 'push'
+        packagesToPush: '$(Build.StagingDirectory)/*.nupkg'
+        nuGetFeedType: 'external'
+        publishFeedCredentials: 'CST-E Nuget CI'
+        verbosityPush: 'Normal'
