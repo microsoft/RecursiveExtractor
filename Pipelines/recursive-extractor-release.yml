@@ -79,95 +79,94 @@ stages:
       preBuild:
       - template: nbgv-set-version-steps.yml@templates
 
-# - stage: Release
-#   dependsOn:
-#   - SDL
-#   - Build
-#   condition: succeeded()
-#   jobs:
-#   - job: sign_hash_release
-#     displayName: Code Sign, Generate Hashes, Publish Public Releases
-#     pool:
-#       vmImage: 'windows-latest'
-#     steps:
-#     - task: DownloadBuildArtifacts@0
-#       displayName: Download Unsigned Archives
-#       inputs:
-#         buildType: 'current'
-#         downloadType: 'specific'
-#         itemPattern: 'Unsigned_Binaries/*.zip'
-#         downloadPath: '$(Build.BinariesDirectory)'
-#     - task: ExtractFiles@1
-#       displayName: Extract Artifacts for Signing
-#       inputs:
-#         archiveFilePatterns: '$(Build.BinariesDirectory)\Unsigned_Binaries\*.zip'
-#         destinationFolder: '$(Build.BinariesDirectory)'
-#         cleanDestinationFolder: false
-#         overwriteExistingFiles: true
-#     - task: AntiMalware@3
-#       displayName: Anti-Malware Scan
-#       inputs:
-#         InputType: 'Basic'
-#         ScanType: 'CustomScan'
-#         FileDirPath: '$(Build.BinariesDirectory)'
-#         EnableServices: true
-#         SupportLogOnError: true
-#         TreatSignatureUpdateFailureAs: 'Warning'
-#         SignatureFreshness: 'UpToDate'
-#         TreatStaleSignatureAs: 'Warning'
-#     - task: CodeInspector@2
-#       inputs:
-#            ProductId: '1f6713ed-e0f1-4691-93a2-7e01bcf04acb'
-#     - task: UseDotNet@2
-#       inputs:
-#         packageType: 'sdk'
-#         version: '2.1.804'
-#     - task: EsrpCodeSigning@1
-#       displayName: Code Sign Nuget Packages
-#       inputs:
-#         ConnectedServiceName: 'RecursiveExtractor_CodeSign'
-#         FolderPath: '$(Build.BinariesDirectory)'
-#         Pattern: '*.nupkg, *.snupkg'
-#         signConfigType: 'inlineSignParams'
-#         inlineOperation: |
-#           [
-#                   {
-#                       "KeyCode" : "CP-401405",
-#                       "OperationCode" : "NuGetSign",
-#                       "Parameters" : {},
-#                       "ToolName" : "sign",
-#                       "ToolVersion" : "1.0"
-#                   },
-#                   {
-#                       "KeyCode" : "CP-401405",
-#                       "OperationCode" : "NuGetVerify",
-#                       "Parameters" : {},
-#                       "ToolName" : "sign",
-#                       "ToolVersion" : "1.0"
-#                   }
-#               ]
-#         SessionTimeout: '60'
-#         MaxConcurrency: '50'
-#         MaxRetryAttempts: '5'
-#     - powershell: 'Get-ChildItem -Path ''$(Build.BinariesDirectory)'' -Recurse CodeSign* | foreach { Remove-Item -Path $_.FullName }'
-#       displayName: 'Delete Code Sign Summaries'
-#     - task: PowerShell@2
-#       displayName: Move NuGet Packages
-#       inputs:
-#         targetType: 'inline'
-#         script: |
-#           mv $env:BUILD_BINARIESDIRECTORY/*.nupkg $env:BUILD_STAGINGDIRECTORY/
-#           mv $env:BUILD_BINARIESDIRECTORY/*.snupkg $env:BUILD_STAGINGDIRECTORY/
-#     - task: PublishPipelineArtifact@1
-#       displayName: Pipeline Publish Signed Artifacts
-#       inputs:
-#         targetPath: '$(Build.StagingDirectory)'
-#         artifact: 'Signed_Binaries'
-#     - task: NuGetCommand@2
-#       displayName: Publish NuGet Packages
-#       inputs:
-#         command: 'push'
-#         packagesToPush: '$(Build.StagingDirectory)/*.nupkg'
-#         nuGetFeedType: 'external'
-#         publishFeedCredentials: 'CST-E Nuget CI'
-#         verbosityPush: 'Normal'
+- stage: Release
+  dependsOn:
+  - SDL
+  - Build
+  condition: succeeded()
+  jobs:
+  - job: sign_hash_release
+    displayName: Code Sign, Generate Hashes, Publish Public Releases
+    pool:
+      name: 'OSS-Tools-1ESPool'
+      vmImage: 'oss-tools-win2022_1es-managed'
+    steps:
+    - task: UseDotNet@2 # For ESRP. Do not use variable.
+      inputs:
+        packageType: 'sdk'
+        version: '6.0.x'
+    - template: nbgv-set-version-steps.yml@templates
+    - task: DownloadBuildArtifacts@0
+      displayName: Download Unsigned Archives
+      inputs:
+        buildType: 'current'
+        downloadType: 'specific'
+        itemPattern: 'Unsigned_Binaries/*.zip'
+        downloadPath: '$(Build.BinariesDirectory)'
+    - task: ExtractFiles@1
+      displayName: Extract Artifacts for Signing
+      inputs:
+        archiveFilePatterns: '$(Build.BinariesDirectory)\Unsigned_Binaries\*.zip'
+        destinationFolder: '$(Build.BinariesDirectory)'
+        cleanDestinationFolder: false
+        overwriteExistingFiles: true
+    - task: AntiMalware@4
+      displayName: Anti-Malware Scan
+      inputs:
+        InputType: 'Basic'
+        ScanType: 'CustomScan'
+        FileDirPath: '$(Build.BinariesDirectory)'
+        EnableServices: true
+        SupportLogOnError: true
+        TreatSignatureUpdateFailureAs: 'Warning'
+        SignatureFreshness: 'UpToDate'
+        TreatStaleSignatureAs: 'Warning'
+    - task: EsrpCodeSigning@3
+      displayName: Code Sign Nuget Packages
+      inputs:
+        ConnectedServiceName: 'RecursiveExtractor_CodeSign'
+        FolderPath: '$(Build.BinariesDirectory)'
+        Pattern: '*.nupkg, *.snupkg'
+        signConfigType: 'inlineSignParams'
+        inlineOperation: |
+          [
+                  {
+                      "KeyCode" : "CP-401405",
+                      "OperationCode" : "NuGetSign",
+                      "Parameters" : {},
+                      "ToolName" : "sign",
+                      "ToolVersion" : "1.0"
+                  },
+                  {
+                      "KeyCode" : "CP-401405",
+                      "OperationCode" : "NuGetVerify",
+                      "Parameters" : {},
+                      "ToolName" : "sign",
+                      "ToolVersion" : "1.0"
+                  }
+              ]
+        SessionTimeout: '60'
+        MaxConcurrency: '50'
+        MaxRetryAttempts: '5'
+    - powershell: 'Get-ChildItem -Path ''$(Build.BinariesDirectory)'' -Recurse CodeSign* | foreach { Remove-Item -Path $_.FullName }'
+      displayName: 'Delete Code Sign Summaries'
+    - task: PowerShell@2
+      displayName: Move NuGet Packages
+      inputs:
+        targetType: 'inline'
+        script: |
+          mv $env:BUILD_BINARIESDIRECTORY/*.nupkg $env:BUILD_STAGINGDIRECTORY/
+          mv $env:BUILD_BINARIESDIRECTORY/*.snupkg $env:BUILD_STAGINGDIRECTORY/
+    - task: PublishPipelineArtifact@1
+      displayName: Pipeline Publish Signed Artifacts
+      inputs:
+        targetPath: '$(Build.StagingDirectory)'
+        artifact: 'Signed_Binaries'
+    # - task: NuGetCommand@2
+    #   displayName: Publish NuGet Packages
+    #   inputs:
+    #     command: 'push'
+    #     packagesToPush: '$(Build.StagingDirectory)/*.nupkg'
+    #     nuGetFeedType: 'external'
+    #     publishFeedCredentials: 'CST-E Nuget CI'
+    #     verbosityPush: 'Normal'
