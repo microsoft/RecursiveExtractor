@@ -1,7 +1,7 @@
 # Azure Pipelines
 # https://aka.ms/yaml
 
-name: RecursiveExtractor_PR_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
+name: RecursiveExtractor_Release_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
 trigger:
   batch: true
   branches:
