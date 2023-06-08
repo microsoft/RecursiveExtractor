@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 
 using System;
+using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -39,11 +40,19 @@ namespace Microsoft.CST.RecursiveExtractor
             ModifyTime = modifyTime ?? DateTime.MinValue;
             AccessTime = accessTime ?? DateTime.MinValue;
 
-            Name = Path.GetFileName(SanitizePath(name));
+            // Sanitize so its safe to use with Path APIs
+            string sanitizedName = SanitizePath(name);
+            Name = Path.GetFileName(sanitizedName);
 
-            FullPath = parent == null ? name : Path.Combine(parent.FullPath,SanitizePath(name));
+            // If parent is null use the provided name as the FullPath
+            FullPath = parent == null ? name : 
+                // Otherwise combine the provided name with the full path of the parent
+                Path.Combine(parent.FullPath,sanitizedName);
+            
+            // Stash a copy of the full path for error messages
             var printPath = FullPath;
 
+            // Sanitize the full path so its safe from zip slip
             FullPath = ZipSlipSanitize(FullPath);
 
             if (inputStream == null)
@@ -173,6 +182,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         /// <param name="replacement">The string value to replace any invalid characters with</param>
         /// <returns>A sanitized path suitable to attempt to write to disk.</returns>
+        [Pure]
         public string GetSanitizedPath(string replacement = "_") => SanitizePath(FullPath, replacement);
 
         /// <summary>
@@ -181,6 +191,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="path">Path to Sanitize</param>
         /// <param name="replacement">The replacement character to use for invalid characters</param>
         /// <returns>A sanitized path suitable to write to disk</returns>
+        [Pure]
         public static string SanitizePath(string path, string replacement = "_") => InvalidFileChars.Replace(path, replacement);
         
         internal bool Passthrough { get; }
