@@ -303,7 +303,7 @@ namespace Microsoft.CST.RecursiveExtractor
             {
                 fullPath = fullPath.Replace("..", replacement);
                 var directorySeparator = Path.DirectorySeparatorChar.ToString();
-                var doubleSeparator = $"{directorySeparator},{directorySeparator}");
+                var doubleSeparator = $"{directorySeparator},{directorySeparator}";
                 while (fullPath.Contains(doubleSeparator))
                 {
                     fullPath = fullPath.Replace(doubleSeparator, $"{directorySeparator}");
