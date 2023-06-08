@@ -41,7 +41,7 @@ namespace Microsoft.CST.RecursiveExtractor
 
             Name = Path.GetFileName(SanitizePath(name));
 
-            FullPath = parent == null ? name : Path.Combine(parent.FullPath,name);
+            FullPath = parent == null ? name : Path.Combine(parent.FullPath,SanitizePath(name));
             var printPath = FullPath;
 
             FullPath = ZipSlipSanitize(FullPath);
