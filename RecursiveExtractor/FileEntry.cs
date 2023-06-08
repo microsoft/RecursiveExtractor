@@ -55,6 +55,11 @@ namespace Microsoft.CST.RecursiveExtractor
             // Sanitize the full path so its safe from zip slip
             FullPath = ZipSlipSanitize(FullPath);
 
+            if (printPath != FullPath)
+            {
+                Logger.Info("ZipSlip detected in {Path}. Removing unsafe path elements", printPath);
+            }
+            
             if (inputStream == null)
             {
                 throw new ArgumentNullException(nameof(inputStream));
@@ -291,16 +296,17 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="fullPath">The path to sanitize</param>
         /// <param name="replacement">The string to replace .. with</param>
         /// <returns>A path without ZipSlip</returns>
+        [Pure]
         private static string ZipSlipSanitize(string fullPath, string replacement = "")
         {
             if (fullPath.Contains(".."))
             {
-                Logger.Info("ZipSlip detected in {Path}. Removing unsafe path elements and extracting", fullPath);
                 fullPath = fullPath.Replace("..", replacement);
-                var doubleSeparator = $"{Path.DirectorySeparatorChar}{Path.DirectorySeparatorChar}";
+                var directorySeparator = Path.DirectorySeparatorChar.ToString();
+                var doubleSeparator = $"{directorySeparator},{directorySeparator}");
                 while (fullPath.Contains(doubleSeparator))
                 {
-                    fullPath = fullPath.Replace(doubleSeparator, $"{Path.DirectorySeparatorChar}");
+                    fullPath = fullPath.Replace(doubleSeparator, $"{directorySeparator}");
                 }
             }
 
