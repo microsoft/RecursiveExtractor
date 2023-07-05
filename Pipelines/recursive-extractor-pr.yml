@@ -61,6 +61,7 @@ stages:
       dotnetVersion: ${{ variables.DotnetVersion }}
       projectPath: 'RecursiveExtractor/RecursiveExtractor.csproj'
       projectName: 'RecursiveExtractor'
+      customPackFlags: '/p:ContinuousIntegrationBuild=true'
       preBuild:
       - template: nbgv-set-version-steps.yml@templates
   - template: nuget-build-job.yml@templates
@@ -70,5 +71,6 @@ stages:
       dotnetVersion: ${{ variables.DotnetVersion }}
       projectPath: 'RecursiveExtractor.Cli/RecursiveExtractor.Cli.csproj'
       projectName: 'RecursiveExtractor_CLI'
+      customPackFlags: '/p:ContinuousIntegrationBuild=true'
       preBuild:
       - template: nbgv-set-version-steps.yml@templates
