@@ -16,6 +16,9 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 8.0.x
+    # Include wasm-tools to optimize build
+    - name: wasm-tools
+      run: dotner workload install wasm-tools
     - name: Install dependencies
       run: dotnet restore
     - name: Build
