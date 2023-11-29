@@ -13,12 +13,11 @@ resources:
     - repository: templates
       type: git
       name: SecurityEngineering/OSS-Tools-Pipeline-Templates
-      ref: refs/tags/v1.0.8
+      ref: refs/tags/v1.1.0
       
 variables:
   BuildConfiguration: 'Release'
-  DotnetVersion: '7.0.x'
-  DotnetVersionLTS: '6.0.x'
+  DotnetVersion: '8.0.x'
 
 stages:
 - stage: Test
@@ -27,15 +26,13 @@ stages:
   - template: dotnet-test-job.yml@templates
     parameters:
       jobName: 'lib_dotnet_test_windows'
-      dotnetVersion: ${{ variables.DotnetVersion }}
-      dotnetVersionLTS: ${{ variables.DotnetVersionLTS }}
+      dotnetVersions: ['6.0.x','7.0.x','8.0.x']
       vmImage: 'oss-tools-win2022_1es-managed'
       projectPath: 'RecursiveExtractor.Tests/RecursiveExtractor.Tests.csproj'
   - template: dotnet-test-job.yml@templates
     parameters:
       jobName: 'cli_dotnet_test_windows'
-      dotnetVersion: ${{ variables.DotnetVersion }}
-      dotnetVersionLTS: ${{ variables.DotnetVersionLTS }}
+      dotnetVersions: ['6.0.x','7.0.x','8.0.x']
       vmImage: 'oss-tools-win2022_1es-managed'
       projectPath: 'RecursiveExtractor.Cli.Tests/RecursiveExtractor.Cli.Tests.csproj'
 

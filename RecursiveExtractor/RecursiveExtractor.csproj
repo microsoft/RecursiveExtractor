@@ -39,10 +39,10 @@
     <PackageReference Include="DiscUtils.Wim" Version="0.16.13" />
     <PackageReference Include="DiscUtils.Xfs" Version="0.16.13" />
     <PackageReference Include="Glob" Version="1.1.9" />
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="7.0.0" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-    <PackageReference Include="NLog" Version="5.2.2" />
-    <PackageReference Include="SharpCompress" Version="0.34.1" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    <PackageReference Include="NLog" Version="5.2.6" />
+    <PackageReference Include="SharpCompress" Version="0.34.2" />
     <PackageReference Include="SharpZipLib" Version="1.4.2" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
   </ItemGroup>
