@@ -9,10 +9,10 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageReference Include="DiscUtils.Btrfs" Version="0.16.13" />
-    <PackageReference Include="DiscUtils.HfsPlus" Version="0.16.13" />
-    <PackageReference Include="DiscUtils.SquashFs" Version="0.16.13" />
-    <PackageReference Include="DiscUtils.Xfs" Version="0.16.13" />
+    <PackageReference Include="LTRData.DiscUtils.Btrfs" Version="1.0.34" />
+    <PackageReference Include="LTRData.DiscUtils.HfsPlus" Version="1.0.34" />
+    <PackageReference Include="LTRData.DiscUtils.SquashFs" Version="1.0.34" />
+    <PackageReference Include="LTRData.DiscUtils.Xfs" Version="1.0.34" />
     <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
     <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
     <PackageReference Include="NLog.Extensions.Logging" Version="5.3.8" />

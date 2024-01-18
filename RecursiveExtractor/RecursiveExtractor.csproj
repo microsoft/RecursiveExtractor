@@ -25,19 +25,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DiscUtils.Btrfs" Version="0.16.13" />
-    <PackageReference Include="DiscUtils.Core" Version="0.16.13" />
-    <PackageReference Include="DiscUtils.Ext" Version="0.16.13" />
-    <PackageReference Include="DiscUtils.Fat" Version="0.16.13" />
-    <PackageReference Include="DiscUtils.HfsPlus" Version="0.16.13" />
-    <PackageReference Include="DiscUtils.Iso9660" Version="0.16.13" />
-    <PackageReference Include="DiscUtils.Ntfs" Version="0.16.13" />
-    <PackageReference Include="DiscUtils.Udf" Version="0.16.13" />
-    <PackageReference Include="DiscUtils.Vhd" Version="0.16.13" />
-    <PackageReference Include="DiscUtils.Vhdx" Version="0.16.13" />
-    <PackageReference Include="DiscUtils.Vmdk" Version="0.16.13" />
-    <PackageReference Include="DiscUtils.Wim" Version="0.16.13" />
-    <PackageReference Include="DiscUtils.Xfs" Version="0.16.13" />
+    <PackageReference Include="LTRData.DiscUtils.Btrfs" Version="1.0.34" />
+    <PackageReference Include="LTRData.DiscUtils.Core" Version="1.0.34" />
+    <PackageReference Include="LTRData.DiscUtils.Ext" Version="1.0.34" />
+    <PackageReference Include="LTRData.DiscUtils.Fat" Version="1.0.34" />
+    <PackageReference Include="LTRData.DiscUtils.HfsPlus" Version="1.0.34" />
+    <PackageReference Include="LTRData.DiscUtils.Iso9660" Version="1.0.34" />
+    <PackageReference Include="LTRData.DiscUtils.Ntfs" Version="1.0.34" />
+    <PackageReference Include="LTRData.DiscUtils.Udf" Version="1.0.34" />
+    <PackageReference Include="LTRData.DiscUtils.Vhd" Version="1.0.34" />
+    <PackageReference Include="LTRData.DiscUtils.Vhdx" Version="1.0.34" />
+    <PackageReference Include="LTRData.DiscUtils.Vmdk" Version="1.0.34" />
+    <PackageReference Include="LTRData.DiscUtils.Wim" Version="1.0.34" />
+    <PackageReference Include="LTRData.DiscUtils.Xfs" Version="1.0.34" />
     <PackageReference Include="Glob" Version="1.1.9" />
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
