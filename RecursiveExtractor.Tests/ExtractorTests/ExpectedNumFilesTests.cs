@@ -42,7 +42,8 @@ namespace RecursiveExtractor.Tests.ExtractorTests
                     new object[] { "EmptyFile.txt", 1 },
                     new object[] { "TestDataArchivesNested.Zip", 54 },
                     new object[] { "UdfTest.iso", 3 },
-                    new object[] { "UdfTestWithMultiSystem.iso", 3 }
+                    new object[] { "UdfTestWithMultiSystem.iso", 3 },
+                    new object[] { "SharedDmg.zip", 1 },
                 };
             }
         }
