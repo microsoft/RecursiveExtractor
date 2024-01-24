@@ -1,9 +1,6 @@
-﻿using DiscUtils;
-using System;
-using System.Collections.Concurrent;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
@@ -107,8 +104,12 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             {
                 for (var i = 0; i < baseFile.ImageCount; i++)
                 {
-                    var image = baseFile.GetImage(i);
-                    foreach (var file in image.GetFiles(image.Root.FullName, "*.*", SearchOption.AllDirectories))
+                    if (!TryGetImage(baseFile, i, out var image))
+                    {
+                        continue;
+                    }
+
+                    foreach (var file in image!.GetFiles(image.Root.FullName, "*.*", SearchOption.AllDirectories))
                     {
                         Stream? stream = null;
                         try
@@ -150,6 +151,23 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     yield return fileEntry;
                 }
             }
+        }
+
+        private bool TryGetImage(DiscUtils.Wim.WimFile wimFile, int index, out DiscUtils.Wim.WimFileSystem? image)
+        {
+            image = null;
+
+            try
+            {
+                image = wimFile.GetImage(index);
+            }
+            catch (Exception e)
+            {
+                // Image may be corrupt or invalid
+                Logger.Debug(e, "Failed to retrieve WIM image with index {index}.", index);
+            }
+
+            return image is not null;
         }
     }
 }
