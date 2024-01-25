@@ -98,7 +98,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             catch (Exception e)
             {
-                Logger.Debug(e, "Failed to init WIM image.");
+                Logger.Debug(e, "Failed to init WIM image from {0}.", fileEntry.FullPath);
             }
             if (baseFile != null)
             {
@@ -106,6 +106,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 {
                     if (!TryGetImage(baseFile, i, out var image))
                     {
+                        Logger.Debug("Error reading image {0} from WIM {1}. Potentially malformed?", i, fileEntry.FullPath);
                         continue;
                     }
 
@@ -145,9 +146,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             else
             {
+                fileEntry.EntryStatus = FileEntryStatus.FailedArchive;
                 if (options.ExtractSelfOnFail)
                 {
-                    fileEntry.EntryStatus = FileEntryStatus.FailedArchive;
                     yield return fileEntry;
                 }
             }
