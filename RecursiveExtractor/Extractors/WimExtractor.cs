@@ -121,7 +121,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         }
                         catch (Exception e)
                         {
-                            Logger.Debug("Error reading {0} from WIM {1} ({2}:{3})", file, image.FriendlyName, e.GetType(), e.Message);
+                            Logger.Debug("Error reading {0} from WIM image {1} in {2} ({3}:{4})", file, i, fileEntry.FullPath, e.GetType(), e.Message);
                         }
                         if (stream != null)
                         {
