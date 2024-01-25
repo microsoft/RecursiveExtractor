@@ -13,8 +13,8 @@
     <PackageReference Include="LTRData.DiscUtils.HfsPlus" Version="1.0.35" />
     <PackageReference Include="LTRData.DiscUtils.SquashFs" Version="1.0.35" />
     <PackageReference Include="LTRData.DiscUtils.Xfs" Version="1.0.35" />
-    <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.2.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.2.0" />
     <PackageReference Include="NLog.Extensions.Logging" Version="5.3.8" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
