@@ -27,6 +27,7 @@
   <ItemGroup>
     <PackageReference Include="LTRData.DiscUtils.Btrfs" Version="1.0.35" />
     <PackageReference Include="LTRData.DiscUtils.Core" Version="1.0.35" />
+    <PackageReference Include="LTRData.DiscUtils.Dmg" Version="1.0.35" />
     <PackageReference Include="LTRData.DiscUtils.Ext" Version="1.0.35" />
     <PackageReference Include="LTRData.DiscUtils.Fat" Version="1.0.35" />
     <PackageReference Include="LTRData.DiscUtils.HfsPlus" Version="1.0.35" />
