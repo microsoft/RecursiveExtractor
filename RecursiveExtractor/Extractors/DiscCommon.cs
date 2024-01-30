@@ -1,10 +1,9 @@
 ﻿using DiscUtils;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
@@ -28,7 +27,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <returns></returns>
         public static async IAsyncEnumerable<FileEntry> DumpLogicalVolumeAsync(LogicalVolumeInfo volume, string parentPath, ExtractorOptions options, ResourceGovernor governor, Extractor Context, FileEntry? parent = null, bool topLevel = true)
         {
-            DiscUtils.FileSystemInfo[]? fsInfos = null;
+            ReadOnlyCollection<DiscUtils.FileSystemInfo>? fsInfos = null;
             try
             {
                 fsInfos = FileSystemManager.DetectFileSystems(volume);
@@ -38,7 +37,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 Logger.Debug("Failed to get file systems from logical volume {0} Image {1} ({2}:{3})", volume.Identity, parentPath, e.GetType(), e.Message);
             }
 
-            foreach (var fsInfo in fsInfos ?? Array.Empty<DiscUtils.FileSystemInfo>())
+            foreach (var fsInfo in fsInfos ?? Enumerable.Empty<DiscUtils.FileSystemInfo>())
             {
                 using var fs = fsInfo.Open(volume);
                 var diskFiles = fs.GetFiles(fs.Root.FullName, "*.*", SearchOption.AllDirectories).ToList();
@@ -90,7 +89,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <returns>An enumerable of the contained File Entries.</returns>
         public static IEnumerable<FileEntry> DumpLogicalVolume(LogicalVolumeInfo volume, string parentPath, ExtractorOptions options, ResourceGovernor governor, Extractor Context, FileEntry? parent = null, bool topLevel = true)
         {
-            DiscUtils.FileSystemInfo[]? fsInfos = null;
+            ReadOnlyCollection<DiscUtils.FileSystemInfo>? fsInfos = null;
             try
             {
                 fsInfos = FileSystemManager.DetectFileSystems(volume);
@@ -100,7 +99,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 Logger.Debug("Failed to get file systems from logical volume {0} Image {1} ({2}:{3})", volume.Identity, parentPath, e.GetType(), e.Message);
             }
 
-            foreach (var fsInfo in fsInfos ?? Array.Empty<DiscUtils.FileSystemInfo>())
+            foreach (var fsInfo in fsInfos ?? Enumerable.Empty<DiscUtils.FileSystemInfo>())
             {
                 using var fs = fsInfo.Open(volume);
                 var diskFiles = fs.GetFiles(fs.Root.FullName, "*.*", SearchOption.AllDirectories).ToList();

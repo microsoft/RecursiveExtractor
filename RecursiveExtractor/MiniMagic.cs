@@ -81,6 +81,10 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         VMDK,
         /// <summary>
+        /// A DMG disc image. <see cref="Extractors.DmgExtractor"/>
+        /// </summary>
+        DMG,
+        /// <summary>
         /// Unused.
         /// </summary>
         INVALID
@@ -117,6 +121,22 @@ namespace Microsoft.CST.RecursiveExtractor
             }
             var initialPosition = fileStream.Position;
             var buffer = new byte[9];
+            // DMG format uses the magic value 'koly' at the start of the 512 byte footer at the end of the file
+            // Due to compression used, needs to be first or can be misidentified as other formats
+            // https://newosxbook.com/DMG.html
+            if (fileStream.Length > 512)
+            {
+                var dmgFooterMagic = new byte[] { 0x6b, 0x6f, 0x6c, 0x79 };
+                fileStream.Position = fileStream.Length - 0x200; // Footer position
+                fileStream.Read(buffer, 0, 4);
+                fileStream.Position = initialPosition;
+
+                if (dmgFooterMagic.SequenceEqual(buffer[0..4]))
+                {
+                    return ArchiveFileType.DMG;
+                }
+            }
+
             if (fileStream.Length >= 9)
             {
                 fileStream.Position = 0;

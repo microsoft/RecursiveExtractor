@@ -1,9 +1,6 @@
-﻿using DiscUtils;
-using System;
-using System.Collections.Concurrent;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
@@ -101,14 +98,19 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             catch (Exception e)
             {
-                Logger.Debug(e, "Failed to init WIM image.");
+                Logger.Debug(e, "Failed to init WIM image from {0}.", fileEntry.FullPath);
             }
             if (baseFile != null)
             {
                 for (var i = 0; i < baseFile.ImageCount; i++)
                 {
-                    var image = baseFile.GetImage(i);
-                    foreach (var file in image.GetFiles(image.Root.FullName, "*.*", SearchOption.AllDirectories))
+                    if (!TryGetImage(baseFile, i, out var image))
+                    {
+                        Logger.Debug("Error reading image {0} from WIM {1}. Potentially malformed?", i, fileEntry.FullPath);
+                        continue;
+                    }
+
+                    foreach (var file in image!.GetFiles(image.Root.FullName, "*.*", SearchOption.AllDirectories))
                     {
                         Stream? stream = null;
                         try
@@ -119,7 +121,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         }
                         catch (Exception e)
                         {
-                            Logger.Debug("Error reading {0} from WIM {1} ({2}:{3})", file, image.FriendlyName, e.GetType(), e.Message);
+                            Logger.Debug("Error reading {0} from WIM image {1} in {2} ({3}:{4})", file, i, fileEntry.FullPath, e.GetType(), e.Message);
                         }
                         if (stream != null)
                         {
@@ -144,12 +146,29 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             else
             {
+                fileEntry.EntryStatus = FileEntryStatus.FailedArchive;
                 if (options.ExtractSelfOnFail)
                 {
-                    fileEntry.EntryStatus = FileEntryStatus.FailedArchive;
                     yield return fileEntry;
                 }
             }
+        }
+
+        private bool TryGetImage(DiscUtils.Wim.WimFile wimFile, int index, out DiscUtils.Wim.WimFileSystem? image)
+        {
+            image = null;
+
+            try
+            {
+                image = wimFile.GetImage(index);
+            }
+            catch (Exception e)
+            {
+                // Image may be corrupt or invalid
+                Logger.Debug(e, "Failed to retrieve WIM image with index {index}.", index);
+            }
+
+            return image is not null;
         }
     }
 }

@@ -49,6 +49,7 @@ public class MiscTests
         [DataRow("TestDataCorrupt.tar", true, 1, 1)]
         [DataRow("TestDataCorrupt.tar.zip", false, 0, 2)]
         [DataRow("TestDataCorrupt.tar.zip", true, 0, 2)]
+        [DataRow("TestDataCorruptWim.zip", true, 0, 0)]
         public void ExtractCorruptArchive(string fileName, bool requireTopLevelToBeArchive, int expectedNumFailures, int expectedNumFiles)
         {
             var extractor = new Extractor();

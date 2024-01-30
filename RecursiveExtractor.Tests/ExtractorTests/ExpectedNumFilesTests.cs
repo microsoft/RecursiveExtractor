@@ -42,7 +42,8 @@ namespace RecursiveExtractor.Tests.ExtractorTests
                     new object[] { "EmptyFile.txt", 1 },
                     new object[] { "TestDataArchivesNested.Zip", 54 },
                     new object[] { "UdfTest.iso", 3 },
-                    new object[] { "UdfTestWithMultiSystem.iso", 3 }
+                    new object[] { "UdfTestWithMultiSystem.iso", 3 },
+                    new object[] { "HfsSampleUDCO.dmg", 2 }
                 };
             }
         }
@@ -73,7 +74,8 @@ namespace RecursiveExtractor.Tests.ExtractorTests
                     new object[] { "TestData.wim", 3 },
                     new object[] { "EmptyFile.txt", 1 },
                     new object[] { "TestDataArchivesNested.Zip", 14 },
-                    new object[] { "UdfTestWithMultiSystem.iso", 3 }
+                    new object[] { "UdfTestWithMultiSystem.iso", 3 },
+                    new object[] { "HfsSampleUDCO.dmg", 2 }
                 };
             }
         }

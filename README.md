@@ -7,17 +7,18 @@ Recursive Extractor is a Cross-Platform [.NET Standard 2.0 Library](#library) an
 | | | |
 |-|-|-|
 | 7zip+ | ar    | bzip2 |
-| deb   | gzip  | iso   |
-| rar^  | tar   | vhd   |
-| vhdx  | vmdk  | wim*  |
-| xzip  | zip+  |       |
+| deb   | dmg** | gzip  | 
+| iso   | rar^  | tar   | 
+| vhd   | vhdx  | vmdk  | 
+| wim*  | xzip  | zip+  |
 
 <details>
 <summary>Details</summary>
 <br/>
 * Windows only<br/>
 + Encryption Supported<br/>
-^ Rar version 4 Encryption supported<br/>
+^ Encryption supported for Rar version 4 only<br/>
+** Limited support. Unencrypted HFS+ volumes with certain compression schemes.
 </details>
 
 # Variants
@@ -25,9 +26,9 @@ Recursive Extractor is a Cross-Platform [.NET Standard 2.0 Library](#library) an
 ## Command Line
 ### Installing
 1. Ensure you have the latest [.NET SDK](https://dotnet.microsoft.com/download).
-2. run `dotnet tool install -g Microsoft.CST.RecursiveExtractor.Cli`
+2. Run `dotnet tool install -g Microsoft.CST.RecursiveExtractor.Cli`
 
-This adds `RecursiveExtractor` to your path so you can run it directly from the shell.
+This adds `RecursiveExtractor` to your path so you can run it directly from your shell.
 
 ### Running
 Basic usage is: `RecursiveExtractor --input archive.ext --output outputDirectory`
@@ -57,7 +58,7 @@ Run `RecursiveExtractor --help` for more details.
 </details>
 
 ## .NET Standard Library
-Recursive Extractor is available on NuGet as [Microsoft.CST.RecursiveExtractor](https://www.nuget.org/packages/Microsoft.CST.RecursiveExtractor/). Recursive Extractor targets netstandard2.0+ and the latest .NET, currently .NET 6.0 and .NET 7.0.
+Recursive Extractor is available on NuGet as [Microsoft.CST.RecursiveExtractor](https://www.nuget.org/packages/Microsoft.CST.RecursiveExtractor/). Recursive Extractor targets netstandard2.0+ and the latest .NET, currently .NET 6.0, .NET 7.0 and .NET 8.0.
 
 ### Usage
 
@@ -77,8 +78,7 @@ foreach(var file in extractor.Extract(path))
 <details>
 <summary>Extracting to Disk</summary>
 <br/>
-This code adapted from the Cli extracts the contents of given archive located at `options.Input`
-to a directory located at `options.Output`, including extracting failed archives as themselves.
+This code adapted from the Cli extracts the contents of given archive located at `options.Input` to a directory located at `options.Output`, including extracting failed archives as themselves.
 
 ```csharp
 using Microsoft.CST.RecursiveExtractor;
@@ -166,12 +166,12 @@ catch(OverflowException)
 RecursiveExtractor protects against [ZipSlip](https://snyk.io/research/zip-slip-vulnerability), [Quines, and Zip Bombs](https://en.wikipedia.org/wiki/Zip_bomb).
 Calls to Extract will throw an `OverflowException` when a Quine or Zip bomb is detected and a `TimeOutException` if `EnableTiming` is set and the specified time period has elapsed before completion.
 
-Otherwise, invalid files found while crawling will emit a logger message and be skipped.  RecursiveExtractor uses NLog for logging.
+Otherwise, invalid files found while crawling will emit a logger message and be skipped.  You can also enable `ExtractSelfOnFail` to return the original archive file on an extraction failure.
 
 ## Notes on Enumeration
 
 ### Multiple Enumeration
-You should not iterate the Enumeration returned from the `Extract` and `ExtractAsync` interfaces multiple times, if you need to do so, convert the Enumeration to the collection of your choice first.
+You should not iterate the Enumeration returned from the `Extract` and `ExtractAsync` interfaces multiple times, if you need to do so, convert the Enumeration to an in memory collection first.
 
 ### Parallel Enumeration
 If you want to enumerate the output with parallelization you should use a batching mechanism, for example:
@@ -208,7 +208,7 @@ while (moreAvailable)
 ```
 
 ### Disposing During Enumeration
-If you are working with a very large archive or in particularly constrained environment you can reduce memory/file handle usage for the Content streams in each FileEntry by disposing as you iterate.
+If you are working with a very large archive or in particularly constrained environment you can reduce memory and file handle usage for the Content streams in each FileEntry by disposing as you iterate.
 
 ```csharp
 var results = extractor.Extract(path);
@@ -217,7 +217,7 @@ foreach(var file in results)
     using var theStream = file.Content;
     // Do something with the stream.
     _ = theStream.ReadByte();
-    // The stream is disposed here from the using statement
+// The stream is disposed here by the using statement
 } 
 ```
 
@@ -229,11 +229,11 @@ If you are having trouble parsing a specific archive of one of the supported for
 
 # Dependencies
 
-Recursive Extractor uses a number of libraries to parse archives.
+Recursive Extractor aims to provide a unified interface to extract arbitrary archives and relies on a number of libraries to parse the archives.
 
 * [SharpZipLib](https://github.com/icsharpcode/SharpZipLib)
 * [SharpCompress](https://github.com/adamhathcock/sharpcompress)
-* [DiscUtils](https://github.com/discutils/discutils)
+* [LTRData/DiscUtils](https://github.com/LTRData/discutils)
 
 # Contributing
 

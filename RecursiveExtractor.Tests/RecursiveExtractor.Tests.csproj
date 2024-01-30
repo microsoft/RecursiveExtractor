@@ -9,12 +9,12 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageReference Include="DiscUtils.Btrfs" Version="0.16.13" />
-    <PackageReference Include="DiscUtils.HfsPlus" Version="0.16.13" />
-    <PackageReference Include="DiscUtils.SquashFs" Version="0.16.13" />
-    <PackageReference Include="DiscUtils.Xfs" Version="0.16.13" />
-    <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
+    <PackageReference Include="LTRData.DiscUtils.Btrfs" Version="1.0.36" />
+    <PackageReference Include="LTRData.DiscUtils.HfsPlus" Version="1.0.36" />
+    <PackageReference Include="LTRData.DiscUtils.SquashFs" Version="1.0.36" />
+    <PackageReference Include="LTRData.DiscUtils.Xfs" Version="1.0.36" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.2.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.2.0" />
     <PackageReference Include="NLog.Extensions.Logging" Version="5.3.8" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
@@ -110,6 +110,12 @@
     <None Update="TestData\TestDataArchives\100trees.7z">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="TestData\TestDataArchives\DmgSampleFolderCompressed.dmg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\TestDataArchives\DmgSampleFolderReadOnly.dmg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="TestData\TestDataArchives\Empty.vmdk">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -122,7 +128,22 @@
     <None Update="TestData\TestDataArchives\EncryptedWithPlainNames.rar4">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="TestData\TestDataArchives\HfsSample.dmg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\TestDataArchives\HfsSampleUDCO.dmg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\TestDataArchives\HfsSampleUlmo.dmg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="TestData\TestDataArchives\Lorem.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\TestDataArchives\Shared.dmg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\TestDataArchives\SharedDmg.zip">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="TestData\TestDataArchives\sysvbanner_1.0-17fakesync1_amd64.deb">
@@ -174,6 +195,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="TestData\TestDataArchives\TestDataCorrupt.tar.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\TestDataArchives\TestDataCorruptWim.zip">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="TestData\TestDataArchives\TestDataEncrypted.7z">

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30309.148
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34408.163
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RecursiveExtractor", "RecursiveExtractor\RecursiveExtractor.csproj", "{A7F7492B-60E0-468C-B267-BA60EC131E86}"
 EndProject
@@ -15,9 +15,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RecursiveExtractor.Blazor", "RecursiveExtractor.Blazor\RecursiveExtractor.Blazor.csproj", "{18D0803C-052E-4338-9162-F2DB8F8E51E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecursiveExtractor.Cli", "RecursiveExtractor.Cli\RecursiveExtractor.Cli.csproj", "{443B4E50-9AAF-436E-B3DF-644F782AF9B6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RecursiveExtractor.Cli", "RecursiveExtractor.Cli\RecursiveExtractor.Cli.csproj", "{443B4E50-9AAF-436E-B3DF-644F782AF9B6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecursiveExtractor.Cli.Tests", "RecursiveExtractor.Cli.Tests\RecursiveExtractor.Cli.Tests.csproj", "{F37B314B-F641-4336-BCD6-BC5B85BEC5DB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RecursiveExtractor.Cli.Tests", "RecursiveExtractor.Cli.Tests\RecursiveExtractor.Cli.Tests.csproj", "{F37B314B-F641-4336-BCD6-BC5B85BEC5DB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
