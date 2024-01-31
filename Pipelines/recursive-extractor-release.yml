@@ -86,7 +86,8 @@ stages:
   - job: sign_hash_release
     displayName: Code Sign, Generate Hashes, Publish Public Releases
     pool:
-      vmImage: 'win2022-image-base'
+      name: 'CSPA'
+      demands: ImageOverride -equals win2022-image-base
     steps:
     - task: UseDotNet@2 # For ESRP. Do not use variable.
       inputs:
