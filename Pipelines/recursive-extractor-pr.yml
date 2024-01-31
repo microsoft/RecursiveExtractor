@@ -20,34 +20,6 @@ variables:
   DotnetVersion: '8.0.x'
 
 stages:
-- stage: TestPoolDefinition
-  dependsOn: []
-  jobs:
-    - job: sign_hash_release
-      displayName: Code Sign, Generate Hashes, Publish Public Releases
-      pool:
-        name: 'CSPA'
-        demands: ImageOverride -equals win2022-image-base
-      steps:
-      - task: UseDotNet@2 # For ESRP. Do not use variable.
-        inputs:
-          packageType: 'sdk'
-          version: '6.0.x'
-
-- stage: TestPoolDefinition2
-  dependsOn: []
-  jobs:
-    - job: sign_hash_release
-      displayName: Code Sign, Generate Hashes, Publish Public Releases
-      pool:
-        name: 'CSPA'
-        vmImage: win2022-image-base
-      steps:
-      - task: UseDotNet@2 # For ESRP. Do not use variable.
-        inputs:
-          packageType: 'sdk'
-          version: '6.0.x'
-
 - stage: Test
   dependsOn: []
   jobs:
