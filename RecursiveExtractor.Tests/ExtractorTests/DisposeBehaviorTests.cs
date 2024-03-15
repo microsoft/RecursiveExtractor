@@ -1,4 +1,5 @@
 ﻿using Microsoft.CST.RecursiveExtractor;
+using Microsoft.CST.RecursiveExtractor.Tests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -119,6 +120,53 @@ public class DisposeBehaviorTests : BaseExtractorTestClass
         foreach (var disposedResult in disposedResults)
         {
             Assert.ThrowsException<ObjectDisposedException>(() => disposedResult.Content.Position);
+        }
+    }
+
+    [DataTestMethod]
+    [DataRow("TestData.zip")]
+    public void EnsureDisposedWithExtractToDirectory(string fileName)
+    {
+        var directory = TestPathHelpers.GetFreshTestDirectory();
+        var copyDirectory = TestPathHelpers.GetFreshTestDirectory();
+        Directory.CreateDirectory(copyDirectory);
+        var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+        // Make a copy of the archive so it can be deleted later to confirm properly disposed
+        var copyPath = Path.Combine(copyDirectory, fileName);
+        File.Copy(path, copyPath);
+        var extractor = new Extractor();
+        extractor.ExtractToDirectory(directory, copyPath);
+        File.Delete(copyPath);
+        if (Directory.Exists(directory))
+        {
+            Directory.Delete(directory, true);
+        }
+        if (Directory.Exists(copyDirectory)) {
+            Directory.Delete(copyDirectory, true);
+        }
+    }
+
+    [DataTestMethod]
+    [DataRow("TestData.zip")]
+    public async Task EnsureDisposedWithExtractToDirectoryAsync(string fileName)
+    {
+        var directory = TestPathHelpers.GetFreshTestDirectory();
+        var copyDirectory = TestPathHelpers.GetFreshTestDirectory();
+        Directory.CreateDirectory(copyDirectory);
+        var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
+        // Make a copy of the archive so it can be deleted later to confirm properly disposed
+        var copyPath = Path.Combine(copyDirectory, fileName);
+        File.Copy(path, copyPath);
+        var extractor = new Extractor();
+        await extractor.ExtractToDirectoryAsync(directory, copyPath);
+        File.Delete(copyPath);
+        if (Directory.Exists(directory))
+        {
+            Directory.Delete(directory, true);
+        }
+        if (Directory.Exists(copyDirectory))
+        {
+            Directory.Delete(copyDirectory, true);
         }
     }
 }
