@@ -381,7 +381,8 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="printNames">If we should print the filename when writing it out to disc.</param>
         public ExtractionStatusCode ExtractToDirectory(string outputDirectory, string filename, ExtractorOptions? opts = null, bool printNames = false)
         {
-            return ExtractToDirectory(outputDirectory, FileEntry.FromFileName(filename), opts, printNames);
+            using Stream fileStream = File.OpenRead(filename);
+            return ExtractToDirectory(outputDirectory, filename, fileStream, opts, printNames);
         }
 
         /// <summary>
@@ -529,7 +530,8 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="printNames">If we should print the filename when writing it out to disc.</param>
         public async Task<ExtractionStatusCode> ExtractToDirectoryAsync(string outputDirectory, string filename, ExtractorOptions? opts = null, IEnumerable<Regex>? acceptFilters = null, IEnumerable<Regex>? denyFilters = null, bool printNames = false)
         {
-            return await ExtractToDirectoryAsync(outputDirectory, FileEntry.FromFileName(filename), opts, acceptFilters, denyFilters, printNames).ConfigureAwait(false);
+            using Stream fileStream = File.OpenRead(filename);
+            return await ExtractToDirectoryAsync(outputDirectory, filename, fileStream, opts, acceptFilters, denyFilters, printNames).ConfigureAwait(false);
         }
 
         /// <summary>
