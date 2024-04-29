@@ -84,22 +84,26 @@ public class TestQuinesAndSlip : BaseExtractorTestClass
     }
     
     [DataTestMethod]
-    [DataRow("zoneinfo-2010g.tar")] // This is a malformed archive which will trigger an overflow with sharpcompress https://github.com/adamhathcock/sharpcompress/issues/736
-    [ExpectedException(typeof(OverflowException))]
-    public void TestMalformedArchives(string fileName)
+    // This is a malformed archive that used to trigger overflow with sharpcompress https://github.com/adamhathcock/sharpcompress/issues/736
+    // We now perform best effort extraction and test validates that exception isn't thrown
+    [DataRow("zoneinfo-2010g.tar", 63)]
+    public void TestMalformedArchives(string fileName, int expectedNum)
     {
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Malformed", fileName);
         var extractor = new Extractor();
-        _ = extractor.Extract(path, new ExtractorOptions() { MemoryStreamCutoff = 1024 * 1024 * 1024 }).ToList();
+        var entries = extractor.Extract(path, new ExtractorOptions() { MemoryStreamCutoff = 1024 * 1024 * 1024 }).ToList();
+        Assert.AreEqual(expectedNum, entries.Count);
     }
     
     [DataTestMethod]
-    [DataRow("zoneinfo-2010g.tar")] // This is a malformed archive which will trigger an overflow with sharpcompress https://github.com/adamhathcock/sharpcompress/issues/736
-    [ExpectedException(typeof(OverflowException))]
-    public async Task TestMalformedArchivesAsync(string fileName)
+    // This is a malformed archive that used to trigger overflow with sharpcompress https://github.com/adamhathcock/sharpcompress/issues/736
+    // We now perform best effort extraction and test validates that exception isn't thrown
+    [DataRow("zoneinfo-2010g.tar", 63)] 
+    public async Task TestMalformedArchivesAsync(string fileName, int expectedNum)
     {
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Malformed", fileName);
         var extractor = new Extractor();
-        _ = await extractor.ExtractAsync(path, new ExtractorOptions() { MemoryStreamCutoff = 1024 * 1024 * 1024 }).ToListAsync();
+        var entries = await extractor.ExtractAsync(path, new ExtractorOptions() { MemoryStreamCutoff = 1024 * 1024 * 1024 }).ToListAsync();
+        Assert.AreEqual(expectedNum, entries.Count);
     }
 }
