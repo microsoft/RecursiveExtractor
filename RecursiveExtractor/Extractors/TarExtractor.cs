@@ -163,6 +163,10 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
         }
 
+        /// <summary>
+        /// This class wraps the enumeration of the <see cref="ICollection{TarArchiveEntry}"/> from sharpcompress which can now throw a <see cref="SharpCompress.Common.IncompleteArchiveException"/>.
+        /// This is necessary because you cannot yield out of a try, so it was not possible to just wrap the old foreach with a try.
+        /// </summary>
         private class TarEntryCollectionEnumerator
         {
             private ICollection<TarArchiveEntry> _entries;
@@ -170,8 +174,16 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             private string _fileName;
             private readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
+            /// <summary>
+            /// The current entry pointed to by the enumerator.
+            /// </summary>
             internal TarArchiveEntry CurrentEntry => _enumerator.Current;
 
+            /// <summary>
+            /// Constructor.
+            /// </summary>
+            /// <param name="entries">The collection of entries to enumerate</param>
+            /// <param name="fileName">Filename used for debug messages</param>
             internal TarEntryCollectionEnumerator(ICollection<TarArchiveEntry> entries, string fileName)
             {
                 _entries = entries;
@@ -179,6 +191,10 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 _fileName = fileName;
             }
 
+            /// <summary>
+            /// Advance the enumerator and return the new Current value.
+            /// </summary>
+            /// <returns>A <see cref="TarArchiveEntry"/> if the enumerator could be advanced. Null when advancing fails or on a <see cref="SharpCompress.Common.IncompleteArchiveException"/> indicating a missing header in the tar archive.</returns>
             internal TarArchiveEntry? GetNextEntry()
             {
                 try
@@ -199,7 +215,5 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 }
             }
         }
-
-        private const int bufferSize = 4096;
     }
 }
