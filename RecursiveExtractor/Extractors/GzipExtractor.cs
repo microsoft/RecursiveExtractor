@@ -20,6 +20,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         }
         private readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
+        // Uncompressed Size not exposed, so estimate a compression ratio of up to 20x for selecting between memory and file stream
+        const int CompressionRatioEstimate = 20;
+
         internal Extractor Context { get; }
 
         /// <summary>
@@ -33,7 +36,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <returns> Extracted files </returns>
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
-            using var fs = new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.Asynchronous | FileOptions.DeleteOnClose);
+            using var fs = StreamFactory.GenerateAppropriateBackingStream(options, fileEntry.Content.Length * CompressionRatioEstimate);
             var failed = false;
             try
             {
@@ -92,7 +95,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <returns> Extracted files </returns>
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
-            using var fs = new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.DeleteOnClose);
+            using var fs = StreamFactory.GenerateAppropriateBackingStream(options, fileEntry.Content.Length * CompressionRatioEstimate);
             var failed = false;
             try
             {

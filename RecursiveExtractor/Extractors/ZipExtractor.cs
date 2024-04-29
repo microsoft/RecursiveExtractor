@@ -169,7 +169,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                     governor.CheckResourceGovernor(zipEntry.Size);
 
-                    using var fs = new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
+                    using var fs = StreamFactory.GenerateAppropriateBackingStream(options, zipEntry.Size);
 
                     if (zipEntry.IsCrypted && !passwordFound)
                     {

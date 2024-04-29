@@ -302,6 +302,8 @@ namespace Microsoft.CST.RecursiveExtractor
 
         internal const string FAILED_PASSWORD_ERROR_MESSAGE_STRING = "Password was incorrect for archive {0} of type {1}. ({2}:{3})";
 
+        internal const string ENTRY_MISSING_NAME_ERROR_MESSAGE_STRING = "Archive {0} of type {1} contained an entry with null or empty name, skipping this entry.";
+
         /// <summary>
         ///     Logger for interesting events.
         /// </summary>

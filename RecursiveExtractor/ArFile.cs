@@ -78,7 +78,7 @@ namespace Microsoft.CST.RecursiveExtractor
 
                             fileEntry.Content.Read(nameSpan, 0, nameLength);
 
-                            var entryStream = new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, bufferSize, FileOptions.DeleteOnClose);
+                            var entryStream = StreamFactory.GenerateAppropriateBackingStream(options, size - nameLength);
 
                             // The name length is included in the total size reported in the header
                             CopyStreamBytes(fileEntry.Content, entryStream, size - nameLength);

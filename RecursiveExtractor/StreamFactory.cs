@@ -78,6 +78,6 @@ public static class StreamFactory
 
     internal static Stream GenerateDeleteOnCloseFileStream(int fileStreamBufferSize)
     {
-        return new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, fileStreamBufferSize, FileOptions.DeleteOnClose);
+        return new FileStream(TempPath.GetTempFilePath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite, fileStreamBufferSize, FileOptions.Asynchronous | FileOptions.DeleteOnClose);
     }
 }
