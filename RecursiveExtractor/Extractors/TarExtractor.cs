@@ -44,8 +44,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             }
             else
             {
-                List<FileEntry> entries = new();
-
                 TarEntryCollectionEnumerator tarEntryCollectionEnumerator = new(archive.Entries, fileEntry.FullPath);
                 while (tarEntryCollectionEnumerator.GetNextEntry() != null)
                 {
