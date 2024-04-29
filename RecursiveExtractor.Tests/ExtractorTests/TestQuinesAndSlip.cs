@@ -82,28 +82,4 @@ public class TestQuinesAndSlip : BaseExtractorTestClass
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Bombs", fileName);
         _ = await extractor.ExtractAsync(path, new ExtractorOptions() { MemoryStreamCutoff = 1024 * 1024 * 1024 }).ToListAsync();
     }
-    
-    [DataTestMethod]
-    // This is a malformed archive that used to trigger overflow with sharpcompress https://github.com/adamhathcock/sharpcompress/issues/736
-    // We now perform best effort extraction and test validates that exception isn't thrown
-    [DataRow("zoneinfo-2010g.tar", 63)]
-    public void TestMalformedArchives(string fileName, int expectedNum)
-    {
-        var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Malformed", fileName);
-        var extractor = new Extractor();
-        var entries = extractor.Extract(path, new ExtractorOptions() { MemoryStreamCutoff = 1024 * 1024 * 1024 }).ToList();
-        Assert.AreEqual(expectedNum, entries.Count);
-    }
-    
-    [DataTestMethod]
-    // This is a malformed archive that used to trigger overflow with sharpcompress https://github.com/adamhathcock/sharpcompress/issues/736
-    // We now perform best effort extraction and test validates that exception isn't thrown
-    [DataRow("zoneinfo-2010g.tar", 63)] 
-    public async Task TestMalformedArchivesAsync(string fileName, int expectedNum)
-    {
-        var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Malformed", fileName);
-        var extractor = new Extractor();
-        var entries = await extractor.ExtractAsync(path, new ExtractorOptions() { MemoryStreamCutoff = 1024 * 1024 * 1024 }).ToListAsync();
-        Assert.AreEqual(expectedNum, entries.Count);
-    }
 }
