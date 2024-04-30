@@ -25,25 +25,25 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LTRData.DiscUtils.Btrfs" Version="1.0.40" />
-    <PackageReference Include="LTRData.DiscUtils.Core" Version="1.0.40" />
-    <PackageReference Include="LTRData.DiscUtils.Dmg" Version="1.0.40" />
-    <PackageReference Include="LTRData.DiscUtils.Ext" Version="1.0.40" />
-    <PackageReference Include="LTRData.DiscUtils.Fat" Version="1.0.40" />
-    <PackageReference Include="LTRData.DiscUtils.HfsPlus" Version="1.0.40" />
-    <PackageReference Include="LTRData.DiscUtils.Iso9660" Version="1.0.40" />
-    <PackageReference Include="LTRData.DiscUtils.Ntfs" Version="1.0.40" />
-    <PackageReference Include="LTRData.DiscUtils.Udf" Version="1.0.40" />
-    <PackageReference Include="LTRData.DiscUtils.Vhd" Version="1.0.40" />
-    <PackageReference Include="LTRData.DiscUtils.Vhdx" Version="1.0.40" />
-    <PackageReference Include="LTRData.DiscUtils.Vmdk" Version="1.0.40" />
-    <PackageReference Include="LTRData.DiscUtils.Wim" Version="1.0.40" />
-    <PackageReference Include="LTRData.DiscUtils.Xfs" Version="1.0.40" />
+    <PackageReference Include="LTRData.DiscUtils.Btrfs" Version="1.0.44" />
+    <PackageReference Include="LTRData.DiscUtils.Core" Version="1.0.44" />
+    <PackageReference Include="LTRData.DiscUtils.Dmg" Version="1.0.44" />
+    <PackageReference Include="LTRData.DiscUtils.Ext" Version="1.0.44" />
+    <PackageReference Include="LTRData.DiscUtils.Fat" Version="1.0.44" />
+    <PackageReference Include="LTRData.DiscUtils.HfsPlus" Version="1.0.44" />
+    <PackageReference Include="LTRData.DiscUtils.Iso9660" Version="1.0.44" />
+    <PackageReference Include="LTRData.DiscUtils.Ntfs" Version="1.0.44" />
+    <PackageReference Include="LTRData.DiscUtils.Udf" Version="1.0.44" />
+    <PackageReference Include="LTRData.DiscUtils.Vhd" Version="1.0.44" />
+    <PackageReference Include="LTRData.DiscUtils.Vhdx" Version="1.0.44" />
+    <PackageReference Include="LTRData.DiscUtils.Vmdk" Version="1.0.44" />
+    <PackageReference Include="LTRData.DiscUtils.Wim" Version="1.0.44" />
+    <PackageReference Include="LTRData.DiscUtils.Xfs" Version="1.0.44" />
     <PackageReference Include="Glob" Version="1.1.9" />
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-    <PackageReference Include="NLog" Version="5.2.8" />
-    <PackageReference Include="SharpCompress" Version="0.36.0" />
+    <PackageReference Include="NLog" Version="5.3.1" />
+    <PackageReference Include="SharpCompress" Version="0.37.2" />
     <PackageReference Include="SharpZipLib" Version="1.4.2" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
   </ItemGroup>

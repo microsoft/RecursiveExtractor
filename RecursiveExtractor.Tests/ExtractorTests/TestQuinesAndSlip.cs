@@ -82,24 +82,4 @@ public class TestQuinesAndSlip : BaseExtractorTestClass
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Bombs", fileName);
         _ = await extractor.ExtractAsync(path, new ExtractorOptions() { MemoryStreamCutoff = 1024 * 1024 * 1024 }).ToListAsync();
     }
-    
-    [DataTestMethod]
-    [DataRow("zoneinfo-2010g.tar")] // This is a malformed archive which will trigger an overflow with sharpcompress https://github.com/adamhathcock/sharpcompress/issues/736
-    [ExpectedException(typeof(OverflowException))]
-    public void TestMalformedArchives(string fileName)
-    {
-        var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Malformed", fileName);
-        var extractor = new Extractor();
-        _ = extractor.Extract(path, new ExtractorOptions() { MemoryStreamCutoff = 1024 * 1024 * 1024 }).ToList();
-    }
-    
-    [DataTestMethod]
-    [DataRow("zoneinfo-2010g.tar")] // This is a malformed archive which will trigger an overflow with sharpcompress https://github.com/adamhathcock/sharpcompress/issues/736
-    [ExpectedException(typeof(OverflowException))]
-    public async Task TestMalformedArchivesAsync(string fileName)
-    {
-        var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Malformed", fileName);
-        var extractor = new Extractor();
-        _ = await extractor.ExtractAsync(path, new ExtractorOptions() { MemoryStreamCutoff = 1024 * 1024 * 1024 }).ToListAsync();
-    }
 }

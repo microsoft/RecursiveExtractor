@@ -9,13 +9,13 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
-    <PackageReference Include="LTRData.DiscUtils.Btrfs" Version="1.0.40" />
-    <PackageReference Include="LTRData.DiscUtils.HfsPlus" Version="1.0.40" />
-    <PackageReference Include="LTRData.DiscUtils.SquashFs" Version="1.0.40" />
-    <PackageReference Include="LTRData.DiscUtils.Xfs" Version="1.0.40" />
-    <PackageReference Include="MSTest.TestAdapter" Version="3.2.2" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.2.2" />
-    <PackageReference Include="NLog.Extensions.Logging" Version="5.3.8" />
+    <PackageReference Include="LTRData.DiscUtils.Btrfs" Version="1.0.44" />
+    <PackageReference Include="LTRData.DiscUtils.HfsPlus" Version="1.0.44" />
+    <PackageReference Include="LTRData.DiscUtils.SquashFs" Version="1.0.44" />
+    <PackageReference Include="LTRData.DiscUtils.Xfs" Version="1.0.44" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.3.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.3.1" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="5.3.9" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
