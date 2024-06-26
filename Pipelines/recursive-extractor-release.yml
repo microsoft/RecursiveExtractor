@@ -13,10 +13,7 @@ name: RecursiveExtractor_Release_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
 #     - RecursiveExtractor.Cli
 # pr: none
 trigger: none
-pr:
-  branches:
-    include:
-    - main
+pr: none
 
 resources:
   repositories:
