@@ -2,15 +2,17 @@
 # https://aka.ms/yaml
 
 name: RecursiveExtractor_Release_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
-trigger:
-  batch: true
-  branches:
-    include:
-    - main
-  paths:
-    include:
-    - RecursiveExtractor
-    - RecursiveExtractor.Cli
+# trigger:
+#   batch: true
+#   branches:
+#     include:
+#     - main
+#   paths:
+#     include:
+#     - RecursiveExtractor
+#     - RecursiveExtractor.Cli
+# pr: none
+trigger: none
 pr: none
 
 resources:
@@ -18,153 +20,70 @@ resources:
     - repository: templates
       type: git
       name: SecurityEngineering/OSS-Tools-Pipeline-Templates
-      ref: refs/tags/v1.1.1
-
+      ref: refs/tags/v2.0.0
+    - repository: 1esPipelines
+      type: git
+      name: 1ESPipelineTemplates/1ESPipelineTemplates
+      ref: refs/tags/release
+      
 variables:
   BuildConfiguration: 'Release'
   DotnetVersion: '8.0.x'
 
-stages:
-- stage: Test
-  dependsOn: []
-  jobs:
-  - template: dotnet-test-job.yml@templates
-    parameters:
-      jobName: 'lib_dotnet_test_windows'
-      dotnetVersions: ['6.0.x','7.0.x','8.0.x']
-      vmImage: 'win2022-image-base'
-      projectPath: 'RecursiveExtractor.Tests/RecursiveExtractor.Tests.csproj'
-  - template: dotnet-test-job.yml@templates
-    parameters:
-      jobName: 'cli_dotnet_test_windows'
-      dotnetVersions: ['6.0.x','7.0.x','8.0.x']
-      vmImage: 'win2022-image-base'
-      projectPath: 'RecursiveExtractor.Cli.Tests/RecursiveExtractor.Cli.Tests.csproj'
-
-- stage: SDL
-  dependsOn: []
-  jobs:
-  - template: sdl-job.yml@templates
-    parameters:
-      preScan:
-      - template: policheck-exclusion-steps.yml@templates
-        parameters:
-          ExcludeFolderPathStart: 'RecursiveExtractor.Tests'
-      policheckExclusionFile: $(Build.SourcesDirectory)/PolicheckExclusions.xml
-
-- stage: Build
-  dependsOn:
-  - Test
-  jobs:
-  - template: nuget-build-job.yml@templates
-    parameters:
-      jobName: 'pack_lib'
-      buildConfiguration: ${{ variables.BuildConfiguration }}
-      dotnetVersion: ${{ variables.DotnetVersion }}
-      projectPath: 'RecursiveExtractor/RecursiveExtractor.csproj'
-      projectName: 'RecursiveExtractor'
-      customPackFlags: '/p:ContinuousIntegrationBuild=true'
-      preBuild:
-      - template: nbgv-set-version-steps.yml@templates
-  - template: nuget-build-job.yml@templates
-    parameters:
-      jobName: 'pack_cli'
-      buildConfiguration: ${{ variables.BuildConfiguration }}
-      dotnetVersion: ${{ variables.DotnetVersion }}
-      projectPath: 'RecursiveExtractor.Cli/RecursiveExtractor.Cli.csproj'
-      projectName: 'RecursiveExtractor_CLI'
-      customPackFlags: '/p:ContinuousIntegrationBuild=true'
-      preBuild:
-      - template: nbgv-set-version-steps.yml@templates
-
-- stage: Release
-  dependsOn:
-  - SDL
-  - Build
-  condition: succeeded()
-  jobs:
-  - job: sign_hash_release
-    displayName: Code Sign, Generate Hashes, Publish Public Releases
+extends:
+  template: v1/1ES.Official.PipelineTemplate.yml@1esPipelines
+  parameters:
     pool:
-      name: 'CSPA'
-      demands: ImageOverride -equals win2022-image-base
-    steps:
-    - task: UseDotNet@2 # For ESRP. Do not use variable.
-      inputs:
-        packageType: 'sdk'
-        version: '6.0.x'
-    - template: nbgv-set-version-steps.yml@templates
-    - task: DownloadBuildArtifacts@0
-      displayName: Download Unsigned Archives
-      inputs:
-        buildType: 'current'
-        downloadType: 'specific'
-        itemPattern: 'Unsigned_Binaries/*.zip'
-        downloadPath: '$(Build.BinariesDirectory)'
-    - task: ExtractFiles@1
-      displayName: Extract Artifacts for Signing
-      inputs:
-        archiveFilePatterns: '$(Build.BinariesDirectory)\Unsigned_Binaries\*.zip'
-        destinationFolder: '$(Build.BinariesDirectory)'
-        cleanDestinationFolder: false
-        overwriteExistingFiles: true
-    - task: AntiMalware@4
-      displayName: Anti-Malware Scan
-      inputs:
-        InputType: 'Basic'
-        ScanType: 'CustomScan'
-        FileDirPath: '$(Build.BinariesDirectory)'
-        EnableServices: true
-        SupportLogOnError: true
-        TreatSignatureUpdateFailureAs: 'Warning'
-        SignatureFreshness: 'UpToDate'
-        TreatStaleSignatureAs: 'Warning'
-    - task: EsrpCodeSigning@3
-      displayName: Code Sign Nuget Packages
-      inputs:
-        ConnectedServiceName: 'RecursiveExtractor_CodeSign'
-        FolderPath: '$(Build.BinariesDirectory)'
-        Pattern: '*.nupkg, *.snupkg'
-        signConfigType: 'inlineSignParams'
-        inlineOperation: |
-          [
-                  {
-                      "KeyCode" : "CP-401405",
-                      "OperationCode" : "NuGetSign",
-                      "Parameters" : {},
-                      "ToolName" : "sign",
-                      "ToolVersion" : "1.0"
-                  },
-                  {
-                      "KeyCode" : "CP-401405",
-                      "OperationCode" : "NuGetVerify",
-                      "Parameters" : {},
-                      "ToolName" : "sign",
-                      "ToolVersion" : "1.0"
-                  }
-              ]
-        SessionTimeout: '60'
-        MaxConcurrency: '50'
-        MaxRetryAttempts: '5'
-    - powershell: 'Get-ChildItem -Path ''$(Build.BinariesDirectory)'' -Recurse CodeSign* | foreach { Remove-Item -Path $_.FullName }'
-      displayName: 'Delete Code Sign Summaries'
-    - task: PowerShell@2
-      displayName: Move NuGet Packages
-      inputs:
-        targetType: 'inline'
-        script: |
-          mv $env:BUILD_BINARIESDIRECTORY/*.nupkg $env:BUILD_STAGINGDIRECTORY/
-          mv $env:BUILD_BINARIESDIRECTORY/*.snupkg $env:BUILD_STAGINGDIRECTORY/
-    - task: PublishPipelineArtifact@1
-      displayName: Pipeline Publish Signed Artifacts
-      inputs:
-        targetPath: '$(Build.StagingDirectory)'
-        artifact: 'Signed_Binaries'
-    - task: NuGetCommand@2
-      displayName: Publish NuGet Packages
-      inputs:
-        command: 'push'
-        packagesToPush: '$(Build.StagingDirectory)/*.nupkg'
-        nuGetFeedType: 'external'
-        publishFeedCredentials: 'CST-E Nuget CI'
-        verbosityPush: 'Normal'
+      name: MSSecurity-1ES-Build-Agents-Pool
+      image: MSSecurity-1ES-Windows-2022
+      os: windows
+    sdl:
+      armory:
+        enabled: false
+    stages:
+    - stage: Test
+      dependsOn: []
+      jobs:
+      - template: dotnet-test-job.yml@templates
+        parameters:
+          jobName: 'lib_dotnet_test_windows'
+          dotnetVersions: ['6.0.x','7.0.x','8.0.x']
+          projectPath: 'RecursiveExtractor.Tests/RecursiveExtractor.Tests.csproj'
+          poolName: MSSecurity-1ES-Build-Agents-Pool
+          poolImage: MSSecurity-1ES-Windows-2022
+          poolOs: windows
+      - template: dotnet-test-job.yml@templates
+        parameters:
+          jobName: 'cli_dotnet_test_windows'
+          dotnetVersions: ['6.0.x','7.0.x','8.0.x']
+          projectPath: 'RecursiveExtractor.Cli.Tests/RecursiveExtractor.Cli.Tests.csproj'
+          poolName: MSSecurity-1ES-Build-Agents-Pool
+          poolImage: MSSecurity-1ES-Windows-2022
+          poolOs: windows
+
+    - stage: Build
+      dependsOn:
+      - Test
+      jobs:
+      - template: nuget-build-job.yml@templates
+        parameters:
+          jobName: 'pack_lib'
+          buildConfiguration: ${{ variables.BuildConfiguration }}
+          dotnetVersion: ${{ variables.DotnetVersion }}
+          projectPath: 'RecursiveExtractor/RecursiveExtractor.csproj'
+          projectName: 'RecursiveExtractor'
+          customPackFlags: '/p:ContinuousIntegrationBuild=true'
+          artifactName: 'lib-archive'
+          preBuild:
+          - template: nbgv-set-version-steps.yml@templates
+      - template: nuget-build-job.yml@templates
+        parameters:
+          jobName: 'pack_cli'
+          buildConfiguration: ${{ variables.BuildConfiguration }}
+          dotnetVersion: ${{ variables.DotnetVersion }}
+          projectPath: 'RecursiveExtractor.Cli/RecursiveExtractor.Cli.csproj'
+          projectName: 'RecursiveExtractor_CLI'
+          customPackFlags: '/p:ContinuousIntegrationBuild=true'
+          artifactName: 'cli-archive'
+          preBuild:
+          - template: nbgv-set-version-steps.yml@templates
