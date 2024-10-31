@@ -10,3 +10,12 @@ pipelines:
           lastModifiedDate: 2024-09-14
         psscriptanalyzer:
           lastModifiedDate: 2024-09-14
+  1044:
+    retail:
+      source:
+        credscan:
+          lastModifiedDate: 2024-10-31
+        eslint:
+          lastModifiedDate: 2024-10-31
+        psscriptanalyzer:
+          lastModifiedDate: 2024-10-31
