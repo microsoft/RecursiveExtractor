@@ -14,8 +14,8 @@
     <PackageReference Include="LTRData.DiscUtils.SquashFs" Version="1.0.50" />
     <PackageReference Include="LTRData.DiscUtils.Xfs" Version="1.0.50" />
     <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="17.13.1" />
-    <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" Version="1.5.2" />
-    <PackageReference Include="MSTest" Version="3.7.2" />
+    <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" Version="1.5.3" />
+    <PackageReference Include="MSTest" Version="3.7.3" />
     <PackageReference Include="NLog.Extensions.Logging" Version="5.3.15" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
