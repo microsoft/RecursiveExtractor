@@ -13,7 +13,7 @@ public static class TestPathHelpers
     
     public static string GetFreshTestDirectory()
     {
-        return Path.Combine(TestDirectoryPath, FileEntry.SanitizePath(DateTime.Now.ToString("yyMMdd_hhmmss_fffffff")));
+        return Path.Combine(TestDirectoryPath, FileEntry.SanitizePath(Guid.NewGuid().ToString()));
     }
 
     public static void DeleteTestDirectory()
