@@ -31,7 +31,7 @@ namespace RecursiveExtractor.Tests.CliTests
         [DataRow("TestData.vhdx")]
         [DataRow("TestData.wim")]
         [DataRow("EmptyFile.txt", 1)]
-        [DataRow("TestDataArchivesNested.Zip", 52)]
+        [DataRow("TestDataArchivesNested.Zip", 54)]
         public void ExtractArchiveParallel(string fileName, int expectedNumFiles = 3)
         {
             ExtractArchive(fileName, expectedNumFiles, false);
@@ -68,7 +68,7 @@ namespace RecursiveExtractor.Tests.CliTests
         [DataRow("TestData.vhdx")]
         [DataRow("TestData.wim")]
         [DataRow("EmptyFile.txt", 1)]
-        [DataRow("TestDataArchivesNested.Zip", 52)]
+        [DataRow("TestDataArchivesNested.Zip", 54)]
         public void ExtractArchiveSingleThread(string fileName, int expectedNumFiles = 3)
         {
             ExtractArchive(fileName, expectedNumFiles, true);
