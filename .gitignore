@@ -3,3 +3,4 @@ obj/
 .idea/
 .vs
 RecursiveExtractor.sln.DotSettings.user
+.DS_Store
