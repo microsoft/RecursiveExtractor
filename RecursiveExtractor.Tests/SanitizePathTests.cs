@@ -30,7 +30,7 @@ namespace RecursiveExtractor.Tests
         public void TestSanitizePathLinux(string linuxInputPath, string expectedLinuxPath)
         {
             var entry = new FileEntry(linuxInputPath, Stream.Null);
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 Assert.AreEqual(expectedLinuxPath, entry.GetSanitizedPath());
             }
