@@ -13,7 +13,7 @@ using System.Threading;
 namespace RecursiveExtractor.Tests.CliTests
 {
     [TestClass]
-    public class CliTests
+    public class CliTests : BaseExtractorTestClass
     {
         [DataTestMethod]
         [DataRow("TestData.zip", 5)]
@@ -47,7 +47,6 @@ namespace RecursiveExtractor.Tests.CliTests
             if (Directory.Exists(directory))
             {
                 files = Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories).ToArray();
-                Directory.Delete(directory, true);
             }
             Assert.AreEqual(expectedNumFiles, files.Length);
         }
@@ -96,7 +95,6 @@ namespace RecursiveExtractor.Tests.CliTests
             if (Directory.Exists(directory))
             {
                 files = Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories).ToArray();
-                Directory.Delete(directory, true);
             }
             Assert.AreEqual(expectedNumFiles, files.Length);
         }
@@ -123,7 +121,6 @@ namespace RecursiveExtractor.Tests.CliTests
             if (Directory.Exists(directory))
             {
                 files = Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories).ToArray();
-                Directory.Delete(directory, true);
             }
             Assert.AreEqual(expectedNumFiles, files.Length);
         }
@@ -138,19 +135,8 @@ namespace RecursiveExtractor.Tests.CliTests
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var passwords = EncryptedArchiveTests.TestArchivePasswords.Values.SelectMany(x => x);
             RecursiveExtractorClient.ExtractCommand(new ExtractCommandOptions() { Input = path, Output = directory, Verbose = true, Passwords = passwords });
-            var files = Array.Empty<string>();
-            if (Directory.Exists(directory))
-            {
-                files = Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories).ToArray();
-                Directory.Delete(directory, true);
-            }
+            string[] files = Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories).ToArray();
             Assert.AreEqual(expectedNumFiles, files.Length);
-        }
-
-        [ClassCleanup]
-        public static void ClassCleanup()
-        {
-            TestPathHelpers.DeleteTestDirectory();
         }
         
         protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();

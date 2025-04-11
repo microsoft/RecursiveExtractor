@@ -112,7 +112,6 @@ namespace RecursiveExtractor.Tests.ExtractorTests
             if (Directory.Exists(directory))
             {
                 files = Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories).ToArray();
-                Directory.Delete(directory, true);
             }
             Assert.AreEqual(expectedNumFiles, files.Length);
         }
@@ -129,7 +128,6 @@ namespace RecursiveExtractor.Tests.ExtractorTests
             if (Directory.Exists(directory))
             {
                 files = Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories).ToArray();
-                Directory.Delete(directory, true);
             }
             Assert.AreEqual(expectedNumFiles, files.Length);
         }
