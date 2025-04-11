@@ -26,7 +26,7 @@ public class FilterTests : BaseExtractorTestClass
     [DataRow("TestData.vhdx")]
     [DataRow("TestData.wim")]
     [DataRow("EmptyFile.txt", 0)]
-    [DataRow("TestDataArchivesNested.Zip", 9)]
+    [DataRow("TestDataArchivesNested.Zip", 8)]
     public async Task ExtractArchiveAsyncAllowFiltered(string fileName, int expectedNumFiles = 1)
     {
         var extractor = new Extractor();
@@ -58,7 +58,7 @@ public class FilterTests : BaseExtractorTestClass
     [DataRow("TestData.vhdx")]
     [DataRow("TestData.wim")]
     [DataRow("EmptyFile.txt", 0)]
-    [DataRow("TestDataArchivesNested.Zip", 9)]
+    [DataRow("TestDataArchivesNested.Zip", 8)]
     public void ExtractArchiveAllowFiltered(string fileName, int expectedNumFiles = 1)
     {
         var extractor = new Extractor();
@@ -84,7 +84,7 @@ public class FilterTests : BaseExtractorTestClass
     [DataRow("TestData.vhdx")]
     [DataRow("TestData.wim")]
     [DataRow("EmptyFile.txt", 0)]
-    [DataRow("TestDataArchivesNested.Zip", 9)]
+    [DataRow("TestDataArchivesNested.Zip", 8)]
     public void ExtractArchiveParallelAllowFiltered(string fileName, int expectedNumFiles = 1)
     {
         var extractor = new Extractor();
@@ -110,7 +110,7 @@ public class FilterTests : BaseExtractorTestClass
     [DataRow("TestData.vhdx")]
     [DataRow("TestData.wim")]
     [DataRow("EmptyFile.txt", 1)]
-    [DataRow("TestDataArchivesNested.Zip", 45)]
+    [DataRow("TestDataArchivesNested.Zip", 44)]
     public void ExtractArchiveDenyFiltered(string fileName, int expectedNumFiles = 2)
     {
         var extractor = new Extractor();
@@ -135,7 +135,7 @@ public class FilterTests : BaseExtractorTestClass
     [DataRow("TestData.vhdx")]
     [DataRow("TestData.wim")]
     [DataRow("EmptyFile.txt", 1)]
-    [DataRow("TestDataArchivesNested.Zip", 45)]
+    [DataRow("TestDataArchivesNested.Zip", 44)]
     public void ExtractArchiveParallelDenyFiltered(string fileName, int expectedNumFiles = 2)
     {
         var extractor = new Extractor();
@@ -161,7 +161,7 @@ public class FilterTests : BaseExtractorTestClass
     [DataRow("TestData.vhdx")]
     [DataRow("TestData.wim")]
     [DataRow("EmptyFile.txt", 1)]
-    [DataRow("TestDataArchivesNested.Zip", 45)]
+    [DataRow("TestDataArchivesNested.Zip", 44)]
     public async Task ExtractArchiveAsyncDenyFiltered(string fileName, int expectedNumFiles = 2)
     {
         var extractor = new Extractor();

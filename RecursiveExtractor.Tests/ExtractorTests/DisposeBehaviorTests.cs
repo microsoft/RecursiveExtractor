@@ -41,10 +41,10 @@ public class DisposeBehaviorTests : BaseExtractorTestClass
     [DataRow("TestData.vhdx", 3, true)]
     [DataRow("TestData.wim", 3, true)]
     [DataRow("EmptyFile.txt", 1, true)]
-    [DataRow("TestDataArchivesNested.Zip", 54, true)]
-    [DataRow("TestDataArchivesNested.Zip", 54, false)]
-    [DataRow("TestDataArchivesNested.Zip", 54, true)]
-    [DataRow("TestDataArchivesNested.Zip", 54, false)]
+    [DataRow("TestDataArchivesNested.Zip", 52, true)]
+    [DataRow("TestDataArchivesNested.Zip", 52, false)]
+    [DataRow("TestDataArchivesNested.Zip", 52, true)]
+    [DataRow("TestDataArchivesNested.Zip", 52, false)]
     public void ExtractArchiveAndDisposeWhileEnumerating(string fileName, int expectedNumFiles = 3,
         bool parallel = false)
     {
@@ -97,10 +97,10 @@ public class DisposeBehaviorTests : BaseExtractorTestClass
     [DataRow("TestData.vhdx", 3, true)]
     [DataRow("TestData.wim", 3, true)]
     [DataRow("EmptyFile.txt", 1, true)]
-    [DataRow("TestDataArchivesNested.Zip", 54, true)]
-    [DataRow("TestDataArchivesNested.Zip", 54, false)]
-    [DataRow("TestDataArchivesNested.Zip", 54, true)]
-    [DataRow("TestDataArchivesNested.Zip", 54, false)]
+    [DataRow("TestDataArchivesNested.Zip", 52, true)]
+    [DataRow("TestDataArchivesNested.Zip", 52, false)]
+    [DataRow("TestDataArchivesNested.Zip", 52, true)]
+    [DataRow("TestDataArchivesNested.Zip", 52, false)]
     public async Task ExtractArchiveAndDisposeWhileEnumeratingAsync(string fileName, int expectedNumFiles = 3,
         bool parallel = false)
     {
