@@ -46,7 +46,7 @@ extends:
           dotnetTestArgs: '-- --coverage --report-trx'
           includeNuGetOrg: false
           nugetFeedsToUse: 'config'
-          nugetConfigPath: 'nuget.config.azure'
+          nugetConfigPath: 'nuget.release.config'
           onInit:
             - task: NuGetAuthenticate@1
       - template: dotnet-test-job.yml@templates
@@ -60,7 +60,7 @@ extends:
           dotnetTestArgs: '-- --coverage --report-trx'
           includeNuGetOrg: false
           nugetFeedsToUse: 'config'
-          nugetConfigPath: 'nuget.config.azure'
+          nugetConfigPath: 'nuget.release.config'
           onInit:
             - task: NuGetAuthenticate@1
 
@@ -79,7 +79,7 @@ extends:
           artifactName: 'lib-archive'
           includeNuGetOrg: false
           nugetFeedsToUse: 'config'
-          nugetConfigPath: 'nuget.config.azure'
+          nugetConfigPath: 'nuget.release.config'
           onInit:
             - task: NuGetAuthenticate@1
           preBuild:
@@ -95,7 +95,7 @@ extends:
           artifactName: 'cli-archive'
           includeNuGetOrg: false
           nugetFeedsToUse: 'config'
-          nugetConfigPath: 'nuget.config.azure'
+          nugetConfigPath: 'nuget.release.config'
           onInit:
             - task: NuGetAuthenticate@1
           preBuild:
