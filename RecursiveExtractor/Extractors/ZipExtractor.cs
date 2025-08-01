@@ -93,36 +93,31 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             else
             {
                 var buffer = new byte[BUFFER_SIZE];
-                var passwordFound = false;
-                string? foundPassword = null;
                 
-                foreach (var zipEntry in zipArchive.Entries.Where(e => !e.IsDirectory))
+                // Check if we have any encrypted entries and get password if needed
+                var firstEncryptedEntry = zipArchive.Entries.FirstOrDefault(e => !e.IsDirectory && e.IsEncrypted);
+                if (firstEncryptedEntry != null)
                 {
-                    if (zipEntry.IsEncrypted && !passwordFound)
+                    var foundPassword = GetZipPassword(fileEntry, firstEncryptedEntry, options);
+                    if (foundPassword != null)
                     {
-                        foundPassword = GetZipPassword(fileEntry, zipEntry, options);
-                        if (foundPassword != null)
+                        // Recreate archive with password
+                        zipArchive.Dispose();
+                        fileEntry.Content.Position = 0;
+                        zipArchive = ZipArchive.Open(fileEntry.Content, new ReaderOptions() 
+                        { 
+                            Password = foundPassword,
+                            LeaveStreamOpen = true 
+                        });
+                    }
+                    else
+                    {
+                        fileEntry.EntryStatus = FileEntryStatus.EncryptedArchive;
+                        if (options.ExtractSelfOnFail)
                         {
-                            passwordFound = true;
-                            // Recreate archive with password
-                            zipArchive.Dispose();
-                            fileEntry.Content.Position = 0;
-                            zipArchive = ZipArchive.Open(fileEntry.Content, new ReaderOptions() 
-                            { 
-                                Password = foundPassword,
-                                LeaveStreamOpen = true 
-                            });
-                            break;
+                            yield return fileEntry;
                         }
-                        else
-                        {
-                            fileEntry.EntryStatus = FileEntryStatus.EncryptedArchive;
-                            if (options.ExtractSelfOnFail)
-                            {
-                                yield return fileEntry;
-                            }
-                            yield break;
-                        }
+                        yield break;
                     }
                 }
 
@@ -194,36 +189,31 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             else
             {
                 var buffer = new byte[BUFFER_SIZE];
-                var passwordFound = false;
-                string? foundPassword = null;
                 
-                foreach (var zipEntry in zipArchive.Entries.Where(e => !e.IsDirectory))
+                // Check if we have any encrypted entries and get password if needed
+                var firstEncryptedEntry = zipArchive.Entries.FirstOrDefault(e => !e.IsDirectory && e.IsEncrypted);
+                if (firstEncryptedEntry != null)
                 {
-                    if (zipEntry.IsEncrypted && !passwordFound)
+                    var foundPassword = GetZipPassword(fileEntry, firstEncryptedEntry, options);
+                    if (foundPassword != null)
                     {
-                        foundPassword = GetZipPassword(fileEntry, zipEntry, options);
-                        if (foundPassword != null)
+                        // Recreate archive with password
+                        zipArchive.Dispose();
+                        fileEntry.Content.Position = 0;
+                        zipArchive = ZipArchive.Open(fileEntry.Content, new ReaderOptions() 
+                        { 
+                            Password = foundPassword,
+                            LeaveStreamOpen = true 
+                        });
+                    }
+                    else
+                    {
+                        fileEntry.EntryStatus = FileEntryStatus.EncryptedArchive;
+                        if (options.ExtractSelfOnFail)
                         {
-                            passwordFound = true;
-                            // Recreate archive with password
-                            zipArchive.Dispose();
-                            fileEntry.Content.Position = 0;
-                            zipArchive = ZipArchive.Open(fileEntry.Content, new ReaderOptions() 
-                            { 
-                                Password = foundPassword,
-                                LeaveStreamOpen = true 
-                            });
-                            break;
+                            yield return fileEntry;
                         }
-                        else
-                        {
-                            fileEntry.EntryStatus = FileEntryStatus.EncryptedArchive;
-                            if (options.ExtractSelfOnFail)
-                            {
-                                yield return fileEntry;
-                            }
-                            yield break;
-                        }
+                        yield break;
                     }
                 }
 
