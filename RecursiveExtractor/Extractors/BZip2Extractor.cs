@@ -41,7 +41,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         try
         {
             using var bzipStream = new BZip2Stream(fileEntry.Content, CompressionMode.Decompress, false);
-            bzipStream.CopyTo(fs);
+            await bzipStream.CopyToAsync(fs);
         }
             catch (Exception e)
             {
