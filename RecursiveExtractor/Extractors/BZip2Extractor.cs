@@ -1,7 +1,8 @@
-﻿using ICSharpCode.SharpZipLib.BZip2;
+﻿using SharpCompress.Compressors.BZip2;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using SharpCompress.Compressors;
 
 namespace Microsoft.CST.RecursiveExtractor.Extractors
 {
@@ -33,14 +34,15 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <param name="governor">The <see cref="ResourceGovernor"/> to use for extraction.</param>
         /// <param name="topLevel">If this should be treated as the top level archive.</param>
         /// <returns> Extracted files </returns>
-        public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
+    public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
+    {
+        using var fs = StreamFactory.GenerateAppropriateBackingStream(options, fileEntry.Content.Length * CompressionRatioEstimate);
+        var failed = false;
+        try
         {
-            using var fs = StreamFactory.GenerateAppropriateBackingStream(options, fileEntry.Content.Length * CompressionRatioEstimate);
-            var failed = false;
-            try
-            {
-                BZip2.Decompress(fileEntry.Content, fs, false);
-            }
+            using var bzipStream = new BZip2Stream(fileEntry.Content, CompressionMode.Decompress, false);
+            await bzipStream.CopyToAsync(fs);
+        }
             catch (Exception e)
             {
                 Logger.Debug(Extractor.FAILED_PARSING_ERROR_MESSAGE_STRING, "BZip2", e.GetType(), e.Message, e.StackTrace);
@@ -97,7 +99,8 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
             try
             {
-                BZip2.Decompress(fileEntry.Content, fs, false);
+                using var bzipStream = new BZip2Stream(fileEntry.Content, CompressionMode.Decompress, false);
+                bzipStream.CopyTo(fs);
             }
             catch (Exception e)
             {

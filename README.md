@@ -231,7 +231,6 @@ If you are having trouble parsing a specific archive of one of the supported for
 
 Recursive Extractor aims to provide a unified interface to extract arbitrary archives and relies on a number of libraries to parse the archives.
 
-* [SharpZipLib](https://github.com/icsharpcode/SharpZipLib)
 * [SharpCompress](https://github.com/adamhathcock/sharpcompress)
 * [LTRData/DiscUtils](https://github.com/LTRData/discutils)
 

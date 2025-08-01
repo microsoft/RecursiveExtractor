@@ -1,4 +1,5 @@
-﻿using ICSharpCode.SharpZipLib.GZip;
+﻿using SharpCompress.Compressors.Deflate;
+using SharpCompress.Compressors;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -40,7 +41,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             var failed = false;
             try
             {
-                GZip.Decompress(fileEntry.Content, fs, false);
+                fileEntry.Content.Position = 0;
+                using var gzipStream = new GZipStream(fileEntry.Content, CompressionMode.Decompress);
+                await gzipStream.CopyToAsync(fs);
             }
             catch (Exception e)
             {
@@ -99,7 +102,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             var failed = false;
             try
             {
-                GZip.Decompress(fileEntry.Content, fs, false);
+                fileEntry.Content.Position = 0;
+                using var gzipStream = new GZipStream(fileEntry.Content, CompressionMode.Decompress);
+                gzipStream.CopyTo(fs);
             }
             catch (Exception e)
             {
