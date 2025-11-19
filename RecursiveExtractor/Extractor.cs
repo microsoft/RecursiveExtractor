@@ -42,6 +42,12 @@ namespace Microsoft.CST.RecursiveExtractor
         internal Dictionary<ArchiveFileType, AsyncExtractorInterface> Extractors { get; } = new Dictionary<ArchiveFileType, AsyncExtractorInterface>();
 
         /// <summary>
+        /// Collection of custom extractors that can handle file types not natively supported.
+        /// These are checked when a file type is detected as UNKNOWN.
+        /// </summary>
+        public HashSet<CustomAsyncExtractorInterface> CustomExtractors { get; } = new HashSet<CustomAsyncExtractorInterface>();
+
+        /// <summary>
         /// Set up the Default Extractors compatible with this platform.
         /// </summary>
         public void SetDefaultExtractors()
@@ -95,6 +101,43 @@ namespace Microsoft.CST.RecursiveExtractor
         public void ClearExtractors()
         {
             Extractors.Clear();
+        }
+
+        /// <summary>
+        /// Add a custom extractor that can handle file types not natively supported.
+        /// Custom extractors are checked in the order they were added when a file type is UNKNOWN.
+        /// </summary>
+        /// <param name="customExtractor">The custom extractor implementation to add.</param>
+        /// <returns>True if the extractor was added, false if it was already present.</returns>
+        public bool AddCustomExtractor(CustomAsyncExtractorInterface customExtractor)
+        {
+            if (customExtractor == null)
+            {
+                throw new ArgumentNullException(nameof(customExtractor));
+            }
+            return CustomExtractors.Add(customExtractor);
+        }
+
+        /// <summary>
+        /// Remove a custom extractor.
+        /// </summary>
+        /// <param name="customExtractor">The custom extractor to remove.</param>
+        /// <returns>True if the extractor was removed, false if it was not found.</returns>
+        public bool RemoveCustomExtractor(CustomAsyncExtractorInterface customExtractor)
+        {
+            if (customExtractor == null)
+            {
+                throw new ArgumentNullException(nameof(customExtractor));
+            }
+            return CustomExtractors.Remove(customExtractor);
+        }
+
+        /// <summary>
+        /// Remove all custom extractors.
+        /// </summary>
+        public void ClearCustomExtractors()
+        {
+            CustomExtractors.Clear();
         }
 
         /// <summary>
@@ -309,6 +352,31 @@ namespace Microsoft.CST.RecursiveExtractor
         private readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         /// <summary>
+        /// Finds a custom extractor that can handle the given file entry.
+        /// </summary>
+        /// <param name="fileEntry">The file entry to check.</param>
+        /// <returns>A custom extractor that can handle the file, or null if none found.</returns>
+        private CustomAsyncExtractorInterface? FindMatchingCustomExtractor(FileEntry fileEntry)
+        {
+            foreach (var customExtractor in CustomExtractors)
+            {
+                try
+                {
+                    if (customExtractor.CanExtract(fileEntry.Content))
+                    {
+                        Logger.Debug("Custom extractor {0} matched for file {1}", customExtractor.GetType().Name, fileEntry.FullPath);
+                        return customExtractor;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logger.Debug("Custom extractor {0} threw exception when checking {1}: {2}", customExtractor.GetType().Name, fileEntry.FullPath, e.Message);
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
         /// Extract asynchronously from a FileEntry.
         /// </summary>
         /// <param name="fileEntry">The FileEntry containing the Conteant stream to parse.</param>
@@ -348,11 +416,37 @@ namespace Microsoft.CST.RecursiveExtractor
                 var type = fileEntry.ArchiveType;
                 if (options.IsAcceptableType(type))
                 {
-                    if (((opts?.RawExtensions?.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ?? false) || type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type)))
+                    // If this file should be treated as a raw file based on extension, just yield it
+                    if (opts?.RawExtensions?.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ?? false)
                     {
                         if (options.FileNamePasses(fileEntry.FullPath))
                         {
                             yield return fileEntry;
+                        }
+                    }
+                    // If type is UNKNOWN or no extractor is registered, check custom extractors
+                    else if (type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type))
+                    {
+                        // Try to find a custom extractor that can handle this file
+                        var customExtractor = FindMatchingCustomExtractor(fileEntry);
+                        if (customExtractor != null)
+                        {
+                            // Use the custom extractor
+                            await foreach (var result in customExtractor.ExtractAsync(fileEntry, options, resourceGovernor, false))
+                            {
+                                if (options.FileNamePasses(result.FullPath))
+                                {
+                                    yield return result;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // No custom extractor found, yield as raw file
+                            if (options.FileNamePasses(fileEntry.FullPath))
+                            {
+                                yield return fileEntry;
+                            }
                         }
                     }
                     else
@@ -640,12 +734,36 @@ namespace Microsoft.CST.RecursiveExtractor
                     resourceGovernor.AdjustRemainingBytes(-fileEntry.Content.Length);
 
                     // If this file should be treated as a raw file, and not extracted, just yield it
-                    if (options.RawExtensions.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)) ||
-                        type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type))
+                    if (options.RawExtensions.Any(x => Path.GetExtension(fileEntry.FullPath).Equals(x)))
                     {
                         if (options.FileNamePasses(fileEntry.FullPath))
                         {
                             yield return fileEntry;
+                        }
+                    }
+                    // If type is UNKNOWN or no extractor is registered, check custom extractors
+                    else if (type == ArchiveFileType.UNKNOWN || !Extractors.ContainsKey(type))
+                    {
+                        // Try to find a custom extractor that can handle this file
+                        var customExtractor = FindMatchingCustomExtractor(fileEntry);
+                        if (customExtractor != null)
+                        {
+                            // Use the custom extractor
+                            foreach (var extractedResult in customExtractor.Extract(fileEntry, options, resourceGovernor, false))
+                            {
+                                if (options.FileNamePasses(extractedResult.FullPath))
+                                {
+                                    yield return extractedResult;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // No custom extractor found, yield as raw file
+                            if (options.FileNamePasses(fileEntry.FullPath))
+                            {
+                                yield return fileEntry;
+                            }
                         }
                     }
                     // Otherwise yield all the results from its extraction
