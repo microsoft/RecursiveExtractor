@@ -45,7 +45,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// Collection of custom extractors that can handle file types not natively supported.
         /// These are checked when a file type is detected as UNKNOWN.
         /// </summary>
-        public HashSet<CustomAsyncExtractorInterface> CustomExtractors { get; } = new HashSet<CustomAsyncExtractorInterface>();
+        internal HashSet<CustomAsyncExtractorInterface> CustomExtractors { get; } = new HashSet<CustomAsyncExtractorInterface>();
 
         /// <summary>
         /// Set up the Default Extractors compatible with this platform.

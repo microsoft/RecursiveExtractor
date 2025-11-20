@@ -25,6 +25,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>RecursiveExtractor.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="LTRData.DiscUtils.Btrfs" Version="1.0.64" />
     <PackageReference Include="LTRData.DiscUtils.Core" Version="1.0.64" />
     <PackageReference Include="LTRData.DiscUtils.Ext" Version="1.0.64" />
