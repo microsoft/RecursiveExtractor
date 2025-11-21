@@ -122,81 +122,37 @@ public class CustomExtractorTests
     }
 
     [TestMethod]
-    public void AddCustomExtractor_ValidExtractor_ReturnsTrue()
+    public void Constructor_WithCustomExtractors_RegistersExtractors()
     {
-        var extractor = new Extractor();
-        var customExtractor = new TestCustomExtractor(extractor);
+        var customExtractor = new TestCustomExtractor(null!);
+        var extractor = new Extractor(new[] { customExtractor });
         
-        var result = extractor.AddCustomExtractor(customExtractor);
-        
-        Assert.IsTrue(result);
         Assert.AreEqual(1, extractor.CustomExtractors.Count);
     }
 
     [TestMethod]
-    public void AddCustomExtractor_DuplicateExtractor_ReturnsFalse()
+    public void Constructor_WithMultipleCustomExtractors_RegistersAll()
     {
-        var extractor = new Extractor();
-        var customExtractor = new TestCustomExtractor(extractor);
-        
-        extractor.AddCustomExtractor(customExtractor);
-        var result = extractor.AddCustomExtractor(customExtractor);
-        
-        Assert.IsFalse(result);
-        Assert.AreEqual(1, extractor.CustomExtractors.Count);
-    }
-
-    [TestMethod]
-    public void AddCustomExtractor_NullExtractor_ThrowsArgumentNullException()
-    {
-        var extractor = new Extractor();
-        
-        Assert.ThrowsException<ArgumentNullException>(() => extractor.AddCustomExtractor(null!));
-    }
-
-    [TestMethod]
-    public void RemoveCustomExtractor_ExistingExtractor_ReturnsTrue()
-    {
-        var extractor = new Extractor();
-        var customExtractor = new TestCustomExtractor(extractor);
-        extractor.AddCustomExtractor(customExtractor);
-        
-        var result = extractor.RemoveCustomExtractor(customExtractor);
-        
-        Assert.IsTrue(result);
-        Assert.AreEqual(0, extractor.CustomExtractors.Count);
-    }
-
-    [TestMethod]
-    public void RemoveCustomExtractor_NonExistentExtractor_ReturnsFalse()
-    {
-        var extractor = new Extractor();
-        var customExtractor = new TestCustomExtractor(extractor);
-        
-        var result = extractor.RemoveCustomExtractor(customExtractor);
-        
-        Assert.IsFalse(result);
-        Assert.AreEqual(0, extractor.CustomExtractors.Count);
-    }
-
-    [TestMethod]
-    public void RemoveCustomExtractor_NullExtractor_ThrowsArgumentNullException()
-    {
-        var extractor = new Extractor();
-        
-        Assert.ThrowsException<ArgumentNullException>(() => extractor.RemoveCustomExtractor(null!));
-    }
-
-    [TestMethod]
-    public void ClearCustomExtractors_RemovesAllExtractors()
-    {
-        var extractor = new Extractor();
-        extractor.AddCustomExtractor(new TestCustomExtractor(extractor));
-        extractor.AddCustomExtractor(new SecondTestCustomExtractor(extractor));
+        var customExtractor1 = new TestCustomExtractor(null!);
+        var customExtractor2 = new SecondTestCustomExtractor(null!);
+        var extractor = new Extractor(new ICustomAsyncExtractor[] { customExtractor1, customExtractor2 });
         
         Assert.AreEqual(2, extractor.CustomExtractors.Count);
+    }
+
+    [TestMethod]
+    public void Constructor_WithNullInCollection_IgnoresNull()
+    {
+        var customExtractor = new TestCustomExtractor(null!);
+        var extractor = new Extractor(new ICustomAsyncExtractor[] { customExtractor, null! });
         
-        extractor.ClearCustomExtractors();
+        Assert.AreEqual(1, extractor.CustomExtractors.Count);
+    }
+
+    [TestMethod]
+    public void Constructor_WithNullCollection_CreatesEmptyExtractor()
+    {
+        var extractor = new Extractor((IEnumerable<ICustomAsyncExtractor>)null!);
         
         Assert.AreEqual(0, extractor.CustomExtractors.Count);
     }
@@ -204,9 +160,8 @@ public class CustomExtractorTests
     [TestMethod]
     public void Extract_WithMatchingCustomExtractor_UsesCustomExtractor()
     {
-        var extractor = new Extractor();
-        var customExtractor = new TestCustomExtractor(extractor);
-        extractor.AddCustomExtractor(customExtractor);
+        var customExtractor = new TestCustomExtractor(null!);
+        var extractor = new Extractor(new[] { customExtractor });
 
         // Create a test file with the custom magic bytes
         var testData = System.Text.Encoding.ASCII.GetBytes("CUSTOM1 This is test data");
@@ -225,9 +180,8 @@ public class CustomExtractorTests
     [TestMethod]
     public async Task ExtractAsync_WithMatchingCustomExtractor_UsesCustomExtractor()
     {
-        var extractor = new Extractor();
-        var customExtractor = new TestCustomExtractor(extractor);
-        extractor.AddCustomExtractor(customExtractor);
+        var customExtractor = new TestCustomExtractor(null!);
+        var extractor = new Extractor(new[] { customExtractor });
 
         // Create a test file with the custom magic bytes
         var testData = System.Text.Encoding.ASCII.GetBytes("CUSTOM1 This is test data");
@@ -246,9 +200,8 @@ public class CustomExtractorTests
     [TestMethod]
     public void Extract_WithoutMatchingCustomExtractor_ReturnsOriginalFile()
     {
-        var extractor = new Extractor();
-        var customExtractor = new TestCustomExtractor(extractor);
-        extractor.AddCustomExtractor(customExtractor);
+        var customExtractor = new TestCustomExtractor(null!);
+        var extractor = new Extractor(new[] { customExtractor });
 
         // Create a test file that doesn't match the custom magic bytes
         var testData = System.Text.Encoding.ASCII.GetBytes("NOTCUSTOM This is test data");
@@ -268,9 +221,11 @@ public class CustomExtractorTests
     [TestMethod]
     public void Extract_MultipleCustomExtractors_UsesCorrectOne()
     {
-        var extractor = new Extractor();
-        extractor.AddCustomExtractor(new TestCustomExtractor(extractor));
-        extractor.AddCustomExtractor(new SecondTestCustomExtractor(extractor));
+        var extractor = new Extractor(new ICustomAsyncExtractor[] 
+        { 
+            new TestCustomExtractor(null!), 
+            new SecondTestCustomExtractor(null!) 
+        });
 
         // Test with first custom format
         var testData1 = System.Text.Encoding.ASCII.GetBytes("CUSTOM1 data");
@@ -302,9 +257,8 @@ public class CustomExtractorTests
     [TestMethod]
     public void Extract_CustomExtractorForKnownFormat_UsesBuiltInExtractor()
     {
-        var extractor = new Extractor();
-        var customExtractor = new TestCustomExtractor(extractor);
-        extractor.AddCustomExtractor(customExtractor);
+        var customExtractor = new TestCustomExtractor(null!);
+        var extractor = new Extractor(new[] { customExtractor });
 
         // Test with a real ZIP file - should use built-in extractor, not custom
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", "EmptyFile.txt.zip");

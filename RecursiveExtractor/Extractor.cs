@@ -39,13 +39,31 @@ namespace Microsoft.CST.RecursiveExtractor
             SetDefaultExtractors();
         }
 
+        /// <summary>
+        /// Instantiate an extractor with the default extractors and custom extractors.
+        /// </summary>
+        /// <param name="customExtractors">Custom extractors to register for handling file types not natively supported.</param>
+        public Extractor(IEnumerable<ICustomAsyncExtractor> customExtractors) : this()
+        {
+            if (customExtractors != null)
+            {
+                foreach (var extractor in customExtractors)
+                {
+                    if (extractor != null)
+                    {
+                        ((HashSet<ICustomAsyncExtractor>)CustomExtractors).Add(extractor);
+                    }
+                }
+            }
+        }
+
         internal Dictionary<ArchiveFileType, AsyncExtractorInterface> Extractors { get; } = new Dictionary<ArchiveFileType, AsyncExtractorInterface>();
 
         /// <summary>
         /// Collection of custom extractors that can handle file types not natively supported.
         /// These are checked when a file type is detected as UNKNOWN.
         /// </summary>
-        internal HashSet<ICustomAsyncExtractor> CustomExtractors { get; } = new HashSet<ICustomAsyncExtractor>();
+        internal ICollection<ICustomAsyncExtractor> CustomExtractors { get; } = new HashSet<ICustomAsyncExtractor>();
 
         /// <summary>
         /// Set up the Default Extractors compatible with this platform.
@@ -101,43 +119,6 @@ namespace Microsoft.CST.RecursiveExtractor
         public void ClearExtractors()
         {
             Extractors.Clear();
-        }
-
-        /// <summary>
-        /// Add a custom extractor that can handle file types not natively supported.
-        /// Custom extractors are checked in the order they were added when a file type is UNKNOWN.
-        /// </summary>
-        /// <param name="customExtractor">The custom extractor implementation to add.</param>
-        /// <returns>True if the extractor was added, false if it was already present.</returns>
-        public bool AddCustomExtractor(ICustomAsyncExtractor customExtractor)
-        {
-            if (customExtractor == null)
-            {
-                throw new ArgumentNullException(nameof(customExtractor));
-            }
-            return CustomExtractors.Add(customExtractor);
-        }
-
-        /// <summary>
-        /// Remove a custom extractor.
-        /// </summary>
-        /// <param name="customExtractor">The custom extractor to remove.</param>
-        /// <returns>True if the extractor was removed, false if it was not found.</returns>
-        public bool RemoveCustomExtractor(ICustomAsyncExtractor customExtractor)
-        {
-            if (customExtractor == null)
-            {
-                throw new ArgumentNullException(nameof(customExtractor));
-            }
-            return CustomExtractors.Remove(customExtractor);
-        }
-
-        /// <summary>
-        /// Remove all custom extractors.
-        /// </summary>
-        public void ClearCustomExtractors()
-        {
-            CustomExtractors.Clear();
         }
 
         /// <summary>

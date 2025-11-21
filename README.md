@@ -226,10 +226,9 @@ public class MyCustomExtractor : ICustomAsyncExtractor
     }
 }
 
-// Register the custom extractor
-var extractor = new Extractor();
-var customExtractor = new MyCustomExtractor(extractor);
-extractor.AddCustomExtractor(customExtractor);
+// Register the custom extractor via constructor
+var customExtractor = new MyCustomExtractor(null);
+var extractor = new Extractor(new[] { customExtractor });
 
 // Now the extractor will use your custom extractor for files matching your CanExtract criteria
 var results = extractor.Extract("path/to/custom/archive.myarc");
@@ -238,8 +237,9 @@ var results = extractor.Extract("path/to/custom/archive.myarc");
 Key points:
 - The `CanExtract` method should check the stream's binary signature (like MiniMagic does) and return true if this extractor can handle the format
 - Always preserve the stream's original position in `CanExtract`
+- Custom extractors are provided via the constructor as an `IEnumerable<ICustomAsyncExtractor>`
 - Custom extractors are only checked when the file type is UNKNOWN (not recognized by built-in extractors)
-- Multiple custom extractors can be registered; they are checked in the order they were added
+- Multiple custom extractors can be registered; they are checked in the order provided
 - Custom extractors are invoked for both synchronous and asynchronous extraction paths
 
 </details>
