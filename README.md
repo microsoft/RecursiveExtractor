@@ -167,7 +167,7 @@ catch(OverflowException)
 <br/>
 You can extend RecursiveExtractor with custom extractors to support additional archive or file formats not natively supported. This is useful for formats like MSI, MSP, or other proprietary archive formats.
 
-To create a custom extractor, implement the `CustomAsyncExtractorInterface` interface and register it with the extractor:
+To create a custom extractor, implement the `ICustomAsyncExtractor` interface and register it with the extractor:
 
 ```csharp
 using Microsoft.CST.RecursiveExtractor;
@@ -177,7 +177,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 // Example: Custom extractor for a hypothetical archive format with magic bytes "MYARC"
-public class MyCustomExtractor : CustomAsyncExtractorInterface
+public class MyCustomExtractor : ICustomAsyncExtractor
 {
     private readonly Extractor context;
     private static readonly byte[] MAGIC_BYTES = System.Text.Encoding.ASCII.GetBytes("MYARC");

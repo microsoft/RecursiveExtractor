@@ -6,7 +6,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
     /// An interface for custom extractors that can determine if they can handle a given stream.
     /// This allows library users to extend the extractor with support for additional archive types.
     /// </summary>
-    public interface CustomAsyncExtractorInterface : AsyncExtractorInterface
+    public interface ICustomAsyncExtractor : AsyncExtractorInterface
     {
         /// <summary>
         /// Determines if this extractor can extract the given stream based on binary signatures or other criteria.

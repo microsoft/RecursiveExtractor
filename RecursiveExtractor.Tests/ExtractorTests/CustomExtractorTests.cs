@@ -16,7 +16,7 @@ public class CustomExtractorTests
     /// A simple test custom extractor that extracts files with a specific magic number
     /// For testing purposes, it recognizes files starting with "CUSTOM1"
     /// </summary>
-    private class TestCustomExtractor : CustomAsyncExtractorInterface
+    private class TestCustomExtractor : ICustomAsyncExtractor
     {
         private readonly Extractor context;
         private static readonly byte[] MAGIC_BYTES = System.Text.Encoding.ASCII.GetBytes("CUSTOM1");
@@ -71,7 +71,7 @@ public class CustomExtractorTests
     /// <summary>
     /// A second test custom extractor that recognizes files starting with "CUSTOM2"
     /// </summary>
-    private class SecondTestCustomExtractor : CustomAsyncExtractorInterface
+    private class SecondTestCustomExtractor : ICustomAsyncExtractor
     {
         private readonly Extractor context;
         private static readonly byte[] MAGIC_BYTES = System.Text.Encoding.ASCII.GetBytes("CUSTOM2");

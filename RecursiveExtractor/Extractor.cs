@@ -45,7 +45,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// Collection of custom extractors that can handle file types not natively supported.
         /// These are checked when a file type is detected as UNKNOWN.
         /// </summary>
-        internal HashSet<CustomAsyncExtractorInterface> CustomExtractors { get; } = new HashSet<CustomAsyncExtractorInterface>();
+        internal HashSet<ICustomAsyncExtractor> CustomExtractors { get; } = new HashSet<ICustomAsyncExtractor>();
 
         /// <summary>
         /// Set up the Default Extractors compatible with this platform.
@@ -109,7 +109,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         /// <param name="customExtractor">The custom extractor implementation to add.</param>
         /// <returns>True if the extractor was added, false if it was already present.</returns>
-        public bool AddCustomExtractor(CustomAsyncExtractorInterface customExtractor)
+        public bool AddCustomExtractor(ICustomAsyncExtractor customExtractor)
         {
             if (customExtractor == null)
             {
@@ -123,7 +123,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         /// <param name="customExtractor">The custom extractor to remove.</param>
         /// <returns>True if the extractor was removed, false if it was not found.</returns>
-        public bool RemoveCustomExtractor(CustomAsyncExtractorInterface customExtractor)
+        public bool RemoveCustomExtractor(ICustomAsyncExtractor customExtractor)
         {
             if (customExtractor == null)
             {
@@ -356,7 +356,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         /// <param name="fileEntry">The file entry to check.</param>
         /// <returns>A custom extractor that can handle the file, or null if none found.</returns>
-        private CustomAsyncExtractorInterface? FindMatchingCustomExtractor(FileEntry fileEntry)
+        private ICustomAsyncExtractor? FindMatchingCustomExtractor(FileEntry fileEntry)
         {
             foreach (var customExtractor in CustomExtractors)
             {
