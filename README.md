@@ -162,6 +162,88 @@ catch(OverflowException)
 ```
 </details>
 
+<details>
+<summary>Custom Extractors for Additional File Types</summary>
+<br/>
+You can extend RecursiveExtractor with custom extractors to support additional archive or file formats not natively supported. This is useful for formats like MSI, MSP, or other proprietary archive formats.
+
+To create a custom extractor, implement the `ICustomAsyncExtractor` interface and register it with the extractor:
+
+```csharp
+using Microsoft.CST.RecursiveExtractor;
+using Microsoft.CST.RecursiveExtractor.Extractors;
+using System.IO;
+using System.Collections.Generic;
+using System.Linq;
+
+// Example: Custom extractor for a hypothetical archive format with magic bytes "MYARC"
+public class MyCustomExtractor : ICustomAsyncExtractor
+{
+    private readonly Extractor context;
+    private static readonly byte[] MAGIC_BYTES = System.Text.Encoding.ASCII.GetBytes("MYARC");
+
+    public MyCustomExtractor(Extractor ctx)
+    {
+        context = ctx;
+    }
+
+    // Check if this extractor can handle the file based on binary signatures
+    public bool CanExtract(Stream stream)
+    {
+        if (stream == null || !stream.CanRead || !stream.CanSeek || stream.Length < MAGIC_BYTES.Length)
+        {
+            return false;
+        }
+
+        var initialPosition = stream.Position;
+        try
+        {
+            stream.Position = 0;
+            var buffer = new byte[MAGIC_BYTES.Length];
+            var bytesRead = stream.Read(buffer, 0, MAGIC_BYTES.Length);
+            
+            return bytesRead == MAGIC_BYTES.Length && buffer.SequenceEqual(MAGIC_BYTES);
+        }
+        finally
+        {
+            // Always restore the original position
+            stream.Position = initialPosition;
+        }
+    }
+
+    // Implement extraction logic
+    public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
+    {
+        // Your extraction logic here
+        // For example, parse the archive and yield FileEntry objects for each contained file
+        yield break;
+    }
+
+    public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
+    {
+        // Your async extraction logic here
+        yield break;
+    }
+}
+
+// Register the custom extractor via constructor
+var customExtractor = new MyCustomExtractor(null);
+var extractor = new Extractor(new[] { customExtractor });
+
+// Now the extractor will use your custom extractor for files matching your CanExtract criteria
+var results = extractor.Extract("path/to/custom/archive.myarc");
+```
+
+Key points:
+- The `CanExtract` method should check the stream's binary signature (like MiniMagic does) and return true if this extractor can handle the format
+- Always preserve the stream's original position in `CanExtract`
+- Custom extractors are provided via the constructor as an `IEnumerable<ICustomAsyncExtractor>`
+- Custom extractors are only checked when the file type is UNKNOWN (not recognized by built-in extractors)
+- Multiple custom extractors can be registered; they are checked in the order provided
+- Custom extractors are invoked for both synchronous and asynchronous extraction paths
+
+</details>
+
 ## Exceptions
 RecursiveExtractor protects against [ZipSlip](https://snyk.io/research/zip-slip-vulnerability), [Quines, and Zip Bombs](https://en.wikipedia.org/wiki/Zip_bomb).
 Calls to Extract will throw an `OverflowException` when a Quine or Zip bomb is detected and a `TimeOutException` if `EnableTiming` is set and the specified time period has elapsed before completion.
