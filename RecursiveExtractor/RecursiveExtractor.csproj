@@ -45,11 +45,11 @@
     <PackageReference Include="LTRData.DiscUtils.Wim" Version="1.0.64" />
     <PackageReference Include="LTRData.DiscUtils.Xfs" Version="1.0.64" />
     <PackageReference Include="Glob" Version="1.1.9" />
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.8" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     <PackageReference Include="NLog" Version="6.0.3" />
     <PackageReference Include="SharpCompress" Version="0.40.0" />
-    <PackageReference Include="System.Linq.Async" Version="6.0.3" Condition="'$(TargetFramework)' != 'net10.0'" />
+    <PackageReference Include="System.Linq.AsyncEnumerable" Version="10.0.0" />
   </ItemGroup>
 
   <ItemGroup>
