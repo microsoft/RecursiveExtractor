@@ -21,7 +21,7 @@ resources:
       
 variables:
   BuildConfiguration: 'Release'
-  DotnetVersion: '9.0.x'
+  DotnetVersion: '10.0.x'
 
 extends:
   template: v1/1ES.Official.PipelineTemplate.yml@1esPipelines
@@ -40,7 +40,7 @@ extends:
       - template: dotnet-test-job.yml@templates
         parameters:
           jobName: 'lib_dotnet_test_windows'
-          dotnetVersions: ['8.0.x', '9.0.x']
+          dotnetVersions: ['8.0.x', '9.0.x', '10.0.x']
           projectPath: 'RecursiveExtractor.Tests/RecursiveExtractor.Tests.csproj'
           poolName: MSSecurity-1ES-Build-Agents-Pool
           poolImage: MSSecurity-1ES-Windows-2022
@@ -54,7 +54,7 @@ extends:
       - template: dotnet-test-job.yml@templates
         parameters:
           jobName: 'cli_dotnet_test_windows'
-          dotnetVersions: ['8.0.x', '9.0.x']
+          dotnetVersions: ['8.0.x', '9.0.x', '10.0.x']
           projectPath: 'RecursiveExtractor.Cli.Tests/RecursiveExtractor.Cli.Tests.csproj'
           poolName: MSSecurity-1ES-Build-Agents-Pool
           poolImage: MSSecurity-1ES-Windows-2022
