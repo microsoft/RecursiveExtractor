@@ -4,3 +4,4 @@ obj/
 .vs
 RecursiveExtractor.sln.DotSettings.user
 .DS_Store
+TestResults/
