@@ -1,0 +1,1109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="3ac5e29a-87bd-47c1-a7e3-4607c8d94e89" name="@runnervmg1sw1 2025-12-02 06:03:25.5626941" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2025-12-02T06:03:20.3759867Z" queuing="2025-12-02T06:03:20.3759867Z" start="2025-12-02T06:03:20.3759867Z" finish="2025-12-02T06:03:25.5632737Z" />
+  <TestSettings name="default" id="d6173c25-08f4-47be-b6d3-1eae02fe694e">
+    <Deployment runDeploymentRoot="_runnervmg1sw1_2025-12-02_06_03_25.5626941" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="4a153da0-16f0-4109-96e8-e2da1f98d19e" testId="b1af274f-fbfd-0076-7d76-fa0b962c520d" testName="ExtractArchiveParallel (&quot;TestData.zip&quot;,5)" computerName="runnervmg1sw1" duration="00:00:00.3072870" startTime="2025-12-02T06:03:20.5312157+00:00" endTime="2025-12-02T06:03:20.8560548+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="4a153da0-16f0-4109-96e8-e2da1f98d19e">
+      <Output>
+        <StdOut>2025-12-02 06:03:20.6886|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:20.6955|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.zip)
+2025-12-02 06:03:20.6984|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=2.4883, bytes=1202756)
+2025-12-02 06:03:20.7271|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=31.8263, bytes=1196712)
+2025-12-02 06:03:20.7402|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.zip/TestData/.DS_Store)
+2025-12-02 06:03:20.7402|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=44.9507, bytes=1190564)
+2025-12-02 06:03:20.7420|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=46.786, bytes=1184416)
+2025-12-02 06:03:20.7420|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.zip/__MACOSX/TestData/._.DS_Store)
+2025-12-02 06:03:20.7420|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=46.9765, bytes=1184296)
+2025-12-02 06:03:20.7420|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=47.0051, bytes=1184176)
+2025-12-02 06:03:20.7424|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.zip/TestData/Lorem.txt)
+2025-12-02 06:03:20.7424|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=47.192, bytes=1180036)
+2025-12-02 06:03:20.7424|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=47.2093, bytes=1175896)
+2025-12-02 06:03:20.7424|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.zip/TestData/Foo/Lorem.txt)
+2025-12-02 06:03:20.7424|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=47.3666, bytes=1171756)
+2025-12-02 06:03:20.7424|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=47.3776, bytes=1167616)
+2025-12-02 06:03:20.7458|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.zip/TestData/Foo/Bar/Lorem.txt)
+2025-12-02 06:03:20.7458|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=50.5487, bytes=1163476)
+2025-12-02 06:03:20.7508|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.zip/__MACOSX/TestData/._.DS_Store
+2025-12-02 06:03:20.7508|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.zip/TestData/Lorem.txt
+2025-12-02 06:03:20.7508|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.zip/TestData/.DS_Store
+2025-12-02 06:03:20.7508|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.zip/TestData/Foo/Lorem.txt
+2025-12-02 06:03:20.7508|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.zip/TestData/Foo/Bar/Lorem.txt
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="90ecd38c-010a-48fb-9be3-9aa61906a697" testId="1cf86544-05c6-b311-aded-4b8b7fc59640" testName="ExtractArchiveParallel (&quot;TestData.7z&quot;)" computerName="runnervmg1sw1" duration="00:00:00.1324480" startTime="2025-12-02T06:03:20.8616618+00:00" endTime="2025-12-02T06:03:20.9947993+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="90ecd38c-010a-48fb-9be3-9aa61906a697">
+      <Output>
+        <StdOut>2025-12-02 06:03:20.8687|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:20.8687|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.7z)
+2025-12-02 06:03:20.8687|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0076, bytes=338698)
+2025-12-02 06:03:20.8902|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=21.4642, bytes=336996)
+2025-12-02 06:03:20.8919|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.7z/TestData/Foo/Bar/Lorem.txt)
+2025-12-02 06:03:20.8919|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=23.2117, bytes=332848)
+2025-12-02 06:03:20.8919|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=23.437, bytes=328700)
+2025-12-02 06:03:20.8930|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.7z/TestData/Foo/Lorem.txt)
+2025-12-02 06:03:20.8930|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=24.3393, bytes=324552)
+2025-12-02 06:03:20.8930|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=24.3622, bytes=320404)
+2025-12-02 06:03:20.8937|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.7z/TestData/Lorem.txt)
+2025-12-02 06:03:20.8937|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=24.9775, bytes=316256)
+2025-12-02 06:03:20.8937|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.7z/TestData/Lorem.txt
+2025-12-02 06:03:20.8937|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.7z/TestData/Foo/Bar/Lorem.txt
+2025-12-02 06:03:20.8937|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.7z/TestData/Foo/Lorem.txt
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="68319011-e51e-4258-bd90-ec2638522ab0" testId="e46b736e-857a-1cc5-e044-e171de08b610" testName="ExtractArchiveParallel (&quot;TestData.tar&quot;,6)" computerName="runnervmg1sw1" duration="00:00:00.1114075" startTime="2025-12-02T06:03:20.9950258+00:00" endTime="2025-12-02T06:03:21.1066268+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="68319011-e51e-4258-bd90-ec2638522ab0">
+      <Output>
+        <StdOut>2025-12-02 06:03:20.9978|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:20.9978|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar)
+2025-12-02 06:03:20.9978|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0075, bytes=5400064)
+2025-12-02 06:03:21.0038|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=5.9653, bytes=5372928)
+2025-12-02 06:03:21.0044|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar/TestData/._.DS_Store)
+2025-12-02 06:03:21.0044|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=6.636, bytes=5372808)
+2025-12-02 06:03:21.0044|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=6.778, bytes=5372688)
+2025-12-02 06:03:21.0044|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar/TestData/PaxHeader/.DS_Store)
+2025-12-02 06:03:21.0044|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=6.8277, bytes=5372658)
+2025-12-02 06:03:21.0044|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=6.8497, bytes=5372628)
+2025-12-02 06:03:21.0044|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar/TestData/.DS_Store)
+2025-12-02 06:03:21.0044|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=6.8682, bytes=5366480)
+2025-12-02 06:03:21.0044|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=6.8938, bytes=5360332)
+2025-12-02 06:03:21.0044|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar/TestData/Lorem.txt)
+2025-12-02 06:03:21.0044|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=6.9085, bytes=5356192)
+2025-12-02 06:03:21.0044|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=6.9207, bytes=5352052)
+2025-12-02 06:03:21.0044|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar/TestData/Foo/Lorem.txt)
+2025-12-02 06:03:21.0044|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=6.9341, bytes=5347912)
+2025-12-02 06:03:21.0044|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=6.9549, bytes=5343772)
+2025-12-02 06:03:21.0044|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar/TestData/Foo/Bar/Lorem.txt)
+2025-12-02 06:03:21.0044|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=6.9679, bytes=5339632)
+2025-12-02 06:03:21.0059|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar/TestData/.DS_Store
+2025-12-02 06:03:21.0059|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar/TestData/Foo/Bar/Lorem.txt
+2025-12-02 06:03:21.0059|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar/TestData/Foo/Lorem.txt
+2025-12-02 06:03:21.0059|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar/TestData/Lorem.txt
+2025-12-02 06:03:21.0059|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar/TestData/._.DS_Store
+2025-12-02 06:03:21.0059|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar/TestData/PaxHeader/.DS_Store
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="9a0c53cf-3ffa-4d4e-9d0d-67da5d9dfa9c" testId="450e93eb-bc08-d52b-c954-8b74f5930c40" testName="ExtractArchiveParallel (&quot;TestData.rar&quot;)" computerName="runnervmg1sw1" duration="00:00:00.1255570" startTime="2025-12-02T06:03:21.1067923+00:00" endTime="2025-12-02T06:03:21.2325698+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="9a0c53cf-3ffa-4d4e-9d0d-67da5d9dfa9c">
+      <Output>
+        <StdOut>2025-12-02 06:03:21.1090|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:21.1090|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.rar)
+2025-12-02 06:03:21.1090|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0077, bytes=930524)
+2025-12-02 06:03:21.1224|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=13.3634, bytes=925848)
+2025-12-02 06:03:21.1308|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.rar/TestData/Foo/Bar/Lorem.txt)
+2025-12-02 06:03:21.1308|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=21.7787, bytes=921700)
+2025-12-02 06:03:21.1308|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=21.9166, bytes=917552)
+2025-12-02 06:03:21.1308|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.rar/TestData/Foo/Lorem.txt)
+2025-12-02 06:03:21.1308|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=22.1829, bytes=913404)
+2025-12-02 06:03:21.1308|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=22.2011, bytes=909256)
+2025-12-02 06:03:21.1315|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.rar/TestData/Lorem.txt)
+2025-12-02 06:03:21.1315|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=22.4913, bytes=905108)
+2025-12-02 06:03:21.1315|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.rar/TestData/Lorem.txt
+2025-12-02 06:03:21.1315|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.rar/TestData/Foo/Lorem.txt
+2025-12-02 06:03:21.1315|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.rar/TestData/Foo/Bar/Lorem.txt
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="c8e1e867-049f-4c4b-910f-59967d07e358" testId="7393d090-f088-7a52-33f6-5166b68ee709" testName="ExtractArchiveParallel (&quot;TestData.rar4&quot;)" computerName="runnervmg1sw1" duration="00:00:00.1146829" startTime="2025-12-02T06:03:21.2327186+00:00" endTime="2025-12-02T06:03:21.3476102+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="c8e1e867-049f-4c4b-910f-59967d07e358">
+      <Output>
+        <StdOut>2025-12-02 06:03:21.2349|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:21.2349|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.rar4)
+2025-12-02 06:03:21.2349|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0075, bytes=933111)
+2025-12-02 06:03:21.2368|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.8285, bytes=928422)
+2025-12-02 06:03:21.2462|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.rar4/TestData/Foo/Bar/Lorem.txt)
+2025-12-02 06:03:21.2462|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=11.2593, bytes=924274)
+2025-12-02 06:03:21.2462|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=11.2889, bytes=920126)
+2025-12-02 06:03:21.2465|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.rar4/TestData/Foo/Lorem.txt)
+2025-12-02 06:03:21.2465|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=11.5167, bytes=915978)
+2025-12-02 06:03:21.2465|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=11.5299, bytes=911830)
+2025-12-02 06:03:21.2465|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.rar4/TestData/Lorem.txt)
+2025-12-02 06:03:21.2465|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=11.7269, bytes=907682)
+2025-12-02 06:03:21.2465|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.rar4/TestData/Lorem.txt
+2025-12-02 06:03:21.2465|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.rar4/TestData/Foo/Lorem.txt
+2025-12-02 06:03:21.2465|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.rar4/TestData/Foo/Bar/Lorem.txt
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="0f478160-bd24-460e-ab32-d1b1621a9a94" testId="a3fb133b-192c-1b9b-8904-4940b5ee1068" testName="ExtractArchiveParallel (&quot;TestData.tar.bz2&quot;,6)" computerName="runnervmg1sw1" duration="00:00:00.1159141" startTime="2025-12-02T06:03:21.3477813+00:00" endTime="2025-12-02T06:03:21.4639025+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="0f478160-bd24-460e-ab32-d1b1621a9a94">
+      <Output>
+        <StdOut>2025-12-02 06:03:21.3499|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:21.3499|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.bz2)
+2025-12-02 06:03:21.3499|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.008, bytes=520584)
+2025-12-02 06:03:21.3619|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.bz2/TestData.tar)
+2025-12-02 06:03:21.3619|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=12.0312, bytes=490832)
+2025-12-02 06:03:21.3619|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=12.3404, bytes=463696)
+2025-12-02 06:03:21.3619|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.bz2/TestData.tar/TestData/._.DS_Store)
+2025-12-02 06:03:21.3619|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=12.3687, bytes=463576)
+2025-12-02 06:03:21.3624|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=12.5102, bytes=463456)
+2025-12-02 06:03:21.3624|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.bz2/TestData.tar/TestData/PaxHeader/.DS_Store)
+2025-12-02 06:03:21.3624|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=12.5362, bytes=463426)
+2025-12-02 06:03:21.3624|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=12.5598, bytes=463396)
+2025-12-02 06:03:21.3624|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.bz2/TestData.tar/TestData/.DS_Store)
+2025-12-02 06:03:21.3624|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=12.5723, bytes=457248)
+2025-12-02 06:03:21.3624|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=12.5932, bytes=451100)
+2025-12-02 06:03:21.3624|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.bz2/TestData.tar/TestData/Lorem.txt)
+2025-12-02 06:03:21.3624|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=12.6023, bytes=446960)
+2025-12-02 06:03:21.3624|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=12.6187, bytes=442820)
+2025-12-02 06:03:21.3624|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.bz2/TestData.tar/TestData/Foo/Lorem.txt)
+2025-12-02 06:03:21.3624|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=12.6283, bytes=438680)
+2025-12-02 06:03:21.3624|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=12.6551, bytes=434540)
+2025-12-02 06:03:21.3624|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.bz2/TestData.tar/TestData/Foo/Bar/Lorem.txt)
+2025-12-02 06:03:21.3624|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=12.6644, bytes=430400)
+2025-12-02 06:03:21.3624|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.bz2/TestData.tar/TestData/.DS_Store
+2025-12-02 06:03:21.3624|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.bz2/TestData.tar/TestData/Lorem.txt
+2025-12-02 06:03:21.3624|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.bz2/TestData.tar/TestData/Foo/Lorem.txt
+2025-12-02 06:03:21.3624|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.bz2/TestData.tar/TestData/Foo/Bar/Lorem.txt
+2025-12-02 06:03:21.3634|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.bz2/TestData.tar/TestData/._.DS_Store
+2025-12-02 06:03:21.3634|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.bz2/TestData.tar/TestData/PaxHeader/.DS_Store
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="7e04caf6-083f-49de-973e-32ec7b9a4ef2" testId="da5b956b-9a73-8e2e-edda-01d59ce342a0" testName="ExtractArchiveParallel (&quot;TestData.tar.gz&quot;,6)" computerName="runnervmg1sw1" duration="00:00:00.1101880" startTime="2025-12-02T06:03:21.4640805+00:00" endTime="2025-12-02T06:03:21.5744946+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="7e04caf6-083f-49de-973e-32ec7b9a4ef2">
+      <Output>
+        <StdOut>2025-12-02 06:03:21.4661|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:21.4661|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.gz)
+2025-12-02 06:03:21.4661|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0078, bytes=440984)
+2025-12-02 06:03:21.4727|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.gz/TestData.tar)
+2025-12-02 06:03:21.4727|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=6.6345, bytes=411632)
+2025-12-02 06:03:21.4727|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=6.8444, bytes=384496)
+2025-12-02 06:03:21.4727|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.gz/TestData.tar/TestData/._.DS_Store)
+2025-12-02 06:03:21.4727|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=6.8699, bytes=384376)
+2025-12-02 06:03:21.4727|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=6.9675, bytes=384256)
+2025-12-02 06:03:21.4727|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.gz/TestData.tar/TestData/PaxHeader/.DS_Store)
+2025-12-02 06:03:21.4727|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=6.9895, bytes=384226)
+2025-12-02 06:03:21.4727|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=7.0125, bytes=384196)
+2025-12-02 06:03:21.4727|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.gz/TestData.tar/TestData/.DS_Store)
+2025-12-02 06:03:21.4727|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=7.0234, bytes=378048)
+2025-12-02 06:03:21.4727|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=7.0517, bytes=371900)
+2025-12-02 06:03:21.4727|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.gz/TestData.tar/TestData/Lorem.txt)
+2025-12-02 06:03:21.4727|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=7.0607, bytes=367760)
+2025-12-02 06:03:21.4727|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=7.0749, bytes=363620)
+2025-12-02 06:03:21.4727|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.gz/TestData.tar/TestData/Foo/Lorem.txt)
+2025-12-02 06:03:21.4727|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=7.0832, bytes=359480)
+2025-12-02 06:03:21.4727|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=7.1078, bytes=355340)
+2025-12-02 06:03:21.4727|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.gz/TestData.tar/TestData/Foo/Bar/Lorem.txt)
+2025-12-02 06:03:21.4727|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=7.1156, bytes=351200)
+2025-12-02 06:03:21.4738|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.gz/TestData.tar/TestData/.DS_Store
+2025-12-02 06:03:21.4738|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.gz/TestData.tar/TestData/Foo/Bar/Lorem.txt
+2025-12-02 06:03:21.4738|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.gz/TestData.tar/TestData/Foo/Lorem.txt
+2025-12-02 06:03:21.4738|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.gz/TestData.tar/TestData/Lorem.txt
+2025-12-02 06:03:21.4738|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.gz/TestData.tar/TestData/._.DS_Store
+2025-12-02 06:03:21.4738|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.gz/TestData.tar/TestData/PaxHeader/.DS_Store
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="622882a3-27e5-4cb8-9ab2-d12b7b93cef2" testId="0db7dfc4-04cb-bc0d-e10c-4b8cbfc9091d" testName="ExtractArchiveParallel (&quot;TestData.tar.xz&quot;)" computerName="runnervmg1sw1" duration="00:00:00.1164454" startTime="2025-12-02T06:03:21.5746728+00:00" endTime="2025-12-02T06:03:21.6913194+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="622882a3-27e5-4cb8-9ab2-d12b7b93cef2">
+      <Output>
+        <StdOut>2025-12-02 06:03:21.5767|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:21.5767|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.xz)
+2025-12-02 06:03:21.5767|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0077, bytes=339892)
+2025-12-02 06:03:21.5897|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=12.9904, bytes=338184)
+2025-12-02 06:03:21.5897|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.xz/TestData.tar)
+2025-12-02 06:03:21.5897|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=13.0728, bytes=317704)
+2025-12-02 06:03:21.5897|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=13.3313, bytes=297224)
+2025-12-02 06:03:21.5897|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.xz/TestData.tar/TestData/Foo/Bar/Dolor.txt)
+2025-12-02 06:03:21.5897|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=13.3653, bytes=293076)
+2025-12-02 06:03:21.5897|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=13.4691, bytes=288928)
+2025-12-02 06:03:21.5897|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.xz/TestData.tar/TestData/Foo/Ipsum.txt)
+2025-12-02 06:03:21.5897|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=13.4983, bytes=284780)
+2025-12-02 06:03:21.5897|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=13.5284, bytes=280632)
+2025-12-02 06:03:21.5897|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.xz/TestData.tar/TestData/Lorem.txt)
+2025-12-02 06:03:21.5897|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=13.5453, bytes=276484)
+2025-12-02 06:03:21.5908|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.xz/TestData.tar/TestData/Lorem.txt
+2025-12-02 06:03:21.5908|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.xz/TestData.tar/TestData/Foo/Ipsum.txt
+2025-12-02 06:03:21.5908|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.xz/TestData.tar/TestData/Foo/Bar/Dolor.txt
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="abb0dc54-7ffc-4d46-b50f-4b48ba19bdc8" testId="7830c1dc-20f5-897e-fb45-cda2607ae661" testName="ExtractArchiveParallel (&quot;sysvbanner_1.0-17fakesync1_amd64.deb&quot;,8)" computerName="runnervmg1sw1" duration="00:00:00.1123106" startTime="2025-12-02T06:03:21.6915070+00:00" endTime="2025-12-02T06:03:21.8040214+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="abb0dc54-7ffc-4d46-b50f-4b48ba19bdc8">
+      <Output>
+        <StdOut>2025-12-02 06:03:21.6935|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:21.6935|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb)
+2025-12-02 06:03:21.6935|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0077, bytes=1415288)
+2025-12-02 06:03:21.6954|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.7994, bytes=1408176)
+2025-12-02 06:03:21.6955|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb/control.tar.xz)
+2025-12-02 06:03:21.6955|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.9656, bytes=1406760)
+2025-12-02 06:03:21.6976|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=4.0578, bytes=1406052)
+2025-12-02 06:03:21.6976|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb/control.tar.xz/control.tar)
+2025-12-02 06:03:21.6976|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=4.0844, bytes=1395812)
+2025-12-02 06:03:21.6976|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=4.4321, bytes=1385572)
+2025-12-02 06:03:21.6976|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb/control.tar.xz/control.tar/control)
+2025-12-02 06:03:21.6976|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=4.4772, bytes=1385101)
+2025-12-02 06:03:21.6976|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=4.579, bytes=1384630)
+2025-12-02 06:03:21.6976|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb/control.tar.xz/control.tar/md5sums)
+2025-12-02 06:03:21.6976|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=4.6073, bytes=1384368)
+2025-12-02 06:03:21.6976|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=4.7152, bytes=1384106)
+2025-12-02 06:03:21.6976|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz)
+2025-12-02 06:03:21.6976|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=4.7397, bytes=1371682)
+2025-12-02 06:03:21.7016|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=8.0747, bytes=1365470)
+2025-12-02 06:03:21.7016|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar)
+2025-12-02 06:03:21.7016|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=8.095, bytes=1324510)
+2025-12-02 06:03:21.7016|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=8.2809, bytes=1283550)
+2025-12-02 06:03:21.7016|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar/usr/bin/banner)
+2025-12-02 06:03:21.7016|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=8.3179, bytes=1264406)
+2025-12-02 06:03:21.7016|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=8.3713, bytes=1245262)
+2025-12-02 06:03:21.7016|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar/usr/share/doc/sysvbanner/changelog.Debian.gz)
+2025-12-02 06:03:21.7016|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=8.3866, bytes=1243246)
+2025-12-02 06:03:21.7016|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar/usr/share/doc/sysvbanner/changelog.Debian.gz/changelog.Debian)
+2025-12-02 06:03:21.7016|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=8.5374, bytes=1236600)
+2025-12-02 06:03:21.7016|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=8.569, bytes=1231970)
+2025-12-02 06:03:21.7016|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar/usr/share/doc/sysvbanner/copyright)
+2025-12-02 06:03:21.7016|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=8.5863, bytes=1230856)
+2025-12-02 06:03:21.7016|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=8.6238, bytes=1229742)
+2025-12-02 06:03:21.7016|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar/usr/share/man/man1/banner.1.gz)
+2025-12-02 06:03:21.7016|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=8.6353, bytes=1229533)
+2025-12-02 06:03:21.7016|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar/usr/share/man/man1/banner.1.gz/banner.1)
+2025-12-02 06:03:21.7016|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=8.6845, bytes=1229061)
+2025-12-02 06:03:21.7016|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=8.7708, bytes=1228798)
+2025-12-02 06:03:21.7016|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar/usr/bin/sysvbanner)
+2025-12-02 06:03:21.7016|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=8.794, bytes=1228798)
+2025-12-02 06:03:21.7024|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=8.8354, bytes=1228798)
+2025-12-02 06:03:21.7024|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar/usr/share/man/man1/sysvbanner.1.gz)
+2025-12-02 06:03:21.7024|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=8.8539, bytes=1228798)
+2025-12-02 06:03:21.7024|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar/usr/bin/sysvbanner
+2025-12-02 06:03:21.7024|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar/usr/share/man/man1/sysvbanner.1.gz
+2025-12-02 06:03:21.7024|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar/usr/share/man/man1/banner.1.gz/banner.1
+2025-12-02 06:03:21.7024|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar/usr/share/doc/sysvbanner/copyright
+2025-12-02 06:03:21.7024|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar/usr/bin/banner
+2025-12-02 06:03:21.7024|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar/usr/share/doc/sysvbanner/changelog.Debian.gz/changelog.Debian
+2025-12-02 06:03:21.7024|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted sysvbanner_1.0-17fakesync1_amd64.deb/control.tar.xz/control.tar/md5sums
+2025-12-02 06:03:21.7024|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted sysvbanner_1.0-17fakesync1_amd64.deb/control.tar.xz/control.tar/control
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="818aa6c4-73a6-4971-befa-5fc530cb8327" testId="d57a375a-0154-7db6-d2bc-8e7b98851e6b" testName="ExtractArchiveParallel (&quot;TestData.a&quot;)" computerName="runnervmg1sw1" duration="00:00:00.1078094" startTime="2025-12-02T06:03:21.8041867+00:00" endTime="2025-12-02T06:03:21.9122130+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="818aa6c4-73a6-4971-befa-5fc530cb8327">
+      <Output>
+        <StdOut>2025-12-02 06:03:21.8063|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:21.8063|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.a)
+2025-12-02 06:03:21.8063|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0072, bytes=2508992)
+2025-12-02 06:03:21.8105|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=4.2197, bytes=2496384)
+2025-12-02 06:03:21.8105|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.a/Dolor.txt)
+2025-12-02 06:03:21.8105|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=4.5441, bytes=2488104)
+2025-12-02 06:03:21.8105|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=4.6904, bytes=2483964)
+2025-12-02 06:03:21.8105|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.a/Ipsum.txt)
+2025-12-02 06:03:21.8105|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=4.7244, bytes=2475684)
+2025-12-02 06:03:21.8105|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=4.7389, bytes=2471544)
+2025-12-02 06:03:21.8105|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.a/Lorem.txt)
+2025-12-02 06:03:21.8105|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=4.7513, bytes=2463264)
+2025-12-02 06:03:21.8117|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.a/Lorem.txt
+2025-12-02 06:03:21.8117|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.a/Ipsum.txt
+2025-12-02 06:03:21.8117|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.a/Dolor.txt
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="561e1170-7a0d-43c3-b320-cd94ec47f6f6" testId="cf305b76-dcaa-7bfe-7989-82bd0755db07" testName="ExtractArchiveParallel (&quot;TestData.bsd.ar&quot;)" computerName="runnervmg1sw1" duration="00:00:00.1025078" startTime="2025-12-02T06:03:21.9123848+00:00" endTime="2025-12-02T06:03:22.0151337+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="561e1170-7a0d-43c3-b320-cd94ec47f6f6">
+      <Output>
+        <StdOut>2025-12-02 06:03:21.9143|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:21.9143|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.bsd.ar)
+2025-12-02 06:03:21.9143|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0075, bytes=2508992)
+2025-12-02 06:03:21.9143|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0661, bytes=2496384)
+2025-12-02 06:03:21.9144|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.bsd.ar/Lorem.txt)
+2025-12-02 06:03:21.9144|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.1008, bytes=2488104)
+2025-12-02 06:03:21.9144|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.1164, bytes=2483964)
+2025-12-02 06:03:21.9144|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.bsd.ar/Ipsum.txt)
+2025-12-02 06:03:21.9144|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.1283, bytes=2475684)
+2025-12-02 06:03:21.9144|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.1337, bytes=2471544)
+2025-12-02 06:03:21.9144|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.bsd.ar/Dolor.txt)
+2025-12-02 06:03:21.9144|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.1433, bytes=2463264)
+2025-12-02 06:03:21.9144|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.bsd.ar/Dolor.txt
+2025-12-02 06:03:21.9144|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.bsd.ar/Lorem.txt
+2025-12-02 06:03:21.9144|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.bsd.ar/Ipsum.txt
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="a8687f44-1147-40e8-934f-9ba9cce405be" testId="691bad26-3941-716f-c180-b93ef480646e" testName="ExtractArchiveParallel (&quot;TestData.iso&quot;)" computerName="runnervmg1sw1" duration="00:00:00.1337753" startTime="2025-12-02T06:03:22.0153558+00:00" endTime="2025-12-02T06:03:22.1494053+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="a8687f44-1147-40e8-934f-9ba9cce405be">
+      <Output>
+        <StdOut>2025-12-02 06:03:22.0181|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:22.0181|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.iso)
+2025-12-02 06:03:22.0181|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.1039, bytes=15894528)
+2025-12-02 06:03:22.0444|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=26.2569, bytes=15814656)
+2025-12-02 06:03:22.0481|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.iso/TestData/Foo/Bar/Dolor.txt)
+2025-12-02 06:03:22.0481|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=29.9541, bytes=15810508)
+2025-12-02 06:03:22.0481|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=30.1346, bytes=15806360)
+2025-12-02 06:03:22.0481|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.iso/TestData/Foo/Ipsum.txt)
+2025-12-02 06:03:22.0481|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=30.181, bytes=15802212)
+2025-12-02 06:03:22.0484|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=30.2436, bytes=15798064)
+2025-12-02 06:03:22.0484|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.iso/TestData/Lorem.txt)
+2025-12-02 06:03:22.0484|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=30.2744, bytes=15793916)
+2025-12-02 06:03:22.0484|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.iso/TestData/Lorem.txt
+2025-12-02 06:03:22.0484|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.iso/TestData/Foo/Bar/Dolor.txt
+2025-12-02 06:03:22.0484|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.iso/TestData/Foo/Ipsum.txt
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="e5b853d3-4f35-4f87-8aa9-e9f44b24c49d" testId="56b7621c-9e61-e24a-b016-a8d3ea8cfbd6" testName="ExtractArchiveParallel (&quot;TestData.vhdx&quot;)" computerName="runnervmg1sw1" duration="00:00:00.2176611" startTime="2025-12-02T06:03:22.1497435+00:00" endTime="2025-12-02T06:03:22.3676833+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="e5b853d3-4f35-4f87-8aa9-e9f44b24c49d">
+      <Output>
+        <StdOut>2025-12-02 06:03:22.1693|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:22.1693|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.vhdx)
+2025-12-02 06:03:22.1693|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0142, bytes=7511998464)
+2025-12-02 06:03:22.2628|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=93.4962, bytes=7474249728)
+2025-12-02 06:03:22.2645|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.vhdx/VLG{5d3a8086-b39e-4f54-87cf-75fd6b289e82}//TestData/Foo/Bar/Lorem.txt)
+2025-12-02 06:03:22.2645|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=95.1488, bytes=7474245580)
+2025-12-02 06:03:22.2645|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=95.4124, bytes=7474241432)
+2025-12-02 06:03:22.2645|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.vhdx/VLG{5d3a8086-b39e-4f54-87cf-75fd6b289e82}//TestData/Foo/Lorem.txt)
+2025-12-02 06:03:22.2645|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=95.521, bytes=7474237284)
+2025-12-02 06:03:22.2645|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=95.5695, bytes=7474233136)
+2025-12-02 06:03:22.2645|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.vhdx/VLG{5d3a8086-b39e-4f54-87cf-75fd6b289e82}//TestData/Lorem.txt)
+2025-12-02 06:03:22.2645|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=95.6508, bytes=7474228988)
+2025-12-02 06:03:22.2671|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.vhdx/VLG{5d3a8086-b39e-4f54-87cf-75fd6b289e82}//TestData/Lorem.txt
+2025-12-02 06:03:22.2671|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.vhdx/VLG{5d3a8086-b39e-4f54-87cf-75fd6b289e82}//TestData/Foo/Bar/Lorem.txt
+2025-12-02 06:03:22.2671|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.vhdx/VLG{5d3a8086-b39e-4f54-87cf-75fd6b289e82}//TestData/Foo/Lorem.txt
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="672dce3f-1853-4821-99aa-1b694242d4f5" testId="86f7848d-367d-2a6e-6dcc-33eedcabea30" testName="ExtractArchiveParallel (&quot;TestData.wim&quot;)" computerName="runnervmg1sw1" duration="00:00:00.1198548" startTime="2025-12-02T06:03:22.3678973+00:00" endTime="2025-12-02T06:03:22.4879906+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Failed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="672dce3f-1853-4821-99aa-1b694242d4f5">
+      <Output>
+        <StdOut>2025-12-02 06:03:22.3700|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:22.3700|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.wim)
+2025-12-02 06:03:22.3700|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0106, bytes=1202756)
+2025-12-02 06:03:22.3700|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.wim
+</StdOut>
+        <ErrorInfo>
+          <Message>Assert.AreEqual failed. Expected:&lt;3&gt;. Actual:&lt;1&gt;. </Message>
+          <StackTrace>   at RecursiveExtractor.Tests.CliTests.CliTests.ExtractArchive(String fileName, Int32 expectedNumFiles, Boolean singleThread) in /home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/CliTests/CliTests.cs:line 51
+   at RecursiveExtractor.Tests.CliTests.CliTests.ExtractArchiveParallel(String fileName, Int32 expectedNumFiles) in /home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/CliTests/CliTests.cs:line 37
+   at InvokeStub_CliTests.ExtractArchiveParallel(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="3a1cfab7-196d-4ed1-aa8e-c117d4df6c3a" testId="d20570a9-cce8-de35-e7f9-af42a7086501" testName="ExtractArchiveParallel (&quot;EmptyFile.txt&quot;,1)" computerName="runnervmg1sw1" duration="00:00:00.1121871" startTime="2025-12-02T06:03:22.4883176+00:00" endTime="2025-12-02T06:03:22.6007832+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="3a1cfab7-196d-4ed1-aa8e-c117d4df6c3a">
+      <Output>
+        <StdOut>2025-12-02 06:03:22.4907|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:22.5001|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(EmptyFile.txt)
+2025-12-02 06:03:22.5001|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0211, bytes=0)
+2025-12-02 06:03:22.5004|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted EmptyFile.txt
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="bff3658f-88cd-4019-bd80-d99f1337b8bf" testId="f9eb4221-0d54-90c9-9f27-e3890ab43bb5" testName="ExtractArchiveParallel (&quot;TestDataArchivesNested.Zip&quot;,54)" computerName="runnervmg1sw1" duration="00:00:00.1035330" startTime="2025-12-02T06:03:22.6009964+00:00" endTime="2025-12-02T06:03:22.7047606+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Failed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="bff3658f-88cd-4019-bd80-d99f1337b8bf">
+      <Output>
+        <StdOut>2025-12-02 06:03:22.6040|ERROR|Microsoft.CST.RecursiveExtractor.Cli.RecursiveExtractorClient|Exception while extracting. System.IO.FileNotFoundException:Could not find file '/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/TestData/TestDataArchives/TestDataArchivesNested.Zip'. (   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean&amp; wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64&amp; fileLength, UnixFileMode&amp; filePermissions, Boolean failForSymlink, Boolean&amp; wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.File.OpenRead(String path)
+   at Microsoft.CST.RecursiveExtractor.Extractor.ExtractToDirectory(String outputDirectory, String filename, ExtractorOptions opts, Boolean printNames) in /home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor/Extractor.cs:line 460
+   at Microsoft.CST.RecursiveExtractor.Cli.RecursiveExtractorClient.ExtractCommand(ExtractCommandOptions options) in /home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli/RecursiveExtractorClient.cs:line 68)
+</StdOut>
+        <ErrorInfo>
+          <Message>Assert.AreEqual failed. Expected:&lt;54&gt;. Actual:&lt;0&gt;. </Message>
+          <StackTrace>   at RecursiveExtractor.Tests.CliTests.CliTests.ExtractArchive(String fileName, Int32 expectedNumFiles, Boolean singleThread) in /home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/CliTests/CliTests.cs:line 51
+   at RecursiveExtractor.Tests.CliTests.CliTests.ExtractArchiveParallel(String fileName, Int32 expectedNumFiles) in /home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/CliTests/CliTests.cs:line 37
+   at InvokeStub_CliTests.ExtractArchiveParallel(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="24b623c7-5a69-4a0e-b8a0-03b5db0af6f3" testId="6f1fe6b8-ebea-d370-417c-de1597e45dd0" testName="ExtractArchiveSingleThread (&quot;TestData.zip&quot;,5)" computerName="runnervmg1sw1" duration="00:00:00.1044732" startTime="2025-12-02T06:03:22.7052535+00:00" endTime="2025-12-02T06:03:22.8099541+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="24b623c7-5a69-4a0e-b8a0-03b5db0af6f3">
+      <Output>
+        <StdOut>2025-12-02 06:03:22.7075|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:22.7075|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.zip)
+2025-12-02 06:03:22.7075|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0088, bytes=1202756)
+2025-12-02 06:03:22.7075|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.2976, bytes=1196712)
+2025-12-02 06:03:22.7075|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.zip/TestData/.DS_Store)
+2025-12-02 06:03:22.7075|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.4401, bytes=1190564)
+2025-12-02 06:03:22.7075|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.zip/TestData/.DS_Store
+2025-12-02 06:03:22.7075|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.7288, bytes=1184416)
+2025-12-02 06:03:22.7075|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.zip/__MACOSX/TestData/._.DS_Store)
+2025-12-02 06:03:22.7075|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.7898, bytes=1184296)
+2025-12-02 06:03:22.7085|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.zip/__MACOSX/TestData/._.DS_Store
+2025-12-02 06:03:22.7085|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.9977, bytes=1184176)
+2025-12-02 06:03:22.7085|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.zip/TestData/Lorem.txt)
+2025-12-02 06:03:22.7085|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.1472, bytes=1180036)
+2025-12-02 06:03:22.7085|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.zip/TestData/Lorem.txt
+2025-12-02 06:03:22.7085|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.2793, bytes=1175896)
+2025-12-02 06:03:22.7085|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.zip/TestData/Foo/Lorem.txt)
+2025-12-02 06:03:22.7085|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.46, bytes=1171756)
+2025-12-02 06:03:22.7085|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.zip/TestData/Foo/Lorem.txt
+2025-12-02 06:03:22.7085|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.6032, bytes=1167616)
+2025-12-02 06:03:22.7085|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.zip/TestData/Foo/Bar/Lorem.txt)
+2025-12-02 06:03:22.7085|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.7757, bytes=1163476)
+2025-12-02 06:03:22.7094|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.zip/TestData/Foo/Bar/Lorem.txt
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="260b6b9a-0f9b-43f0-9a29-f5a72cf7ade2" testId="9ea137b0-990a-41bd-a4c9-6667cfd13210" testName="ExtractArchiveSingleThread (&quot;TestData.7z&quot;)" computerName="runnervmg1sw1" duration="00:00:00.1132404" startTime="2025-12-02T06:03:22.8101627+00:00" endTime="2025-12-02T06:03:22.9236434+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="260b6b9a-0f9b-43f0-9a29-f5a72cf7ade2">
+      <Output>
+        <StdOut>2025-12-02 06:03:22.8127|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:22.8127|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.7z)
+2025-12-02 06:03:22.8127|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0101, bytes=338698)
+2025-12-02 06:03:22.8127|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.3427, bytes=336996)
+2025-12-02 06:03:22.8213|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.7z/TestData/Foo/Bar/Lorem.txt)
+2025-12-02 06:03:22.8213|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=8.5987, bytes=332848)
+2025-12-02 06:03:22.8217|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.7z/TestData/Foo/Bar/Lorem.txt
+2025-12-02 06:03:22.8217|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=8.9875, bytes=328700)
+2025-12-02 06:03:22.8217|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.7z/TestData/Foo/Lorem.txt)
+2025-12-02 06:03:22.8217|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=9.5817, bytes=324552)
+2025-12-02 06:03:22.8224|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.7z/TestData/Foo/Lorem.txt
+2025-12-02 06:03:22.8224|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=9.7235, bytes=320404)
+2025-12-02 06:03:22.8224|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.7z/TestData/Lorem.txt)
+2025-12-02 06:03:22.8224|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=10.2929, bytes=316256)
+2025-12-02 06:03:22.8224|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.7z/TestData/Lorem.txt
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="3e7c8124-13bb-4021-b15e-dbc3747ff5b4" testId="636f4486-88d4-5b6b-da65-7de30bc136d9" testName="ExtractArchiveSingleThread (&quot;TestData.tar&quot;,6)" computerName="runnervmg1sw1" duration="00:00:00.1040787" startTime="2025-12-02T06:03:22.9238485+00:00" endTime="2025-12-02T06:03:23.0281685+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="3e7c8124-13bb-4021-b15e-dbc3747ff5b4">
+      <Output>
+        <StdOut>2025-12-02 06:03:22.9261|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:22.9261|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar)
+2025-12-02 06:03:22.9261|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0193, bytes=5400064)
+2025-12-02 06:03:22.9261|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.2359, bytes=5372928)
+2025-12-02 06:03:22.9264|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar/TestData/._.DS_Store)
+2025-12-02 06:03:22.9264|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.2928, bytes=5372808)
+2025-12-02 06:03:22.9264|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar/TestData/._.DS_Store
+2025-12-02 06:03:22.9264|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.5935, bytes=5372688)
+2025-12-02 06:03:22.9264|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar/TestData/PaxHeader/.DS_Store)
+2025-12-02 06:03:22.9264|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.619, bytes=5372658)
+2025-12-02 06:03:22.9264|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar/TestData/PaxHeader/.DS_Store
+2025-12-02 06:03:22.9264|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.7731, bytes=5372628)
+2025-12-02 06:03:22.9264|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar/TestData/.DS_Store)
+2025-12-02 06:03:22.9264|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.8174, bytes=5366480)
+2025-12-02 06:03:22.9264|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar/TestData/.DS_Store
+2025-12-02 06:03:22.9264|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.9953, bytes=5360332)
+2025-12-02 06:03:22.9264|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar/TestData/Lorem.txt)
+2025-12-02 06:03:22.9264|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.0247, bytes=5356192)
+2025-12-02 06:03:22.9264|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar/TestData/Lorem.txt
+2025-12-02 06:03:22.9264|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.1542, bytes=5352052)
+2025-12-02 06:03:22.9264|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar/TestData/Foo/Lorem.txt)
+2025-12-02 06:03:22.9264|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.2058, bytes=5347912)
+2025-12-02 06:03:22.9274|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar/TestData/Foo/Lorem.txt
+2025-12-02 06:03:22.9274|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.4045, bytes=5343772)
+2025-12-02 06:03:22.9274|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar/TestData/Foo/Bar/Lorem.txt)
+2025-12-02 06:03:22.9274|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.4306, bytes=5339632)
+2025-12-02 06:03:22.9274|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar/TestData/Foo/Bar/Lorem.txt
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="268ef3e2-6901-4730-8681-2116faaa179b" testId="062dd345-f396-4bfb-b955-b1937f90022f" testName="ExtractArchiveSingleThread (&quot;TestData.rar&quot;)" computerName="runnervmg1sw1" duration="00:00:00.1047493" startTime="2025-12-02T06:03:23.0283745+00:00" endTime="2025-12-02T06:03:23.1334043+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="268ef3e2-6901-4730-8681-2116faaa179b">
+      <Output>
+        <StdOut>2025-12-02 06:03:23.0306|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:23.0306|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.rar)
+2025-12-02 06:03:23.0306|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0071, bytes=930524)
+2025-12-02 06:03:23.0306|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.1579, bytes=925848)
+2025-12-02 06:03:23.0306|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.rar/TestData/Foo/Bar/Lorem.txt)
+2025-12-02 06:03:23.0306|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.5193, bytes=921700)
+2025-12-02 06:03:23.0314|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.rar/TestData/Foo/Bar/Lorem.txt
+2025-12-02 06:03:23.0314|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.8895, bytes=917552)
+2025-12-02 06:03:23.0324|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.rar/TestData/Foo/Lorem.txt)
+2025-12-02 06:03:23.0324|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.8369, bytes=913404)
+2025-12-02 06:03:23.0324|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.rar/TestData/Foo/Lorem.txt
+2025-12-02 06:03:23.0324|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.9761, bytes=909256)
+2025-12-02 06:03:23.0324|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.rar/TestData/Lorem.txt)
+2025-12-02 06:03:23.0324|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=2.2615, bytes=905108)
+2025-12-02 06:03:23.0324|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.rar/TestData/Lorem.txt
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="65b83567-1d78-4747-8560-6dcc50af744c" testId="a83615ef-6c18-002f-d7d2-ba7657535e65" testName="ExtractArchiveSingleThread (&quot;TestData.rar4&quot;)" computerName="runnervmg1sw1" duration="00:00:00.1073002" startTime="2025-12-02T06:03:23.1337180+00:00" endTime="2025-12-02T06:03:23.2412875+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="65b83567-1d78-4747-8560-6dcc50af744c">
+      <Output>
+        <StdOut>2025-12-02 06:03:23.1360|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:23.1360|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.rar4)
+2025-12-02 06:03:23.1360|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0091, bytes=933111)
+2025-12-02 06:03:23.1360|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.191, bytes=928422)
+2025-12-02 06:03:23.1368|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.rar4/TestData/Foo/Bar/Lorem.txt)
+2025-12-02 06:03:23.1368|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.7339, bytes=924274)
+2025-12-02 06:03:23.1368|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.rar4/TestData/Foo/Bar/Lorem.txt
+2025-12-02 06:03:23.1368|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.0842, bytes=920126)
+2025-12-02 06:03:23.1374|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.rar4/TestData/Foo/Lorem.txt)
+2025-12-02 06:03:23.1374|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.3559, bytes=915978)
+2025-12-02 06:03:23.1374|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.rar4/TestData/Foo/Lorem.txt
+2025-12-02 06:03:23.1374|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.4771, bytes=911830)
+2025-12-02 06:03:23.1407|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.rar4/TestData/Lorem.txt)
+2025-12-02 06:03:23.1407|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=4.6692, bytes=907682)
+2025-12-02 06:03:23.1407|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.rar4/TestData/Lorem.txt
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="e2dd5520-ce5c-41d4-8a7f-ba92c8dde2b9" testId="e20e4b1e-18de-b434-ebf9-734f74c504c6" testName="ExtractArchiveSingleThread (&quot;TestData.tar.bz2&quot;,6)" computerName="runnervmg1sw1" duration="00:00:00.1052951" startTime="2025-12-02T06:03:23.2415135+00:00" endTime="2025-12-02T06:03:23.3470259+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="e2dd5520-ce5c-41d4-8a7f-ba92c8dde2b9">
+      <Output>
+        <StdOut>2025-12-02 06:03:23.2435|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:23.2435|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.bz2)
+2025-12-02 06:03:23.2435|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0101, bytes=520584)
+2025-12-02 06:03:23.2451|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.bz2/TestData.tar)
+2025-12-02 06:03:23.2451|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.635, bytes=490832)
+2025-12-02 06:03:23.2451|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.8145, bytes=463696)
+2025-12-02 06:03:23.2451|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.bz2/TestData.tar/TestData/._.DS_Store)
+2025-12-02 06:03:23.2451|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.8473, bytes=463576)
+2025-12-02 06:03:23.2456|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.bz2/TestData.tar/TestData/._.DS_Store
+2025-12-02 06:03:23.2456|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=2.1818, bytes=463456)
+2025-12-02 06:03:23.2456|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.bz2/TestData.tar/TestData/PaxHeader/.DS_Store)
+2025-12-02 06:03:23.2456|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=2.2114, bytes=463426)
+2025-12-02 06:03:23.2456|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.bz2/TestData.tar/TestData/PaxHeader/.DS_Store
+2025-12-02 06:03:23.2456|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=2.3709, bytes=463396)
+2025-12-02 06:03:23.2456|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.bz2/TestData.tar/TestData/.DS_Store)
+2025-12-02 06:03:23.2456|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=2.4305, bytes=457248)
+2025-12-02 06:03:23.2456|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.bz2/TestData.tar/TestData/.DS_Store
+2025-12-02 06:03:23.2456|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=2.5853, bytes=451100)
+2025-12-02 06:03:23.2456|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.bz2/TestData.tar/TestData/Lorem.txt)
+2025-12-02 06:03:23.2456|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=2.6109, bytes=446960)
+2025-12-02 06:03:23.2456|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.bz2/TestData.tar/TestData/Lorem.txt
+2025-12-02 06:03:23.2456|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=2.7362, bytes=442820)
+2025-12-02 06:03:23.2456|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.bz2/TestData.tar/TestData/Foo/Lorem.txt)
+2025-12-02 06:03:23.2456|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=2.7614, bytes=438680)
+2025-12-02 06:03:23.2456|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.bz2/TestData.tar/TestData/Foo/Lorem.txt
+2025-12-02 06:03:23.2464|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=2.9338, bytes=434540)
+2025-12-02 06:03:23.2464|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.bz2/TestData.tar/TestData/Foo/Bar/Lorem.txt)
+2025-12-02 06:03:23.2464|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=2.9619, bytes=430400)
+2025-12-02 06:03:23.2464|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.bz2/TestData.tar/TestData/Foo/Bar/Lorem.txt
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="43cfcb9f-c263-415c-8a0c-fe822a236fa4" testId="f343c95b-dc12-8234-b070-6cfe57c05d90" testName="ExtractArchiveSingleThread (&quot;TestData.tar.gz&quot;,6)" computerName="runnervmg1sw1" duration="00:00:00.1039852" startTime="2025-12-02T06:03:23.3472113+00:00" endTime="2025-12-02T06:03:23.4514708+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="43cfcb9f-c263-415c-8a0c-fe822a236fa4">
+      <Output>
+        <StdOut>2025-12-02 06:03:23.3493|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:23.3493|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.gz)
+2025-12-02 06:03:23.3493|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0097, bytes=440984)
+2025-12-02 06:03:23.3496|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.gz/TestData.tar)
+2025-12-02 06:03:23.3496|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.3537, bytes=411632)
+2025-12-02 06:03:23.3496|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.5042, bytes=384496)
+2025-12-02 06:03:23.3496|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.gz/TestData.tar/TestData/._.DS_Store)
+2025-12-02 06:03:23.3496|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.5322, bytes=384376)
+2025-12-02 06:03:23.3496|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.gz/TestData.tar/TestData/._.DS_Store
+2025-12-02 06:03:23.3496|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.8333, bytes=384256)
+2025-12-02 06:03:23.3496|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.gz/TestData.tar/TestData/PaxHeader/.DS_Store)
+2025-12-02 06:03:23.3496|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.8607, bytes=384226)
+2025-12-02 06:03:23.3496|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.gz/TestData.tar/TestData/PaxHeader/.DS_Store
+2025-12-02 06:03:23.3496|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.0176, bytes=384196)
+2025-12-02 06:03:23.3496|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.gz/TestData.tar/TestData/.DS_Store)
+2025-12-02 06:03:23.3496|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.0453, bytes=378048)
+2025-12-02 06:03:23.3504|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.gz/TestData.tar/TestData/.DS_Store
+2025-12-02 06:03:23.3504|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.2078, bytes=371900)
+2025-12-02 06:03:23.3504|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.gz/TestData.tar/TestData/Lorem.txt)
+2025-12-02 06:03:23.3504|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.2333, bytes=367760)
+2025-12-02 06:03:23.3504|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.gz/TestData.tar/TestData/Lorem.txt
+2025-12-02 06:03:23.3504|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.3599, bytes=363620)
+2025-12-02 06:03:23.3504|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.gz/TestData.tar/TestData/Foo/Lorem.txt)
+2025-12-02 06:03:23.3504|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.3857, bytes=359480)
+2025-12-02 06:03:23.3504|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.gz/TestData.tar/TestData/Foo/Lorem.txt
+2025-12-02 06:03:23.3504|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.5396, bytes=355340)
+2025-12-02 06:03:23.3504|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.gz/TestData.tar/TestData/Foo/Bar/Lorem.txt)
+2025-12-02 06:03:23.3504|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.5671, bytes=351200)
+2025-12-02 06:03:23.3504|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.gz/TestData.tar/TestData/Foo/Bar/Lorem.txt
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="f2532911-d824-4967-85c8-1c1980c19b17" testId="014058f2-7d16-0867-b96f-50c79e8698c6" testName="ExtractArchiveSingleThread (&quot;TestData.tar.xz&quot;)" computerName="runnervmg1sw1" duration="00:00:00.1041897" startTime="2025-12-02T06:03:23.4516477+00:00" endTime="2025-12-02T06:03:23.5560602+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="f2532911-d824-4967-85c8-1c1980c19b17">
+      <Output>
+        <StdOut>2025-12-02 06:03:23.4536|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:23.4536|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.xz)
+2025-12-02 06:03:23.4536|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0098, bytes=339892)
+2025-12-02 06:03:23.4547|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.0401, bytes=338184)
+2025-12-02 06:03:23.4547|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.xz/TestData.tar)
+2025-12-02 06:03:23.4547|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.0667, bytes=317704)
+2025-12-02 06:03:23.4547|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.2642, bytes=297224)
+2025-12-02 06:03:23.4547|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.xz/TestData.tar/TestData/Foo/Bar/Dolor.txt)
+2025-12-02 06:03:23.4547|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.2987, bytes=293076)
+2025-12-02 06:03:23.4547|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.xz/TestData.tar/TestData/Foo/Bar/Dolor.txt
+2025-12-02 06:03:23.4547|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.6425, bytes=288928)
+2025-12-02 06:03:23.4547|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.xz/TestData.tar/TestData/Foo/Ipsum.txt)
+2025-12-02 06:03:23.4547|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.6749, bytes=284780)
+2025-12-02 06:03:23.4554|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.xz/TestData.tar/TestData/Foo/Ipsum.txt
+2025-12-02 06:03:23.4554|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.8368, bytes=280632)
+2025-12-02 06:03:23.4554|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.tar.xz/TestData.tar/TestData/Lorem.txt)
+2025-12-02 06:03:23.4554|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.8693, bytes=276484)
+2025-12-02 06:03:23.4554|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.tar.xz/TestData.tar/TestData/Lorem.txt
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="bc2bf07f-b6de-438d-a8f7-64ca76da5aad" testId="ba4759db-2462-92d5-eb07-f7cd65003f3d" testName="ExtractArchiveSingleThread (&quot;sysvbanner_1.0-17fakesync1_amd64.deb&quot;,8)" computerName="runnervmg1sw1" duration="00:00:00.1088455" startTime="2025-12-02T06:03:23.5562369+00:00" endTime="2025-12-02T06:03:23.6652965+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="bc2bf07f-b6de-438d-a8f7-64ca76da5aad">
+      <Output>
+        <StdOut>2025-12-02 06:03:23.5582|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:23.5582|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb)
+2025-12-02 06:03:23.5582|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0084, bytes=1415288)
+2025-12-02 06:03:23.5582|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0878, bytes=1408176)
+2025-12-02 06:03:23.5582|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb/control.tar.xz)
+2025-12-02 06:03:23.5582|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.1033, bytes=1406760)
+2025-12-02 06:03:23.5590|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.7522, bytes=1406052)
+2025-12-02 06:03:23.5590|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb/control.tar.xz/control.tar)
+2025-12-02 06:03:23.5590|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.7711, bytes=1395812)
+2025-12-02 06:03:23.5590|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.9365, bytes=1385572)
+2025-12-02 06:03:23.5590|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb/control.tar.xz/control.tar/control)
+2025-12-02 06:03:23.5590|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.9664, bytes=1385101)
+2025-12-02 06:03:23.5594|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted sysvbanner_1.0-17fakesync1_amd64.deb/control.tar.xz/control.tar/control
+2025-12-02 06:03:23.5594|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.2643, bytes=1384630)
+2025-12-02 06:03:23.5594|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb/control.tar.xz/control.tar/md5sums)
+2025-12-02 06:03:23.5594|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.2924, bytes=1384368)
+2025-12-02 06:03:23.5594|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted sysvbanner_1.0-17fakesync1_amd64.deb/control.tar.xz/control.tar/md5sums
+2025-12-02 06:03:23.5594|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.4219, bytes=1384106)
+2025-12-02 06:03:23.5594|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz)
+2025-12-02 06:03:23.5594|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.4397, bytes=1371682)
+2025-12-02 06:03:23.5611|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=2.8364, bytes=1365470)
+2025-12-02 06:03:23.5611|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar)
+2025-12-02 06:03:23.5611|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=2.8548, bytes=1324510)
+2025-12-02 06:03:23.5611|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=3.0237, bytes=1283550)
+2025-12-02 06:03:23.5611|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar/usr/bin/banner)
+2025-12-02 06:03:23.5611|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=3.0565, bytes=1264406)
+2025-12-02 06:03:23.5616|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar/usr/bin/banner
+2025-12-02 06:03:23.5616|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=3.4268, bytes=1245262)
+2025-12-02 06:03:23.5616|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar/usr/share/doc/sysvbanner/changelog.Debian.gz)
+2025-12-02 06:03:23.5616|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=3.4573, bytes=1243246)
+2025-12-02 06:03:23.5616|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar/usr/share/doc/sysvbanner/changelog.Debian.gz/changelog.Debian)
+2025-12-02 06:03:23.5616|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=3.6058, bytes=1236600)
+2025-12-02 06:03:23.5616|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar/usr/share/doc/sysvbanner/changelog.Debian.gz/changelog.Debian
+2025-12-02 06:03:23.5616|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=3.8412, bytes=1231970)
+2025-12-02 06:03:23.5616|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar/usr/share/doc/sysvbanner/copyright)
+2025-12-02 06:03:23.5616|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=3.8708, bytes=1230856)
+2025-12-02 06:03:23.5616|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar/usr/share/doc/sysvbanner/copyright
+2025-12-02 06:03:23.5616|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=4.0099, bytes=1229742)
+2025-12-02 06:03:23.5616|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar/usr/share/man/man1/banner.1.gz)
+2025-12-02 06:03:23.5616|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=4.0358, bytes=1229533)
+2025-12-02 06:03:23.5643|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar/usr/share/man/man1/banner.1.gz/banner.1)
+2025-12-02 06:03:23.5643|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=6.0307, bytes=1229061)
+2025-12-02 06:03:23.5645|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar/usr/share/man/man1/banner.1.gz/banner.1
+2025-12-02 06:03:23.5645|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=6.2767, bytes=1228798)
+2025-12-02 06:03:23.5645|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar/usr/bin/sysvbanner)
+2025-12-02 06:03:23.5645|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=6.3028, bytes=1228798)
+2025-12-02 06:03:23.5645|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar/usr/bin/sysvbanner
+2025-12-02 06:03:23.5645|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=6.3877, bytes=1228798)
+2025-12-02 06:03:23.5645|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar/usr/share/man/man1/sysvbanner.1.gz)
+2025-12-02 06:03:23.5645|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=6.4073, bytes=1228798)
+2025-12-02 06:03:23.5645|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted sysvbanner_1.0-17fakesync1_amd64.deb/data.tar.xz/data.tar/usr/share/man/man1/sysvbanner.1.gz
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="4c518722-345b-4005-9558-b11970e1b4a5" testId="cafbe553-1137-f9a0-3fc9-513331c0068c" testName="ExtractArchiveSingleThread (&quot;TestData.a&quot;)" computerName="runnervmg1sw1" duration="00:00:00.1029495" startTime="2025-12-02T06:03:23.6655721+00:00" endTime="2025-12-02T06:03:23.7688183+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="4c518722-345b-4005-9558-b11970e1b4a5">
+      <Output>
+        <StdOut>2025-12-02 06:03:23.6678|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:23.6678|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.a)
+2025-12-02 06:03:23.6678|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0085, bytes=2508992)
+2025-12-02 06:03:23.6678|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0429, bytes=2496384)
+2025-12-02 06:03:23.6678|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.a/Dolor.txt)
+2025-12-02 06:03:23.6678|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0731, bytes=2488104)
+2025-12-02 06:03:23.6678|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.a/Dolor.txt
+2025-12-02 06:03:23.6678|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.3277, bytes=2483964)
+2025-12-02 06:03:23.6678|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.a/Ipsum.txt)
+2025-12-02 06:03:23.6678|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.3535, bytes=2475684)
+2025-12-02 06:03:23.6678|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.a/Ipsum.txt
+2025-12-02 06:03:23.6678|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.4584, bytes=2471544)
+2025-12-02 06:03:23.6678|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.a/Lorem.txt)
+2025-12-02 06:03:23.6678|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.521, bytes=2463264)
+2025-12-02 06:03:23.6684|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.a/Lorem.txt
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="8167eff3-ef38-4194-89e2-ee1867f61266" testId="bfff201e-9711-10da-1efc-4632e294685f" testName="ExtractArchiveSingleThread (&quot;TestData.bsd.ar&quot;)" computerName="runnervmg1sw1" duration="00:00:00.1028247" startTime="2025-12-02T06:03:23.7690178+00:00" endTime="2025-12-02T06:03:23.8720677+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="8167eff3-ef38-4194-89e2-ee1867f61266">
+      <Output>
+        <StdOut>2025-12-02 06:03:23.7711|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:23.7711|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.bsd.ar)
+2025-12-02 06:03:23.7711|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0083, bytes=2508992)
+2025-12-02 06:03:23.7711|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0426, bytes=2496384)
+2025-12-02 06:03:23.7711|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.bsd.ar/Lorem.txt)
+2025-12-02 06:03:23.7711|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0635, bytes=2488104)
+2025-12-02 06:03:23.7711|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.bsd.ar/Lorem.txt
+2025-12-02 06:03:23.7715|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.3342, bytes=2483964)
+2025-12-02 06:03:23.7715|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.bsd.ar/Ipsum.txt)
+2025-12-02 06:03:23.7715|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.3586, bytes=2475684)
+2025-12-02 06:03:23.7715|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.bsd.ar/Ipsum.txt
+2025-12-02 06:03:23.7715|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.466, bytes=2471544)
+2025-12-02 06:03:23.7715|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.bsd.ar/Dolor.txt)
+2025-12-02 06:03:23.7715|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.489, bytes=2463264)
+2025-12-02 06:03:23.7715|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.bsd.ar/Dolor.txt
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="ddc99550-8d80-429a-9678-b2953409aff8" testId="eb8237fa-04fb-de82-f706-5559e0350058" testName="ExtractArchiveSingleThread (&quot;TestData.iso&quot;)" computerName="runnervmg1sw1" duration="00:00:00.1031510" startTime="2025-12-02T06:03:23.8723078+00:00" endTime="2025-12-02T06:03:23.9756925+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="ddc99550-8d80-429a-9678-b2953409aff8">
+      <Output>
+        <StdOut>2025-12-02 06:03:23.8743|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:23.8743|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.iso)
+2025-12-02 06:03:23.8743|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0076, bytes=15894528)
+2025-12-02 06:03:23.8746|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.3044, bytes=15814656)
+2025-12-02 06:03:23.8746|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.iso/TestData/Foo/Bar/Dolor.txt)
+2025-12-02 06:03:23.8746|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.3474, bytes=15810508)
+2025-12-02 06:03:23.8746|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.iso/TestData/Foo/Bar/Dolor.txt
+2025-12-02 06:03:23.8746|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.6996, bytes=15806360)
+2025-12-02 06:03:23.8746|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.iso/TestData/Foo/Ipsum.txt)
+2025-12-02 06:03:23.8746|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.7304, bytes=15802212)
+2025-12-02 06:03:23.8746|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.iso/TestData/Foo/Ipsum.txt
+2025-12-02 06:03:23.8746|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.8582, bytes=15798064)
+2025-12-02 06:03:23.8746|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.iso/TestData/Lorem.txt)
+2025-12-02 06:03:23.8746|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.8907, bytes=15793916)
+2025-12-02 06:03:23.8746|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.iso/TestData/Lorem.txt
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="12d68882-6723-4f9c-b600-cd5579318421" testId="4e99d73a-83d9-3985-13b2-fe1151fb9be4" testName="ExtractArchiveSingleThread (&quot;TestData.vhdx&quot;)" computerName="runnervmg1sw1" duration="00:00:00.1253240" startTime="2025-12-02T06:03:23.9758639+00:00" endTime="2025-12-02T06:03:24.1013919+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="12d68882-6723-4f9c-b600-cd5579318421">
+      <Output>
+        <StdOut>2025-12-02 06:03:23.9971|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:23.9971|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.vhdx)
+2025-12-02 06:03:23.9971|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0089, bytes=7511998464)
+2025-12-02 06:03:23.9999|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=2.7349, bytes=7474249728)
+2025-12-02 06:03:23.9999|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.vhdx/VLG{5d3a8086-b39e-4f54-87cf-75fd6b289e82}//TestData/Foo/Bar/Lorem.txt)
+2025-12-02 06:03:23.9999|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=2.8559, bytes=7474245580)
+2025-12-02 06:03:23.9999|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.vhdx/VLG{5d3a8086-b39e-4f54-87cf-75fd6b289e82}//TestData/Foo/Bar/Lorem.txt
+2025-12-02 06:03:24.0005|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=3.3121, bytes=7474241432)
+2025-12-02 06:03:24.0005|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.vhdx/VLG{5d3a8086-b39e-4f54-87cf-75fd6b289e82}//TestData/Foo/Lorem.txt)
+2025-12-02 06:03:24.0005|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=3.3996, bytes=7474237284)
+2025-12-02 06:03:24.0005|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.vhdx/VLG{5d3a8086-b39e-4f54-87cf-75fd6b289e82}//TestData/Foo/Lorem.txt
+2025-12-02 06:03:24.0005|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=3.5791, bytes=7474233136)
+2025-12-02 06:03:24.0005|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.vhdx/VLG{5d3a8086-b39e-4f54-87cf-75fd6b289e82}//TestData/Lorem.txt)
+2025-12-02 06:03:24.0005|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=3.6883, bytes=7474228988)
+2025-12-02 06:03:24.0005|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.vhdx/VLG{5d3a8086-b39e-4f54-87cf-75fd6b289e82}//TestData/Lorem.txt
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="15d4ca26-f38d-4f50-b692-8b8839ac2f28" testId="d9abc573-c68f-ba1c-8aeb-c168d0d93bb3" testName="ExtractArchiveSingleThread (&quot;TestData.wim&quot;)" computerName="runnervmg1sw1" duration="00:00:00.1028409" startTime="2025-12-02T06:03:24.1016083+00:00" endTime="2025-12-02T06:03:24.2046569+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Failed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="15d4ca26-f38d-4f50-b692-8b8839ac2f28">
+      <Output>
+        <StdOut>2025-12-02 06:03:24.1035|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:24.1035|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestData.wim)
+2025-12-02 06:03:24.1035|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0085, bytes=1202756)
+2025-12-02 06:03:24.1035|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestData.wim
+</StdOut>
+        <ErrorInfo>
+          <Message>Assert.AreEqual failed. Expected:&lt;3&gt;. Actual:&lt;1&gt;. </Message>
+          <StackTrace>   at RecursiveExtractor.Tests.CliTests.CliTests.ExtractArchive(String fileName, Int32 expectedNumFiles, Boolean singleThread) in /home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/CliTests/CliTests.cs:line 51
+   at RecursiveExtractor.Tests.CliTests.CliTests.ExtractArchiveSingleThread(String fileName, Int32 expectedNumFiles) in /home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/CliTests/CliTests.cs:line 73
+   at InvokeStub_CliTests.ExtractArchiveSingleThread(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="0544e307-0b86-4efb-9263-bfb1c4cf7858" testId="8ebf3d2f-eff3-3ce6-8024-a74417598b2f" testName="ExtractArchiveSingleThread (&quot;EmptyFile.txt&quot;,1)" computerName="runnervmg1sw1" duration="00:00:00.1023476" startTime="2025-12-02T06:03:24.2048446+00:00" endTime="2025-12-02T06:03:24.3073988+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="0544e307-0b86-4efb-9263-bfb1c4cf7858">
+      <Output>
+        <StdOut>2025-12-02 06:03:24.2069|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:24.2069|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(EmptyFile.txt)
+2025-12-02 06:03:24.2069|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0072, bytes=0)
+2025-12-02 06:03:24.2069|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted EmptyFile.txt
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="95e6134f-5b2b-443b-af55-9232bdda0069" testId="6ff7e72a-96bc-5bad-c8e4-41a327b9bcf3" testName="ExtractArchiveSingleThread (&quot;TestDataArchivesNested.Zip&quot;,54)" computerName="runnervmg1sw1" duration="00:00:00.1026010" startTime="2025-12-02T06:03:24.3076210+00:00" endTime="2025-12-02T06:03:24.4104170+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Failed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="95e6134f-5b2b-443b-af55-9232bdda0069">
+      <Output>
+        <StdOut>2025-12-02 06:03:24.3098|ERROR|Microsoft.CST.RecursiveExtractor.Cli.RecursiveExtractorClient|Exception while extracting. System.IO.FileNotFoundException:Could not find file '/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/TestData/TestDataArchives/TestDataArchivesNested.Zip'. (   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean&amp; wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64&amp; fileLength, UnixFileMode&amp; filePermissions, Boolean failForSymlink, Boolean&amp; wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.File.OpenRead(String path)
+   at Microsoft.CST.RecursiveExtractor.Extractor.ExtractToDirectory(String outputDirectory, String filename, ExtractorOptions opts, Boolean printNames) in /home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor/Extractor.cs:line 460
+   at Microsoft.CST.RecursiveExtractor.Cli.RecursiveExtractorClient.ExtractCommand(ExtractCommandOptions options) in /home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli/RecursiveExtractorClient.cs:line 68)
+</StdOut>
+        <ErrorInfo>
+          <Message>Assert.AreEqual failed. Expected:&lt;54&gt;. Actual:&lt;0&gt;. </Message>
+          <StackTrace>   at RecursiveExtractor.Tests.CliTests.CliTests.ExtractArchive(String fileName, Int32 expectedNumFiles, Boolean singleThread) in /home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/CliTests/CliTests.cs:line 51
+   at RecursiveExtractor.Tests.CliTests.CliTests.ExtractArchiveSingleThread(String fileName, Int32 expectedNumFiles) in /home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/CliTests/CliTests.cs:line 73
+   at InvokeStub_CliTests.ExtractArchiveSingleThread(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="6b420d6c-ce87-4781-a03c-cccbd0218fb2" testId="8d87c637-45f7-1daf-b577-1e91071e82ec" testName="ExtractArchiveWithAllowFilters (&quot;TestDataForFilters.7z&quot;)" computerName="runnervmg1sw1" duration="00:00:00.0101594" startTime="2025-12-02T06:03:24.4106203+00:00" endTime="2025-12-02T06:03:24.4209278+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="6b420d6c-ce87-4781-a03c-cccbd0218fb2">
+      <Output>
+        <StdOut>2025-12-02 06:03:24.4134|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:24.4134|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(0knc5bt1.a5c)
+2025-12-02 06:03:24.4134|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0076, bytes=345862)
+2025-12-02 06:03:24.4134|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.3049, bytes=344124)
+2025-12-02 06:03:24.4153|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(0knc5bt1.a5c/TestData/Foo/Bar/Dolor.py)
+2025-12-02 06:03:24.4153|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.902, bytes=339976)
+2025-12-02 06:03:24.4191|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=5.7263, bytes=335828)
+2025-12-02 06:03:24.4197|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(0knc5bt1.a5c/TestData/Foo/Ipsum.cs)
+2025-12-02 06:03:24.4197|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=6.3152, bytes=331680)
+2025-12-02 06:03:24.4197|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=6.4375, bytes=327532)
+2025-12-02 06:03:24.4204|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(0knc5bt1.a5c/TestData/Lorem.txt)
+2025-12-02 06:03:24.4204|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=7.0213, bytes=323384)
+2025-12-02 06:03:24.4204|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted 0knc5bt1.a5c/TestData/Foo/Ipsum.cs
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="7f267ac3-2ae9-48bf-89b1-d97c5bf3f196" testId="ad9a25f6-ff9e-864f-f426-7647fae5d8e6" testName="ExtractArchiveWithDenyFilters (&quot;TestDataForFilters.7z&quot;)" computerName="runnervmg1sw1" duration="00:00:00.0044169" startTime="2025-12-02T06:03:24.4210351+00:00" endTime="2025-12-02T06:03:24.4255608+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="7f267ac3-2ae9-48bf-89b1-d97c5bf3f196">
+      <Output>
+        <StdOut>2025-12-02 06:03:24.4229|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:24.4229|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(gkg1nspd.zpm)
+2025-12-02 06:03:24.4229|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0054, bytes=345862)
+2025-12-02 06:03:24.4229|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.2203, bytes=344124)
+2025-12-02 06:03:24.4237|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(gkg1nspd.zpm/TestData/Foo/Bar/Dolor.py)
+2025-12-02 06:03:24.4237|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.7872, bytes=339976)
+2025-12-02 06:03:24.4237|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.9601, bytes=335828)
+2025-12-02 06:03:24.4244|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(gkg1nspd.zpm/TestData/Foo/Ipsum.cs)
+2025-12-02 06:03:24.4244|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.5218, bytes=331680)
+2025-12-02 06:03:24.4244|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=1.5419, bytes=327532)
+2025-12-02 06:03:24.4244|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(gkg1nspd.zpm/TestData/Lorem.txt)
+2025-12-02 06:03:24.4244|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=2.0675, bytes=323384)
+2025-12-02 06:03:24.4244|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted gkg1nspd.zpm/TestData/Lorem.txt
+2025-12-02 06:03:24.4244|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted gkg1nspd.zpm/TestData/Foo/Bar/Dolor.py
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="ba4b8803-0622-4789-91e8-4fd7518393de" testId="a372aa1c-e47b-2185-c4b3-1f711a81f451" testName="ExtractEncryptedArchive (&quot;TestDataEncrypted.7z&quot;)" computerName="runnervmg1sw1" duration="00:00:00.4890022" startTime="2025-12-02T06:03:24.4256483+00:00" endTime="2025-12-02T06:03:24.9147837+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="ba4b8803-0622-4789-91e8-4fd7518393de">
+      <Output>
+        <StdOut>2025-12-02 06:03:24.4381|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:24.4381|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestDataEncrypted.7z)
+2025-12-02 06:03:24.4381|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0058, bytes=353225)
+2025-12-02 06:03:24.5246|TRACE|Microsoft.CST.RecursiveExtractor.Extractors.SevenZipExtractor|Password was incorrect for archive TestDataEncrypted.7z of type P7ZIP. (SharpCompress.Compressors.LZMA.DataErrorException:Data Error)
+2025-12-02 06:03:24.6646|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=226.5003, bytes=351450)
+2025-12-02 06:03:24.7338|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestDataEncrypted.7z/TestData/Foo/Bar/Lorem.txt)
+2025-12-02 06:03:24.7338|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=295.7476, bytes=347302)
+2025-12-02 06:03:24.7338|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=295.7971, bytes=343154)
+2025-12-02 06:03:24.8032|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestDataEncrypted.7z/TestData/Foo/Lorem.txt)
+2025-12-02 06:03:24.8032|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=365.1101, bytes=339006)
+2025-12-02 06:03:24.8032|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=365.1502, bytes=334858)
+2025-12-02 06:03:24.8960|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestDataEncrypted.7z/TestData/Lorem.txt)
+2025-12-02 06:03:24.8960|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=457.9554, bytes=330710)
+2025-12-02 06:03:24.8966|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestDataEncrypted.7z/TestData/Lorem.txt
+2025-12-02 06:03:24.8966|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestDataEncrypted.7z/TestData/Foo/Lorem.txt
+2025-12-02 06:03:24.9145|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestDataEncrypted.7z/TestData/Foo/Bar/Lorem.txt
+</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="173b37c5-8cc8-4578-8bc3-8a41bc897c01" testId="8cc7a58e-6866-3bcf-119a-91858281d569" testName="ExtractEncryptedArchive (&quot;TestDataEncryptedAes.zip&quot;)" computerName="runnervmg1sw1" duration="00:00:00.0031924" startTime="2025-12-02T06:03:24.9149674+00:00" endTime="2025-12-02T06:03:24.9183316+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Failed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="173b37c5-8cc8-4578-8bc3-8a41bc897c01">
+      <Output>
+        <StdOut>2025-12-02 06:03:24.9173|ERROR|Microsoft.CST.RecursiveExtractor.Cli.RecursiveExtractorClient|Exception while extracting. System.IO.FileNotFoundException:Could not find file '/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/TestData/TestDataArchives/TestDataEncryptedAes.zip'. (   at Interop.ThrowExceptionForIoErrno(ErrorInfo errorInfo, String path, Boolean isDirError)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String path, OpenFlags flags, Int32 mode, Boolean failForSymlink, Boolean&amp; wasSymlink, Func`4 createOpenException)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, UnixFileMode openPermissions, Int64&amp; fileLength, UnixFileMode&amp; filePermissions, Boolean failForSymlink, Boolean&amp; wasSymlink, Func`4 createOpenException)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.File.OpenRead(String path)
+   at Microsoft.CST.RecursiveExtractor.Extractor.ExtractToDirectory(String outputDirectory, String filename, ExtractorOptions opts, Boolean printNames) in /home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor/Extractor.cs:line 460
+   at Microsoft.CST.RecursiveExtractor.Cli.RecursiveExtractorClient.ExtractCommand(ExtractCommandOptions options) in /home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli/RecursiveExtractorClient.cs:line 68)
+</StdOut>
+        <ErrorInfo>
+          <Message>Test method RecursiveExtractor.Tests.CliTests.CliTests.ExtractEncryptedArchive threw exception: 
+System.IO.DirectoryNotFoundException: Could not find a part of the path '/tmp/RE_Tests/8379073d-c62d-4afc-b685-931915ebd4d5'.</Message>
+          <StackTrace>   at System.IO.Enumeration.FileSystemEnumerator`1.CreateDirectoryHandle(String path, Boolean ignoreNotFound)
+   at System.IO.Enumeration.FileSystemEnumerator`1.Init()
+   at System.IO.Enumeration.FileSystemEnumerable`1..ctor(String directory, FindTransform transform, EnumerationOptions options, Boolean isNormalized)
+   at System.IO.Enumeration.FileSystemEnumerableFactory.UserFiles(String directory, String expression, EnumerationOptions options)
+   at System.IO.Directory.InternalEnumeratePaths(String path, String searchPattern, SearchTarget searchTarget, EnumerationOptions options)
+   at RecursiveExtractor.Tests.CliTests.CliTests.ExtractEncryptedArchive(String fileName, Int32 expectedNumFiles) in /home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/CliTests/CliTests.cs:line 138
+   at InvokeStub_CliTests.ExtractEncryptedArchive(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="60b8d772-2929-4bfa-98ff-fb5461be03dc" testId="9848a994-271c-aef4-f474-2a12c9a163b1" testName="ExtractEncryptedArchive (&quot;TestDataEncrypted.rar4&quot;)" computerName="runnervmg1sw1" duration="00:00:00.5417936" startTime="2025-12-02T06:03:24.9184186+00:00" endTime="2025-12-02T06:03:25.4621004+00:00" testType="13CDC9D9-DDB5-4fa4-A97D-D965CCFC6D4B" outcome="Passed" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" relativeResultsDirectory="60b8d772-2929-4bfa-98ff-fb5461be03dc">
+      <Output>
+        <StdOut>2025-12-02 06:03:24.9204|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|ResetResourceGovernor()
+2025-12-02 06:03:24.9204|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestDataEncrypted.rar4)
+2025-12-02 06:03:24.9204|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=0.0057, bytes=967140)
+2025-12-02 06:03:24.9991|TRACE|Microsoft.CST.RecursiveExtractor.Extractors.RarExtractor|Password was incorrect for archive TestDataEncrypted.rar4 of type RAR. (SharpCompress.Common.InvalidFormatException:Unknown Rar Header: 12)
+2025-12-02 06:03:25.0841|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=163.6333, bytes=962280)
+2025-12-02 06:03:25.1252|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestDataEncrypted.rar4/TestData/Foo/Bar/Dolor.txt)
+2025-12-02 06:03:25.1252|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=204.7469, bytes=958132)
+2025-12-02 06:03:25.1669|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=246.4199, bytes=953984)
+2025-12-02 06:03:25.2097|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestDataEncrypted.rar4/TestData/Foo/Ipsum.txt)
+2025-12-02 06:03:25.2097|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=289.2483, bytes=949836)
+2025-12-02 06:03:25.2535|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=333.085, bytes=945688)
+2025-12-02 06:03:25.2945|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|ExtractFile(TestDataEncrypted.rar4/TestData/Lorem.txt)
+2025-12-02 06:03:25.2945|TRACE|Microsoft.CST.RecursiveExtractor.ResourceGovernor|CheckResourceGovernor(duration=374.1255, bytes=941540)
+2025-12-02 06:03:25.4600|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestDataEncrypted.rar4/TestData/Lorem.txt
+2025-12-02 06:03:25.4600|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestDataEncrypted.rar4/TestData/Foo/Bar/Dolor.txt
+2025-12-02 06:03:25.4600|TRACE|Microsoft.CST.RecursiveExtractor.Extractor|Extracted TestDataEncrypted.rar4/TestData/Foo/Ipsum.txt
+</StdOut>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="ExtractArchiveParallel (&quot;TestData.zip&quot;,5)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="b1af274f-fbfd-0076-7d76-fa0b962c520d">
+      <Execution id="4a153da0-16f0-4109-96e8-e2da1f98d19e" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveParallel (&quot;TestData.zip&quot;,5)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveParallel (&quot;TestData.7z&quot;)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="1cf86544-05c6-b311-aded-4b8b7fc59640">
+      <Execution id="90ecd38c-010a-48fb-9be3-9aa61906a697" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveParallel (&quot;TestData.7z&quot;)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveParallel (&quot;TestData.tar&quot;,6)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="e46b736e-857a-1cc5-e044-e171de08b610">
+      <Execution id="68319011-e51e-4258-bd90-ec2638522ab0" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveParallel (&quot;TestData.tar&quot;,6)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveParallel (&quot;TestData.rar&quot;)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="450e93eb-bc08-d52b-c954-8b74f5930c40">
+      <Execution id="9a0c53cf-3ffa-4d4e-9d0d-67da5d9dfa9c" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveParallel (&quot;TestData.rar&quot;)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveParallel (&quot;TestData.rar4&quot;)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="7393d090-f088-7a52-33f6-5166b68ee709">
+      <Execution id="c8e1e867-049f-4c4b-910f-59967d07e358" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveParallel (&quot;TestData.rar4&quot;)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveParallel (&quot;TestData.tar.bz2&quot;,6)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="a3fb133b-192c-1b9b-8904-4940b5ee1068">
+      <Execution id="0f478160-bd24-460e-ab32-d1b1621a9a94" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveParallel (&quot;TestData.tar.bz2&quot;,6)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveParallel (&quot;TestData.tar.gz&quot;,6)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="da5b956b-9a73-8e2e-edda-01d59ce342a0">
+      <Execution id="7e04caf6-083f-49de-973e-32ec7b9a4ef2" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveParallel (&quot;TestData.tar.gz&quot;,6)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveParallel (&quot;TestData.tar.xz&quot;)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="0db7dfc4-04cb-bc0d-e10c-4b8cbfc9091d">
+      <Execution id="622882a3-27e5-4cb8-9ab2-d12b7b93cef2" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveParallel (&quot;TestData.tar.xz&quot;)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveParallel (&quot;sysvbanner_1.0-17fakesync1_amd64.deb&quot;,8)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="7830c1dc-20f5-897e-fb45-cda2607ae661">
+      <Execution id="abb0dc54-7ffc-4d46-b50f-4b48ba19bdc8" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveParallel (&quot;sysvbanner_1.0-17fakesync1_amd64.deb&quot;,8)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveParallel (&quot;TestData.a&quot;)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="d57a375a-0154-7db6-d2bc-8e7b98851e6b">
+      <Execution id="818aa6c4-73a6-4971-befa-5fc530cb8327" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveParallel (&quot;TestData.a&quot;)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveParallel (&quot;TestData.bsd.ar&quot;)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="cf305b76-dcaa-7bfe-7989-82bd0755db07">
+      <Execution id="561e1170-7a0d-43c3-b320-cd94ec47f6f6" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveParallel (&quot;TestData.bsd.ar&quot;)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveParallel (&quot;TestData.iso&quot;)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="691bad26-3941-716f-c180-b93ef480646e">
+      <Execution id="a8687f44-1147-40e8-934f-9ba9cce405be" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveParallel (&quot;TestData.iso&quot;)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveParallel (&quot;TestData.vhdx&quot;)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="56b7621c-9e61-e24a-b016-a8d3ea8cfbd6">
+      <Execution id="e5b853d3-4f35-4f87-8aa9-e9f44b24c49d" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveParallel (&quot;TestData.vhdx&quot;)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveParallel (&quot;TestData.wim&quot;)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="86f7848d-367d-2a6e-6dcc-33eedcabea30">
+      <Execution id="672dce3f-1853-4821-99aa-1b694242d4f5" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveParallel (&quot;TestData.wim&quot;)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveParallel (&quot;EmptyFile.txt&quot;,1)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="d20570a9-cce8-de35-e7f9-af42a7086501">
+      <Execution id="3a1cfab7-196d-4ed1-aa8e-c117d4df6c3a" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveParallel (&quot;EmptyFile.txt&quot;,1)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveParallel (&quot;TestDataArchivesNested.Zip&quot;,54)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="f9eb4221-0d54-90c9-9f27-e3890ab43bb5">
+      <Execution id="bff3658f-88cd-4019-bd80-d99f1337b8bf" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveParallel (&quot;TestDataArchivesNested.Zip&quot;,54)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveSingleThread (&quot;TestData.zip&quot;,5)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="6f1fe6b8-ebea-d370-417c-de1597e45dd0">
+      <Execution id="24b623c7-5a69-4a0e-b8a0-03b5db0af6f3" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveSingleThread (&quot;TestData.zip&quot;,5)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveSingleThread (&quot;TestData.7z&quot;)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="9ea137b0-990a-41bd-a4c9-6667cfd13210">
+      <Execution id="260b6b9a-0f9b-43f0-9a29-f5a72cf7ade2" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveSingleThread (&quot;TestData.7z&quot;)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveSingleThread (&quot;TestData.tar&quot;,6)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="636f4486-88d4-5b6b-da65-7de30bc136d9">
+      <Execution id="3e7c8124-13bb-4021-b15e-dbc3747ff5b4" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveSingleThread (&quot;TestData.tar&quot;,6)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveSingleThread (&quot;TestData.rar&quot;)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="062dd345-f396-4bfb-b955-b1937f90022f">
+      <Execution id="268ef3e2-6901-4730-8681-2116faaa179b" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveSingleThread (&quot;TestData.rar&quot;)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveSingleThread (&quot;TestData.rar4&quot;)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="a83615ef-6c18-002f-d7d2-ba7657535e65">
+      <Execution id="65b83567-1d78-4747-8560-6dcc50af744c" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveSingleThread (&quot;TestData.rar4&quot;)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveSingleThread (&quot;TestData.tar.bz2&quot;,6)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="e20e4b1e-18de-b434-ebf9-734f74c504c6">
+      <Execution id="e2dd5520-ce5c-41d4-8a7f-ba92c8dde2b9" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveSingleThread (&quot;TestData.tar.bz2&quot;,6)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveSingleThread (&quot;TestData.tar.gz&quot;,6)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="f343c95b-dc12-8234-b070-6cfe57c05d90">
+      <Execution id="43cfcb9f-c263-415c-8a0c-fe822a236fa4" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveSingleThread (&quot;TestData.tar.gz&quot;,6)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveSingleThread (&quot;TestData.tar.xz&quot;)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="014058f2-7d16-0867-b96f-50c79e8698c6">
+      <Execution id="f2532911-d824-4967-85c8-1c1980c19b17" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveSingleThread (&quot;TestData.tar.xz&quot;)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveSingleThread (&quot;sysvbanner_1.0-17fakesync1_amd64.deb&quot;,8)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="ba4759db-2462-92d5-eb07-f7cd65003f3d">
+      <Execution id="bc2bf07f-b6de-438d-a8f7-64ca76da5aad" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveSingleThread (&quot;sysvbanner_1.0-17fakesync1_amd64.deb&quot;,8)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveSingleThread (&quot;TestData.a&quot;)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="cafbe553-1137-f9a0-3fc9-513331c0068c">
+      <Execution id="4c518722-345b-4005-9558-b11970e1b4a5" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveSingleThread (&quot;TestData.a&quot;)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveSingleThread (&quot;TestData.bsd.ar&quot;)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="bfff201e-9711-10da-1efc-4632e294685f">
+      <Execution id="8167eff3-ef38-4194-89e2-ee1867f61266" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveSingleThread (&quot;TestData.bsd.ar&quot;)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveSingleThread (&quot;TestData.iso&quot;)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="eb8237fa-04fb-de82-f706-5559e0350058">
+      <Execution id="ddc99550-8d80-429a-9678-b2953409aff8" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveSingleThread (&quot;TestData.iso&quot;)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveSingleThread (&quot;TestData.vhdx&quot;)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="4e99d73a-83d9-3985-13b2-fe1151fb9be4">
+      <Execution id="12d68882-6723-4f9c-b600-cd5579318421" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveSingleThread (&quot;TestData.vhdx&quot;)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveSingleThread (&quot;TestData.wim&quot;)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="d9abc573-c68f-ba1c-8aeb-c168d0d93bb3">
+      <Execution id="15d4ca26-f38d-4f50-b692-8b8839ac2f28" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveSingleThread (&quot;TestData.wim&quot;)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveSingleThread (&quot;EmptyFile.txt&quot;,1)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="8ebf3d2f-eff3-3ce6-8024-a74417598b2f">
+      <Execution id="0544e307-0b86-4efb-9263-bfb1c4cf7858" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveSingleThread (&quot;EmptyFile.txt&quot;,1)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveSingleThread (&quot;TestDataArchivesNested.Zip&quot;,54)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="6ff7e72a-96bc-5bad-c8e4-41a327b9bcf3">
+      <Execution id="95e6134f-5b2b-443b-af55-9232bdda0069" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveSingleThread (&quot;TestDataArchivesNested.Zip&quot;,54)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveWithAllowFilters (&quot;TestDataForFilters.7z&quot;)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="8d87c637-45f7-1daf-b577-1e91071e82ec">
+      <Execution id="6b420d6c-ce87-4781-a03c-cccbd0218fb2" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveWithAllowFilters (&quot;TestDataForFilters.7z&quot;)" />
+    </UnitTest>
+    <UnitTest name="ExtractArchiveWithDenyFilters (&quot;TestDataForFilters.7z&quot;)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="ad9a25f6-ff9e-864f-f426-7647fae5d8e6">
+      <Execution id="7f267ac3-2ae9-48bf-89b1-d97c5bf3f196" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractArchiveWithDenyFilters (&quot;TestDataForFilters.7z&quot;)" />
+    </UnitTest>
+    <UnitTest name="ExtractEncryptedArchive (&quot;TestDataEncrypted.7z&quot;)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="a372aa1c-e47b-2185-c4b3-1f711a81f451">
+      <Execution id="ba4b8803-0622-4789-91e8-4fd7518393de" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractEncryptedArchive (&quot;TestDataEncrypted.7z&quot;)" />
+    </UnitTest>
+    <UnitTest name="ExtractEncryptedArchive (&quot;TestDataEncryptedAes.zip&quot;)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="8cc7a58e-6866-3bcf-119a-91858281d569">
+      <Execution id="173b37c5-8cc8-4578-8bc3-8a41bc897c01" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractEncryptedArchive (&quot;TestDataEncryptedAes.zip&quot;)" />
+    </UnitTest>
+    <UnitTest name="ExtractEncryptedArchive (&quot;TestDataEncrypted.rar4&quot;)" storage="/home/runner/work/recursiveextractor/recursiveextractor/recursiveextractor.cli.tests/bin/debug/net9.0/recursiveextractor.cli.tests.dll" id="9848a994-271c-aef4-f474-2a12c9a163b1">
+      <Execution id="60b8d772-2929-4bfa-98ff-fb5461be03dc" />
+      <TestMethod codeBase="/home/runner/work/RecursiveExtractor/RecursiveExtractor/RecursiveExtractor.Cli.Tests/bin/Debug/net9.0/RecursiveExtractor.Cli.Tests.dll" adapterTypeName="executor://MSTestExtension/3.10.4" className="RecursiveExtractor.Tests.CliTests.CliTests" name="ExtractEncryptedArchive (&quot;TestDataEncrypted.rar4&quot;)" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="b1af274f-fbfd-0076-7d76-fa0b962c520d" executionId="4a153da0-16f0-4109-96e8-e2da1f98d19e" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="1cf86544-05c6-b311-aded-4b8b7fc59640" executionId="90ecd38c-010a-48fb-9be3-9aa61906a697" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="e46b736e-857a-1cc5-e044-e171de08b610" executionId="68319011-e51e-4258-bd90-ec2638522ab0" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="450e93eb-bc08-d52b-c954-8b74f5930c40" executionId="9a0c53cf-3ffa-4d4e-9d0d-67da5d9dfa9c" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="7393d090-f088-7a52-33f6-5166b68ee709" executionId="c8e1e867-049f-4c4b-910f-59967d07e358" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="a3fb133b-192c-1b9b-8904-4940b5ee1068" executionId="0f478160-bd24-460e-ab32-d1b1621a9a94" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="da5b956b-9a73-8e2e-edda-01d59ce342a0" executionId="7e04caf6-083f-49de-973e-32ec7b9a4ef2" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="0db7dfc4-04cb-bc0d-e10c-4b8cbfc9091d" executionId="622882a3-27e5-4cb8-9ab2-d12b7b93cef2" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="7830c1dc-20f5-897e-fb45-cda2607ae661" executionId="abb0dc54-7ffc-4d46-b50f-4b48ba19bdc8" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="d57a375a-0154-7db6-d2bc-8e7b98851e6b" executionId="818aa6c4-73a6-4971-befa-5fc530cb8327" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="cf305b76-dcaa-7bfe-7989-82bd0755db07" executionId="561e1170-7a0d-43c3-b320-cd94ec47f6f6" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="691bad26-3941-716f-c180-b93ef480646e" executionId="a8687f44-1147-40e8-934f-9ba9cce405be" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="56b7621c-9e61-e24a-b016-a8d3ea8cfbd6" executionId="e5b853d3-4f35-4f87-8aa9-e9f44b24c49d" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="86f7848d-367d-2a6e-6dcc-33eedcabea30" executionId="672dce3f-1853-4821-99aa-1b694242d4f5" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="d20570a9-cce8-de35-e7f9-af42a7086501" executionId="3a1cfab7-196d-4ed1-aa8e-c117d4df6c3a" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="f9eb4221-0d54-90c9-9f27-e3890ab43bb5" executionId="bff3658f-88cd-4019-bd80-d99f1337b8bf" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="6f1fe6b8-ebea-d370-417c-de1597e45dd0" executionId="24b623c7-5a69-4a0e-b8a0-03b5db0af6f3" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="9ea137b0-990a-41bd-a4c9-6667cfd13210" executionId="260b6b9a-0f9b-43f0-9a29-f5a72cf7ade2" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="636f4486-88d4-5b6b-da65-7de30bc136d9" executionId="3e7c8124-13bb-4021-b15e-dbc3747ff5b4" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="062dd345-f396-4bfb-b955-b1937f90022f" executionId="268ef3e2-6901-4730-8681-2116faaa179b" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="a83615ef-6c18-002f-d7d2-ba7657535e65" executionId="65b83567-1d78-4747-8560-6dcc50af744c" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="e20e4b1e-18de-b434-ebf9-734f74c504c6" executionId="e2dd5520-ce5c-41d4-8a7f-ba92c8dde2b9" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="f343c95b-dc12-8234-b070-6cfe57c05d90" executionId="43cfcb9f-c263-415c-8a0c-fe822a236fa4" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="014058f2-7d16-0867-b96f-50c79e8698c6" executionId="f2532911-d824-4967-85c8-1c1980c19b17" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="ba4759db-2462-92d5-eb07-f7cd65003f3d" executionId="bc2bf07f-b6de-438d-a8f7-64ca76da5aad" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="cafbe553-1137-f9a0-3fc9-513331c0068c" executionId="4c518722-345b-4005-9558-b11970e1b4a5" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="bfff201e-9711-10da-1efc-4632e294685f" executionId="8167eff3-ef38-4194-89e2-ee1867f61266" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="eb8237fa-04fb-de82-f706-5559e0350058" executionId="ddc99550-8d80-429a-9678-b2953409aff8" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="4e99d73a-83d9-3985-13b2-fe1151fb9be4" executionId="12d68882-6723-4f9c-b600-cd5579318421" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="d9abc573-c68f-ba1c-8aeb-c168d0d93bb3" executionId="15d4ca26-f38d-4f50-b692-8b8839ac2f28" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="8ebf3d2f-eff3-3ce6-8024-a74417598b2f" executionId="0544e307-0b86-4efb-9263-bfb1c4cf7858" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="6ff7e72a-96bc-5bad-c8e4-41a327b9bcf3" executionId="95e6134f-5b2b-443b-af55-9232bdda0069" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="8d87c637-45f7-1daf-b577-1e91071e82ec" executionId="6b420d6c-ce87-4781-a03c-cccbd0218fb2" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="ad9a25f6-ff9e-864f-f426-7647fae5d8e6" executionId="7f267ac3-2ae9-48bf-89b1-d97c5bf3f196" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="a372aa1c-e47b-2185-c4b3-1f711a81f451" executionId="ba4b8803-0622-4789-91e8-4fd7518393de" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="8cc7a58e-6866-3bcf-119a-91858281d569" executionId="173b37c5-8cc8-4578-8bc3-8a41bc897c01" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestEntry testId="9848a994-271c-aef4-f474-2a12c9a163b1" executionId="60b8d772-2929-4bfa-98ff-fb5461be03dc" testListId="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8C84FA94-04C1-424b-9868-57A2D4851A1D" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="37" executed="37" passed="32" failed="5" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <RunInfos>
+      <RunInfo computerName="runnervmg1sw1" outcome="Error" timestamp="2025-12-02T06:03:25.5735414">
+        <Text>Exit code indicates failure: '2'. Please refer to https://aka.ms/testingplatform/exitcodes for more information.</Text>
+      </RunInfo>
+    </RunInfos>
+    <CollectorDataEntries>
+      <Collector agentName="runnervmg1sw1" uri="datacollector://TestingPlatformCoverageDynamicTestSessionLifetimeHandler/1.0.0" collectorDisplayName="Code Coverage Process Monitor">
+        <UriAttachments>
+          <UriAttachment>
+            <A href="runnervmg1sw1/f4eaf0b8-d546-4ddf-b0b1-c029e35e9f77.coverage" />
+          </UriAttachment>
+        </UriAttachments>
+      </Collector>
+    </CollectorDataEntries>
+  </ResultSummary>
+</TestRun>
