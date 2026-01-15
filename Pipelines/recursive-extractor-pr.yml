@@ -1,6 +1,3 @@
-# Azure Pipelines
-# https://aka.ms/yaml
-
 name: RecursiveExtractor_PR_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
 trigger: none
 pr:
@@ -12,7 +9,7 @@ resources:
   repositories:
     - repository: templates
       type: git
-      name: SecurityEngineering/OSS-Tools-Pipeline-Templates
+      name: microsoft-sdl/OSS-Tools-Pipeline-Templates
       ref: refs/tags/v2.0.4
     - repository: 1esPipelines
       type: git
@@ -48,9 +45,10 @@ extends:
           dotnetTestArgs: '-- --coverage --report-trx'
           includeNuGetOrg: false
           nugetFeedsToUse: 'config'
-          nugetConfigPath: 'nuget.config.azure'
+          nugetConfigPath: 'nuget.config'
           onInit:
             - task: NuGetAuthenticate@1
+  
       - template: dotnet-test-job.yml@templates
         parameters:
           jobName: 'cli_dotnet_test_windows'
@@ -62,7 +60,7 @@ extends:
           dotnetTestArgs: '-- --coverage --report-trx'
           includeNuGetOrg: false
           nugetFeedsToUse: 'config'
-          nugetConfigPath: 'nuget.config.azure'
+          nugetConfigPath: 'nuget.config'
           onInit:
             - task: NuGetAuthenticate@1
 
@@ -81,11 +79,12 @@ extends:
           artifactName: 'lib-archive'
           includeNuGetOrg: false
           nugetFeedsToUse: 'config'
-          nugetConfigPath: 'nuget.config.azure'
+          nugetConfigPath: 'nuget.config'
           onInit:
             - task: NuGetAuthenticate@1
           preBuild:
           - template: nbgv-set-version-steps.yml@templates
+  
       - template: nuget-build-job.yml@templates
         parameters:
           jobName: 'pack_cli'
@@ -97,7 +96,7 @@ extends:
           artifactName: 'cli-archive'
           includeNuGetOrg: false
           nugetFeedsToUse: 'config'
-          nugetConfigPath: 'nuget.config.azure'
+          nugetConfigPath: 'nuget.config'
           onInit:
             - task: NuGetAuthenticate@1
           preBuild:
