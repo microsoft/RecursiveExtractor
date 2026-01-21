@@ -122,6 +122,7 @@ extends:
             publishPackageMetadata: true 
             publishFeedCredentials: 'sdl-oss-nuget-publish'
         steps:
+        - task: NuGetAuthenticate@1
         - template: nbgv-set-version-steps.yml@templates
         - task: UseDotNet@2
           inputs:
