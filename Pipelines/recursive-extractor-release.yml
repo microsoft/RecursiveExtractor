@@ -146,17 +146,6 @@ extends:
             destinationFolder: '$(Build.BinariesDirectory)'
             cleanDestinationFolder: false
             overwriteExistingFiles: true
-        - task: AntiMalware@4
-          displayName: Anti-Malware Scan
-          inputs:
-            InputType: 'Basic'
-            ScanType: 'CustomScan'
-            FileDirPath: '$(Build.BinariesDirectory)'
-            EnableServices: true
-            SupportLogOnError: true
-            TreatSignatureUpdateFailureAs: 'Warning'
-            SignatureFreshness: 'UpToDate'
-            TreatStaleSignatureAs: 'Warning'
         - task: EsrpCodeSigning@5
           displayName: Code Sign Nuget Packages
           inputs:
