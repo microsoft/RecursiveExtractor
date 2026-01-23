@@ -13,7 +13,7 @@ namespace RecursiveExtractor.Tests
         [DataTestMethod]
         [DataRow("a\\file\\with:colon.name", "a\\file\\with_colon.name")]
         [DataRow("a\\folder:with\\colon.name", "a\\folder_with\\colon.name")]
-
+        [DataRow("test-pr-change","test-pr-change")]
         public void TestSanitizePathWindows(string windowsInputPath, string expectedWindowsPath)
         {
             var entry = new FileEntry(windowsInputPath, Stream.Null);
@@ -34,7 +34,7 @@ namespace RecursiveExtractor.Tests
             {
                 Assert.AreEqual(expectedLinuxPath, entry.GetSanitizedPath());
             }
-        }
+        }               
 
         protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     }
