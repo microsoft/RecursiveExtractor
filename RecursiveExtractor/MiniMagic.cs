@@ -85,6 +85,14 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         DMG,
         /// <summary>
+        /// An ARJ formatted file. <see cref="Extractors.ArjExtractor"/>
+        /// </summary>
+        ARJ,
+        /// <summary>
+        /// An ARC formatted file. <see cref="Extractors.ArcExtractor"/>
+        /// </summary>
+        ARC,
+        /// <summary>
         /// Unused.
         /// </summary>
         INVALID
@@ -172,6 +180,17 @@ namespace Microsoft.CST.RecursiveExtractor
                 if (buffer[0] == 0x37 && buffer[1] == 0x7A && buffer[2] == 0xBC && buffer[3] == 0xAF && buffer[4] == 0x27 && buffer[5] == 0x1C)
                 {
                     return ArchiveFileType.P7ZIP;
+                }
+                // ARJ archive format https://en.wikipedia.org/wiki/ARJ
+                if (buffer[0] == 0x60 && buffer[1] == 0xEA)
+                {
+                    return ArchiveFileType.ARJ;
+                }
+                // ARC archive format https://en.wikipedia.org/wiki/ARC_(file_format)
+                // First byte is marker 0x1A, second byte is compression method (0x00-0x0B valid for standard ARC)
+                if (buffer[0] == 0x1A && buffer[1] >= 0x00 && buffer[1] <= 0x0B)
+                {
+                    return ArchiveFileType.ARC;
                 }
                 if (Encoding.ASCII.GetString(buffer[0..8]) == "MSWIM\0\0\0" || Encoding.ASCII.GetString(buffer[0..8]) == "WLPWM\0\0\0")
                 {

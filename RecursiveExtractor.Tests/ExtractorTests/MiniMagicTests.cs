@@ -24,6 +24,8 @@ public class MiniMagicTests : BaseExtractorTestClass
     [DataRow("TestData.wim", ArchiveFileType.WIM)]
     [DataRow("Empty.vmdk", ArchiveFileType.VMDK)]
     [DataRow("HfsSampleUDCO.dmg", ArchiveFileType.DMG)]
+    [DataRow("TestData.arj", ArchiveFileType.ARJ)]
+    [DataRow("TestData.arc", ArchiveFileType.ARC)]
     [DataRow("EmptyFile.txt", ArchiveFileType.UNKNOWN)]
     public void TestMiniMagic(string fileName, ArchiveFileType expectedArchiveFileType)
     {
