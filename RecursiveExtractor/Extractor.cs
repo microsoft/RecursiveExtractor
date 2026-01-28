@@ -70,6 +70,8 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         public void SetDefaultExtractors()
         {
+            SetExtractor(ArchiveFileType.ARC, new ArcExtractor(this));
+            SetExtractor(ArchiveFileType.ARJ, new ArjExtractor(this));
             SetExtractor(ArchiveFileType.BZIP2, new BZip2Extractor(this));
             SetExtractor(ArchiveFileType.DEB, new DebExtractor(this));
             SetExtractor(ArchiveFileType.AR, new GnuArExtractor(this));
