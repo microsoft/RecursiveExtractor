@@ -188,7 +188,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 }
                 // ARC archive format https://en.wikipedia.org/wiki/ARC_(file_format)
                 // First byte is marker 0x1A, second byte is compression method (0x00-0x0B valid for standard ARC)
-                if (buffer[0] == 0x1A && buffer[1] >= 0x00 && buffer[1] <= 0x0B)
+                if (buffer[0] == 0x1A && buffer[1] <= 0x0B)
                 {
                     return ArchiveFileType.ARC;
                 }
