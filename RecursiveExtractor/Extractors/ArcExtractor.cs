@@ -23,21 +23,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         internal Extractor Context { get; }
 
         /// <summary>
-        /// Safely gets the size of an entry, returning 0 if not available.
-        /// </summary>
-        private long GetEntrySize(SharpCompress.Common.IEntry entry)
-        {
-            try
-            {
-                return entry.Size;
-            }
-            catch (NotImplementedException)
-            {
-                return 0;
-            }
-        }
-
-        /// <summary>
         ///     Extracts an ARC archive
         /// </summary>
         ///<inheritdoc />
@@ -68,8 +53,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             continue;
                         }
 
-                        var entrySize = GetEntrySize(entry);
-                        governor.CheckResourceGovernor(entrySize);
                         var name = entry.Key?.Replace('/', Path.DirectorySeparatorChar);
                         if (string.IsNullOrEmpty(name))
                         {
@@ -80,6 +63,10 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         var newFileEntry = await FileEntry.FromStreamAsync(name, arcReader.OpenEntryStream(), fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
                         if (newFileEntry != null)
                         {
+                            // SharpCompress ARC does not expose entry sizes, so we check the resource governor
+                            // after extraction using the actual decompressed content length.
+                            governor.CheckResourceGovernor(newFileEntry.Content.Length);
+
                             if (options.Recurse || topLevel)
                             {
                                 await foreach (var innerEntry in Context.ExtractAsync(newFileEntry, options, governor, false))
@@ -136,8 +123,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             continue;
                         }
 
-                        var entrySize = GetEntrySize(entry);
-                        governor.CheckResourceGovernor(entrySize);
                         FileEntry? newFileEntry = null;
                         try
                         {
@@ -156,6 +141,10 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         }
                         if (newFileEntry != null)
                         {
+                            // SharpCompress ARC does not expose entry sizes, so we check the resource governor
+                            // after extraction using the actual decompressed content length.
+                            governor.CheckResourceGovernor(newFileEntry.Content.Length);
+
                             if (options.Recurse || topLevel)
                             {
                                 foreach (var innerEntry in Context.Extract(newFileEntry, options, governor, false))
