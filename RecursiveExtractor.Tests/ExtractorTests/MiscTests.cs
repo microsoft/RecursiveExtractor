@@ -39,7 +39,7 @@ public class MiscTests
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestData", fileName);
         var results = await extractor.ExtractAsync(path, new ExtractorOptions(){ RequireTopLevelToBeArchive = requireTopLevelToBeArchive }).ToListAsync(TestContext.CancellationTokenSource.Token);
             
-        Assert.HasCount(results, 1);
+        Assert.HasCount(1, results);
         var actualNumberOfFailedArchives = results.Count(x => x.EntryStatus == FileEntryStatus.FailedArchive);
         Assert.AreEqual(expectedNumFailures, actualNumberOfFailedArchives);
     }
@@ -72,7 +72,7 @@ public class MiscTests
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestData", fileName);
             var results = extractor.Extract(path, new ExtractorOptions(){ RequireTopLevelToBeArchive = requireTopLevelToBeArchive }).ToList();
             
-            Assert.HasCount(results, 1);
+            Assert.HasCount(1, results);
             var actualNumberOfFailedArchives = results.Count(x => x.EntryStatus == FileEntryStatus.FailedArchive);
             Assert.AreEqual(expectedNumFailures, actualNumberOfFailedArchives);
         }
@@ -90,6 +90,6 @@ public class MiscTests
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
 
             var results = extractor.Extract(path, options);
-            Assert.HasCount(results, 1);
+            Assert.HasCount(1, results);
         }
 }
