@@ -10,7 +10,7 @@ namespace RecursiveExtractor.Tests
     [TestClass]
     public class SanitizePathTests
     {
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("a\\file\\with:colon.name", "a\\file\\with_colon.name")]
         [DataRow("a\\folder:with\\colon.name", "a\\folder_with\\colon.name")]
 
@@ -23,7 +23,7 @@ namespace RecursiveExtractor.Tests
             }
         }
         
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("a/file/with:colon.name", "a/file/with_colon.name")]
         [DataRow("a/folder:with/colon.name", "a/folder_with/colon.name")]
 

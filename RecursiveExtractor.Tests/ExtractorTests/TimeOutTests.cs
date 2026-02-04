@@ -9,7 +9,7 @@ namespace RecursiveExtractor.Tests.ExtractorTests;
 [TestClass]
 public class TimeOutTests : BaseExtractorTestClass
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("TestData.7z", 3, false)]
     [DataRow("TestData.tar", 6, false)]
     [DataRow("TestData.rar", 3, false)]
@@ -45,7 +45,7 @@ public class TimeOutTests : BaseExtractorTestClass
     {
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
-        Assert.ThrowsException<TimeoutException>(() =>
+        Assert.ThrowsExactly<TimeoutException>(() =>
         {
             var results = extractor.Extract(path,
                 new ExtractorOptions()
@@ -63,7 +63,7 @@ public class TimeOutTests : BaseExtractorTestClass
         });
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("TestData.7z", 3, false)]
     [DataRow("TestData.tar", 6, false)]
     [DataRow("TestData.rar", 3, false)]
@@ -95,13 +95,11 @@ public class TimeOutTests : BaseExtractorTestClass
     [DataRow("EmptyFile.txt", 1, true)]
     [DataRow("TestDataArchivesNested.Zip", 54, true)]
     [DataRow("TestDataArchivesNested.Zip", 54, false)]
-    [DataRow("TestDataArchivesNested.Zip", 54, true)]
-    [DataRow("TestDataArchivesNested.Zip", 54, false)]
     public async Task TimeoutTestAsync(string fileName, int expectedNumFiles = 3, bool parallel = false)
     {
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
-        await Assert.ThrowsExceptionAsync<TimeoutException>(async () =>
+        await Assert.ThrowsExactlyAsync<TimeoutException>(async () =>
         {
             var results = extractor.ExtractAsync(path,
                 new ExtractorOptions()

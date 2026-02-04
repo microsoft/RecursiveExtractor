@@ -11,7 +11,7 @@ namespace RecursiveExtractor.Tests.ExtractorTests;
 [TestClass]
 public class DisposeBehaviorTests : BaseExtractorTestClass
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("TestData.7z", 3, false)]
     [DataRow("TestData.tar", 6, false)]
     [DataRow("TestData.rar", 3, false)]
@@ -41,8 +41,6 @@ public class DisposeBehaviorTests : BaseExtractorTestClass
     [DataRow("TestData.vhdx", 3, true)]
     [DataRow("TestData.wim", 3, true)]
     [DataRow("EmptyFile.txt", 1, true)]
-    [DataRow("TestDataArchivesNested.Zip", 54, true)]
-    [DataRow("TestDataArchivesNested.Zip", 54, false)]
     [DataRow("TestDataArchivesNested.Zip", 54, true)]
     [DataRow("TestDataArchivesNested.Zip", 54, false)]
     public void ExtractArchiveAndDisposeWhileEnumerating(string fileName, int expectedNumFiles = 3,
@@ -63,11 +61,11 @@ public class DisposeBehaviorTests : BaseExtractorTestClass
         Assert.AreEqual(expectedNumFiles, disposedResults.Count);
         foreach (var disposedResult in disposedResults)
         {
-            Assert.ThrowsException<ObjectDisposedException>(() => disposedResult.Content.Position);
+            Assert.ThrowsExactly<ObjectDisposedException>(() => disposedResult.Content.Position);
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("TestData.7z", 3, false)]
     [DataRow("TestData.tar", 6, false)]
     [DataRow("TestData.rar", 3, false)]
@@ -99,8 +97,6 @@ public class DisposeBehaviorTests : BaseExtractorTestClass
     [DataRow("EmptyFile.txt", 1, true)]
     [DataRow("TestDataArchivesNested.Zip", 54, true)]
     [DataRow("TestDataArchivesNested.Zip", 54, false)]
-    [DataRow("TestDataArchivesNested.Zip", 54, true)]
-    [DataRow("TestDataArchivesNested.Zip", 54, false)]
     public async Task ExtractArchiveAndDisposeWhileEnumeratingAsync(string fileName, int expectedNumFiles = 3,
         bool parallel = false)
     {
@@ -119,11 +115,11 @@ public class DisposeBehaviorTests : BaseExtractorTestClass
         Assert.AreEqual(expectedNumFiles, disposedResults.Count);
         foreach (var disposedResult in disposedResults)
         {
-            Assert.ThrowsException<ObjectDisposedException>(() => disposedResult.Content.Position);
+            Assert.ThrowsExactly<ObjectDisposedException>(() => disposedResult.Content.Position);
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("TestData.zip")]
     public void EnsureDisposedWithExtractToDirectory(string fileName)
     {
@@ -146,7 +142,7 @@ public class DisposeBehaviorTests : BaseExtractorTestClass
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("TestData.zip")]
     public async Task EnsureDisposedWithExtractToDirectoryAsync(string fileName)
     {

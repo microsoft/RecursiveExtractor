@@ -10,7 +10,9 @@ namespace RecursiveExtractor.Tests.ExtractorTests;
 [TestClass]
 public class MiscTests
 {
-    [DataTestMethod]
+    public TestContext TestContext { get; set; } = null!;
+
+    [TestMethod]
     [DataRow("TestDataCorrupt.tar", false, 0, 1)]
     [DataRow("TestDataCorrupt.tar", true, 1, 1)]
     [DataRow("TestDataCorrupt.tar.zip", false, 0, 2)]
@@ -20,7 +22,7 @@ public class MiscTests
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
         var results = await extractor.ExtractAsync(path,
-            new ExtractorOptions() { RequireTopLevelToBeArchive = requireTopLevelToBeArchive }).ToListAsync();
+            new ExtractorOptions() { RequireTopLevelToBeArchive = requireTopLevelToBeArchive }).ToListAsync(TestContext.CancellationTokenSource.Token);
             
 
         Assert.AreEqual(expectedNumFiles, results.Count);
@@ -28,23 +30,23 @@ public class MiscTests
         Assert.AreEqual(expectedNumFailures, actualNumberOfFailedArchives);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("Lorem.txt", true, 1)]
     [DataRow("Lorem.txt", false, 0)]
     public async Task ExtractFlatFileAsync(string fileName, bool requireTopLevelToBeArchive, int expectedNumFailures)
     {
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestData", fileName);
-        var results = await extractor.ExtractAsync(path, new ExtractorOptions(){ RequireTopLevelToBeArchive = requireTopLevelToBeArchive }).ToListAsync();
+        var results = await extractor.ExtractAsync(path, new ExtractorOptions(){ RequireTopLevelToBeArchive = requireTopLevelToBeArchive }).ToListAsync(TestContext.CancellationTokenSource.Token);
             
-        Assert.AreEqual(1, results.Count);
+        Assert.HasCount(results, 1);
         var actualNumberOfFailedArchives = results.Count(x => x.EntryStatus == FileEntryStatus.FailedArchive);
         Assert.AreEqual(expectedNumFailures, actualNumberOfFailedArchives);
     }
     
     
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("TestDataCorrupt.tar", false, 0, 1)]
         [DataRow("TestDataCorrupt.tar", true, 1, 1)]
         [DataRow("TestDataCorrupt.tar.zip", false, 0, 2)]
@@ -61,7 +63,7 @@ public class MiscTests
             Assert.AreEqual(expectedNumFailures, actualNumberOfFailedArchives);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("Lorem.txt", true, 1)]
         [DataRow("Lorem.txt", false, 0)]
         public void ExtractFlatFile(string fileName, bool requireTopLevelToBeArchive, int expectedNumFailures)
@@ -70,12 +72,12 @@ public class MiscTests
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestData", fileName);
             var results = extractor.Extract(path, new ExtractorOptions(){ RequireTopLevelToBeArchive = requireTopLevelToBeArchive }).ToList();
             
-            Assert.AreEqual(1, results.Count);
+            Assert.HasCount(results, 1);
             var actualNumberOfFailedArchives = results.Count(x => x.EntryStatus == FileEntryStatus.FailedArchive);
             Assert.AreEqual(expectedNumFailures, actualNumberOfFailedArchives);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("EmptyFile.txt")]
         [DataRow("TestData.zip", ".zip")]
         public void ExtractAsRaw(string fileName, string? RawExtension = null)
@@ -88,6 +90,6 @@ public class MiscTests
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
 
             var results = extractor.Extract(path, options);
-            Assert.AreEqual(1, results.Count());
+            Assert.HasCount(results, 1);
         }
 }

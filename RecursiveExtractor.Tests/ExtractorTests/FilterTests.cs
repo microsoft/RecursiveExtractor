@@ -10,7 +10,7 @@ namespace RecursiveExtractor.Tests.ExtractorTests;
 [TestClass]
 public class FilterTests : BaseExtractorTestClass
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("TestData.zip")]
     [DataRow("TestData.7z")]
     [DataRow("TestData.tar")]
@@ -42,7 +42,7 @@ public class FilterTests : BaseExtractorTestClass
         Assert.AreEqual(expectedNumFiles, numResults);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("TestData.zip")]
     [DataRow("TestData.7z")]
     [DataRow("TestData.tar")]
@@ -68,7 +68,7 @@ public class FilterTests : BaseExtractorTestClass
         Assert.AreEqual(expectedNumFiles, results.Count());
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("TestData.zip")]
     [DataRow("TestData.7z")]
     [DataRow("TestData.tar")]
@@ -94,7 +94,7 @@ public class FilterTests : BaseExtractorTestClass
         Assert.AreEqual(expectedNumFiles, results.Count());
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("TestData.zip", 4)]
     [DataRow("TestData.7z")]
     [DataRow("TestData.tar", 5)]
@@ -119,7 +119,7 @@ public class FilterTests : BaseExtractorTestClass
         Assert.AreEqual(expectedNumFiles, results.Count());
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("TestData.zip", 4)]
     [DataRow("TestData.7z")]
     [DataRow("TestData.tar", 5)]
@@ -145,7 +145,7 @@ public class FilterTests : BaseExtractorTestClass
         Assert.AreEqual(expectedNumFiles, results.Count());
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("TestData.zip", 4)]
     [DataRow("TestData.7z")]
     [DataRow("TestData.tar", 5)]
@@ -177,7 +177,7 @@ public class FilterTests : BaseExtractorTestClass
         Assert.AreEqual(expectedNumFiles, numResults);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(ArchiveFileType.ZIP, new[] { ArchiveFileType.ZIP }, new ArchiveFileType[] { }, false)]
     [DataRow(ArchiveFileType.ZIP, new[] { ArchiveFileType.TAR }, new ArchiveFileType[] { }, true)]
     [DataRow(ArchiveFileType.ZIP, new ArchiveFileType[] { }, new[] { ArchiveFileType.ZIP }, true)]

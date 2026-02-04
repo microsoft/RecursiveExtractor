@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json.schemastore.org/testconfig.json",
+  "testingPlatform": {
+    "trxReport": {
+      "enabled": true
+    }
+  }
+}
