@@ -129,7 +129,7 @@ public class CustomExtractorTests
         var customExtractor = new TestCustomExtractor(null!);
         var extractor = new Extractor(new[] { customExtractor });
         
-        Assert.HasCount(extractor.CustomExtractors, 1);
+        Assert.HasCount(1, extractor.CustomExtractors);
     }
 
     [TestMethod]
@@ -139,7 +139,7 @@ public class CustomExtractorTests
         var customExtractor2 = new SecondTestCustomExtractor(null!);
         var extractor = new Extractor(new ICustomAsyncExtractor[] { customExtractor1, customExtractor2 });
         
-        Assert.HasCount(extractor.CustomExtractors, 2);
+        Assert.HasCount(2, extractor.CustomExtractors);
     }
 
     [TestMethod]
@@ -148,7 +148,7 @@ public class CustomExtractorTests
         var customExtractor = new TestCustomExtractor(null!);
         var extractor = new Extractor(new ICustomAsyncExtractor[] { customExtractor, null! });
         
-        Assert.HasCount(extractor.CustomExtractors, 1);
+        Assert.HasCount(1, extractor.CustomExtractors);
     }
 
     [TestMethod]
@@ -169,7 +169,7 @@ public class CustomExtractorTests
         var testData = System.Text.Encoding.ASCII.GetBytes("CUSTOM1 This is test data");
         var results = extractor.Extract("test.custom", testData).ToList();
 
-        Assert.HasCount(results, 1);
+        Assert.HasCount(1, results);
         Assert.AreEqual("extracted_from_custom.txt", results[0].Name);
         
         // Read the content to verify it was processed by our custom extractor
@@ -189,7 +189,7 @@ public class CustomExtractorTests
         var testData = System.Text.Encoding.ASCII.GetBytes("CUSTOM1 This is test data");
         var results = await extractor.ExtractAsync("test.custom", testData).ToListAsync(TestContext.CancellationTokenSource.Token);
 
-        Assert.HasCount(results, 1);
+        Assert.HasCount(1, results);
         Assert.AreEqual("extracted_from_custom.txt", results[0].Name);
         
         // Read the content to verify it was processed by our custom extractor
@@ -210,7 +210,7 @@ public class CustomExtractorTests
         var results = extractor.Extract("test.txt", testData).ToList();
 
         // Should return the original file since no custom extractor matched
-        Assert.HasCount(results, 1);
+        Assert.HasCount(1, results);
         Assert.AreEqual("test.txt", results[0].Name);
         
         // Verify it's the original content
@@ -232,13 +232,13 @@ public class CustomExtractorTests
         // Test with first custom format
         var testData1 = System.Text.Encoding.ASCII.GetBytes("CUSTOM1 data");
         var results1 = extractor.Extract("test1.custom", testData1).ToList();
-        Assert.HasCount(results1, 1);
+        Assert.HasCount(1, results1);
         Assert.AreEqual("extracted_from_custom.txt", results1[0].Name);
 
         // Test with second custom format
         var testData2 = System.Text.Encoding.ASCII.GetBytes("CUSTOM2 data");
         var results2 = extractor.Extract("test2.custom", testData2).ToList();
-        Assert.HasCount(results2, 1);
+        Assert.HasCount(1, results2);
         Assert.AreEqual("extracted_from_second_custom.txt", results2[0].Name);
     }
 
@@ -252,7 +252,7 @@ public class CustomExtractorTests
         var results = extractor.Extract("test.custom", testData).ToList();
 
         // Should return the original file since no custom extractor is registered
-        Assert.HasCount(results, 1);
+        Assert.HasCount(1, results);
         Assert.AreEqual("test.custom", results[0].Name);
     }
 
