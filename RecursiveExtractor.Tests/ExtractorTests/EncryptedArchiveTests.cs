@@ -11,7 +11,7 @@ namespace RecursiveExtractor.Tests.ExtractorTests;
 [TestClass]
 public class EncryptedArchiveTests : BaseExtractorTestClass
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("TestDataEncryptedZipCrypto.zip")]
     [DataRow("TestDataEncryptedAes.zip")]
     [DataRow("TestDataEncrypted.7z")]
@@ -26,7 +26,7 @@ public class EncryptedArchiveTests : BaseExtractorTestClass
         Assert.AreEqual(FileEntryStatus.EncryptedArchive, results.First().EntryStatus);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("TestDataEncryptedZipCrypto.zip")]
     [DataRow("TestDataEncryptedAes.zip")]
     [DataRow("TestDataEncrypted.7z")]
@@ -46,7 +46,7 @@ public class EncryptedArchiveTests : BaseExtractorTestClass
         Assert.AreEqual(FileEntryStatus.EncryptedArchive, results.First().EntryStatus);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("TestDataEncryptedZipCrypto.zip")]
     [DataRow("TestDataEncryptedAes.zip")]
     [DataRow("TestDataEncrypted.7z")]
@@ -64,7 +64,7 @@ public class EncryptedArchiveTests : BaseExtractorTestClass
         Assert.AreEqual(0, results.Count(x => x.EntryStatus == FileEntryStatus.EncryptedArchive || x.EntryStatus == FileEntryStatus.FailedArchive));
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("TestDataEncryptedZipCrypto.zip")]
     [DataRow("TestDataEncryptedAes.zip")]
     [DataRow("TestDataEncrypted.7z")]

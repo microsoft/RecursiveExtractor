@@ -8,6 +8,8 @@ namespace RecursiveExtractor.Tests.ExtractorTests;
 
 public class BaseExtractorTestClass
 {
+    public TestContext TestContext { get; set; } = null!;
+
     [ClassCleanup]
     public static void ClassCleanup()
     {

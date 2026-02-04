@@ -7,7 +7,7 @@ namespace RecursiveExtractor.Tests.ExtractorTests;
 [TestClass]
 public class MiniMagicTests : BaseExtractorTestClass
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("TestData.zip", ArchiveFileType.ZIP)]
     [DataRow("TestData.7z", ArchiveFileType.P7ZIP)]
     [DataRow("TestData.Tar", ArchiveFileType.TAR)]

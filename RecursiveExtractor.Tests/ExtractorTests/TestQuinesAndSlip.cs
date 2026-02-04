@@ -42,7 +42,7 @@ public class TestQuinesAndSlip : BaseExtractorTestClass
     {
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Bombs", fileName);
-        var results = await extractor.ExtractAsync(path, new ExtractorOptions()).ToListAsync();
+        var results = await extractor.ExtractAsync(path, new ExtractorOptions()).ToListAsync(TestContext.CancellationTokenSource.Token);
         Assert.IsTrue(results.All(x => !x.FullPath.Contains("..")));
     }
     
@@ -65,21 +65,25 @@ public class TestQuinesAndSlip : BaseExtractorTestClass
     
     [TestMethod]        
     [DynamicData(nameof(QuineBombNames))]
-    [ExpectedException(typeof(OverflowException))]
     public void TestQuineBombs(string fileName)
     {
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Bombs", fileName);
-        _ = extractor.Extract(path, new ExtractorOptions() { MemoryStreamCutoff = 1024 * 1024 * 1024 }).ToList();
+        Assert.ThrowsExactly<OverflowException>(() =>
+        {
+            _ = extractor.Extract(path, new ExtractorOptions() { MemoryStreamCutoff = 1024 * 1024 * 1024 }).ToList();
+        });
     }
     
     [TestMethod]        
     [DynamicData(nameof(QuineBombNames))]
-    [ExpectedException(typeof(OverflowException))]
     public async Task TestQuineBombsAsync(string fileName)
     {
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Bombs", fileName);
-        _ = await extractor.ExtractAsync(path, new ExtractorOptions() { MemoryStreamCutoff = 1024 * 1024 * 1024 }).ToListAsync();
+        await Assert.ThrowsExactlyAsync<OverflowException>(async () =>
+        {
+            _ = await extractor.ExtractAsync(path, new ExtractorOptions() { MemoryStreamCutoff = 1024 * 1024 * 1024 }).ToListAsync(TestContext.CancellationTokenSource.Token);
+        });
     }
 }
