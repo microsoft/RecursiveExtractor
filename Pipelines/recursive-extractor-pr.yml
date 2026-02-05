@@ -42,7 +42,7 @@ extends:
           poolName: MSSecurity-1ES-Build-Agents-Pool
           poolImage: MSSecurity-1ES-Windows-2022
           poolOs: windows
-          dotnetTestArgs: '--logger trx --results-directory $(Build.SourcesDirectory)/TestResults -- --coverage'
+          dotnetTestArgs: '-- --coverage --report-trx'
           includeNuGetOrg: false
           nugetFeedsToUse: 'config'
           nugetConfigPath: 'nuget.config'
@@ -57,7 +57,7 @@ extends:
           poolName: MSSecurity-1ES-Build-Agents-Pool
           poolImage: MSSecurity-1ES-Windows-2022
           poolOs: windows
-          dotnetTestArgs: '--logger trx --results-directory $(Build.SourcesDirectory)/TestResults -- --coverage'
+          dotnetTestArgs: '-- --coverage --report-trx'
           includeNuGetOrg: false
           nugetFeedsToUse: 'config'
           nugetConfigPath: 'nuget.config'
