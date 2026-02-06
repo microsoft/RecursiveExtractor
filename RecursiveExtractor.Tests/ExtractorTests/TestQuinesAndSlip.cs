@@ -1,7 +1,5 @@
 ﻿using Microsoft.CST.RecursiveExtractor;
-using SharpCompress.Archives.Tar;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,16 +10,16 @@ namespace RecursiveExtractor.Tests.ExtractorTests;
 [Collection(ExtractorTestCollection.Name)]
 public class TestQuinesAndSlip
 {
-    public static IEnumerable<object[]> ZipSlipNames
+    public static TheoryData<string> ZipSlipNames
     {
         get
         {
-            return new[]
+            return new TheoryData<string>
             { 
-                new object [] { "zip-slip-win.zip" },
-                new object [] { "zip-slip-win.tar" },
-                new object [] { "zip-slip.zip" },
-                new object [] { "zip-slip.tar" }
+                { "zip-slip-win.zip" },
+                { "zip-slip-win.tar" },
+                { "zip-slip.zip" },
+                { "zip-slip.tar" }
             };
         }
     }
@@ -46,19 +44,19 @@ public class TestQuinesAndSlip
         Assert.True(results.All(x => !x.FullPath.Contains("..")));
     }
     
-    public static IEnumerable<object[]> QuineBombNames
+    public static TheoryData<string> QuineBombNames
     {
         get
         {
-            return new[]
+            return new TheoryData<string>
             { 
-                new object [] { "10GB.7z.bz2" },
-                new object [] { "10GB.gz.bz2" },
-                new object [] { "10GB.rar.bz2" },
-                new object [] { "10GB.xz.bz2" },
-                new object [] { "10GB.zip.bz2" },
-                new object [] { "zblg.zip" },
-                new object [] { "zbsm.zip" }
+                { "10GB.7z.bz2" },
+                { "10GB.gz.bz2" },
+                { "10GB.rar.bz2" },
+                { "10GB.xz.bz2" },
+                { "10GB.zip.bz2" },
+                { "zblg.zip" },
+                { "zbsm.zip" }
             };
         }
     }
