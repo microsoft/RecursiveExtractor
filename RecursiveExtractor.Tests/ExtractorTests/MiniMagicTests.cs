@@ -30,7 +30,7 @@ public class MiniMagicTests : BaseExtractorTestClass
     public void TestMiniMagic(string fileName, ArchiveFileType expectedArchiveFileType)
     {
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
-        using var fs = new FileStream(path, FileMode.Open);
+        using var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
         // Test just based on the content
         var fileEntry = new FileEntry("NoName", fs);
 
