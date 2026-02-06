@@ -62,6 +62,8 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     catch (Exception e)
                     {
                         Logger.Debug(Extractor.FAILED_PARSING_ERROR_MESSAGE_STRING, ArchiveFileType.TAR, fileEntry.FullPath, tarEntry.Key, e.GetType());
+                        fs?.Dispose();
+                        continue;
                     }
                     var name = tarEntry.Key?.Replace('/', Path.DirectorySeparatorChar);
                     if (string.IsNullOrEmpty(name))
@@ -132,6 +134,8 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     catch (Exception e)
                     {
                         Logger.Debug(Extractor.FAILED_PARSING_ERROR_MESSAGE_STRING, ArchiveFileType.TAR, fileEntry.FullPath, tarEntry.Key, e.GetType());
+                        fs?.Dispose();
+                        continue;
                     }
                     var name = tarEntry.Key?.Replace('/', Path.DirectorySeparatorChar);
                     if (string.IsNullOrEmpty(name))
