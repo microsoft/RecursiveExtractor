@@ -49,6 +49,10 @@ extends:
           nugetConfigPath: 'nuget.config'
           onInit:
             - task: NuGetAuthenticate@1
+          postTest:
+            - task: PublishCodeCoverageResults@2
+              inputs:
+                summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
       - template: dotnet-test-job.yml@templates
         parameters:
           jobName: 'cli_dotnet_test_windows'
@@ -63,6 +67,10 @@ extends:
           nugetConfigPath: 'nuget.config'
           onInit:
             - task: NuGetAuthenticate@1
+          postTest:
+            - task: PublishCodeCoverageResults@2
+              inputs:
+                summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
 
     - stage: Build
       dependsOn:
