@@ -223,9 +223,9 @@ namespace RecursiveExtractor.Tests.ExtractorTests
         [DynamicData(nameof(ArchiveData))]
         public async Task ExtractArchiveFromStreamAsync(string fileName, int expectedNumFiles)
         {
-            var extractor = new Extractor();
+        var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
-            using var stream = new FileStream(path, FileMode.Open);
+            using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
             var results = extractor.ExtractAsync(path, stream, new ExtractorOptions());
             var numFiles = 0;
             await foreach (var result in results)
@@ -240,9 +240,9 @@ namespace RecursiveExtractor.Tests.ExtractorTests
         [DynamicData(nameof(ArchiveData))]
         public void ExtractArchiveFromStream(string fileName, int expectedNumFiles)
         {
-            var extractor = new Extractor();
+        var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
-            using var stream = new FileStream(path, FileMode.Open);
+            using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
             var results = extractor.Extract(path, stream, GetExtractorOptions());
             Assert.AreEqual(expectedNumFiles, results.Count());
             stream.Close();
