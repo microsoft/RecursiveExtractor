@@ -240,7 +240,7 @@ namespace RecursiveExtractor.Tests.ExtractorTests
         [DynamicData(nameof(ArchiveData))]
         public void ExtractArchiveFromStream(string fileName, int expectedNumFiles)
         {
-        var extractor = new Extractor();
+            var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
             var results = extractor.Extract(path, stream, GetExtractorOptions());
