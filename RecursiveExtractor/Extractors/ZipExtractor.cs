@@ -50,7 +50,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             using var testStream = testEntry.OpenEntryStream();
                             // If we can read without exception, password is correct
                             var buffer = new byte[1];
-                            testStream.Read(buffer, 0, 1);
+                            testStream.ReadExactly(buffer, 0, 1);
                             return password;
                         }
                     }

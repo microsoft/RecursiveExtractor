@@ -30,7 +30,7 @@ namespace Microsoft.CST.RecursiveExtractor
 
             while (fileEntry.Content.Length - fileEntry.Content.Position >= 60)
             {
-                fileEntry.Content.Read(headerBytes, 0, 60);
+                fileEntry.Content.ReadExactly(headerBytes, 0, 60);
                 var filename = Encoding.ASCII.GetString(headerBytes[0..16]).Trim();  // filename is 16 bytes
                 var fileSizeBytes = headerBytes[48..58]; // File size is decimal-encoded, 10 bytes long
                 if (int.TryParse(Encoding.ASCII.GetString(fileSizeBytes).Trim(), out var fileSize))
@@ -39,7 +39,7 @@ namespace Microsoft.CST.RecursiveExtractor
                     governor.AdjustRemainingBytes(-fileSize);
 
                     var entryContent = new byte[fileSize];
-                    fileEntry.Content.Read(entryContent, 0, fileSize);
+                    fileEntry.Content.ReadExactly(entryContent, 0, fileSize);
                     var stream = new MemoryStream(entryContent);
                     yield return new FileEntry(filename, stream, fileEntry, true);
                 }
@@ -70,7 +70,7 @@ namespace Microsoft.CST.RecursiveExtractor
 
             while (fileEntry.Content.Length - fileEntry.Content.Position >= 60)
             {
-                fileEntry.Content.Read(headerBytes, 0, 60);
+                fileEntry.Content.ReadExactly(headerBytes, 0, 60);
                 var filename = Encoding.ASCII.GetString(headerBytes[0..16]).Trim();  // filename is 16 bytes
                 var fileSizeBytes = headerBytes[48..58]; // File size is decimal-encoded, 10 bytes long
                 if (int.TryParse(Encoding.ASCII.GetString(fileSizeBytes).Trim(), out var fileSize))

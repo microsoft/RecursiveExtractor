@@ -32,7 +32,7 @@ namespace Microsoft.CST.RecursiveExtractor
             var headerBuffer = new byte[60];
             while (fileEntry.Content.Length - fileEntry.Content.Position >= 60)
             {
-                fileEntry.Content.Read(headerBuffer, 0, 60);
+                fileEntry.Content.ReadExactly(headerBuffer, 0, 60);
                 var headerString = Encoding.ASCII.GetString(headerBuffer);
                 if (long.TryParse(Encoding.ASCII.GetString(headerBuffer[48..58]), out var size))// header size in bytes
                 {
@@ -46,7 +46,7 @@ namespace Microsoft.CST.RecursiveExtractor
                         // This should just be a list of names, size should be safe to load in memory and cast
                         // to int
                         var fileNamesBytes = new byte[size];
-                        fileEntry.Content.Read(fileNamesBytes, 0, (int)size);
+                        fileEntry.Content.ReadExactly(fileNamesBytes, 0, (int)size);
 
                         var name = new StringBuilder();
                         var index = 0;
@@ -76,7 +76,7 @@ namespace Microsoft.CST.RecursiveExtractor
                             var nameSpan = new byte[nameLength];
                             // This should move us right to the file
 
-                            fileEntry.Content.Read(nameSpan, 0, nameLength);
+                            fileEntry.Content.ReadExactly(nameSpan, 0, nameLength);
 
                             var entryStream = StreamFactory.GenerateAppropriateBackingStream(options, size - nameLength);
 
@@ -93,7 +93,7 @@ namespace Microsoft.CST.RecursiveExtractor
                         // terminated strings "symbol name" (possibly filename)
 
                         var tableContents = new byte[size];
-                        fileEntry.Content.Read(tableContents, 0, (int)size);
+                        fileEntry.Content.ReadExactly(tableContents, 0, (int)size);
 
                         var numEntries = IntFromBigEndianBytes(tableContents[0..4]);
                         var filePositions = new int[numEntries];
@@ -124,7 +124,7 @@ namespace Microsoft.CST.RecursiveExtractor
                         foreach (var entry in fileEntries)
                         {
                             fileEntry.Content.Position = entry.Item1;
-                            fileEntry.Content.Read(headerBuffer, 0, 60);
+                            fileEntry.Content.ReadExactly(headerBuffer, 0, 60);
 
                             if (long.TryParse(Encoding.ASCII.GetString(headerBuffer[48..58]), out var innerSize))// header size in bytes
                             {
@@ -162,14 +162,14 @@ namespace Microsoft.CST.RecursiveExtractor
                         // strings "symbol name" (possibly filename)
 
                         var buffer = new byte[8];
-                        fileEntry.Content.Read(buffer, 0, 8);
+                        fileEntry.Content.ReadExactly(buffer, 0, 8);
 
                         var numEntries = Int64FromBigEndianBytes(buffer);
                         var filePositions = new long[numEntries];
 
                         for (var i = 0; i < numEntries; i++)
                         {
-                            fileEntry.Content.Read(buffer, 0, 8);
+                            fileEntry.Content.ReadExactly(buffer, 0, 8);
                             filePositions[i] = Int64FromBigEndianBytes(buffer);
                         }
 
@@ -179,7 +179,7 @@ namespace Microsoft.CST.RecursiveExtractor
 
                         while (fileEntry.Content.Position < size)
                         {
-                            fileEntry.Content.Read(buffer, 0, 1);
+                            fileEntry.Content.ReadExactly(buffer, 0, 1);
                             if (buffer[0] == '\0')
                             {
                                 fileEntries.Add((filePositions[index++], sb.ToString()));
@@ -195,7 +195,7 @@ namespace Microsoft.CST.RecursiveExtractor
                         {
                             fileEntry.Content.Position = innerEntry.Item1;
 
-                            fileEntry.Content.Read(headerBuffer, 0, 60);
+                            fileEntry.Content.ReadExactly(headerBuffer, 0, 60);
 
                             if (long.TryParse(Encoding.ASCII.GetString(headerBuffer[48..58]), out var innerSize))// header size in bytes
                             {
@@ -217,9 +217,9 @@ namespace Microsoft.CST.RecursiveExtractor
                                 {
                                     filename = innerEntry.Item2;
                                 }
+
                                 var entryStream = StreamFactory.GenerateAppropriateBackingStream(options, innerSize);
                                 CopyStreamBytes(fileEntry.Content, entryStream, innerSize);
-
                                 yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true);
                             }
                         }
@@ -281,7 +281,7 @@ namespace Microsoft.CST.RecursiveExtractor
             var headerBuffer = new byte[60];
             while (fileEntry.Content.Length - fileEntry.Content.Position >= 60)
             {
-                fileEntry.Content.Read(headerBuffer, 0, 60);
+                fileEntry.Content.ReadExactly(headerBuffer, 0, 60);
                 if (long.TryParse(Encoding.ASCII.GetString(headerBuffer[48..58]), out var size))// header size in bytes
                 {
                     governor.CheckResourceGovernor(size);
@@ -339,7 +339,7 @@ namespace Microsoft.CST.RecursiveExtractor
                         // terminated strings "symbol name" (possibly filename)
 
                         var tableContents = new byte[size];
-                        fileEntry.Content.Read(tableContents, 0, (int)size);
+                        fileEntry.Content.ReadExactly(tableContents, 0, (int)size);
 
                         var numEntries = IntFromBigEndianBytes(tableContents[0..4]);
                         var filePositions = new int[numEntries];
@@ -407,14 +407,14 @@ namespace Microsoft.CST.RecursiveExtractor
                         // strings "symbol name" (possibly filename)
 
                         var buffer = new byte[8];
-                        fileEntry.Content.Read(buffer, 0, 8);
+                        fileEntry.Content.ReadExactly(buffer, 0, 8);
 
                         var numEntries = Int64FromBigEndianBytes(buffer);
                         var filePositions = new long[numEntries];
 
                         for (var i = 0; i < numEntries; i++)
                         {
-                            fileEntry.Content.Read(buffer, 0, 8);
+                            fileEntry.Content.ReadExactly(buffer, 0, 8);
                             filePositions[i] = Int64FromBigEndianBytes(buffer);
                         }
 
@@ -424,7 +424,7 @@ namespace Microsoft.CST.RecursiveExtractor
 
                         while (fileEntry.Content.Position < size)
                         {
-                            fileEntry.Content.Read(buffer, 0, 1);
+                            fileEntry.Content.ReadExactly(buffer, 0, 1);
                             if (buffer[0] == '\0')
                             {
                                 fileEntries.Add((filePositions[index++], sb.ToString()));
@@ -440,7 +440,7 @@ namespace Microsoft.CST.RecursiveExtractor
                         {
                             fileEntry.Content.Position = innerEntry.Item1;
 
-                            fileEntry.Content.Read(headerBuffer, 0, 60);
+                            fileEntry.Content.ReadExactly(headerBuffer, 0, 60);
 
                             if (long.TryParse(Encoding.ASCII.GetString(headerBuffer[48..58]), out var innerSize))// header size in bytes
                             {
