@@ -301,6 +301,15 @@
     <None Update="TestData\TestDataArchives\UdfTestWithMultiSystem.iso">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="TestData\TestDataArchives\TestData.arj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\TestDataArchives\TestData.arc">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\TestDataArchives\TestData.ace">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="TestData\Bombs\zoneinfo-2010g.tar">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
