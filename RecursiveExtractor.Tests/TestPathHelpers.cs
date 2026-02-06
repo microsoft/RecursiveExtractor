@@ -9,7 +9,10 @@ public static class TestPathHelpers
 {
     public const string TestTempFolderName = "RE_Tests";
 
-    public static string TestDirectoryPath => Path.Combine(Path.GetTempPath(), TestTempFolderName);
+    // Use a process-unique subdirectory to avoid cross-TFM/cross-process interference
+    private static readonly string ProcessId = System.Diagnostics.Process.GetCurrentProcess().Id.ToString();
+
+    public static string TestDirectoryPath => Path.Combine(Path.GetTempPath(), TestTempFolderName, ProcessId);
     
     public static string GetFreshTestDirectory()
     {
@@ -20,7 +23,7 @@ public static class TestPathHelpers
     {
         try
         {
-            Directory.Delete(Path.Combine(TestDirectoryPath), true);
+            Directory.Delete(TestDirectoryPath, true);
         }
         catch (DirectoryNotFoundException)
         {
