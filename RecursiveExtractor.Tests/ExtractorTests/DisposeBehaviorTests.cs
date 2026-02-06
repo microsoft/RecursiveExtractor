@@ -132,13 +132,22 @@ public class DisposeBehaviorTests : BaseExtractorTestClass
         var extractor = new Extractor();
         extractor.ExtractToDirectory(directory, copyPath);
         File.Delete(copyPath);
-        if (Directory.Exists(directory))
+        try
         {
-            Directory.Delete(directory, true);
+            if (Directory.Exists(directory))
+            {
+                Directory.Delete(directory, true);
+            }
         }
-        if (Directory.Exists(copyDirectory)) {
-            Directory.Delete(copyDirectory, true);
+        catch (DirectoryNotFoundException) { }
+        try
+        {
+            if (Directory.Exists(copyDirectory))
+            {
+                Directory.Delete(copyDirectory, true);
+            }
         }
+        catch (DirectoryNotFoundException) { }
     }
 
     [Theory]
@@ -155,13 +164,21 @@ public class DisposeBehaviorTests : BaseExtractorTestClass
         var extractor = new Extractor();
         await extractor.ExtractToDirectoryAsync(directory, copyPath);
         File.Delete(copyPath);
-        if (Directory.Exists(directory))
+        try
         {
-            Directory.Delete(directory, true);
+            if (Directory.Exists(directory))
+            {
+                Directory.Delete(directory, true);
+            }
         }
-        if (Directory.Exists(copyDirectory))
+        catch (DirectoryNotFoundException) { }
+        try
         {
-            Directory.Delete(copyDirectory, true);
+            if (Directory.Exists(copyDirectory))
+            {
+                Directory.Delete(copyDirectory, true);
+            }
         }
+        catch (DirectoryNotFoundException) { }
     }
 }
