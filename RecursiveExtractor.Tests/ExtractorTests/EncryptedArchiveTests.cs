@@ -1,37 +1,36 @@
 ﻿using Microsoft.CST.RecursiveExtractor;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace RecursiveExtractor.Tests.ExtractorTests;
 
-[TestClass]
-public class EncryptedArchiveTests : BaseExtractorTestClass
+public class EncryptedArchiveTests
 {
-    [DataTestMethod]
-    [DataRow("TestDataEncryptedZipCrypto.zip")]
-    [DataRow("TestDataEncryptedAes.zip")]
-    [DataRow("TestDataEncrypted.7z")]
-    [DataRow("TestDataEncrypted.rar4")]
-    [DataRow("TestDataEncrypted.rar")]
+    [Theory]
+    [InlineData("TestDataEncryptedZipCrypto.zip")]
+    [InlineData("TestDataEncryptedAes.zip")]
+    [InlineData("TestDataEncrypted.7z")]
+    [InlineData("TestDataEncrypted.rar4")]
+    [InlineData("TestDataEncrypted.rar")]
     public void FileTypeSetCorrectlyForEncryptedArchives(string fileName, int expectedNumFiles = 1)
     {
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
         var results = extractor.Extract(path, new ExtractorOptions() { Parallel = false }).ToList();
-        Assert.AreEqual(expectedNumFiles, results.Count());
-        Assert.AreEqual(FileEntryStatus.EncryptedArchive, results.First().EntryStatus);
+        Assert.Equal(expectedNumFiles, results.Count());
+        Assert.Equal(FileEntryStatus.EncryptedArchive, results.First().EntryStatus);
     }
 
-    [DataTestMethod]
-    [DataRow("TestDataEncryptedZipCrypto.zip")]
-    [DataRow("TestDataEncryptedAes.zip")]
-    [DataRow("TestDataEncrypted.7z")]
-    [DataRow("TestDataEncrypted.rar4")]
-    [DataRow("TestDataEncrypted.rar")]
+    [Theory]
+    [InlineData("TestDataEncryptedZipCrypto.zip")]
+    [InlineData("TestDataEncryptedAes.zip")]
+    [InlineData("TestDataEncrypted.7z")]
+    [InlineData("TestDataEncrypted.rar4")]
+    [InlineData("TestDataEncrypted.rar")]
     public async Task FileTypeSetCorrectlyForEncryptedArchivesAsync(string fileName, int expectedNumFiles = 1)
     {
         var extractor = new Extractor();
@@ -42,36 +41,36 @@ public class EncryptedArchiveTests : BaseExtractorTestClass
             results.Add(entry);
         }
 
-        Assert.AreEqual(expectedNumFiles, results.Count);
-        Assert.AreEqual(FileEntryStatus.EncryptedArchive, results.First().EntryStatus);
+        Assert.Equal(expectedNumFiles, results.Count);
+        Assert.Equal(FileEntryStatus.EncryptedArchive, results.First().EntryStatus);
     }
 
-    [DataTestMethod]
-    [DataRow("TestDataEncryptedZipCrypto.zip")]
-    [DataRow("TestDataEncryptedAes.zip")]
-    [DataRow("TestDataEncrypted.7z")]
-    [DataRow("TestDataEncrypted.rar4")]
-    [DataRow("EncryptedWithPlainNames.7z")]
-    [DataRow("EncryptedWithPlainNames.rar4")]
-    //[DataRow("TestDataEncrypted.rar")] // RAR5 is not yet supported by SharpCompress: https://github.com/adamhathcock/sharpcompress/issues/517
+    [Theory]
+    [InlineData("TestDataEncryptedZipCrypto.zip")]
+    [InlineData("TestDataEncryptedAes.zip")]
+    [InlineData("TestDataEncrypted.7z")]
+    [InlineData("TestDataEncrypted.rar4")]
+    [InlineData("EncryptedWithPlainNames.7z")]
+    [InlineData("EncryptedWithPlainNames.rar4")]
+    //[InlineData("TestDataEncrypted.rar")] // RAR5 is not yet supported by SharpCompress: https://github.com/adamhathcock/sharpcompress/issues/517
     public void ExtractEncryptedArchive(string fileName, int expectedNumFiles = 3)
     {
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
         var results = extractor.Extract(path, new ExtractorOptions() { Passwords = TestArchivePasswords, ExtractSelfOnFail = false })
             .ToList(); // Make this a list so it fully populates
-        Assert.AreEqual(expectedNumFiles, results.Count);
-        Assert.AreEqual(0, results.Count(x => x.EntryStatus == FileEntryStatus.EncryptedArchive || x.EntryStatus == FileEntryStatus.FailedArchive));
+        Assert.Equal(expectedNumFiles, results.Count);
+        Assert.Equal(0, results.Count(x => x.EntryStatus == FileEntryStatus.EncryptedArchive || x.EntryStatus == FileEntryStatus.FailedArchive));
     }
 
-    [DataTestMethod]
-    [DataRow("TestDataEncryptedZipCrypto.zip")]
-    [DataRow("TestDataEncryptedAes.zip")]
-    [DataRow("TestDataEncrypted.7z")]
-    [DataRow("TestDataEncrypted.rar4")]
-    [DataRow("EncryptedWithPlainNames.7z")]
-    [DataRow("EncryptedWithPlainNames.rar4")]
-    //[DataRow("TestDataEncrypted.rar")] // RAR5 is not yet supported by SharpCompress: https://github.com/adamhathcock/sharpcompress/issues/517
+    [Theory]
+    [InlineData("TestDataEncryptedZipCrypto.zip")]
+    [InlineData("TestDataEncryptedAes.zip")]
+    [InlineData("TestDataEncrypted.7z")]
+    [InlineData("TestDataEncrypted.rar4")]
+    [InlineData("EncryptedWithPlainNames.7z")]
+    [InlineData("EncryptedWithPlainNames.rar4")]
+    //[InlineData("TestDataEncrypted.rar")] // RAR5 is not yet supported by SharpCompress: https://github.com/adamhathcock/sharpcompress/issues/517
     public async Task ExtractEncryptedArchiveAsync(string fileName, int expectedNumFiles = 3)
     {
         var extractor = new Extractor();
@@ -88,8 +87,8 @@ public class EncryptedArchiveTests : BaseExtractorTestClass
             }
         }
 
-        Assert.AreEqual(expectedNumFiles, numEntries);
-        Assert.AreEqual(0, numEntriesEncrypted);
+        Assert.Equal(expectedNumFiles, numEntries);
+        Assert.Equal(0, numEntriesEncrypted);
     }
 
 

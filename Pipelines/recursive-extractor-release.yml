@@ -43,12 +43,16 @@ extends:
           poolName: MSSecurity-1ES-Build-Agents-Pool
           poolImage: MSSecurity-1ES-Windows-2022
           poolOs: windows
-          dotnetTestArgs: '-- --coverage --report-trx'
+          dotnetTestArgs: '--settings coverlet.runsettings --collect:"XPlat Code Coverage"'
           includeNuGetOrg: false
           nugetFeedsToUse: 'config'
           nugetConfigPath: 'nuget.config'
           onInit:
             - task: NuGetAuthenticate@1
+          postTest:
+            - task: PublishCodeCoverageResults@2
+              inputs:
+                summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
       - template: dotnet-test-job.yml@templates
         parameters:
           jobName: 'cli_dotnet_test_windows'
@@ -57,12 +61,16 @@ extends:
           poolName: MSSecurity-1ES-Build-Agents-Pool
           poolImage: MSSecurity-1ES-Windows-2022
           poolOs: windows
-          dotnetTestArgs: '-- --coverage --report-trx'
+          dotnetTestArgs: '--settings coverlet.runsettings --collect:"XPlat Code Coverage"'
           includeNuGetOrg: false
           nugetFeedsToUse: 'config'
           nugetConfigPath: 'nuget.config'
           onInit:
             - task: NuGetAuthenticate@1
+          postTest:
+            - task: PublishCodeCoverageResults@2
+              inputs:
+                summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
 
     - stage: Build
       dependsOn:

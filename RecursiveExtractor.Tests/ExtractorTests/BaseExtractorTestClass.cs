@@ -1,21 +1,19 @@
 ﻿using Microsoft.CST.RecursiveExtractor.Tests;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NLog;
 using NLog.Config;
 using NLog.Targets;
+using System;
 
 namespace RecursiveExtractor.Tests.ExtractorTests;
 
-public class BaseExtractorTestClass
+/// <summary>
+/// XUnit test fixture class for extractor tests. Sets up logging and test directories. Tests should use this class as a fixture via IClassFixture&lt;BaseExtractorTestClass&gt; to get the benefits of the setup and teardown.
+/// </summary>
+public class BaseExtractorTestClass : IDisposable
 {
-    [ClassCleanup]
-    public static void ClassCleanup()
-    {
-        TestPathHelpers.DeleteTestDirectory();
-    }
+    protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-    [ClassInitialize]
-    public static void ClassInitialize(TestContext context)
+    static BaseExtractorTestClass()
     {
         var config = new LoggingConfiguration();
         var consoleTarget = new ConsoleTarget
@@ -27,5 +25,11 @@ public class BaseExtractorTestClass
 
         LogManager.Configuration = config;
     }
-    protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        TestPathHelpers.DeleteTestDirectory();
+        GC.SuppressFinalize(this);
+    }
 }
