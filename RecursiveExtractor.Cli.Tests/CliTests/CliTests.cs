@@ -12,7 +12,7 @@ using Xunit;
 
 namespace RecursiveExtractor.Tests.CliTests
 {
-    public class CliTests : BaseExtractorTestClass
+    public class CliTests : IClassFixture<BaseExtractorTestClass>
     {
         [Theory]
         [InlineData("TestData.zip", 5)]

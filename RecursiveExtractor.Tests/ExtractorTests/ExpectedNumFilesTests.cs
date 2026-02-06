@@ -11,7 +11,7 @@ using Xunit;
 
 namespace RecursiveExtractor.Tests.ExtractorTests
 {
-    public class ExpectedNumFilesTests : BaseExtractorTestClass
+    public class ExpectedNumFilesTests : IClassFixture<BaseExtractorTestClass>
     {
      
         /// <summary>

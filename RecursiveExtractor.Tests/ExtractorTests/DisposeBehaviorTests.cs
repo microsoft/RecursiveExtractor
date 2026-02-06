@@ -8,7 +8,7 @@ using Xunit;
 
 namespace RecursiveExtractor.Tests.ExtractorTests;
 
-public class DisposeBehaviorTests : BaseExtractorTestClass
+public class DisposeBehaviorTests : IClassFixture<BaseExtractorTestClass>
 {
     [Theory]
     [InlineData("TestData.7z", 3, false)]

@@ -8,7 +8,7 @@ using Xunit;
 
 namespace RecursiveExtractor.Tests.ExtractorTests;
 
-public class EncryptedArchiveTests : BaseExtractorTestClass
+public class EncryptedArchiveTests : IClassFixture<BaseExtractorTestClass>
 {
     [Theory]
     [InlineData("TestDataEncryptedZipCrypto.zip")]

@@ -7,7 +7,7 @@ using Xunit;
 
 namespace RecursiveExtractor.Tests.ExtractorTests;
 
-public class FilterTests : BaseExtractorTestClass
+public class FilterTests : IClassFixture<BaseExtractorTestClass>
 {
     [Theory]
     [InlineData("TestData.zip")]

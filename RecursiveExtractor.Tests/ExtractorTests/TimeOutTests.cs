@@ -1,4 +1,4 @@
-﻿using Microsoft.CST.RecursiveExtractor;
+using Microsoft.CST.RecursiveExtractor;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -6,7 +6,7 @@ using Xunit;
 
 namespace RecursiveExtractor.Tests.ExtractorTests;
 
-public class TimeOutTests : BaseExtractorTestClass
+public class TimeOutTests : IClassFixture<BaseExtractorTestClass>
 {
     [Theory]
     [InlineData("TestData.7z", false)]
