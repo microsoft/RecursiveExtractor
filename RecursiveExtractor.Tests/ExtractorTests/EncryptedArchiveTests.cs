@@ -8,7 +8,6 @@ using Xunit;
 
 namespace RecursiveExtractor.Tests.ExtractorTests;
 
-[Collection(ExtractorTestCollection.Name)]
 public class EncryptedArchiveTests
 {
     [Theory]

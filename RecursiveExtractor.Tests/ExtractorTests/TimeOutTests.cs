@@ -6,7 +6,6 @@ using Xunit;
 
 namespace RecursiveExtractor.Tests.ExtractorTests;
 
-[Collection(ExtractorTestCollection.Name)]
 public class TimeOutTests
 {
     [Theory]

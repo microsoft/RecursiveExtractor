@@ -7,7 +7,6 @@ using Xunit;
 
 namespace RecursiveExtractor.Tests.ExtractorTests;
 
-[Collection(ExtractorTestCollection.Name)]
 public class TestQuinesAndSlip
 {
     public static TheoryData<string> ZipSlipNames
