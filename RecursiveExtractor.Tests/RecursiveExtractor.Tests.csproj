@@ -5,7 +5,6 @@
     <IsPackable>false</IsPackable>
     <Nullable>enable</Nullable>
     <LangVersion>10.0</LangVersion>
-    <OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,9 +13,10 @@
     <PackageReference Include="LTRData.DiscUtils.SquashFs" Version="1.0.64" />
     <PackageReference Include="LTRData.DiscUtils.Xfs" Version="1.0.64" />
     <PackageReference Include="NLog.Extensions.Logging" Version="6.0.3" />
-    <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="17.14.2" />
-    <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" Version="1.8.4" />
-    <PackageReference Include="MSTest" Version="3.10.4" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2" />
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 

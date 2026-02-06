@@ -2,16 +2,15 @@
 
 using Microsoft.CST.RecursiveExtractor;
 using Microsoft.CST.RecursiveExtractor.Tests;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace RecursiveExtractor.Tests.ExtractorTests
 {
-    [TestClass]
     public class ExpectedNumFilesTests : BaseExtractorTestClass
     {
      
@@ -88,15 +87,15 @@ namespace RecursiveExtractor.Tests.ExtractorTests
         private ExtractorOptions defaultExtractorTestOptions = new ExtractorOptions() { MaxExtractedBytesRatio = 300 };
         private ExtractorOptions defaultExtractorTestOptionsParallel = new ExtractorOptions() { Parallel = true, MaxExtractedBytesRatio = 300 };
         
-        [TestMethod]
-        [DynamicData(nameof(ArchiveData))]
+        [Theory]
+        [MemberData(nameof(ArchiveData))]
         public void ExtractArchiveToDirectoryParallel(string fileName, int expectedNumFiles)
         {
             ExtractArchiveToDirectory(fileName, expectedNumFiles, true);
         }
         
-        [TestMethod]
-        [DynamicData(nameof(ArchiveData))]
+        [Theory]
+        [MemberData(nameof(ArchiveData))]
         public void ExtractArchiveToDirectorySingleThread(string fileName, int expectedNumFiles)
         {
             ExtractArchiveToDirectory(fileName, expectedNumFiles, false);
@@ -113,27 +112,27 @@ namespace RecursiveExtractor.Tests.ExtractorTests
             {
                 files = Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories).ToArray();
             }
-            Assert.AreEqual(expectedNumFiles, files.Length);
+            Assert.Equal(expectedNumFiles, files.Length);
         }
 
-        [TestMethod]
-        [DynamicData(nameof(ArchiveData))]
+        [Theory]
+        [MemberData(nameof(ArchiveData))]
         public async Task ExtractArchiveToDirectoryAsync(string fileName, int expectedNumFiles)
         {
             var directory = TestPathHelpers.GetFreshTestDirectory();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var extractor = new Extractor();
-            Assert.AreEqual(ExtractionStatusCode.Ok, await extractor.ExtractToDirectoryAsync(directory, path, GetExtractorOptions()).ConfigureAwait(false));
+            Assert.Equal(ExtractionStatusCode.Ok, await extractor.ExtractToDirectoryAsync(directory, path, GetExtractorOptions()));
             var files = Array.Empty<string>();
             if (Directory.Exists(directory))
             {
                 files = Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories).ToArray();
             }
-            Assert.AreEqual(expectedNumFiles, files.Length);
+            Assert.Equal(expectedNumFiles, files.Length);
         }
 
-        [TestMethod]
-        [DynamicData(nameof(NoRecursionData))]
+        [Theory]
+        [MemberData(nameof(NoRecursionData))]
         public async Task ExtractArchiveAsyncNoRecursion(string fileName, int expectedNumFiles)
         {
             var extractor = new Extractor();
@@ -145,11 +144,11 @@ namespace RecursiveExtractor.Tests.ExtractorTests
             {
                 numResults++;
             }
-            Assert.AreEqual(expectedNumFiles, numResults);
+            Assert.Equal(expectedNumFiles, numResults);
         }
 
-        [TestMethod]
-        [DynamicData(nameof(NoRecursionData))]
+        [Theory]
+        [MemberData(nameof(NoRecursionData))]
         public void ExtractArchiveParallelNoRecursion(string fileName, int expectedNumFiles)
         {
             var extractor = new Extractor();
@@ -157,11 +156,11 @@ namespace RecursiveExtractor.Tests.ExtractorTests
             var opts = GetExtractorOptions(true);
             opts.Recurse = false;
             var results = extractor.Extract(path, opts);
-            Assert.AreEqual(expectedNumFiles, results.Count(entry => entry.EntryStatus == FileEntryStatus.Default));
+            Assert.Equal(expectedNumFiles, results.Count(entry => entry.EntryStatus == FileEntryStatus.Default));
         }
 
-        [TestMethod]
-        [DynamicData(nameof(NoRecursionData))]
+        [Theory]
+        [MemberData(nameof(NoRecursionData))]
         public void ExtractArchiveNoRecursion(string fileName, int expectedNumFiles)
         {
             var extractor = new Extractor();
@@ -169,11 +168,11 @@ namespace RecursiveExtractor.Tests.ExtractorTests
             var opts = GetExtractorOptions();
             opts.Recurse = false;
             var results = extractor.Extract(path, opts);
-            Assert.AreEqual(expectedNumFiles, results.Count(entry => entry.EntryStatus == FileEntryStatus.Default));
+            Assert.Equal(expectedNumFiles, results.Count(entry => entry.EntryStatus == FileEntryStatus.Default));
         }
 
-        [TestMethod]
-        [DynamicData(nameof(ArchiveData))]
+        [Theory]
+        [MemberData(nameof(ArchiveData))]
         public void ExtractArchive(string fileName, int expectedNumFiles)
         {
             var extractor = new Extractor();
@@ -181,13 +180,13 @@ namespace RecursiveExtractor.Tests.ExtractorTests
             var results = extractor.Extract(path, GetExtractorOptions()).ToList();
             foreach (var result in results)
             {
-                Assert.AreNotEqual(FileEntryStatus.FailedArchive, result.EntryStatus);
+                Assert.NotEqual(FileEntryStatus.FailedArchive, result.EntryStatus);
             }
-            Assert.AreEqual(expectedNumFiles, results.Count);
+            Assert.Equal(expectedNumFiles, results.Count);
         }
         
-        [TestMethod]
-        [DynamicData(nameof(ArchiveData))]
+        [Theory]
+        [MemberData(nameof(ArchiveData))]
         public void ExtractArchiveParallel(string fileName, int expectedNumFiles)
         {
             var extractor = new Extractor();
@@ -195,11 +194,11 @@ namespace RecursiveExtractor.Tests.ExtractorTests
             var results = extractor.Extract(path, GetExtractorOptions(true)).ToList();
             var names = results.Select(x => x.FullPath);
             var stringOfNames = string.Join("\n", names);
-            Assert.AreEqual(expectedNumFiles, results.Count());
+            Assert.Equal(expectedNumFiles, results.Count());
         }
         
-        [TestMethod]
-        [DynamicData(nameof(ArchiveData))]
+        [Theory]
+        [MemberData(nameof(ArchiveData))]
         public async Task ExtractArchiveAsync(string fileName, int expectedNumFiles)
         {
             var extractor = new Extractor();
@@ -215,12 +214,12 @@ namespace RecursiveExtractor.Tests.ExtractorTests
                     files++;
                 }
             }
-            Assert.AreEqual(expectedNumFiles, numFound);
-            Assert.AreEqual(expectedNumFiles, files);
+            Assert.Equal(expectedNumFiles, numFound);
+            Assert.Equal(expectedNumFiles, files);
         }
 
-        [TestMethod]
-        [DynamicData(nameof(ArchiveData))]
+        [Theory]
+        [MemberData(nameof(ArchiveData))]
         public async Task ExtractArchiveFromStreamAsync(string fileName, int expectedNumFiles)
         {
         var extractor = new Extractor();
@@ -232,24 +231,24 @@ namespace RecursiveExtractor.Tests.ExtractorTests
             {
                 numFiles++;
             }
-            Assert.AreEqual(expectedNumFiles, numFiles);
+            Assert.Equal(expectedNumFiles, numFiles);
             stream.Close();
         }
 
-        [TestMethod]
-        [DynamicData(nameof(ArchiveData))]
+        [Theory]
+        [MemberData(nameof(ArchiveData))]
         public void ExtractArchiveFromStream(string fileName, int expectedNumFiles)
         {
         var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
             var results = extractor.Extract(path, stream, GetExtractorOptions());
-            Assert.AreEqual(expectedNumFiles, results.Count());
+            Assert.Equal(expectedNumFiles, results.Count());
             stream.Close();
         }
 
-        [TestMethod]
-        [DynamicData(nameof(ArchiveData))]        
+        [Theory]
+        [MemberData(nameof(ArchiveData))]        
         public void ExtractArchiveSmallBatchSize(string fileName, int expectedNumFiles)
         {
             var extractor = new Extractor();
@@ -257,7 +256,7 @@ namespace RecursiveExtractor.Tests.ExtractorTests
             var opts = GetExtractorOptions(true);
             opts.BatchSize = 2;
             var results = extractor.Extract(path, opts);
-            Assert.AreEqual(expectedNumFiles, results.Count(entry => entry.EntryStatus == FileEntryStatus.Default));
+            Assert.Equal(expectedNumFiles, results.Count(entry => entry.EntryStatus == FileEntryStatus.Default));
         }
     }
 }

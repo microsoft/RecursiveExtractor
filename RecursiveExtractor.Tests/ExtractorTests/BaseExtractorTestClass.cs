@@ -1,23 +1,16 @@
-﻿using Microsoft.CST.RecursiveExtractor.Tests;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Microsoft.CST.RecursiveExtractor.Tests;
 using NLog;
 using NLog.Config;
 using NLog.Targets;
 
 namespace RecursiveExtractor.Tests.ExtractorTests;
 
-public class BaseExtractorTestClass
+public class BaseExtractorTestClass : IDisposable
 {
-    public TestContext TestContext { get; set; } = null!;
+    protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-    [ClassCleanup]
-    public static void ClassCleanup()
-    {
-        TestPathHelpers.DeleteTestDirectory();
-    }
-
-    [ClassInitialize]
-    public static void ClassInitialize(TestContext context)
+    static BaseExtractorTestClass()
     {
         var config = new LoggingConfiguration();
         var consoleTarget = new ConsoleTarget
@@ -29,5 +22,9 @@ public class BaseExtractorTestClass
 
         LogManager.Configuration = config;
     }
-    protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+    public void Dispose()
+    {
+        TestPathHelpers.DeleteTestDirectory();
+    }
 }

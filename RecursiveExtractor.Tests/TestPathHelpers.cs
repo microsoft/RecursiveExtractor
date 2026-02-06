@@ -26,7 +26,7 @@ public static class TestPathHelpers
         {
             // Not an error. Not every test makes the folder.
         }
-        catch (Exception e)
+        catch (Exception)
         {
             // Throwing the exception up may cause tests to fail due to file system oddness so just log
             Logger.Warn("Failed to delete Test Working Directory at {directory}", TestDirectoryPath);

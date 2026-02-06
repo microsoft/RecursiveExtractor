@@ -1,30 +1,29 @@
 ﻿using Microsoft.CST.RecursiveExtractor;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
+using Xunit;
 
 namespace RecursiveExtractor.Tests.ExtractorTests;
 
-[TestClass]
 public class MiniMagicTests : BaseExtractorTestClass
 {
-    [TestMethod]
-    [DataRow("TestData.zip", ArchiveFileType.ZIP)]
-    [DataRow("TestData.7z", ArchiveFileType.P7ZIP)]
-    [DataRow("TestData.Tar", ArchiveFileType.TAR)]
-    [DataRow("TestData.rar", ArchiveFileType.RAR5)]
-    [DataRow("TestData.rar4", ArchiveFileType.RAR)]
-    [DataRow("TestData.tar.bz2", ArchiveFileType.BZIP2)]
-    [DataRow("TestData.tar.gz", ArchiveFileType.GZIP)]
-    [DataRow("TestData.tar.xz", ArchiveFileType.XZ)]
-    [DataRow("sysvbanner_1.0-17fakesync1_amd64.deb", ArchiveFileType.DEB)]
-    [DataRow("TestData.a", ArchiveFileType.AR)]
-    [DataRow("TestData.iso", ArchiveFileType.ISO_9660)]
-    [DataRow("UdfTest.iso", ArchiveFileType.UDF)]
-    [DataRow("TestData.vhdx", ArchiveFileType.VHDX)]
-    [DataRow("TestData.wim", ArchiveFileType.WIM)]
-    [DataRow("Empty.vmdk", ArchiveFileType.VMDK)]
-    [DataRow("HfsSampleUDCO.dmg", ArchiveFileType.DMG)]
-    [DataRow("EmptyFile.txt", ArchiveFileType.UNKNOWN)]
+    [Theory]
+    [InlineData("TestData.zip", ArchiveFileType.ZIP)]
+    [InlineData("TestData.7z", ArchiveFileType.P7ZIP)]
+    [InlineData("TestData.Tar", ArchiveFileType.TAR)]
+    [InlineData("TestData.rar", ArchiveFileType.RAR5)]
+    [InlineData("TestData.rar4", ArchiveFileType.RAR)]
+    [InlineData("TestData.tar.bz2", ArchiveFileType.BZIP2)]
+    [InlineData("TestData.tar.gz", ArchiveFileType.GZIP)]
+    [InlineData("TestData.tar.xz", ArchiveFileType.XZ)]
+    [InlineData("sysvbanner_1.0-17fakesync1_amd64.deb", ArchiveFileType.DEB)]
+    [InlineData("TestData.a", ArchiveFileType.AR)]
+    [InlineData("TestData.iso", ArchiveFileType.ISO_9660)]
+    [InlineData("UdfTest.iso", ArchiveFileType.UDF)]
+    [InlineData("TestData.vhdx", ArchiveFileType.VHDX)]
+    [InlineData("TestData.wim", ArchiveFileType.WIM)]
+    [InlineData("Empty.vmdk", ArchiveFileType.VMDK)]
+    [InlineData("HfsSampleUDCO.dmg", ArchiveFileType.DMG)]
+    [InlineData("EmptyFile.txt", ArchiveFileType.UNKNOWN)]
     public void TestMiniMagic(string fileName, ArchiveFileType expectedArchiveFileType)
     {
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
@@ -33,12 +32,12 @@ public class MiniMagicTests : BaseExtractorTestClass
         var fileEntry = new FileEntry("NoName", fs);
 
         // We make sure the expected type matches and we have reset the stream
-        Assert.AreEqual(expectedArchiveFileType, fileEntry.ArchiveType);
-        Assert.AreEqual(0, fileEntry.Content.Position);
+        Assert.Equal(expectedArchiveFileType, fileEntry.ArchiveType);
+        Assert.Equal(0, fileEntry.Content.Position);
 
         // Should also work if the stream doesn't start at 0
         fileEntry.Content.Position = 10;
-        Assert.AreEqual(expectedArchiveFileType, fileEntry.ArchiveType);
-        Assert.AreEqual(10, fileEntry.Content.Position);
+        Assert.Equal(expectedArchiveFileType, fileEntry.ArchiveType);
+        Assert.Equal(10, fileEntry.Content.Position);
     }
 }

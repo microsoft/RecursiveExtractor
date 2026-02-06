@@ -1,3 +1,3 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Xunit;
 
-[assembly: Parallelize(Workers = 0, Scope = ExecutionScope.MethodLevel)]
+[assembly: CollectionBehavior(DisableTestParallelization = false)]
