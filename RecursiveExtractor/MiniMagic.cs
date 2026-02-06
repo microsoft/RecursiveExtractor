@@ -85,6 +85,14 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         DMG,
         /// <summary>
+        /// An ARJ compressed archive.
+        /// </summary>
+        ARJ,
+        /// <summary>
+        /// An ARC compressed archive.
+        /// </summary>
+        ARC,
+        /// <summary>
         /// Unused.
         /// </summary>
         INVALID
@@ -172,6 +180,16 @@ namespace Microsoft.CST.RecursiveExtractor
                 if (buffer[0] == 0x37 && buffer[1] == 0x7A && buffer[2] == 0xBC && buffer[3] == 0xAF && buffer[4] == 0x27 && buffer[5] == 0x1C)
                 {
                     return ArchiveFileType.P7ZIP;
+                }
+                // ARJ archive header starts with 0x60, 0xEA
+                if (buffer[0] == 0x60 && buffer[1] == 0xEA)
+                {
+                    return ArchiveFileType.ARJ;
+                }
+                // ARC archive: marker byte 0x1A, then compression method (valid: 0x01-0x09 or 0x7F)
+                if (buffer[0] == 0x1A && ((buffer[1] >= 0x01 && buffer[1] <= 0x09) || buffer[1] == 0x7F))
+                {
+                    return ArchiveFileType.ARC;
                 }
                 if (Encoding.ASCII.GetString(buffer[0..8]) == "MSWIM\0\0\0" || Encoding.ASCII.GetString(buffer[0..8]) == "WLPWM\0\0\0")
                 {

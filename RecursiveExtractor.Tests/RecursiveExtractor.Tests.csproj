@@ -154,6 +154,12 @@
     <None Update="TestData\TestDataArchives\TestData.a">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="TestData\TestDataArchives\TestData.arc">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestData\TestDataArchives\TestData.arj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="TestData\TestDataArchives\TestData.bsd.ar">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

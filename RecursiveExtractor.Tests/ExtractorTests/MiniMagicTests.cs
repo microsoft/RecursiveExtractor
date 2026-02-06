@@ -23,6 +23,8 @@ public class MiniMagicTests
     [InlineData("TestData.wim", ArchiveFileType.WIM)]
     [InlineData("Empty.vmdk", ArchiveFileType.VMDK)]
     [InlineData("HfsSampleUDCO.dmg", ArchiveFileType.DMG)]
+    [InlineData("TestData.arj", ArchiveFileType.ARJ)]
+    [InlineData("TestData.arc", ArchiveFileType.ARC)]
     [InlineData("EmptyFile.txt", ArchiveFileType.UNKNOWN)]
     public void TestMiniMagic(string fileName, ArchiveFileType expectedArchiveFileType)
     {
