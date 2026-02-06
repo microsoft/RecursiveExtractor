@@ -228,7 +228,7 @@ namespace RecursiveExtractor.Tests.ExtractorTests
         [MemberData(nameof(ArchiveData))]
         public async Task ExtractArchiveFromStreamAsync(string fileName, int expectedNumFiles)
         {
-        var extractor = new Extractor();
+            var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
             var results = extractor.ExtractAsync(path, stream, new ExtractorOptions());
@@ -244,7 +244,6 @@ namespace RecursiveExtractor.Tests.ExtractorTests
             }
             Assert.Equal(0, numFailed);
             Assert.Equal(expectedNumFiles, numFiles);
-            stream.Close();
         }
 
         [Theory]

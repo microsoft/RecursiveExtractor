@@ -62,19 +62,22 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         }
 
                         governor.CheckResourceGovernor(entry.Size);
-                        var newFileEntry = await FileEntry.FromStreamAsync(name, aceReader.OpenEntryStream(), fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
-                        if (newFileEntry != null)
+                        using var entryStream = aceReader.OpenEntryStream()
                         {
-                            if (options.Recurse || topLevel)
+                            var newFileEntry = await FileEntry.FromStreamAsync(name, entryStream, fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
+                            if (newFileEntry != null)
                             {
-                                await foreach (var innerEntry in Context.ExtractAsync(newFileEntry, options, governor, false))
+                                if (options.Recurse || topLevel)
                                 {
-                                    yield return innerEntry;
+                                    await foreach (var innerEntry in Context.ExtractAsync(newFileEntry, options, governor, false))
+                                    {
+                                        yield return innerEntry;
+                                    }
                                 }
-                            }
-                            else
-                            {
-                                yield return newFileEntry;
+                                else
+                                {
+                                    yield return newFileEntry;
+                                }
                             }
                         }
                     }
@@ -125,14 +128,16 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         try
                         {
                             governor.CheckResourceGovernor(entry.Size);
-                            var stream = aceReader.OpenEntryStream();
-                            var name = entry.Key?.Replace('/', Path.DirectorySeparatorChar);
-                            if (string.IsNullOrEmpty(name))
+                            using var stream = aceReader.OpenEntryStream()
                             {
-                                Logger.Debug(Extractor.ENTRY_MISSING_NAME_ERROR_MESSAGE_STRING, ArchiveFileType.ACE, fileEntry.FullPath);
-                                continue;
+                                var name = entry.Key?.Replace('/', Path.DirectorySeparatorChar);
+                                if (string.IsNullOrEmpty(name))
+                                {
+                                    Logger.Debug(Extractor.ENTRY_MISSING_NAME_ERROR_MESSAGE_STRING, ArchiveFileType.ACE, fileEntry.FullPath);
+                                    continue;
+                                }
+                                newFileEntry = new FileEntry(name, stream, fileEntry, false, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
                             }
-                            newFileEntry = new FileEntry(name, stream, fileEntry, false, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
                         }
                         catch (Exception e)
                         {

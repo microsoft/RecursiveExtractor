@@ -61,23 +61,26 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             continue;
                         }
 
-                        var newFileEntry = await FileEntry.FromStreamAsync(name, arcReader.OpenEntryStream(), fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
-                        if (newFileEntry != null)
+                        using var entryStream = arcReader.OpenEntryStream()
                         {
-                            // SharpCompress ARC does not expose entry sizes, so we check the resource governor
-                            // after extraction using the actual decompressed content length.
-                            governor.CheckResourceGovernor(newFileEntry.Content.Length);
+                            var newFileEntry = await FileEntry.FromStreamAsync(name, entryStream, fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
+                            if (newFileEntry != null)
+                            {
+                                // SharpCompress ARC does not expose entry sizes, so we check the resource governor
+                                // after extraction using the actual decompressed content length.
+                                governor.CheckResourceGovernor(newFileEntry.Content.Length);
 
-                            if (options.Recurse || topLevel)
-                            {
-                                await foreach (var innerEntry in Context.ExtractAsync(newFileEntry, options, governor, false))
+                                if (options.Recurse || topLevel)
                                 {
-                                    yield return innerEntry;
+                                    await foreach (var innerEntry in Context.ExtractAsync(newFileEntry, options, governor, false))
+                                    {
+                                        yield return innerEntry;
+                                    }
                                 }
-                            }
-                            else
-                            {
-                                yield return newFileEntry;
+                                else
+                                {
+                                    yield return newFileEntry;
+                                }
                             }
                         }
                     }
@@ -127,14 +130,16 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         FileEntry? newFileEntry = null;
                         try
                         {
-                            var stream = arcReader.OpenEntryStream();
-                            var name = entry.Key?.Replace('/', Path.DirectorySeparatorChar);
-                            if (string.IsNullOrEmpty(name))
+                            using var stream = arcReader.OpenEntryStream()
                             {
-                                Logger.Debug(Extractor.ENTRY_MISSING_NAME_ERROR_MESSAGE_STRING, ArchiveFileType.ARC, fileEntry.FullPath);
-                                continue;
+                                var name = entry.Key?.Replace('/', Path.DirectorySeparatorChar);
+                                if (string.IsNullOrEmpty(name))
+                                {
+                                    Logger.Debug(Extractor.ENTRY_MISSING_NAME_ERROR_MESSAGE_STRING, ArchiveFileType.ARC, fileEntry.FullPath);
+                                    continue;
+                                }
+                                newFileEntry = new FileEntry(name, stream, fileEntry, false, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
                             }
-                            newFileEntry = new FileEntry(name, stream, fileEntry, false, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
                         }
                         catch (Exception e)
                         {
