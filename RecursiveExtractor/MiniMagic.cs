@@ -85,6 +85,18 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         DMG,
         /// <summary>
+        /// An ARJ compressed archive. <see cref="Extractors.ArjExtractor"/>
+        /// </summary>
+        ARJ,
+        /// <summary>
+        /// An ARC compressed archive. <see cref="Extractors.ArcExtractor"/>
+        /// </summary>
+        ARC,
+        /// <summary>
+        /// An ACE compressed archive. <see cref="Extractors.AceExtractor"/>
+        /// </summary>
+        ACE,
+        /// <summary>
         /// Unused.
         /// </summary>
         INVALID
@@ -120,7 +132,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 return ArchiveFileType.UNKNOWN;
             }
             var initialPosition = fileStream.Position;
-            var buffer = new byte[9];
+            var buffer = new byte[14];
             // DMG format uses the magic value 'koly' at the start of the 512 byte footer at the end of the file
             // Due to compression used, needs to be first or can be misidentified as other formats
             // https://newosxbook.com/DMG.html
@@ -137,10 +149,10 @@ namespace Microsoft.CST.RecursiveExtractor
                 }
             }
 
-            if (fileStream.Length >= 9)
+            if (fileStream.Length >= 14)
             {
                 fileStream.Position = 0;
-                fileStream.ReadExactly(buffer, 0, 9);
+                fileStream.ReadExactly(buffer, 0, 14);
                 fileStream.Position = initialPosition;
 
                 if (buffer[0] == 0x50 && buffer[1] == 0x4B && buffer[2] == 0x03 && buffer[3] == 0x04)
@@ -172,6 +184,21 @@ namespace Microsoft.CST.RecursiveExtractor
                 if (buffer[0] == 0x37 && buffer[1] == 0x7A && buffer[2] == 0xBC && buffer[3] == 0xAF && buffer[4] == 0x27 && buffer[5] == 0x1C)
                 {
                     return ArchiveFileType.P7ZIP;
+                }
+                // ARJ archive header starts with 0x60, 0xEA
+                if (buffer[0] == 0x60 && buffer[1] == 0xEA)
+                {
+                    return ArchiveFileType.ARJ;
+                }
+                // ARC archive: marker byte 0x1A, then compression method (valid: 0x01-0x09 or 0x7F)
+                if (buffer[0] == 0x1A && ((buffer[1] >= 0x01 && buffer[1] <= 0x09) || buffer[1] == 0x7F))
+                {
+                    return ArchiveFileType.ARC;
+                }
+                // ACE archive: signature "**ACE**" at offset 7
+                if (buffer[7] == 0x2A && buffer[8] == 0x2A && buffer[9] == 0x41 && buffer[10] == 0x43 && buffer[11] == 0x45 && buffer[12] == 0x2A && buffer[13] == 0x2A)
+                {
+                    return ArchiveFileType.ACE;
                 }
                 if (Encoding.ASCII.GetString(buffer[0..8]) == "MSWIM\0\0\0" || Encoding.ASCII.GetString(buffer[0..8]) == "WLPWM\0\0\0")
                 {

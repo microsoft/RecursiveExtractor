@@ -43,6 +43,9 @@ namespace RecursiveExtractor.Tests.ExtractorTests
                     { "TestDataArchivesNested.Zip", 54 },
                     { "UdfTest.iso", 3 },
                     { "UdfTestWithMultiSystem.iso", 3 },
+                    { "TestData.arj", 1 },
+                    { "TestData.arc", 1 },
+                    { "TestData.ace", 1 },
 //                    { "HfsSampleUDCO.dmg", 2 }
                 };
             }
@@ -75,6 +78,9 @@ namespace RecursiveExtractor.Tests.ExtractorTests
                     { "EmptyFile.txt", 1 },
                     { "TestDataArchivesNested.Zip", 14 },
                     { "UdfTestWithMultiSystem.iso", 3 },
+                    { "TestData.arj", 1 },
+                    { "TestData.arc", 1 },
+                    { "TestData.ace", 1 },
 //                    { "HfsSampleUDCO.dmg", 2 }
                 };
             }
