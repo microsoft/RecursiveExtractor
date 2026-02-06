@@ -1,24 +1,10 @@
-﻿using System;
-using Microsoft.CST.RecursiveExtractor.Tests;
-using NLog;
+﻿using NLog;
 using NLog.Config;
 using NLog.Targets;
-using Xunit;
 
 namespace RecursiveExtractor.Tests.ExtractorTests;
 
-/// <summary>
-/// Shared fixture that cleans up temp directories once after all tests in a class complete.
-/// </summary>
-public class TestCleanupFixture : IDisposable
-{
-    public void Dispose()
-    {
-        TestPathHelpers.DeleteTestDirectory();
-    }
-}
-
-public class BaseExtractorTestClass : IClassFixture<TestCleanupFixture>
+public class BaseExtractorTestClass
 {
     protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
