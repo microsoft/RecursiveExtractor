@@ -4,7 +4,8 @@ using Xunit;
 
 namespace RecursiveExtractor.Tests.ExtractorTests;
 
-public class MiniMagicTests : IClassFixture<BaseExtractorTestClass>
+[Collection(ExtractorTestCollection.Name)]
+public class MiniMagicTests
 {
     [Theory]
     [InlineData("TestData.zip", ArchiveFileType.ZIP)]

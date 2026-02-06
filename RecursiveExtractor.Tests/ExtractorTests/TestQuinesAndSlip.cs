@@ -9,7 +9,8 @@ using Xunit;
 
 namespace RecursiveExtractor.Tests.ExtractorTests;
 
-public class TestQuinesAndSlip : IClassFixture<BaseExtractorTestClass>
+[Collection(ExtractorTestCollection.Name)]
+public class TestQuinesAndSlip
 {
     public static IEnumerable<object[]> ZipSlipNames
     {

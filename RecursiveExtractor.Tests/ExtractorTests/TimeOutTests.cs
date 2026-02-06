@@ -6,7 +6,8 @@ using Xunit;
 
 namespace RecursiveExtractor.Tests.ExtractorTests;
 
-public class TimeOutTests : IClassFixture<BaseExtractorTestClass>
+[Collection(ExtractorTestCollection.Name)]
+public class TimeOutTests
 {
     [Theory]
     [InlineData("TestData.7z", false)]
