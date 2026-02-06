@@ -26,7 +26,7 @@ public class BaseExtractorTestClass : IDisposable
         LogManager.Configuration = config;
     }
 
-    //<inheritdoc />
+    /// <inheritdoc />
     public void Dispose()
     {
         TestPathHelpers.DeleteTestDirectory();
