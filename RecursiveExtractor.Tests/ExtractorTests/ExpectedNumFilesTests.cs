@@ -199,8 +199,7 @@ namespace RecursiveExtractor.Tests.ExtractorTests
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var results = extractor.Extract(path, GetExtractorOptions(true)).ToList();
-            var names = results.Select(x => x.FullPath);
-            var stringOfNames = string.Join("\n", names);
+            Assert.DoesNotContain(results, r => r.EntryStatus == FileEntryStatus.FailedArchive);
             Assert.Equal(expectedNumFiles, results.Count);
         }
         
@@ -234,10 +233,16 @@ namespace RecursiveExtractor.Tests.ExtractorTests
             using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
             var results = extractor.ExtractAsync(path, stream, new ExtractorOptions());
             var numFiles = 0;
+            var numFailed = 0;
             await foreach (var result in results)
             {
                 numFiles++;
+                if (result.EntryStatus == FileEntryStatus.FailedArchive)
+                {
+                    numFailed++;
+                }
             }
+            Assert.Equal(0, numFailed);
             Assert.Equal(expectedNumFiles, numFiles);
             stream.Close();
         }
@@ -249,8 +254,9 @@ namespace RecursiveExtractor.Tests.ExtractorTests
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
-            var results = extractor.Extract(path, stream, GetExtractorOptions());
-            Assert.Equal(expectedNumFiles, results.Count());
+            var resultsList = extractor.Extract(path, stream, GetExtractorOptions()).ToList();
+            Assert.DoesNotContain(resultsList, r => r.EntryStatus == FileEntryStatus.FailedArchive);
+            Assert.Equal(expectedNumFiles, resultsList.Count);
             stream.Close();
         }
 
