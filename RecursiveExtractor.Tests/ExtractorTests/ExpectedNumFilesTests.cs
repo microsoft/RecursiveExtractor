@@ -17,32 +17,32 @@ namespace RecursiveExtractor.Tests.ExtractorTests
         /// <summary>
         /// Mapping from Test archive name to expected number of files to extract
         /// </summary>
-        public static IEnumerable<object[]> ArchiveData
+        public static TheoryData<string, int> ArchiveData
         {
             get
             {
-                return new[]
+                return new TheoryData<string, int>
                 { 
-                    new object[] { "100Trees.7z", 101 },
-                    new object[] { "TestData.zip", 5 },
-                    new object[] { "TestData.7z",3 },
-                    new object[] { "TestData.tar", 6 },
-                    new object[] { "TestData.rar",3 },
-                    new object[] { "TestData.rar4",3 },
-                    new object[] { "TestData.tar.bz2", 6 },
-                    new object[] { "TestData.tar.gz", 6 },
-                    new object[] { "TestData.tar.xz",3 },
-                    new object[] { "sysvbanner_1.0-17fakesync1_amd64.deb", 8 },
-                    new object[] { "TestData.a",3 },
-                    new object[] { "TestData.bsd.ar",3 },
-                    new object[] { "TestData.iso",3 },
-                    new object[] { "TestData.vhdx",3 },
-                    new object[] { "TestData.wim",3 },
-                    new object[] { "EmptyFile.txt", 1 },
-                    new object[] { "TestDataArchivesNested.Zip", 54 },
-                    new object[] { "UdfTest.iso", 3 },
-                    new object[] { "UdfTestWithMultiSystem.iso", 3 },
-//                    new object[] { "HfsSampleUDCO.dmg", 2 }
+                    { "100Trees.7z", 101 },
+                    { "TestData.zip", 5 },
+                    { "TestData.7z",3 },
+                    { "TestData.tar", 6 },
+                    { "TestData.rar",3 },
+                    { "TestData.rar4",3 },
+                    { "TestData.tar.bz2", 6 },
+                    { "TestData.tar.gz", 6 },
+                    { "TestData.tar.xz",3 },
+                    { "sysvbanner_1.0-17fakesync1_amd64.deb", 8 },
+                    { "TestData.a",3 },
+                    { "TestData.bsd.ar",3 },
+                    { "TestData.iso",3 },
+                    { "TestData.vhdx",3 },
+                    { "TestData.wim",3 },
+                    { "EmptyFile.txt", 1 },
+                    { "TestDataArchivesNested.Zip", 54 },
+                    { "UdfTest.iso", 3 },
+                    { "UdfTestWithMultiSystem.iso", 3 },
+//                    { "HfsSampleUDCO.dmg", 2 }
                 };
             }
         }
@@ -50,31 +50,31 @@ namespace RecursiveExtractor.Tests.ExtractorTests
         /// <summary>
         /// Mapping from Test archive name to expected number of files to extract when recursion is disabled
         /// </summary>
-        public static IEnumerable<object[]> NoRecursionData
+        public static TheoryData<string, int> NoRecursionData
         {
             get
             {
-                return new[]
+                return new TheoryData<string, int>
                 { 
-                    new object[] { "100Trees.7z", 101 },
-                    new object[] { "TestData.zip", 5 },
-                    new object[] { "TestData.7z", 3 },
-                    new object[] { "TestData.tar", 6 },
-                    new object[] { "TestData.rar", 3 },
-                    new object[] { "TestData.rar4", 3 },
-                    new object[] { "TestData.tar.bz2", 1 },
-                    new object[] { "TestData.tar.gz", 1 },
-                    new object[] { "TestData.tar.xz", 1 },
-                    new object[] { "sysvbanner_1.0-17fakesync1_amd64.deb", 2 },
-                    new object[] { "TestData.a", 3 },
-                    new object[] { "TestData.bsd.ar", 3 },
-                    new object[] { "TestData.iso", 3 },
-                    new object[] { "TestData.vhdx", 3 },
-                    new object[] { "TestData.wim", 3 },
-                    new object[] { "EmptyFile.txt", 1 },
-                    new object[] { "TestDataArchivesNested.Zip", 14 },
-                    new object[] { "UdfTestWithMultiSystem.iso", 3 },
-//                    new object[] { "HfsSampleUDCO.dmg", 2 }
+                    { "100Trees.7z", 101 },
+                    { "TestData.zip", 5 },
+                    { "TestData.7z", 3 },
+                    { "TestData.tar", 6 },
+                    { "TestData.rar", 3 },
+                    { "TestData.rar4", 3 },
+                    { "TestData.tar.bz2", 1 },
+                    { "TestData.tar.gz", 1 },
+                    { "TestData.tar.xz", 1 },
+                    { "sysvbanner_1.0-17fakesync1_amd64.deb", 2 },
+                    { "TestData.a", 3 },
+                    { "TestData.bsd.ar", 3 },
+                    { "TestData.iso", 3 },
+                    { "TestData.vhdx", 3 },
+                    { "TestData.wim", 3 },
+                    { "EmptyFile.txt", 1 },
+                    { "TestDataArchivesNested.Zip", 14 },
+                    { "UdfTestWithMultiSystem.iso", 3 },
+//                    { "HfsSampleUDCO.dmg", 2 }
                 };
             }
         }
@@ -84,8 +84,8 @@ namespace RecursiveExtractor.Tests.ExtractorTests
             return parallel ? defaultExtractorTestOptionsParallel : defaultExtractorTestOptions;
         }
 
-        private ExtractorOptions defaultExtractorTestOptions = new ExtractorOptions() { MaxExtractedBytesRatio = 300 };
-        private ExtractorOptions defaultExtractorTestOptionsParallel = new ExtractorOptions() { Parallel = true, MaxExtractedBytesRatio = 300 };
+        private readonly ExtractorOptions defaultExtractorTestOptions = new() { MaxExtractedBytesRatio = 300 };
+        private readonly ExtractorOptions defaultExtractorTestOptionsParallel = new() { Parallel = true, MaxExtractedBytesRatio = 300 };
         
         [Theory]
         [MemberData(nameof(ArchiveData))]
@@ -194,7 +194,7 @@ namespace RecursiveExtractor.Tests.ExtractorTests
             var results = extractor.Extract(path, GetExtractorOptions(true)).ToList();
             var names = results.Select(x => x.FullPath);
             var stringOfNames = string.Join("\n", names);
-            Assert.Equal(expectedNumFiles, results.Count());
+            Assert.Equal(expectedNumFiles, results.Count);
         }
         
         [Theory]
