@@ -7,7 +7,7 @@ using System;
 namespace RecursiveExtractor.Tests.ExtractorTests;
 
 /// <summary>
-/// XUnit test fixture class for extractor tests. Sets up logging and test directories. Tests should inherit from this class to get the benefits of the setup and teardown.
+/// XUnit test fixture class for extractor tests. Sets up logging and test directories. Tests should use this class as a fixture via IClassFixture&lt;BaseExtractorTestClass&gt; to get the benefits of the setup and teardown.
 /// </summary>
 public class BaseExtractorTestClass : IDisposable
 {
@@ -26,7 +26,7 @@ public class BaseExtractorTestClass : IDisposable
         LogManager.Configuration = config;
     }
 
-    //<inheritdoc />
+    /// <inheritdoc />
     public void Dispose()
     {
         TestPathHelpers.DeleteTestDirectory();
