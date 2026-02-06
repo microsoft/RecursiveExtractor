@@ -33,10 +33,10 @@ namespace RecursiveExtractor.Tests.CliTests
         [InlineData("TestDataArchivesNested.Zip", 54)]
         public void ExtractArchiveParallel(string fileName, int expectedNumFiles = 3)
         {
-            ExtractArchive(fileName, expectedNumFiles, false);
+            CliTests.ExtractArchive(fileName, expectedNumFiles, false);
         }
 
-        internal void ExtractArchive(string fileName, int expectedNumFiles, bool singleThread)
+        internal static void ExtractArchive(string fileName, int expectedNumFiles, bool singleThread)
         {
             var directory = TestPathHelpers.GetFreshTestDirectory();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
@@ -45,7 +45,7 @@ namespace RecursiveExtractor.Tests.CliTests
             Thread.Sleep(100);
             if (Directory.Exists(directory))
             {
-                files = Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories).ToArray();
+                files = [.. Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories)];
             }
             Assert.Equal(expectedNumFiles, files.Length);
         }
@@ -69,7 +69,7 @@ namespace RecursiveExtractor.Tests.CliTests
         [InlineData("TestDataArchivesNested.Zip", 54)]
         public void ExtractArchiveSingleThread(string fileName, int expectedNumFiles = 3)
         {
-            ExtractArchive(fileName, expectedNumFiles, true);
+            CliTests.ExtractArchive(fileName, expectedNumFiles, true);
         }
 
         [Theory]
@@ -85,15 +85,15 @@ namespace RecursiveExtractor.Tests.CliTests
                 Input = newpath,
                 Output = directory,
                 Verbose = true,
-                AllowFilters = new string[]
-                {
+                AllowFilters =
+                [
                     "*.cs"
-                }
+                ]
             });
             var files = Array.Empty<string>();
             if (Directory.Exists(directory))
             {
-                files = Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories).ToArray();
+                files = [.. Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories)];
             }
             Assert.Equal(expectedNumFiles, files.Length);
         }
@@ -111,15 +111,15 @@ namespace RecursiveExtractor.Tests.CliTests
                 Input = newpath,
                 Output = directory,
                 Verbose = true,
-                DenyFilters = new string[]
-                {
+                DenyFilters =
+                [
                     "*.cs"
-                }
+                ]
             });
             var files = Array.Empty<string>();
             if (Directory.Exists(directory))
             {
-                files = Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories).ToArray();
+                files = [.. Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories)];
             }
             Assert.Equal(expectedNumFiles, files.Length);
         }
@@ -134,10 +134,8 @@ namespace RecursiveExtractor.Tests.CliTests
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var passwords = EncryptedArchiveTests.TestArchivePasswords.Values.SelectMany(x => x);
             RecursiveExtractorClient.ExtractCommand(new ExtractCommandOptions() { Input = path, Output = directory, Verbose = true, Passwords = passwords });
-            string[] files = Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories).ToArray();
+            string[] files = [.. Directory.EnumerateFiles(directory, "*.*", SearchOption.AllDirectories)];
             Assert.Equal(expectedNumFiles, files.Length);
-        }
-        
-        protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        }        
     }
 }
