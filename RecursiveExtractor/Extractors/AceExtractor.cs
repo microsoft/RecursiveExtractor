@@ -61,11 +61,10 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             continue;
                         }
 
+                        governor.CheckResourceGovernor(entry.Size);
                         var newFileEntry = await FileEntry.FromStreamAsync(name, aceReader.OpenEntryStream(), fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
                         if (newFileEntry != null)
                         {
-                            governor.CheckResourceGovernor(newFileEntry.Content.Length);
-
                             if (options.Recurse || topLevel)
                             {
                                 await foreach (var innerEntry in Context.ExtractAsync(newFileEntry, options, governor, false))
@@ -125,6 +124,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         FileEntry? newFileEntry = null;
                         try
                         {
+                            governor.CheckResourceGovernor(entry.Size);
                             var stream = aceReader.OpenEntryStream();
                             var name = entry.Key?.Replace('/', Path.DirectorySeparatorChar);
                             if (string.IsNullOrEmpty(name))
@@ -140,8 +140,6 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         }
                         if (newFileEntry != null)
                         {
-                            governor.CheckResourceGovernor(newFileEntry.Content.Length);
-
                             if (options.Recurse || topLevel)
                             {
                                 foreach (var innerEntry in Context.Extract(newFileEntry, options, governor, false))
