@@ -408,7 +408,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                     Logger.Info("Discovered non-indexed ZIP entry '{0}' in {1}", readerKey, parentEntry.FullPath);
 
-                    Stream payload;
+                    Stream? payload = null;
                     try
                     {
                         using var readerStream = forwardReader.OpenEntryStream();
@@ -419,8 +419,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     catch (Exception ex)
                     {
                         Logger.Debug(Extractor.FAILED_PARSING_ERROR_MESSAGE_STRING, ArchiveFileType.ZIP, parentEntry.FullPath, readerKey, ex.GetType());
-                        payload = new MemoryStream();
                     }
+
+                    payload ??= new MemoryStream();
 
                     var entryName = readerKey.Replace('/', Path.DirectorySeparatorChar);
                     var discovered = new FileEntry(entryName, payload, parentEntry, memoryStreamCutoff: options.MemoryStreamCutoff)
