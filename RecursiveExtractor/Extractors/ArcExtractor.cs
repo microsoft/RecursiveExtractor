@@ -32,6 +32,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             ArcReader? arcReader = null;
             try
             {
+                fileEntry.Content.Position = 0;
                 arcReader = ArcReader.Open(fileEntry.Content, new ReaderOptions()
                 {
                     LeaveStreamOpen = true
@@ -61,7 +62,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             continue;
                         }
 
-                        using var entryStream = arcReader.OpenEntryStream()
+                        using (var entryStream = arcReader.OpenEntryStream())
                         {
                             var newFileEntry = await FileEntry.FromStreamAsync(name, entryStream, fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
                             if (newFileEntry != null)
@@ -105,6 +106,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             ArcReader? arcReader = null;
             try
             {
+                fileEntry.Content.Position = 0;
                 arcReader = ArcReader.Open(fileEntry.Content, new ReaderOptions()
                 {
                     LeaveStreamOpen = true
@@ -130,7 +132,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         FileEntry? newFileEntry = null;
                         try
                         {
-                            using var stream = arcReader.OpenEntryStream()
+                            using (var stream = arcReader.OpenEntryStream())
                             {
                                 var name = entry.Key?.Replace('/', Path.DirectorySeparatorChar);
                                 if (string.IsNullOrEmpty(name))

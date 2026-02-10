@@ -256,7 +256,6 @@ namespace RecursiveExtractor.Tests.ExtractorTests
             var resultsList = extractor.Extract(path, stream, GetExtractorOptions()).ToList();
             Assert.DoesNotContain(resultsList, r => r.EntryStatus == FileEntryStatus.FailedArchive);
             Assert.Equal(expectedNumFiles, resultsList.Count);
-            stream.Close();
         }
 
         [Theory]

@@ -32,6 +32,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             ArjReader? arjReader = null;
             try
             {
+                fileEntry.Content.Position = 0;
                 arjReader = ArjReader.Open(fileEntry.Content, new ReaderOptions()
                 {
                     LeaveStreamOpen = true
@@ -102,6 +103,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             ArjReader? arjReader = null;
             try
             {
+                fileEntry.Content.Position = 0;
                 arjReader = ArjReader.Open(fileEntry.Content, new ReaderOptions()
                 {
                     LeaveStreamOpen = true
@@ -128,7 +130,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         FileEntry? newFileEntry = null;
                         try
                         {
-                            using var stream = arjReader.OpenEntryStream()
+                            using (var stream = arjReader.OpenEntryStream())
                             {
                                 var name = entry.Key?.Replace('/', Path.DirectorySeparatorChar);
                                 if (string.IsNullOrEmpty(name))
