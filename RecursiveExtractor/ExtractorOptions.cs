@@ -127,6 +127,14 @@ namespace Microsoft.CST.RecursiveExtractor
         public bool RequireTopLevelToBeArchive { get; set; } = false;
 
         /// <summary>
+        ///     When enabled, ZIP extraction will additionally walk local file headers in the raw stream
+        ///     and yield any entries that are missing from the central directory. Such entries are
+        ///     marked with <see cref="FileEntryStatus.NonIndexedEntry"/> and may indicate hidden or
+        ///     steganographic content. Disabled by default for performance.
+        /// </summary>
+        public bool ExtractNonIndexedZipEntries { get; set; } = false;
+
+        /// <summary>
         ///     If the file name provided should be extracted given the filter arguments in this ExtractorOptions instance
         /// </summary>
         /// <param name="filename"></param>
