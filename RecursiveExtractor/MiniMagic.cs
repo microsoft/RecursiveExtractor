@@ -15,91 +15,91 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <summary>
         /// A file not of any of the known types.
         /// </summary>
-        UNKNOWN,
+        UNKNOWN = 0,
         /// <summary>
         /// A zip formatted file. <see cref="Extractors.ZipExtractor"/>
         /// </summary>
-        ZIP,
+        ZIP = 1,
         /// <summary>
         /// A tar formatted file. <see cref="Extractors.TarExtractor"/>
         /// </summary>
-        TAR,
+        TAR = 2,
         /// <summary>
         /// An xzip formatted file. <see cref="Extractors.XzExtractor"/>
         /// </summary>
-        XZ,
+        XZ = 3,
         /// <summary>
         /// A gzip formatted file. <see cref="Extractors.GzipExtractor"/>
         /// </summary>
-        GZIP,
+        GZIP = 4,
         /// <summary>
         /// A bzip2 formatted file. <see cref="Extractors.BZip2Extractor"/>
         /// </summary>
-        BZIP2,
+        BZIP2 = 5,
         /// <summary>
         /// A Rar4 formatted file. <see cref="Extractors.RarExtractor"/>
         /// </summary>
-        RAR,
+        RAR = 6,
         /// <summary>
         /// A Rar5 formatted file. <see cref="Extractors.RarExtractor"/>
         /// </summary>
-        RAR5,
+        RAR5 = 7,
         /// <summary>
         /// An 7zip formatted file. <see cref="Extractors.SevenZipExtractor"/>
         /// </summary>
-        P7ZIP,
+        P7ZIP = 8,
         /// <summary>
         /// An deb formatted file. <see cref="Extractors.DebExtractor"/>
         /// </summary>
-        DEB,
+        DEB = 9,
         /// <summary>
         /// An ar formatted file. <see cref="Extractors.GnuArExtractor"/>
         /// </summary>
-        AR,
+        AR = 10,
         /// <summary>
         /// An iso disc image. <see cref="Extractors.IsoExtractor"/>
         /// </summary>
-        ISO_9660,
+        ISO_9660 = 11,
         /// <summary>
         /// An UDF disc image. <see cref="Extractors.UdfExtractor"/>
         /// </summary>
-        UDF,
+        UDF = 12,
         /// <summary>
         /// A VHDX disc image. <see cref="Extractors.VhdxExtractor"/>
         /// </summary>
-        VHDX,
+        VHDX = 13,
         /// <summary>
         /// A VHD disc image. <see cref="Extractors.VhdExtractor"/>
         /// </summary>
-        VHD,
+        VHD = 14,
         /// <summary>
         /// A wim disc image. <see cref="Extractors.WimExtractor"/>
         /// </summary>
-        WIM,
+        WIM = 15,
         /// <summary>
         /// An vmdk disc image. <see cref="Extractors.VmdkExtractor"/>
         /// </summary>
-        VMDK,
+        VMDK = 16,
         /// <summary>
         /// A DMG disc image.
         /// </summary>
-        DMG,
+        DMG = 17,
         /// <summary>
         /// An ARJ compressed archive. <see cref="Extractors.ArjExtractor"/>
         /// </summary>
-        ARJ,
+        ARJ = 19,
         /// <summary>
         /// An ARC compressed archive. <see cref="Extractors.ArcExtractor"/>
         /// </summary>
-        ARC,
+        ARC = 20,
         /// <summary>
         /// An ACE compressed archive. <see cref="Extractors.AceExtractor"/>
         /// </summary>
-        ACE,
+        ACE = 21,
         /// <summary>
         /// Unused.
         /// </summary>
-        INVALID
+        INVALID = 18,
     }
 
     /// <summary>
