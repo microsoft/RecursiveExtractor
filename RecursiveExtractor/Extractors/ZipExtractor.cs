@@ -164,7 +164,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                 // When opted in, walk local file headers via a forward-only reader to discover
                 // entries that are absent from the central directory (steganographic / tampered content).
-                if (options.ExtractNonIndexedZipEntries)
+                if (options.ExtractNonIndexedEntries)
                 {
                     await foreach (var hiddenEntry in YieldNonIndexedEntriesAsync(fileEntry, catalogedKeys, options, governor, topLevel))
                     {
@@ -232,11 +232,11 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
                 }
 
-                var catalogedKeysSync = new HashSet<string>(StringComparer.Ordinal);
+                var catalogedKeys = new HashSet<string>(StringComparer.Ordinal);
                 foreach (var zipEntry in zipArchive.Entries.Where(e => !e.IsDirectory))
                 {
                     if (zipEntry.Key != null)
-                        catalogedKeysSync.Add(zipEntry.Key);
+                        catalogedKeys.Add(zipEntry.Key);
 
                     governor.CheckResourceGovernor(zipEntry.Size);
 
@@ -270,9 +270,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 
                 zipArchive?.Dispose();
 
-                if (options.ExtractNonIndexedZipEntries)
+                if (options.ExtractNonIndexedEntries)
                 {
-                    foreach (var hiddenEntry in YieldNonIndexedEntries(fileEntry, catalogedKeysSync, options, governor, topLevel))
+                    foreach (var hiddenEntry in YieldNonIndexedEntries(fileEntry, catalogedKeys, options, governor, topLevel))
                     {
                         yield return hiddenEntry;
                     }
@@ -314,7 +314,11 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 {
                     bool advanced;
                     try { advanced = forwardReader.MoveToNextEntry(); }
-                    catch (Exception) { break; }
+                    catch (Exception ex)
+                    {
+                        Logger.Debug("Non-indexed entry scan encountered an error advancing reader for {0}: {1}", parentEntry.FullPath, ex.GetType());
+                        break;
+                    }
 
                     if (!advanced)
                         break;
@@ -344,7 +348,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                     payload ??= new MemoryStream();
                     var entryName = readerKey.Replace('/', Path.DirectorySeparatorChar);
-                    var discovered = new FileEntry(entryName, payload, parentEntry, memoryStreamCutoff: options.MemoryStreamCutoff)
+                    var discovered = new FileEntry(entryName, payload, parentEntry, passthroughStream: true, memoryStreamCutoff: options.MemoryStreamCutoff)
                     {
                         EntryStatus = FileEntryStatus.NonIndexedEntry
                     };
@@ -394,7 +398,11 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 {
                     bool advanced;
                     try { advanced = forwardReader.MoveToNextEntry(); }
-                    catch (Exception) { break; }
+                    catch (Exception ex)
+                    {
+                        Logger.Debug("Non-indexed entry scan encountered an error advancing reader for {0}: {1}", parentEntry.FullPath, ex.GetType());
+                        break;
+                    }
 
                     if (!advanced)
                         break;
@@ -424,7 +432,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     payload ??= new MemoryStream();
 
                     var entryName = readerKey.Replace('/', Path.DirectorySeparatorChar);
-                    var discovered = new FileEntry(entryName, payload, parentEntry, memoryStreamCutoff: options.MemoryStreamCutoff)
+                    var discovered = new FileEntry(entryName, payload, parentEntry, passthroughStream: true, memoryStreamCutoff: options.MemoryStreamCutoff)
                     {
                         EntryStatus = FileEntryStatus.NonIndexedEntry
                     };

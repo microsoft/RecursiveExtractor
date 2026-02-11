@@ -12,7 +12,6 @@ namespace RecursiveExtractor.Tests.ExtractorTests;
 /// <summary>
 /// Tests that the ZIP extractor can discover and extract entries whose local file headers
 /// exist in the stream but are absent from the central directory ("non-indexed" entries).
-/// See: https://github.com/microsoft/RecursiveExtractor/issues/new (steganography in ZIP).
 /// </summary>
 public class NonIndexedZipEntryTests
 {
@@ -108,7 +107,7 @@ public class NonIndexedZipEntryTests
 
         var results = extractor.Extract(fe, new ExtractorOptions
         {
-            ExtractNonIndexedZipEntries = false,
+            ExtractNonIndexedEntries = false,
             Recurse = false,
         }).ToList();
 
@@ -127,7 +126,7 @@ public class NonIndexedZipEntryTests
 
         var results = extractor.Extract(fe, new ExtractorOptions
         {
-            ExtractNonIndexedZipEntries = true,
+            ExtractNonIndexedEntries = true,
             Recurse = false,
         }).ToList();
 
@@ -155,7 +154,7 @@ public class NonIndexedZipEntryTests
         var results = new List<FileEntry>();
         await foreach (var entry in extractor.ExtractAsync(fe, new ExtractorOptions
         {
-            ExtractNonIndexedZipEntries = true,
+            ExtractNonIndexedEntries = true,
             Recurse = false,
         }))
         {
@@ -183,7 +182,7 @@ public class NonIndexedZipEntryTests
         var archivePath = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", "TestData.zip");
         var results = extractor.Extract(archivePath, new ExtractorOptions
         {
-            ExtractNonIndexedZipEntries = true,
+            ExtractNonIndexedEntries = true,
             Recurse = false,
         }).ToList();
 
