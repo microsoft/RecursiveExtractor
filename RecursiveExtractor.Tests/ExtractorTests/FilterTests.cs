@@ -16,7 +16,8 @@ public class FilterTests
 
     /// <summary>
     /// Adjusts expected file count for nested archives containing WIM files on non-Windows platforms.
-    /// WIM extraction is Windows-only; on other platforms the WIM is returned as a single file.
+    /// WIM extraction is Windows-only; on other platforms the WIM is returned as a single unextracted file
+    /// instead of its extracted contents, resulting in a different total count.
     /// </summary>
     private static int AdjustNestedExpectedCount(string fileName, int expectedNumFiles, int wimDelta)
     {

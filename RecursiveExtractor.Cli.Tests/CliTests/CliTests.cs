@@ -18,6 +18,14 @@ namespace RecursiveExtractor.Tests.CliTests
         private static bool IsWimAndNotWindows(string fileName) =>
             fileName.EndsWith(".wim", StringComparison.OrdinalIgnoreCase) &&
             !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+        /// <summary>
+        /// Adjusts expected count for nested archive on non-Windows (WIM not extracted, returned as single file).
+        /// </summary>
+        private static int AdjustNestedExpectedCount(string fileName, int expectedNumFiles) =>
+            fileName == "TestDataArchivesNested.zip" && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                ? expectedNumFiles - 2
+                : expectedNumFiles;
         [Theory]
         [InlineData("TestData.zip", 5)]
         [InlineData("TestData.7z")]
@@ -38,9 +46,7 @@ namespace RecursiveExtractor.Tests.CliTests
         public void ExtractArchiveParallel(string fileName, int expectedNumFiles = 3)
         {
             if (IsWimAndNotWindows(fileName)) return;
-            // Nested archive contains a WIM which extracts to 3 files on Windows but is returned as 1 file on Linux
-            if (fileName == "TestDataArchivesNested.zip" && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                expectedNumFiles = 52;
+            expectedNumFiles = AdjustNestedExpectedCount(fileName, expectedNumFiles);
             CliTests.ExtractArchive(fileName, expectedNumFiles, false);
         }
 
@@ -78,9 +84,7 @@ namespace RecursiveExtractor.Tests.CliTests
         public void ExtractArchiveSingleThread(string fileName, int expectedNumFiles = 3)
         {
             if (IsWimAndNotWindows(fileName)) return;
-            // Nested archive contains a WIM which extracts to 3 files on Windows but is returned as 1 file on Linux
-            if (fileName == "TestDataArchivesNested.zip" && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                expectedNumFiles = 52;
+            expectedNumFiles = AdjustNestedExpectedCount(fileName, expectedNumFiles);
             CliTests.ExtractArchive(fileName, expectedNumFiles, true);
         }
 

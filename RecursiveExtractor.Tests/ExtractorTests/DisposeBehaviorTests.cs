@@ -15,6 +15,14 @@ public class DisposeBehaviorTests
     private static bool IsWimAndNotWindows(string fileName) =>
         fileName.EndsWith(".wim", System.StringComparison.OrdinalIgnoreCase) &&
         !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+    /// <summary>
+    /// Adjusts expected count for nested archive on non-Windows (WIM not extracted, returned as single file).
+    /// </summary>
+    private static int AdjustNestedExpectedCount(string fileName, int expectedNumFiles) =>
+        fileName == "TestDataArchivesNested.zip" && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+            ? expectedNumFiles - 2
+            : expectedNumFiles;
     [Theory]
     [InlineData("TestData.7z", 3, false)]
     [InlineData("TestData.tar", 6, false)]
@@ -51,9 +59,7 @@ public class DisposeBehaviorTests
         bool parallel = false)
     {
         if (IsWimAndNotWindows(fileName)) return;
-        // Nested archive contains a WIM which extracts to 3 files on Windows but is returned as 1 file on Linux
-        if (fileName == "TestDataArchivesNested.zip" && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            expectedNumFiles = 52;
+        expectedNumFiles = AdjustNestedExpectedCount(fileName, expectedNumFiles);
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
         var results = extractor.Extract(path, new ExtractorOptions() { Parallel = parallel });
@@ -109,9 +115,7 @@ public class DisposeBehaviorTests
         bool parallel = false)
     {
         if (IsWimAndNotWindows(fileName)) return;
-        // Nested archive contains a WIM which extracts to 3 files on Windows but is returned as 1 file on Linux
-        if (fileName == "TestDataArchivesNested.zip" && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            expectedNumFiles = 52;
+        expectedNumFiles = AdjustNestedExpectedCount(fileName, expectedNumFiles);
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
         var results = extractor.ExtractAsync(path, new ExtractorOptions() { Parallel = parallel });
