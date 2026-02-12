@@ -10,42 +10,78 @@ namespace RecursiveExtractor.Tests.ExtractorTests;
 
 public class FilterTests
 {
-    private static bool IsWimAndNotWindows(string fileName) =>
-        fileName.EndsWith(".wim", System.StringComparison.OrdinalIgnoreCase) &&
-        !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+    /// <summary>
+    /// Test data for allow filter tests. WIM is Windows-only so conditionally included.
+    /// TestDataArchivesNested.zip count varies by platform because embedded WIM is only extracted on Windows.
+    /// </summary>
+    public static TheoryData<string, int> AllowFilterData
+    {
+        get
+        {
+            var data = new TheoryData<string, int>
+            {
+                { "TestData.zip", 1 },
+                { "TestData.7z", 1 },
+                { "TestData.tar", 1 },
+                { "TestData.rar", 1 },
+                { "TestData.rar4", 1 },
+                { "TestData.tar.bz2", 1 },
+                { "TestData.tar.gz", 1 },
+                { "TestData.tar.xz", 1 },
+                { "sysvbanner_1.0-17fakesync1_amd64.deb", 0 },
+                { "TestData.a", 0 },
+                { "TestData.bsd.ar", 0 },
+                { "TestData.iso", 1 },
+                { "TestData.vhdx", 1 },
+                { "EmptyFile.txt", 0 },
+                { "TestDataArchivesNested.zip", RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? 9 : 8 },
+            };
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                data.Add("TestData.wim", 1);
+            }
+            return data;
+        }
+    }
 
     /// <summary>
-    /// Adjusts expected file count for nested archives containing WIM files on non-Windows platforms.
-    /// WIM extraction is Windows-only; on other platforms the WIM is returned as a single unextracted file
-    /// instead of its extracted contents, resulting in a different total count.
+    /// Test data for deny filter tests. WIM is Windows-only so conditionally included.
+    /// TestDataArchivesNested.zip count varies by platform because embedded WIM is only extracted on Windows.
     /// </summary>
-    private static int AdjustNestedExpectedCount(string fileName, int expectedNumFiles, int wimDelta)
+    public static TheoryData<string, int> DenyFilterData
     {
-        if (fileName == "TestDataArchivesNested.zip" && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            return expectedNumFiles - wimDelta;
-        return expectedNumFiles;
+        get
+        {
+            var data = new TheoryData<string, int>
+            {
+                { "TestData.zip", 4 },
+                { "TestData.7z", 2 },
+                { "TestData.tar", 5 },
+                { "TestData.rar", 2 },
+                { "TestData.rar4", 2 },
+                { "TestData.tar.bz2", 5 },
+                { "TestData.tar.gz", 5 },
+                { "TestData.tar.xz", 2 },
+                { "sysvbanner_1.0-17fakesync1_amd64.deb", 8 },
+                { "TestData.a", 3 },
+                { "TestData.bsd.ar", 3 },
+                { "TestData.iso", 2 },
+                { "TestData.vhdx", 2 },
+                { "EmptyFile.txt", 1 },
+                { "TestDataArchivesNested.zip", RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? 45 : 44 },
+            };
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                data.Add("TestData.wim", 2);
+            }
+            return data;
+        }
     }
+
     [Theory]
-    [InlineData("TestData.zip")]
-    [InlineData("TestData.7z")]
-    [InlineData("TestData.tar")]
-    [InlineData("TestData.rar")]
-    [InlineData("TestData.rar4")]
-    [InlineData("TestData.tar.bz2")]
-    [InlineData("TestData.tar.gz")]
-    [InlineData("TestData.tar.xz")]
-    [InlineData("sysvbanner_1.0-17fakesync1_amd64.deb", 0)]
-    [InlineData("TestData.a", 0)]
-    [InlineData("TestData.bsd.ar", 0)]
-    [InlineData("TestData.iso")]
-    [InlineData("TestData.vhdx")]
-    [InlineData("TestData.wim")]
-    [InlineData("EmptyFile.txt", 0)]
-    [InlineData("TestDataArchivesNested.zip", 9)]
-    public async Task ExtractArchiveAsyncAllowFiltered(string fileName, int expectedNumFiles = 1)
+    [MemberData(nameof(AllowFilterData))]
+    public async Task ExtractArchiveAsyncAllowFiltered(string fileName, int expectedNumFiles)
     {
-        if (IsWimAndNotWindows(fileName)) return;
-        expectedNumFiles = AdjustNestedExpectedCount(fileName, expectedNumFiles, 1);
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
         var results = extractor.ExtractAsync(path,
@@ -60,26 +96,9 @@ public class FilterTests
     }
 
     [Theory]
-    [InlineData("TestData.zip")]
-    [InlineData("TestData.7z")]
-    [InlineData("TestData.tar")]
-    [InlineData("TestData.rar")]
-    [InlineData("TestData.rar4")]
-    [InlineData("TestData.tar.bz2")]
-    [InlineData("TestData.tar.gz")]
-    [InlineData("TestData.tar.xz")]
-    [InlineData("sysvbanner_1.0-17fakesync1_amd64.deb", 0)]
-    [InlineData("TestData.a", 0)]
-    [InlineData("TestData.bsd.ar", 0)]
-    [InlineData("TestData.iso")]
-    [InlineData("TestData.vhdx")]
-    [InlineData("TestData.wim")]
-    [InlineData("EmptyFile.txt", 0)]
-    [InlineData("TestDataArchivesNested.zip", 9)]
-    public void ExtractArchiveAllowFiltered(string fileName, int expectedNumFiles = 1)
+    [MemberData(nameof(AllowFilterData))]
+    public void ExtractArchiveAllowFiltered(string fileName, int expectedNumFiles)
     {
-        if (IsWimAndNotWindows(fileName)) return;
-        expectedNumFiles = AdjustNestedExpectedCount(fileName, expectedNumFiles, 1);
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
         var results = extractor.Extract(path,
@@ -88,26 +107,9 @@ public class FilterTests
     }
 
     [Theory]
-    [InlineData("TestData.zip")]
-    [InlineData("TestData.7z")]
-    [InlineData("TestData.tar")]
-    [InlineData("TestData.rar")]
-    [InlineData("TestData.rar4")]
-    [InlineData("TestData.tar.bz2")]
-    [InlineData("TestData.tar.gz")]
-    [InlineData("TestData.tar.xz")]
-    [InlineData("sysvbanner_1.0-17fakesync1_amd64.deb", 0)]
-    [InlineData("TestData.a", 0)]
-    [InlineData("TestData.bsd.ar", 0)]
-    [InlineData("TestData.iso")]
-    [InlineData("TestData.vhdx")]
-    [InlineData("TestData.wim")]
-    [InlineData("EmptyFile.txt", 0)]
-    [InlineData("TestDataArchivesNested.zip", 9)]
-    public void ExtractArchiveParallelAllowFiltered(string fileName, int expectedNumFiles = 1)
+    [MemberData(nameof(AllowFilterData))]
+    public void ExtractArchiveParallelAllowFiltered(string fileName, int expectedNumFiles)
     {
-        if (IsWimAndNotWindows(fileName)) return;
-        expectedNumFiles = AdjustNestedExpectedCount(fileName, expectedNumFiles, 1);
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
         var results = extractor.Extract(path,
@@ -116,26 +118,9 @@ public class FilterTests
     }
 
     [Theory]
-    [InlineData("TestData.zip", 4)]
-    [InlineData("TestData.7z")]
-    [InlineData("TestData.tar", 5)]
-    [InlineData("TestData.rar")]
-    [InlineData("TestData.rar4")]
-    [InlineData("TestData.tar.bz2", 5)]
-    [InlineData("TestData.tar.gz", 5)]
-    [InlineData("TestData.tar.xz")]
-    [InlineData("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
-    [InlineData("TestData.a", 3)]
-    [InlineData("TestData.bsd.ar", 3)]
-    [InlineData("TestData.iso")]
-    [InlineData("TestData.vhdx")]
-    [InlineData("TestData.wim")]
-    [InlineData("EmptyFile.txt", 1)]
-    [InlineData("TestDataArchivesNested.zip", 45)]
-    public void ExtractArchiveDenyFiltered(string fileName, int expectedNumFiles = 2)
+    [MemberData(nameof(DenyFilterData))]
+    public void ExtractArchiveDenyFiltered(string fileName, int expectedNumFiles)
     {
-        if (IsWimAndNotWindows(fileName)) return;
-        expectedNumFiles = AdjustNestedExpectedCount(fileName, expectedNumFiles, 1);
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
         var results = extractor.Extract(path, new ExtractorOptions() { DenyFilters = new string[] { "**/Bar/**" } });
@@ -143,26 +128,9 @@ public class FilterTests
     }
 
     [Theory]
-    [InlineData("TestData.zip", 4)]
-    [InlineData("TestData.7z")]
-    [InlineData("TestData.tar", 5)]
-    [InlineData("TestData.rar")]
-    [InlineData("TestData.rar4")]
-    [InlineData("TestData.tar.bz2", 5)]
-    [InlineData("TestData.tar.gz", 5)]
-    [InlineData("TestData.tar.xz")]
-    [InlineData("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
-    [InlineData("TestData.a", 3)]
-    [InlineData("TestData.bsd.ar", 3)]
-    [InlineData("TestData.iso")]
-    [InlineData("TestData.vhdx")]
-    [InlineData("TestData.wim")]
-    [InlineData("EmptyFile.txt", 1)]
-    [InlineData("TestDataArchivesNested.zip", 45)]
-    public void ExtractArchiveParallelDenyFiltered(string fileName, int expectedNumFiles = 2)
+    [MemberData(nameof(DenyFilterData))]
+    public void ExtractArchiveParallelDenyFiltered(string fileName, int expectedNumFiles)
     {
-        if (IsWimAndNotWindows(fileName)) return;
-        expectedNumFiles = AdjustNestedExpectedCount(fileName, expectedNumFiles, 1);
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
         var results = extractor.Extract(path,
@@ -171,26 +139,9 @@ public class FilterTests
     }
 
     [Theory]
-    [InlineData("TestData.zip", 4)]
-    [InlineData("TestData.7z")]
-    [InlineData("TestData.tar", 5)]
-    [InlineData("TestData.rar")]
-    [InlineData("TestData.rar4")]
-    [InlineData("TestData.tar.bz2", 5)]
-    [InlineData("TestData.tar.gz", 5)]
-    [InlineData("TestData.tar.xz")]
-    [InlineData("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
-    [InlineData("TestData.a", 3)]
-    [InlineData("TestData.bsd.ar", 3)]
-    [InlineData("TestData.iso")]
-    [InlineData("TestData.vhdx")]
-    [InlineData("TestData.wim")]
-    [InlineData("EmptyFile.txt", 1)]
-    [InlineData("TestDataArchivesNested.zip", 45)]
-    public async Task ExtractArchiveAsyncDenyFiltered(string fileName, int expectedNumFiles = 2)
+    [MemberData(nameof(DenyFilterData))]
+    public async Task ExtractArchiveAsyncDenyFiltered(string fileName, int expectedNumFiles)
     {
-        if (IsWimAndNotWindows(fileName)) return;
-        expectedNumFiles = AdjustNestedExpectedCount(fileName, expectedNumFiles, 1);
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
         var results =

@@ -15,38 +15,44 @@ namespace RecursiveExtractor.Tests.CliTests
 {
     public class CliTests : IClassFixture<BaseExtractorTestClass>
     {
-        private static bool IsWimAndNotWindows(string fileName) =>
-            fileName.EndsWith(".wim", StringComparison.OrdinalIgnoreCase) &&
-            !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-
         /// <summary>
-        /// Adjusts expected count for nested archive on non-Windows (WIM not extracted, returned as single file).
+        /// Test data for CLI extraction tests. WIM is Windows-only so conditionally included.
+        /// TestDataArchivesNested.zip count varies by platform because embedded WIM is only extracted on Windows.
         /// </summary>
-        private static int AdjustNestedExpectedCount(string fileName, int expectedNumFiles) =>
-            fileName == "TestDataArchivesNested.zip" && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                ? expectedNumFiles - 2
-                : expectedNumFiles;
-        [Theory]
-        [InlineData("TestData.zip", 5)]
-        [InlineData("TestData.7z")]
-        [InlineData("TestData.tar", 6)]
-        [InlineData("TestData.rar")]
-        [InlineData("TestData.rar4")]
-        [InlineData("TestData.tar.bz2", 6)]
-        [InlineData("TestData.tar.gz", 6)]
-        [InlineData("TestData.tar.xz")]
-        [InlineData("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
-        [InlineData("TestData.a")]
-        [InlineData("TestData.bsd.ar")]
-        [InlineData("TestData.iso")]
-        [InlineData("TestData.vhdx")]
-        [InlineData("TestData.wim")]
-        [InlineData("EmptyFile.txt", 1)]
-        [InlineData("TestDataArchivesNested.zip", 54)]
-        public void ExtractArchiveParallel(string fileName, int expectedNumFiles = 3)
+        public static TheoryData<string, int> CliArchiveData
         {
-            if (IsWimAndNotWindows(fileName)) return;
-            expectedNumFiles = AdjustNestedExpectedCount(fileName, expectedNumFiles);
+            get
+            {
+                var data = new TheoryData<string, int>
+                {
+                    { "TestData.zip", 5 },
+                    { "TestData.7z", 3 },
+                    { "TestData.tar", 6 },
+                    { "TestData.rar", 3 },
+                    { "TestData.rar4", 3 },
+                    { "TestData.tar.bz2", 6 },
+                    { "TestData.tar.gz", 6 },
+                    { "TestData.tar.xz", 3 },
+                    { "sysvbanner_1.0-17fakesync1_amd64.deb", 8 },
+                    { "TestData.a", 3 },
+                    { "TestData.bsd.ar", 3 },
+                    { "TestData.iso", 3 },
+                    { "TestData.vhdx", 3 },
+                    { "EmptyFile.txt", 1 },
+                    { "TestDataArchivesNested.zip", RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? 54 : 52 },
+                };
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    data.Add("TestData.wim", 3);
+                }
+                return data;
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(CliArchiveData))]
+        public void ExtractArchiveParallel(string fileName, int expectedNumFiles)
+        {
             CliTests.ExtractArchive(fileName, expectedNumFiles, false);
         }
 
@@ -65,26 +71,9 @@ namespace RecursiveExtractor.Tests.CliTests
         }
         
         [Theory]
-        [InlineData("TestData.zip", 5)]
-        [InlineData("TestData.7z")]
-        [InlineData("TestData.tar", 6)]
-        [InlineData("TestData.rar")]
-        [InlineData("TestData.rar4")]
-        [InlineData("TestData.tar.bz2", 6)]
-        [InlineData("TestData.tar.gz", 6)]
-        [InlineData("TestData.tar.xz")]
-        [InlineData("sysvbanner_1.0-17fakesync1_amd64.deb", 8)]
-        [InlineData("TestData.a")]
-        [InlineData("TestData.bsd.ar")]
-        [InlineData("TestData.iso")]
-        [InlineData("TestData.vhdx")]
-        [InlineData("TestData.wim")]
-        [InlineData("EmptyFile.txt", 1)]
-        [InlineData("TestDataArchivesNested.zip", 54)]
-        public void ExtractArchiveSingleThread(string fileName, int expectedNumFiles = 3)
+        [MemberData(nameof(CliArchiveData))]
+        public void ExtractArchiveSingleThread(string fileName, int expectedNumFiles)
         {
-            if (IsWimAndNotWindows(fileName)) return;
-            expectedNumFiles = AdjustNestedExpectedCount(fileName, expectedNumFiles);
             CliTests.ExtractArchive(fileName, expectedNumFiles, true);
         }
 

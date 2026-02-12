@@ -44,16 +44,29 @@ public class MiscTests
     
     
 
+        public static TheoryData<string, bool, int, int> CorruptArchiveData
+        {
+            get
+            {
+                var data = new TheoryData<string, bool, int, int>
+                {
+                    { "TestDataCorrupt.tar", false, 0, 1 },
+                    { "TestDataCorrupt.tar", true, 1, 1 },
+                    { "TestDataCorrupt.tar.zip", false, 0, 2 },
+                    { "TestDataCorrupt.tar.zip", true, 0, 2 },
+                };
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    data.Add("TestDataCorruptWim.zip", true, 0, 0);
+                }
+                return data;
+            }
+        }
+
         [Theory]
-        [InlineData("TestDataCorrupt.tar", false, 0, 1)]
-        [InlineData("TestDataCorrupt.tar", true, 1, 1)]
-        [InlineData("TestDataCorrupt.tar.zip", false, 0, 2)]
-        [InlineData("TestDataCorrupt.tar.zip", true, 0, 2)]
-        [InlineData("TestDataCorruptWim.zip", true, 0, 0)]
+        [MemberData(nameof(CorruptArchiveData))]
         public void ExtractCorruptArchive(string fileName, bool requireTopLevelToBeArchive, int expectedNumFailures, int expectedNumFiles)
         {
-            if (fileName.Contains("Wim", System.StringComparison.OrdinalIgnoreCase) &&
-                !RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var results = extractor.Extract(path, new ExtractorOptions(){ RequireTopLevelToBeArchive = requireTopLevelToBeArchive }).ToList();
