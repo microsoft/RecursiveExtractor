@@ -357,6 +357,10 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <summary>
         /// Indicates that <see cref="FileEntry.Content"/> contains an archive which failed to decrypt. To have encrypted archives returned as FileEntries from extractors use <see cref="ExtractorOptions.ExtractSelfOnFail"/>.
         /// </summary>
-        EncryptedArchive
+        EncryptedArchive,
+        /// <summary>
+        /// Indicates that this entry was found in an archive but was absent from the centralized directory index. This may indicate steganographic content or archive tampering.
+        /// </summary>
+        NonIndexedEntry
     }
 }
