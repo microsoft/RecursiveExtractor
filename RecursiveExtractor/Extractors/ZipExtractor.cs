@@ -121,9 +121,14 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
                 }
 
-                // Re-iterate through entries with the correct archive instance
+                // Gather the set of entry keys known to the central directory so we can
+                // later compare against local headers to find non-indexed (hidden) content.
+                var catalogedKeys = new HashSet<string>(StringComparer.Ordinal);
                 foreach (var zipEntry in zipArchive.Entries.Where(e => !e.IsDirectory))
                 {
+                    if (zipEntry.Key != null)
+                        catalogedKeys.Add(zipEntry.Key);
+
                     governor.CheckResourceGovernor(zipEntry.Size);
 
                     Stream? target = null;
@@ -156,6 +161,16 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 }
                 
                 zipArchive?.Dispose();
+
+                // When opted in, walk local file headers via a forward-only reader to discover
+                // entries that are absent from the central directory (steganographic / tampered content).
+                if (options.ExtractNonIndexedEntries)
+                {
+                    await foreach (var hiddenEntry in YieldNonIndexedEntriesAsync(fileEntry, catalogedKeys, options, governor, topLevel))
+                    {
+                        yield return hiddenEntry;
+                    }
+                }
             }
         }
 
@@ -217,9 +232,12 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
                 }
 
-                // Re-iterate through entries with the correct archive instance
+                var catalogedKeys = new HashSet<string>(StringComparer.Ordinal);
                 foreach (var zipEntry in zipArchive.Entries.Where(e => !e.IsDirectory))
                 {
+                    if (zipEntry.Key != null)
+                        catalogedKeys.Add(zipEntry.Key);
+
                     governor.CheckResourceGovernor(zipEntry.Size);
 
                     using var fs = StreamFactory.GenerateAppropriateBackingStream(options, zipEntry.Size);
@@ -251,9 +269,187 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 }
                 
                 zipArchive?.Dispose();
+
+                if (options.ExtractNonIndexedEntries)
+                {
+                    foreach (var hiddenEntry in YieldNonIndexedEntries(fileEntry, catalogedKeys, options, governor, topLevel))
+                    {
+                        yield return hiddenEntry;
+                    }
+                }
             }
         }
 
         private const int bufferSize = 4096;
+
+        /// <summary>
+        /// Uses the SharpCompress forward-only reader (which walks local file headers sequentially)
+        /// to discover entries absent from the central directory. Yields them as FileEntries with
+        /// <see cref="FileEntryStatus.NonIndexedEntry"/> status.
+        /// </summary>
+        private async IAsyncEnumerable<FileEntry> YieldNonIndexedEntriesAsync(
+            FileEntry parentEntry,
+            HashSet<string> catalogedKeys,
+            ExtractorOptions options,
+            ResourceGovernor governor,
+            bool topLevel)
+        {
+            parentEntry.Content.Position = 0;
+            IReader? forwardReader = null;
+            try
+            {
+                forwardReader = ReaderFactory.Open(parentEntry.Content, new ReaderOptions { LeaveStreamOpen = true });
+            }
+            catch (Exception ex)
+            {
+                Logger.Debug("Non-indexed entry scan failed to open reader for {0}: {1}", parentEntry.FullPath, ex.GetType());
+            }
+
+            if (forwardReader == null)
+                yield break;
+
+            using (forwardReader)
+            {
+                while (true)
+                {
+                    bool advanced;
+                    try { advanced = forwardReader.MoveToNextEntry(); }
+                    catch (Exception ex)
+                    {
+                        Logger.Debug("Non-indexed entry scan encountered an error advancing reader for {0}: {1}", parentEntry.FullPath, ex.GetType());
+                        break;
+                    }
+
+                    if (!advanced)
+                        break;
+
+                    var readerKey = forwardReader.Entry.Key;
+                    if (forwardReader.Entry.IsDirectory || readerKey == null)
+                        continue;
+
+                    // Skip entries that the central directory already reported
+                    if (catalogedKeys.Contains(readerKey))
+                        continue;
+
+                    Logger.Info("Discovered non-indexed ZIP entry '{0}' in {1}", readerKey, parentEntry.FullPath);
+
+                    Stream? payload = null;
+                    try
+                    {
+                        using var readerStream = forwardReader.OpenEntryStream();
+                        governor.CheckResourceGovernor(forwardReader.Entry.Size);
+                        payload = StreamFactory.GenerateAppropriateBackingStream(options, readerStream);
+                        await readerStream.CopyToAsync(payload);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Debug(Extractor.FAILED_PARSING_ERROR_MESSAGE_STRING, ArchiveFileType.ZIP, parentEntry.FullPath, readerKey, ex.GetType());
+                    }
+
+                    payload ??= new MemoryStream();
+                    var entryName = readerKey.Replace('/', Path.DirectorySeparatorChar);
+                    var discovered = new FileEntry(entryName, payload, parentEntry, passthroughStream: true, memoryStreamCutoff: options.MemoryStreamCutoff)
+                    {
+                        EntryStatus = FileEntryStatus.NonIndexedEntry
+                    };
+
+                    if (options.Recurse || topLevel)
+                    {
+                        await foreach (var nested in Context.ExtractAsync(discovered, options, governor, false))
+                        {
+                            yield return nested;
+                        }
+                    }
+                    else
+                    {
+                        yield return discovered;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Synchronous counterpart of <see cref="YieldNonIndexedEntriesAsync"/>.
+        /// </summary>
+        private IEnumerable<FileEntry> YieldNonIndexedEntries(
+            FileEntry parentEntry,
+            HashSet<string> catalogedKeys,
+            ExtractorOptions options,
+            ResourceGovernor governor,
+            bool topLevel)
+        {
+            parentEntry.Content.Position = 0;
+            IReader? forwardReader = null;
+            try
+            {
+                forwardReader = ReaderFactory.Open(parentEntry.Content, new ReaderOptions { LeaveStreamOpen = true });
+            }
+            catch (Exception ex)
+            {
+                Logger.Debug("Non-indexed entry scan failed to open reader for {0}: {1}", parentEntry.FullPath, ex.GetType());
+            }
+
+            if (forwardReader == null)
+                yield break;
+
+            using (forwardReader)
+            {
+                while (true)
+                {
+                    bool advanced;
+                    try { advanced = forwardReader.MoveToNextEntry(); }
+                    catch (Exception ex)
+                    {
+                        Logger.Debug("Non-indexed entry scan encountered an error advancing reader for {0}: {1}", parentEntry.FullPath, ex.GetType());
+                        break;
+                    }
+
+                    if (!advanced)
+                        break;
+
+                    var readerKey = forwardReader.Entry.Key;
+                    if (forwardReader.Entry.IsDirectory || readerKey == null)
+                        continue;
+
+                    if (catalogedKeys.Contains(readerKey))
+                        continue;
+
+                    Logger.Info("Discovered non-indexed ZIP entry '{0}' in {1}", readerKey, parentEntry.FullPath);
+
+                    Stream? payload = null;
+                    try
+                    {
+                        using var readerStream = forwardReader.OpenEntryStream();
+                        governor.CheckResourceGovernor(forwardReader.Entry.Size);
+                        payload = StreamFactory.GenerateAppropriateBackingStream(options, readerStream);
+                        readerStream.CopyTo(payload);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Debug(Extractor.FAILED_PARSING_ERROR_MESSAGE_STRING, ArchiveFileType.ZIP, parentEntry.FullPath, readerKey, ex.GetType());
+                    }
+
+                    payload ??= new MemoryStream();
+
+                    var entryName = readerKey.Replace('/', Path.DirectorySeparatorChar);
+                    var discovered = new FileEntry(entryName, payload, parentEntry, passthroughStream: true, memoryStreamCutoff: options.MemoryStreamCutoff)
+                    {
+                        EntryStatus = FileEntryStatus.NonIndexedEntry
+                    };
+
+                    if (options.Recurse || topLevel)
+                    {
+                        foreach (var nested in Context.Extract(discovered, options, governor, false))
+                        {
+                            yield return nested;
+                        }
+                    }
+                    else
+                    {
+                        yield return discovered;
+                    }
+                }
+            }
+        }
     }
 }
