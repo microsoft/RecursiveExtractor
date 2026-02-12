@@ -142,6 +142,20 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     var name = zipEntry.Key?.Replace('/', Path.DirectorySeparatorChar) ?? "";
                     var newFileEntry = new FileEntry(name, target, fileEntry, modifyTime: zipEntry.LastModifiedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
 
+                    try
+                    {
+                        if (zipEntry.Attrib.HasValue)
+                        {
+                            // For ZIP files, Unix permissions are stored in the upper 16 bits of the external attributes
+                            var unixMode = (zipEntry.Attrib.Value >> 16) & 0xFFFF;
+                            if (unixMode != 0)
+                            {
+                                newFileEntry.Metadata = new FileEntryMetadata { Mode = unixMode };
+                            }
+                        }
+                    }
+                    catch (Exception) { }
+
                     if (options.Recurse || topLevel)
                     {
                         await foreach (var innerEntry in Context.ExtractAsync(newFileEntry, options, governor, false))
@@ -236,6 +250,20 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                     var name = zipEntry.Key?.Replace('/', Path.DirectorySeparatorChar) ?? "";
                     var newFileEntry = new FileEntry(name, fs, fileEntry, modifyTime: zipEntry.LastModifiedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
+
+                    try
+                    {
+                        if (zipEntry.Attrib.HasValue)
+                        {
+                            // For ZIP files, Unix permissions are stored in the upper 16 bits of the external attributes
+                            var unixMode = (zipEntry.Attrib.Value >> 16) & 0xFFFF;
+                            if (unixMode != 0)
+                            {
+                                newFileEntry.Metadata = new FileEntryMetadata { Mode = unixMode };
+                            }
+                        }
+                    }
+                    catch (Exception) { }
 
                     if (options.Recurse || topLevel)
                     {

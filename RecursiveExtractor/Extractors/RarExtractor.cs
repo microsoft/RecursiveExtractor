@@ -108,6 +108,14 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     var newFileEntry = await FileEntry.FromStreamAsync(name, entry.OpenEntryStream(), fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
                     if (newFileEntry != null)
                     {
+                        try
+                        {
+                            if (entry.Attrib.HasValue)
+                            {
+                                newFileEntry.Metadata = new FileEntryMetadata { Mode = entry.Attrib.Value };
+                            }
+                        }
+                        catch (Exception) { }
                         if (options.Recurse || topLevel)
                         {
                             await foreach (var innerEntry in Context.ExtractAsync(newFileEntry, options, governor, false))
@@ -158,6 +166,14 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
                     if (newFileEntry != null)
                     {
+                        try
+                        {
+                            if (entry.Attrib.HasValue)
+                            {
+                                newFileEntry.Metadata = new FileEntryMetadata { Mode = entry.Attrib.Value };
+                            }
+                        }
+                        catch (Exception) { }
                         if (options.Recurse || topLevel)
                         {
                             foreach (var innerEntry in Context.Extract(newFileEntry, options, governor, false))
