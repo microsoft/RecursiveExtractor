@@ -1,85 +1,86 @@
 ﻿using Microsoft.CST.RecursiveExtractor;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SharpCompress.Archives.Tar;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace RecursiveExtractor.Tests.ExtractorTests;
 
-[TestClass]
-public class TestQuinesAndSlip : BaseExtractorTestClass
+public class TestQuinesAndSlip
 {
-    public static IEnumerable<object[]> ZipSlipNames
+    public static TheoryData<string> ZipSlipNames
     {
         get
         {
-            return new[]
+            return new TheoryData<string>
             { 
-                new object [] { "zip-slip-win.zip" },
-                new object [] { "zip-slip-win.tar" },
-                new object [] { "zip-slip.zip" },
-                new object [] { "zip-slip.tar" }
+                { "zip-slip-win.zip" },
+                { "zip-slip-win.tar" },
+                { "zip-slip.zip" },
+                { "zip-slip.tar" }
             };
         }
     }
     
-    [TestMethod]
-    [DynamicData(nameof(ZipSlipNames))]
+    [Theory]
+    [MemberData(nameof(ZipSlipNames))]
     public void TestZipSlip(string fileName)
     {
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Bombs", fileName);
         var results = extractor.Extract(path, new ExtractorOptions()).ToList();
-        Assert.IsTrue(results.All(x => !x.FullPath.Contains("..")));
+        Assert.True(results.All(x => !x.FullPath.Contains("..")));
     }
     
-    [TestMethod]
-    [DynamicData(nameof(ZipSlipNames))]
+    [Theory]
+    [MemberData(nameof(ZipSlipNames))]
     public async Task TestZipSlipAsync(string fileName)
     {
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Bombs", fileName);
         var results = await extractor.ExtractAsync(path, new ExtractorOptions()).ToListAsync();
-        Assert.IsTrue(results.All(x => !x.FullPath.Contains("..")));
+        Assert.True(results.All(x => !x.FullPath.Contains("..")));
     }
     
-    public static IEnumerable<object[]> QuineBombNames
+    public static TheoryData<string> QuineBombNames
     {
         get
         {
-            return new[]
+            return new TheoryData<string>
             { 
-                new object [] { "10GB.7z.bz2" },
-                new object [] { "10GB.gz.bz2" },
-                new object [] { "10GB.rar.bz2" },
-                new object [] { "10GB.xz.bz2" },
-                new object [] { "10GB.zip.bz2" },
-                new object [] { "zblg.zip" },
-                new object [] { "zbsm.zip" }
+                { "10GB.7z.bz2" },
+                { "10GB.gz.bz2" },
+                { "10GB.rar.bz2" },
+                { "10GB.xz.bz2" },
+                { "10GB.zip.bz2" },
+                { "zblg.zip" },
+                { "zbsm.zip" }
             };
         }
     }
     
-    [TestMethod]        
-    [DynamicData(nameof(QuineBombNames))]
-    [ExpectedException(typeof(OverflowException))]
+    [Theory]        
+    [MemberData(nameof(QuineBombNames))]
     public void TestQuineBombs(string fileName)
     {
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Bombs", fileName);
-        _ = extractor.Extract(path, new ExtractorOptions() { MemoryStreamCutoff = 1024 * 1024 * 1024 }).ToList();
+        Assert.Throws<OverflowException>(() =>
+        {
+            _ = extractor.Extract(path, new ExtractorOptions() { MemoryStreamCutoff = 1024 * 1024 * 1024 }).ToList();
+        });
     }
     
-    [TestMethod]        
-    [DynamicData(nameof(QuineBombNames))]
-    [ExpectedException(typeof(OverflowException))]
+    [Theory]        
+    [MemberData(nameof(QuineBombNames))]
     public async Task TestQuineBombsAsync(string fileName)
     {
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "Bombs", fileName);
-        _ = await extractor.ExtractAsync(path, new ExtractorOptions() { MemoryStreamCutoff = 1024 * 1024 * 1024 }).ToListAsync();
+        await Assert.ThrowsAsync<OverflowException>(async () =>
+        {
+            _ = await extractor.ExtractAsync(path, new ExtractorOptions() { MemoryStreamCutoff = 1024 * 1024 * 1024 }).ToListAsync();
+        });
     }
 }

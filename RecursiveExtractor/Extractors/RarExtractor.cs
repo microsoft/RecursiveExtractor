@@ -104,7 +104,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 foreach (var entry in rarArchive.Entries.Where(x => x.IsComplete && !x.IsDirectory))
                 {
                     governor.CheckResourceGovernor(entry.Size);
-                    var name = entry.Key.Replace('/', Path.DirectorySeparatorChar);
+                    var name = (entry.Key ?? string.Empty).Replace('/', Path.DirectorySeparatorChar);
                     var newFileEntry = await FileEntry.FromStreamAsync(name, entry.OpenEntryStream(), fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
                     if (newFileEntry != null)
                     {
@@ -149,7 +149,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     try
                     {
                         var stream = entry.OpenEntryStream();
-                        var name = entry.Key.Replace('/', Path.DirectorySeparatorChar);
+                        var name = (entry.Key ?? string.Empty).Replace('/', Path.DirectorySeparatorChar);
                         newFileEntry = new FileEntry(name, stream, fileEntry, false, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
                     }
                     catch (Exception e)

@@ -148,13 +148,17 @@ namespace Microsoft.CST.RecursiveExtractor
                         var bytesRemaining = stream2.Length;
                         while (bytesRemaining > 0)
                         {
-                            stream1.Read(buffer1, 0, bufferSize);
-                            stream2.Read(buffer2, 0, bufferSize);
-                            if (!buffer1.SequenceEqual(buffer2))
+                            var bytesToRead = (int)Math.Min(bufferSize, bytesRemaining);
+                            stream1.ReadExactly(buffer1, 0, bytesToRead);
+                            stream2.ReadExactly(buffer2, 0, bytesToRead);
+                            for (int i = 0; i < bytesToRead; i++)
                             {
-                                stream1.Position = position1;
-                                stream2.Position = position2;
-                                return false;
+                                if (buffer1[i] != buffer2[i])
+                                {
+                                    stream1.Position = position1;
+                                    stream2.Position = position2;
+                                    return false;
+                                }
                             }
                             bytesRemaining = stream2.Length - stream2.Position;
                         }

@@ -41,7 +41,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 foreach (var entry in sevenZipArchive.Entries.Where(x => !x.IsDirectory && x.IsComplete).ToList())
                 {
                     governor.CheckResourceGovernor(entry.Size);
-                    var name = entry.Key.Replace('/', Path.DirectorySeparatorChar);
+                    var name = (entry.Key ?? string.Empty).Replace('/', Path.DirectorySeparatorChar);
                     var newFileEntry = await FileEntry.FromStreamAsync(name, entry.OpenEntryStream(), fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
 
                     if (newFileEntry != null)
@@ -154,7 +154,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 foreach (var entry in entries)
                 {
                     governor.CheckResourceGovernor(entry.Size);
-                    var name = entry.Key.Replace('/', Path.DirectorySeparatorChar);
+                    var name = (entry.Key ?? string.Empty).Replace('/', Path.DirectorySeparatorChar);
                     var newFileEntry = new FileEntry(name, entry.OpenEntryStream(), fileEntry, createTime: entry.CreatedTime, modifyTime: entry.LastModifiedTime, accessTime: entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
 
                     if (options.Recurse || topLevel)

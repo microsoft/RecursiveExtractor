@@ -81,7 +81,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         VMDK,
         /// <summary>
-        /// A DMG disc image. <see cref="Extractors.DmgExtractor"/>
+        /// A DMG disc image.
         /// </summary>
         DMG,
         /// <summary>
@@ -128,7 +128,7 @@ namespace Microsoft.CST.RecursiveExtractor
             {
                 var dmgFooterMagic = new byte[] { 0x6b, 0x6f, 0x6c, 0x79 };
                 fileStream.Position = fileStream.Length - 0x200; // Footer position
-                fileStream.Read(buffer, 0, 4);
+                fileStream.ReadExactly(buffer, 0, 4);
                 fileStream.Position = initialPosition;
 
                 if (dmgFooterMagic.SequenceEqual(buffer[0..4]))
@@ -140,7 +140,7 @@ namespace Microsoft.CST.RecursiveExtractor
             if (fileStream.Length >= 9)
             {
                 fileStream.Position = 0;
-                fileStream.Read(buffer, 0, 9);
+                fileStream.ReadExactly(buffer, 0, 9);
                 fileStream.Position = initialPosition;
 
                 if (buffer[0] == 0x50 && buffer[1] == 0x4B && buffer[2] == 0x03 && buffer[3] == 0x04)
@@ -181,7 +181,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 {
                     fileStream.Position = 512;
                     var secondToken = new byte[21];
-                    fileStream.Read(secondToken, 0, 21);
+                    fileStream.ReadExactly(secondToken, 0, 21);
                     fileStream.Position = initialPosition;
 
                     if (Encoding.ASCII.GetString(secondToken) == "# Disk DescriptorFile")
@@ -194,7 +194,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 {
                     // .deb https://manpages.debian.org/unstable/dpkg-dev/deb.5.en.html
                     fileStream.Position = 68;
-                    fileStream.Read(buffer, 0, 4);
+                    fileStream.ReadExactly(buffer, 0, 4);
                     fileStream.Position = initialPosition;
 
                     var encoding = new ASCIIEncoding();
@@ -208,7 +208,7 @@ namespace Microsoft.CST.RecursiveExtractor
 
                         // Created by GNU ar https://en.wikipedia.org/wiki/Ar_(Unix)#System_V_(or_GNU)_variant
                         fileStream.Position = 8;
-                        fileStream.Read(headerBuffer, 0, 60);
+                        fileStream.ReadExactly(headerBuffer, 0, 60);
                         fileStream.Position = initialPosition;
 
                         // header size in bytes
@@ -232,7 +232,7 @@ namespace Microsoft.CST.RecursiveExtractor
             if (fileStream.Length >= 262)
             {
                 fileStream.Position = 257;
-                fileStream.Read(buffer, 0, 5);
+                fileStream.ReadExactly(buffer, 0, 5);
                 fileStream.Position = initialPosition;
 
                 if (buffer[0] == 0x75 && buffer[1] == 0x73 && buffer[2] == 0x74 && buffer[3] == 0x61 && buffer[4] == 0x72)
@@ -245,7 +245,7 @@ namespace Microsoft.CST.RecursiveExtractor
             if (fileStream.Length > 32768 + 2048)
             {
                 fileStream.Position = 32769;
-                fileStream.Read(buffer, 0, 5);
+                fileStream.ReadExactly(buffer, 0, 5);
                 fileStream.Position = initialPosition;
 
                 if (buffer[0] == 'C' && buffer[1] == 'D' && buffer[2] == '0' && buffer[3] == '0' && buffer[4] == '1')
@@ -266,7 +266,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 var vhdFooterCookie = new byte[] { 0x63, 0x6F, 0x6E, 0x65, 0x63, 0x74, 0x69, 0x78 };
 
                 fileStream.Position = fileStream.Length - 0x200; // Footer position
-                fileStream.Read(buffer, 0, 8);
+                fileStream.ReadExactly(buffer, 0, 8);
                 fileStream.Position = initialPosition;
 
                 if (vhdFooterCookie.SequenceEqual(buffer[0..8]))
@@ -275,7 +275,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 }
 
                 fileStream.Position = fileStream.Length - 0x1FF; //If created on legacy platform footer is 511 bytes instead
-                fileStream.Read(buffer, 0, 8);
+                fileStream.ReadExactly(buffer, 0, 8);
                 fileStream.Position = initialPosition;
 
                 if (vhdFooterCookie.SequenceEqual(buffer[0..8]))

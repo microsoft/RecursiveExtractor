@@ -72,7 +72,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         continue;
                     }
                     // Remove leading ./
-                    while (name.StartsWith($".{Path.DirectorySeparatorChar}"))
+                    while (name!.StartsWith($".{Path.DirectorySeparatorChar}"))
                     {
                         name = name[2..];
                     }
@@ -144,7 +144,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         continue;
                     }
                     // Remove leading ./
-                    while (name.StartsWith($".{Path.DirectorySeparatorChar}"))
+                    while (name!.StartsWith($".{Path.DirectorySeparatorChar}"))
                     {
                         name = name[2..];
                     }
