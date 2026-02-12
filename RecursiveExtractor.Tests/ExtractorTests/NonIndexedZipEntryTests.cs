@@ -1,6 +1,3 @@
-// System.IO.Compression.ZipArchive is not reliably available on .NET Framework 4.8,
-// so these tests are excluded on that target.
-#if !NETFRAMEWORK
 using Microsoft.CST.RecursiveExtractor;
 using System;
 using System.Collections.Generic;
@@ -193,4 +190,3 @@ public class NonIndexedZipEntryTests
         Assert.DoesNotContain(results, r => r.EntryStatus == FileEntryStatus.NonIndexedEntry);
     }
 }
-#endif
