@@ -17,6 +17,10 @@ namespace Microsoft.CST.RecursiveExtractor
         /// </summary>
         UNKNOWN = 0,
         /// <summary>
+        /// Unused.
+        /// </summary>
+        INVALID = 18,
+        /// <summary>
         /// A zip formatted file. <see cref="Extractors.ZipExtractor"/>
         /// </summary>
         ZIP = 1,
@@ -96,10 +100,6 @@ namespace Microsoft.CST.RecursiveExtractor
         /// An ACE compressed archive. <see cref="Extractors.AceExtractor"/>
         /// </summary>
         ACE = 21,
-        /// <summary>
-        /// Unused.
-        /// </summary>
-        INVALID = 18,
     }
 
     /// <summary>

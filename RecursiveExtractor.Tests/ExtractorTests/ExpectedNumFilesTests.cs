@@ -46,6 +46,7 @@ namespace RecursiveExtractor.Tests.ExtractorTests
                     { "TestData.arj", 1 },
                     { "TestData.arc", 1 },
                     { "TestData.ace", 1 },
+                    { "NestedFormatsTest.zip", 2 },
 //                    { "HfsSampleUDCO.dmg", 2 }
                 };
             }
@@ -81,6 +82,7 @@ namespace RecursiveExtractor.Tests.ExtractorTests
                     { "TestData.arj", 1 },
                     { "TestData.arc", 1 },
                     { "TestData.ace", 1 },
+                    { "NestedFormatsTest.zip", 1 },
 //                    { "HfsSampleUDCO.dmg", 2 }
                 };
             }
