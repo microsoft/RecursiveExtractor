@@ -53,7 +53,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                                 newFileEntry.Metadata = new FileEntryMetadata { Mode = entry.Attrib.Value };
                             }
                         }
-                        catch (Exception) { }
+                        catch (Exception e) { Logger.Trace("Failed to read file attributes: {0}", e.Message); }
                         if (options.Recurse || topLevel)
                         {
                             await foreach (var innerEntry in Context.ExtractAsync(newFileEntry, options, governor, false))
@@ -172,7 +172,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             newFileEntry.Metadata = new FileEntryMetadata { Mode = entry.Attrib.Value };
                         }
                     }
-                    catch (Exception) { }
+                    catch (Exception e) { Logger.Trace("Failed to read file attributes: {0}", e.Message); }
 
                     if (options.Recurse || topLevel)
                     {

@@ -154,7 +154,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             }
                         }
                     }
-                    catch (Exception) { }
+                    catch (Exception e) { Logger.Trace("Failed to read file attributes: {0}", e.Message); }
 
                     if (options.Recurse || topLevel)
                     {
@@ -263,7 +263,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             }
                         }
                     }
-                    catch (Exception) { }
+                    catch (Exception e) { Logger.Trace("Failed to read file attributes: {0}", e.Message); }
 
                     if (options.Recurse || topLevel)
                     {
