@@ -154,7 +154,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             }
                         }
                     }
-                    catch (Exception e) { Logger.Trace("Failed to read file attributes: {0}", e.Message); }
+                    catch (Exception e) { Logger.Trace("Failed to read file attributes for {0} in {1} archive {2}: {3}", zipEntry.Key, ArchiveFileType.ZIP, fileEntry.FullPath, e.Message); }
 
                     if (options.Recurse || topLevel)
                     {
@@ -263,7 +263,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             }
                         }
                     }
-                    catch (Exception e) { Logger.Trace("Failed to read file attributes: {0}", e.Message); }
+                    catch (Exception e) { Logger.Trace("Failed to read file attributes for {0} in {1} archive {2}: {3}", zipEntry.Key, ArchiveFileType.ZIP, fileEntry.FullPath, e.Message); }
 
                     if (options.Recurse || topLevel)
                     {
