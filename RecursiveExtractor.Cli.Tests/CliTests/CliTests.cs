@@ -7,6 +7,7 @@ using RecursiveExtractor.Tests.ExtractorTests;
 using System;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using Xunit;
 
@@ -14,6 +15,9 @@ namespace RecursiveExtractor.Tests.CliTests
 {
     public class CliTests : IClassFixture<BaseExtractorTestClass>
     {
+        private static bool IsWimAndNotWindows(string fileName) =>
+            fileName.EndsWith(".wim", StringComparison.OrdinalIgnoreCase) &&
+            !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         [Theory]
         [InlineData("TestData.zip", 5)]
         [InlineData("TestData.7z")]
@@ -30,9 +34,13 @@ namespace RecursiveExtractor.Tests.CliTests
         [InlineData("TestData.vhdx")]
         [InlineData("TestData.wim")]
         [InlineData("EmptyFile.txt", 1)]
-        [InlineData("TestDataArchivesNested.Zip", 54)]
+        [InlineData("TestDataArchivesNested.zip", 54)]
         public void ExtractArchiveParallel(string fileName, int expectedNumFiles = 3)
         {
+            if (IsWimAndNotWindows(fileName)) return;
+            // Nested archive contains a WIM which extracts to 3 files on Windows but is returned as 1 file on Linux
+            if (fileName == "TestDataArchivesNested.zip" && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                expectedNumFiles = 52;
             CliTests.ExtractArchive(fileName, expectedNumFiles, false);
         }
 
@@ -66,9 +74,13 @@ namespace RecursiveExtractor.Tests.CliTests
         [InlineData("TestData.vhdx")]
         [InlineData("TestData.wim")]
         [InlineData("EmptyFile.txt", 1)]
-        [InlineData("TestDataArchivesNested.Zip", 54)]
+        [InlineData("TestDataArchivesNested.zip", 54)]
         public void ExtractArchiveSingleThread(string fileName, int expectedNumFiles = 3)
         {
+            if (IsWimAndNotWindows(fileName)) return;
+            // Nested archive contains a WIM which extracts to 3 files on Windows but is returned as 1 file on Linux
+            if (fileName == "TestDataArchivesNested.zip" && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                expectedNumFiles = 52;
             CliTests.ExtractArchive(fileName, expectedNumFiles, true);
         }
 
@@ -126,7 +138,7 @@ namespace RecursiveExtractor.Tests.CliTests
 
         [Theory]
         [InlineData("TestDataEncrypted.7z")]
-        [InlineData("TestDataEncryptedAes.zip")]
+        [InlineData("TestDataEncryptedAES.zip")]
         [InlineData("TestDataEncrypted.rar4")]
         public void ExtractEncryptedArchive(string fileName, int expectedNumFiles = 3)
         {

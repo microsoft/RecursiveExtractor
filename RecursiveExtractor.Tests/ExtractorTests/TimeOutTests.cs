@@ -1,6 +1,7 @@
 using Microsoft.CST.RecursiveExtractor;
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -8,6 +9,9 @@ namespace RecursiveExtractor.Tests.ExtractorTests;
 
 public class TimeOutTests
 {
+    private static bool IsWimAndNotWindows(string fileName) =>
+        fileName.EndsWith(".wim", System.StringComparison.OrdinalIgnoreCase) &&
+        !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
     [Theory]
     [InlineData("TestData.7z", false)]
     [InlineData("TestData.tar", false)]
@@ -38,10 +42,11 @@ public class TimeOutTests
     [InlineData("TestData.vhdx", true)]
     [InlineData("TestData.wim", true)]
     [InlineData("EmptyFile.txt", true)]
-    [InlineData("TestDataArchivesNested.Zip", true)]
-    [InlineData("TestDataArchivesNested.Zip", false)]
+    [InlineData("TestDataArchivesNested.zip", true)]
+    [InlineData("TestDataArchivesNested.zip", false)]
     public void TimeoutTest(string fileName, bool parallel = false)
     {
+        if (IsWimAndNotWindows(fileName)) return;
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
         Assert.Throws<TimeoutException>(() =>
@@ -92,10 +97,11 @@ public class TimeOutTests
     [InlineData("TestData.vhdx", true)]
     [InlineData("TestData.wim", true)]
     [InlineData("EmptyFile.txt", true)]
-    [InlineData("TestDataArchivesNested.Zip", true)]
-    [InlineData("TestDataArchivesNested.Zip", false)]
+    [InlineData("TestDataArchivesNested.zip", true)]
+    [InlineData("TestDataArchivesNested.zip", false)]
     public async Task TimeoutTestAsync(string fileName, bool parallel = false)
     {
+        if (IsWimAndNotWindows(fileName)) return;
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
         await Assert.ThrowsAsync<TimeoutException>(async () =>

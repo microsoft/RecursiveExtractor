@@ -3,6 +3,7 @@ using Microsoft.CST.RecursiveExtractor.Tests;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -11,6 +12,9 @@ namespace RecursiveExtractor.Tests.ExtractorTests;
 [Collection(ExtractorTestCollection.Name)]
 public class DisposeBehaviorTests
 {
+    private static bool IsWimAndNotWindows(string fileName) =>
+        fileName.EndsWith(".wim", System.StringComparison.OrdinalIgnoreCase) &&
+        !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
     [Theory]
     [InlineData("TestData.7z", 3, false)]
     [InlineData("TestData.tar", 6, false)]
@@ -41,11 +45,15 @@ public class DisposeBehaviorTests
     [InlineData("TestData.vhdx", 3, true)]
     [InlineData("TestData.wim", 3, true)]
     [InlineData("EmptyFile.txt", 1, true)]
-    [InlineData("TestDataArchivesNested.Zip", 54, true)]
-    [InlineData("TestDataArchivesNested.Zip", 54, false)]
+    [InlineData("TestDataArchivesNested.zip", 54, true)]
+    [InlineData("TestDataArchivesNested.zip", 54, false)]
     public void ExtractArchiveAndDisposeWhileEnumerating(string fileName, int expectedNumFiles = 3,
         bool parallel = false)
     {
+        if (IsWimAndNotWindows(fileName)) return;
+        // Nested archive contains a WIM which extracts to 3 files on Windows but is returned as 1 file on Linux
+        if (fileName == "TestDataArchivesNested.zip" && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            expectedNumFiles = 52;
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
         var results = extractor.Extract(path, new ExtractorOptions() { Parallel = parallel });
@@ -95,11 +103,15 @@ public class DisposeBehaviorTests
     [InlineData("TestData.vhdx", 3, true)]
     [InlineData("TestData.wim", 3, true)]
     [InlineData("EmptyFile.txt", 1, true)]
-    [InlineData("TestDataArchivesNested.Zip", 54, true)]
-    [InlineData("TestDataArchivesNested.Zip", 54, false)]
+    [InlineData("TestDataArchivesNested.zip", 54, true)]
+    [InlineData("TestDataArchivesNested.zip", 54, false)]
     public async Task ExtractArchiveAndDisposeWhileEnumeratingAsync(string fileName, int expectedNumFiles = 3,
         bool parallel = false)
     {
+        if (IsWimAndNotWindows(fileName)) return;
+        // Nested archive contains a WIM which extracts to 3 files on Windows but is returned as 1 file on Linux
+        if (fileName == "TestDataArchivesNested.zip" && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            expectedNumFiles = 52;
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
         var results = extractor.ExtractAsync(path, new ExtractorOptions() { Parallel = parallel });

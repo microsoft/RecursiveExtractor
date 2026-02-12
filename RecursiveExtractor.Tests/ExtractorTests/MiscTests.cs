@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -51,6 +52,8 @@ public class MiscTests
         [InlineData("TestDataCorruptWim.zip", true, 0, 0)]
         public void ExtractCorruptArchive(string fileName, bool requireTopLevelToBeArchive, int expectedNumFailures, int expectedNumFiles)
         {
+            if (fileName.Contains("Wim", System.StringComparison.OrdinalIgnoreCase) &&
+                !RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var results = extractor.Extract(path, new ExtractorOptions(){ RequireTopLevelToBeArchive = requireTopLevelToBeArchive }).ToList();
