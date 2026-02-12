@@ -83,7 +83,10 @@ namespace Microsoft.CST.RecursiveExtractor
                             // The name length is included in the total size reported in the header
                             CopyStreamBytes(fileEntry.Content, entryStream, size - nameLength);
 
-                            yield return new FileEntry(Encoding.ASCII.GetString(nameSpan).TrimEnd('/'), entryStream, fileEntry, true, memoryStreamCutoff: options.MemoryStreamCutoff);
+                            yield return new FileEntry(Encoding.ASCII.GetString(nameSpan).TrimEnd('/'), entryStream, fileEntry, true, memoryStreamCutoff: options.MemoryStreamCutoff)
+                            {
+                                Metadata = ParseArMetadata(headerBuffer)
+                            };
                         }
                     }
                     else if (filename.Equals('/'))
@@ -149,7 +152,10 @@ namespace Microsoft.CST.RecursiveExtractor
 
                                 var entryStream = StreamFactory.GenerateAppropriateBackingStream(options, innerSize);
                                 CopyStreamBytes(fileEntry.Content, entryStream, innerSize);
-                                yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true);
+                                yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true)
+                                {
+                                    Metadata = ParseArMetadata(headerBuffer)
+                                };
                             }
                         }
                         fileEntry.Content.Position = fileEntry.Content.Length - 1;
@@ -220,7 +226,10 @@ namespace Microsoft.CST.RecursiveExtractor
 
                                 var entryStream = StreamFactory.GenerateAppropriateBackingStream(options, innerSize);
                                 CopyStreamBytes(fileEntry.Content, entryStream, innerSize);
-                                yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true);
+                                yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true)
+                                {
+                                    Metadata = ParseArMetadata(headerBuffer)
+                                };
                             }
                         }
                         fileEntry.Content.Position = fileEntry.Content.Length - 1;
@@ -241,14 +250,20 @@ namespace Microsoft.CST.RecursiveExtractor
                         var entryStream = StreamFactory.GenerateAppropriateBackingStream(options, size);
                         CopyStreamBytes(fileEntry.Content, entryStream, size);
 
-                        yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true); ;
+                        yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true)
+                        {
+                            Metadata = ParseArMetadata(headerBuffer)
+                        };
                     }
                     else
                     {
                         var entryStream = StreamFactory.GenerateAppropriateBackingStream(options, size);
                         CopyStreamBytes(fileEntry.Content, entryStream, size);
 
-                        yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true);
+                        yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true)
+                        {
+                            Metadata = ParseArMetadata(headerBuffer)
+                        };
                     }
                 }
                 else
@@ -329,7 +344,10 @@ namespace Microsoft.CST.RecursiveExtractor
                             // The name length is included in the total size reported in the header
                             await CopyStreamBytesAsync(fileEntry.Content, entryStream, size - nameLength).ConfigureAwait(false);
 
-                            yield return new FileEntry(Encoding.ASCII.GetString(nameSpan).TrimEnd('/'), entryStream, fileEntry, true);
+                            yield return new FileEntry(Encoding.ASCII.GetString(nameSpan).TrimEnd('/'), entryStream, fileEntry, true)
+                            {
+                                Metadata = ParseArMetadata(headerBuffer)
+                            };
                         }
                     }
                     else if (filename.Equals('/'))
@@ -394,7 +412,10 @@ namespace Microsoft.CST.RecursiveExtractor
                                 }
                                 var entryStream = StreamFactory.GenerateAppropriateBackingStream(options, innerSize);
                                 await CopyStreamBytesAsync(fileEntry.Content, entryStream, innerSize).ConfigureAwait(false);
-                                yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true);
+                                yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true)
+                                {
+                                    Metadata = ParseArMetadata(headerBuffer)
+                                };
                             }
                         }
                         fileEntry.Content.Position = fileEntry.Content.Length - 1;
@@ -465,7 +486,10 @@ namespace Microsoft.CST.RecursiveExtractor
 
                                 var entryStream = StreamFactory.GenerateAppropriateBackingStream(options, innerSize);
                                 await CopyStreamBytesAsync(fileEntry.Content, entryStream, innerSize).ConfigureAwait(false);
-                                yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true);
+                                yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true)
+                                {
+                                    Metadata = ParseArMetadata(headerBuffer)
+                                };
                             }
                         }
                         fileEntry.Content.Position = fileEntry.Content.Length - 1;
@@ -485,13 +509,19 @@ namespace Microsoft.CST.RecursiveExtractor
                         }
                         var entryStream = StreamFactory.GenerateAppropriateBackingStream(options, size);
                         CopyStreamBytes(fileEntry.Content, entryStream, size);
-                        yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true);
+                        yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true)
+                        {
+                            Metadata = ParseArMetadata(headerBuffer)
+                        };
                     }
                     else
                     {
                         var entryStream = StreamFactory.GenerateAppropriateBackingStream(options, size);
                         await CopyStreamBytesAsync(fileEntry.Content, entryStream, size).ConfigureAwait(false);
-                        yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true);
+                        yield return new FileEntry(filename.TrimEnd('/'), entryStream, fileEntry, true)
+                        {
+                            Metadata = ParseArMetadata(headerBuffer)
+                        };
                     }
                 }
                 else
@@ -569,6 +599,46 @@ namespace Microsoft.CST.RecursiveExtractor
         }
 
         private const int bufferSize = 4096;
+
+        /// <summary>
+        /// Parse file metadata (UID, GID, mode) from an ar file header buffer.
+        /// </summary>
+        /// <param name="headerBuffer">The 60-byte ar header</param>
+        /// <returns>A <see cref="FileEntryMetadata"/> with parsed values, or null if parsing fails.</returns>
+        internal static FileEntryMetadata? ParseArMetadata(byte[] headerBuffer)
+        {
+            var metadata = new FileEntryMetadata();
+            var hasData = false;
+
+            // ar_uid: bytes 28-33 (6 bytes), decimal
+            if (int.TryParse(Encoding.ASCII.GetString(headerBuffer[28..34]).Trim(), out var uid))
+            {
+                metadata.Uid = uid;
+                hasData = true;
+            }
+
+            // ar_gid: bytes 34-39 (6 bytes), decimal
+            if (int.TryParse(Encoding.ASCII.GetString(headerBuffer[34..40]).Trim(), out var gid))
+            {
+                metadata.Gid = gid;
+                hasData = true;
+            }
+
+            // ar_mode: bytes 40-47 (8 bytes), octal
+            var modeString = Encoding.ASCII.GetString(headerBuffer[40..48]).Trim();
+            try
+            {
+                if (!string.IsNullOrEmpty(modeString))
+                {
+                    metadata.Mode = Convert.ToInt64(modeString, 8);
+                    hasData = true;
+                }
+            }
+            catch (FormatException) { }
+            catch (OverflowException) { }
+
+            return hasData ? metadata : null;
+        }
 
         private readonly static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     }

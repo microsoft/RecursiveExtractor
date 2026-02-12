@@ -46,6 +46,14 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                     if (newFileEntry != null)
                     {
+                        try
+                        {
+                            if (entry.Attrib.HasValue)
+                            {
+                                newFileEntry.Metadata = new FileEntryMetadata { Mode = entry.Attrib.Value };
+                            }
+                        }
+                        catch (Exception e) { Logger.Trace("Failed to read file attributes for {0} in {1} archive {2}: {3}", entry.Key, ArchiveFileType.P7ZIP, fileEntry.FullPath, e.Message); }
                         if (options.Recurse || topLevel)
                         {
                             await foreach (var innerEntry in Context.ExtractAsync(newFileEntry, options, governor, false))
@@ -156,6 +164,15 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     governor.CheckResourceGovernor(entry.Size);
                     var name = (entry.Key ?? string.Empty).Replace('/', Path.DirectorySeparatorChar);
                     var newFileEntry = new FileEntry(name, entry.OpenEntryStream(), fileEntry, createTime: entry.CreatedTime, modifyTime: entry.LastModifiedTime, accessTime: entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
+
+                    try
+                    {
+                        if (entry.Attrib.HasValue)
+                        {
+                            newFileEntry.Metadata = new FileEntryMetadata { Mode = entry.Attrib.Value };
+                        }
+                    }
+                    catch (Exception e) { Logger.Trace("Failed to read file attributes for {0} in {1} archive {2}: {3}", entry.Key, ArchiveFileType.P7ZIP, fileEntry.FullPath, e.Message); }
 
                     if (options.Recurse || topLevel)
                     {
