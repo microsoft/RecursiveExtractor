@@ -173,6 +173,12 @@ namespace Microsoft.CST.RecursiveExtractor
         /// ExtractionStatus metadata.
         /// </summary>
         public FileEntryStatus EntryStatus { get; set; }
+
+        /// <summary>
+        /// Optional metadata about the file such as permissions, ownership, and special bits.
+        /// Null when the archive format does not provide this information.
+        /// </summary>
+        public FileEntryMetadata? Metadata { get; set; }
         
         /// <summary>
         /// Regular expression to find characters that are not valid in filenames/paths on this system.

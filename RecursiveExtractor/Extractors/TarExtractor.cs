@@ -75,7 +75,10 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         name = name[2..];
                     }
                     
-                    var newFileEntry = new FileEntry(name, fs, fileEntry, true, memoryStreamCutoff: options.MemoryStreamCutoff);
+                    var newFileEntry = new FileEntry(name, fs, fileEntry, true, memoryStreamCutoff: options.MemoryStreamCutoff)
+                    {
+                        Metadata = new FileEntryMetadata { Mode = tarEntry.Mode, Uid = tarEntry.UserID, Gid = tarEntry.GroupId }
+                    };
 
                     if (options.Recurse || topLevel)
                     {
@@ -144,7 +147,10 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         name = name[2..];
                     }
-                    var newFileEntry = new FileEntry(name, fs, fileEntry, true, memoryStreamCutoff: options.MemoryStreamCutoff);
+                    var newFileEntry = new FileEntry(name, fs, fileEntry, true, memoryStreamCutoff: options.MemoryStreamCutoff)
+                    {
+                        Metadata = new FileEntryMetadata { Mode = tarEntry.Mode, Uid = tarEntry.UserID, Gid = tarEntry.GroupId }
+                    };
 
                     if (options.Recurse || topLevel)
                     {
