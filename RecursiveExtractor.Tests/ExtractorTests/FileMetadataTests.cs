@@ -140,4 +140,69 @@ public class FileMetadataTests
         var entry = new FileEntry("test.txt", stream);
         Assert.Null(entry.Metadata);
     }
+
+    [Fact]
+    public async Task IsoEntries_MetadataIsNullWithoutRockRidge()
+    {
+        // TestData.iso does not have RockRidge extensions, so Unix metadata is not available
+        var extractor = new Extractor();
+        var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", "TestData.iso");
+        var results = await extractor.ExtractAsync(path, new ExtractorOptions() { Recurse = false }).ToListAsync();
+
+        Assert.NotEmpty(results);
+        foreach (var entry in results)
+        {
+            // Without RockRidge extensions, metadata should be null
+            Assert.Null(entry.Metadata);
+        }
+    }
+
+    [Fact]
+    public void IsoEntries_MetadataIsNullWithoutRockRidge_Sync()
+    {
+        var extractor = new Extractor();
+        var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", "TestData.iso");
+        var results = extractor.Extract(path, new ExtractorOptions() { Recurse = false }).ToList();
+
+        Assert.NotEmpty(results);
+        foreach (var entry in results)
+        {
+            Assert.Null(entry.Metadata);
+        }
+    }
+
+    [Fact]
+    public async Task IsoRockRidgeEntries_HaveMetadata()
+    {
+        // TestDataRockRidge.iso has RockRidge extensions with Unix permissions
+        var extractor = new Extractor();
+        var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", "TestDataRockRidge.iso");
+        var results = await extractor.ExtractAsync(path, new ExtractorOptions() { Recurse = false }).ToListAsync();
+
+        Assert.NotEmpty(results);
+        foreach (var entry in results)
+        {
+            Assert.NotNull(entry.Metadata);
+            Assert.NotNull(entry.Metadata!.Mode);
+            Assert.NotNull(entry.Metadata.Uid);
+            Assert.NotNull(entry.Metadata.Gid);
+        }
+    }
+
+    [Fact]
+    public void IsoRockRidgeEntries_HaveMetadata_Sync()
+    {
+        var extractor = new Extractor();
+        var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", "TestDataRockRidge.iso");
+        var results = extractor.Extract(path, new ExtractorOptions() { Recurse = false }).ToList();
+
+        Assert.NotEmpty(results);
+        foreach (var entry in results)
+        {
+            Assert.NotNull(entry.Metadata);
+            Assert.NotNull(entry.Metadata!.Mode);
+            Assert.NotNull(entry.Metadata.Uid);
+            Assert.NotNull(entry.Metadata.Gid);
+        }
+    }
 }

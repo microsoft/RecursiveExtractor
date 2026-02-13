@@ -31,11 +31,13 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             DiscUtils.DiscFileInfo[]? entries = null;
+            Dictionary<string, FileEntryMetadata>? metadataByPath = null;
             var failed = false;
             try
             {
                 using var cd = new CDReader(fileEntry.Content, true);
                 entries = cd.Root.GetFiles("*.*", SearchOption.AllDirectories).ToArray();
+                metadataByPath = DiscCommon.CollectMetadata(cd, entries);
             }
             catch (Exception e)
             {
@@ -69,6 +71,10 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         var name = fileInfo.FullName.Replace('/', Path.DirectorySeparatorChar);
                         var newFileEntry = await FileEntry.FromStreamAsync(name, stream, fileEntry, fileInfo.CreationTime, fileInfo.LastWriteTime, fileInfo.LastAccessTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
+                        if (metadataByPath != null && metadataByPath.TryGetValue(fileInfo.FullName, out var entryMetadata))
+                        {
+                            newFileEntry.Metadata = entryMetadata;
+                        }
                         if (options.Recurse || topLevel)
                         {
                             await foreach (var entry in Context.ExtractAsync(newFileEntry, options, governor, false))
@@ -92,11 +98,13 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
             DiscUtils.DiscFileInfo[]? entries = null;
+            Dictionary<string, FileEntryMetadata>? metadataByPath = null;
             var failed = false;
             try
             {
                 using var cd = new CDReader(fileEntry.Content, true);
                 entries = cd.Root.GetFiles("*.*", SearchOption.AllDirectories).ToArray();
+                metadataByPath = DiscCommon.CollectMetadata(cd, entries);
             }
             catch(Exception e)
             {
@@ -130,6 +138,10 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         var name = fileInfo.FullName.Replace('/', Path.DirectorySeparatorChar);
                         var newFileEntry = new FileEntry(name, stream, fileEntry, createTime: file.CreationTime, modifyTime: file.LastWriteTime, accessTime: file.LastAccessTime, memoryStreamCutoff: options.MemoryStreamCutoff);
+                        if (metadataByPath != null && metadataByPath.TryGetValue(fileInfo.FullName, out var entryMetadata))
+                        {
+                            newFileEntry.Metadata = entryMetadata;
+                        }
                         if (options.Recurse || topLevel)
                         {
                             foreach (var entry in Context.Extract(newFileEntry, options, governor, false))

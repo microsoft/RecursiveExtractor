@@ -15,6 +15,64 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         /// <summary>
+        /// Tries to extract file metadata from a DiscUtils file system entry.
+        /// For file systems implementing <see cref="IUnixFileSystem"/> (Ext, Xfs, Btrfs, HfsPlus),
+        /// returns permissions, UID, and GID. Returns null for unsupported file systems.
+        /// </summary>
+        /// <param name="fs">The opened disc file system</param>
+        /// <param name="filePath">Path of the file within the file system</param>
+        /// <returns>Populated <see cref="FileEntryMetadata"/> or null when not available</returns>
+        internal static FileEntryMetadata? TryGetFileMetadata(DiscFileSystem fs, string filePath)
+        {
+            if (fs is not IUnixFileSystem unixFs)
+            {
+                return null;
+            }
+
+            try
+            {
+                var info = unixFs.GetUnixFileInfo(filePath);
+                return new FileEntryMetadata
+                {
+                    Mode = (long)info.Permissions,
+                    Uid = info.UserId,
+                    Gid = info.GroupId
+                };
+            }
+            catch (Exception e)
+            {
+                Logger.Debug(e, "Could not retrieve Unix metadata for {0}", filePath);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Pre-collects metadata for all files while the file system is still open.
+        /// Used by extractors (e.g., ISO) where the file system is disposed before files are processed.
+        /// </summary>
+        /// <param name="fs">The opened disc file system</param>
+        /// <param name="fileInfos">The file entries to collect metadata for</param>
+        /// <returns>A dictionary mapping file paths to metadata, or null if the file system does not support metadata</returns>
+        internal static Dictionary<string, FileEntryMetadata>? CollectMetadata(DiscFileSystem fs, DiscFileInfo[] fileInfos)
+        {
+            if (fs is not IUnixFileSystem)
+            {
+                return null;
+            }
+
+            var result = new Dictionary<string, FileEntryMetadata>();
+            foreach (var fi in fileInfos)
+            {
+                var metadata = TryGetFileMetadata(fs, fi.FullName);
+                if (metadata != null)
+                {
+                    result[fi.FullName] = metadata;
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Dump the FileEntries from a Logical Volume asynchronously
         /// </summary>
         /// <param name="volume">The Volume to dump</param>
@@ -59,6 +117,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     if (fileStream != null && fi != null)
                     {
                         var newFileEntry = await FileEntry.FromStreamAsync($"{volume.Identity}{Path.DirectorySeparatorChar}{fi.FullName}", fileStream, parent, fi.CreationTime, fi.LastWriteTime, fi.LastAccessTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
+                        newFileEntry.Metadata = TryGetFileMetadata(fs, file);
                         if (options.Recurse || topLevel)
                         {
                             await foreach (var entry in Context.ExtractAsync(newFileEntry, options, governor, false))
@@ -124,6 +183,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     if (fileStream != null)
                     {
                         var newFileEntry = new FileEntry($"{volume.Identity}{Path.DirectorySeparatorChar}{file}", fileStream, parent, false, creation, modification, access, memoryStreamCutoff: options.MemoryStreamCutoff);
+                        newFileEntry.Metadata = TryGetFileMetadata(fs, file);
                         if (options.Recurse || topLevel)
                         {
                             foreach (var extractedFile in Context.Extract(newFileEntry, options, governor, false))
