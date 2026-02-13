@@ -13,6 +13,15 @@ RecursiveExtractor is a cross-platform .NET library and CLI tool for parsing arc
 
 ## Building and Testing
 
+### Git Clone Depth
+
+⚠️ **Important**: This repository uses [Nerdbank.GitVersioning](https://github.com/dotnet/Nerdbank.GitVersioning) (NBGV) to calculate version numbers from git history. Shallow clones will cause the build to fail with a `GitException: Shallow clone lacks the objects required to calculate version height` error. If you encounter this, deepen the clone:
+```bash
+git fetch --unshallow
+# or if that fails:
+git fetch --depth=100
+```
+
 ### Build Commands
 ```bash
 # Build the entire solution

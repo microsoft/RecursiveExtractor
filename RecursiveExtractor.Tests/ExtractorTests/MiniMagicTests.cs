@@ -25,6 +25,9 @@ public class MiniMagicTests
     [InlineData("Empty.vmdk", ArchiveFileType.VMDK)]
     [InlineData("HfsSampleUDCO.dmg", ArchiveFileType.DMG)]
     [InlineData("EmptyFile.txt", ArchiveFileType.UNKNOWN)]
+    [InlineData("TestData.arj", ArchiveFileType.ARJ)]
+    [InlineData("TestData.arc", ArchiveFileType.ARC)]
+    [InlineData("TestData.ace", ArchiveFileType.ACE)]
     public void TestMiniMagic(string fileName, ArchiveFileType expectedArchiveFileType)
     {
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);

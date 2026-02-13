@@ -48,7 +48,7 @@
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     <PackageReference Include="NLog" Version="6.0.3" />
-    <PackageReference Include="SharpCompress" Version="0.40.0" />
+    <PackageReference Include="SharpCompress" Version="0.44.5" />
     <PackageReference Include="System.Linq.AsyncEnumerable" Version="10.0.0" />
   </ItemGroup>
 
