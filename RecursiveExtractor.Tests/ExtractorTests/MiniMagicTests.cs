@@ -1,5 +1,6 @@
 ﻿using Microsoft.CST.RecursiveExtractor;
 using System.IO;
+using System.Runtime.InteropServices;
 using Xunit;
 
 namespace RecursiveExtractor.Tests.ExtractorTests;
@@ -9,7 +10,7 @@ public class MiniMagicTests
     [Theory]
     [InlineData("TestData.zip", ArchiveFileType.ZIP)]
     [InlineData("TestData.7z", ArchiveFileType.P7ZIP)]
-    [InlineData("TestData.Tar", ArchiveFileType.TAR)]
+    [InlineData("TestData.tar", ArchiveFileType.TAR)]
     [InlineData("TestData.rar", ArchiveFileType.RAR5)]
     [InlineData("TestData.rar4", ArchiveFileType.RAR)]
     [InlineData("TestData.tar.bz2", ArchiveFileType.BZIP2)]

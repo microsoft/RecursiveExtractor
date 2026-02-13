@@ -1,6 +1,7 @@
 using Microsoft.CST.RecursiveExtractor;
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -8,39 +9,57 @@ namespace RecursiveExtractor.Tests.ExtractorTests;
 
 public class TimeOutTests
 {
+    /// <summary>
+    /// Test data for timeout tests. WIM is Windows-only so conditionally included.
+    /// </summary>
+    public static TheoryData<string, bool> TimeoutData
+    {
+        get
+        {
+            var data = new TheoryData<string, bool>
+            {
+                { "TestData.7z", false },
+                { "TestData.tar", false },
+                { "TestData.rar", false },
+                { "TestData.rar4", false },
+                { "TestData.tar.bz2", false },
+                { "TestData.tar.gz", false },
+                { "TestData.tar.xz", false },
+                { "sysvbanner_1.0-17fakesync1_amd64.deb", false },
+                { "TestData.a", false },
+                { "TestData.bsd.ar", false },
+                { "TestData.iso", false },
+                { "TestData.vhdx", false },
+                { "EmptyFile.txt", false },
+                { "TestData.zip", true },
+                { "TestData.7z", true },
+                { "TestData.tar", true },
+                { "TestData.rar", true },
+                { "TestData.rar4", true },
+                { "TestData.tar.bz2", true },
+                { "TestData.tar.gz", true },
+                { "TestData.tar.xz", true },
+                { "sysvbanner_1.0-17fakesync1_amd64.deb", true },
+                { "TestData.a", true },
+                { "TestData.bsd.ar", true },
+                { "TestData.iso", true },
+                { "TestData.vhdx", true },
+                { "EmptyFile.txt", true },
+                { "TestDataArchivesNested.zip", true },
+                { "TestDataArchivesNested.zip", false },
+            };
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                data.Add("TestData.wim", false);
+                data.Add("TestData.wim", true);
+            }
+            return data;
+        }
+    }
+
     [Theory]
-    [InlineData("TestData.7z", false)]
-    [InlineData("TestData.tar", false)]
-    [InlineData("TestData.rar", false)]
-    [InlineData("TestData.rar4", false)]
-    [InlineData("TestData.tar.bz2", false)]
-    [InlineData("TestData.tar.gz", false)]
-    [InlineData("TestData.tar.xz", false)]
-    [InlineData("sysvbanner_1.0-17fakesync1_amd64.deb", false)]
-    [InlineData("TestData.a", false)]
-    [InlineData("TestData.bsd.ar", false)]
-    [InlineData("TestData.iso", false)]
-    [InlineData("TestData.vhdx", false)]
-    [InlineData("TestData.wim", false)]
-    [InlineData("EmptyFile.txt", false)]
-    [InlineData("TestData.zip", true)]
-    [InlineData("TestData.7z", true)]
-    [InlineData("TestData.tar", true)]
-    [InlineData("TestData.rar", true)]
-    [InlineData("TestData.rar4", true)]
-    [InlineData("TestData.tar.bz2", true)]
-    [InlineData("TestData.tar.gz", true)]
-    [InlineData("TestData.tar.xz", true)]
-    [InlineData("sysvbanner_1.0-17fakesync1_amd64.deb", true)]
-    [InlineData("TestData.a", true)]
-    [InlineData("TestData.bsd.ar", true)]
-    [InlineData("TestData.iso", true)]
-    [InlineData("TestData.vhdx", true)]
-    [InlineData("TestData.wim", true)]
-    [InlineData("EmptyFile.txt", true)]
-    [InlineData("TestDataArchivesNested.Zip", true)]
-    [InlineData("TestDataArchivesNested.Zip", false)]
-    public void TimeoutTest(string fileName, bool parallel = false)
+    [MemberData(nameof(TimeoutData))]
+    public void TimeoutTest(string fileName, bool parallel)
     {
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
@@ -63,38 +82,8 @@ public class TimeOutTests
     }
 
     [Theory]
-    [InlineData("TestData.7z", false)]
-    [InlineData("TestData.tar", false)]
-    [InlineData("TestData.rar", false)]
-    [InlineData("TestData.rar4", false)]
-    [InlineData("TestData.tar.bz2", false)]
-    [InlineData("TestData.tar.gz", false)]
-    [InlineData("TestData.tar.xz", false)]
-    [InlineData("sysvbanner_1.0-17fakesync1_amd64.deb", false)]
-    [InlineData("TestData.a", false)]
-    [InlineData("TestData.bsd.ar", false)]
-    [InlineData("TestData.iso", false)]
-    [InlineData("TestData.vhdx", false)]
-    [InlineData("TestData.wim", false)]
-    [InlineData("EmptyFile.txt", false)]
-    [InlineData("TestData.zip", true)]
-    [InlineData("TestData.7z", true)]
-    [InlineData("TestData.tar", true)]
-    [InlineData("TestData.rar", true)]
-    [InlineData("TestData.rar4", true)]
-    [InlineData("TestData.tar.bz2", true)]
-    [InlineData("TestData.tar.gz", true)]
-    [InlineData("TestData.tar.xz", true)]
-    [InlineData("sysvbanner_1.0-17fakesync1_amd64.deb", true)]
-    [InlineData("TestData.a", true)]
-    [InlineData("TestData.bsd.ar", true)]
-    [InlineData("TestData.iso", true)]
-    [InlineData("TestData.vhdx", true)]
-    [InlineData("TestData.wim", true)]
-    [InlineData("EmptyFile.txt", true)]
-    [InlineData("TestDataArchivesNested.Zip", true)]
-    [InlineData("TestDataArchivesNested.Zip", false)]
-    public async Task TimeoutTestAsync(string fileName, bool parallel = false)
+    [MemberData(nameof(TimeoutData))]
+    public async Task TimeoutTestAsync(string fileName, bool parallel)
     {
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
