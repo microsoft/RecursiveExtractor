@@ -4,3 +4,6 @@
 # Don't mess with .ar files
 *.ar binary
 *.deb binary
+*.arj binary
+*.arc binary
+*.ace binary

@@ -85,6 +85,9 @@ namespace Microsoft.CST.RecursiveExtractor
             SetExtractor(ArchiveFileType.VMDK, new VmdkExtractor(this));
             SetExtractor(ArchiveFileType.XZ, new XzExtractor(this));
             SetExtractor(ArchiveFileType.ZIP, new ZipExtractor(this));
+            SetExtractor(ArchiveFileType.ARJ, new ArjExtractor(this));
+            SetExtractor(ArchiveFileType.ARC, new ArcExtractor(this));
+            SetExtractor(ArchiveFileType.ACE, new AceExtractor(this));
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 SetExtractor(ArchiveFileType.WIM, new WimExtractor(this));
