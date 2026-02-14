@@ -141,7 +141,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     }
 
                     var name = zipEntry.Key?.Replace('/', Path.DirectorySeparatorChar) ?? "";
-                    var newFileEntry = new FileEntry(name, target, fileEntry, modifyTime: zipEntry.LastModifiedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
+                    var newFileEntry = new FileEntry(name, target, fileEntry, modifyTime: zipEntry.LastModifiedTime, memoryStreamCutoff: options.MemoryStreamCutoff, passthroughStream: true);
 
                     if (options.Recurse || topLevel)
                     {
