@@ -211,7 +211,7 @@ public class FileMetadataTests
     [Fact]
     public async Task VhdxNtfsEntries_HaveWindowsMetadata()
     {
-        // TestData.vhdx contains an NTFS file system which implements IDosFileSystem and IWindowsFileSystem
+        // TestData.vhdx contains an NTFS file system that implements IDosFileSystem and IWindowsFileSystem
         var extractor = new Extractor();
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", "TestData.vhdx");
         var results = await extractor.ExtractAsync(path, new ExtractorOptions() { Recurse = false }).ToListAsync();
