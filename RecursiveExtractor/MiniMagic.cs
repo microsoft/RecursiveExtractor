@@ -15,79 +15,91 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <summary>
         /// A file not of any of the known types.
         /// </summary>
-        UNKNOWN,
-        /// <summary>
-        /// A zip formatted file. <see cref="Extractors.ZipExtractor"/>
-        /// </summary>
-        ZIP,
-        /// <summary>
-        /// A tar formatted file. <see cref="Extractors.TarExtractor"/>
-        /// </summary>
-        TAR,
-        /// <summary>
-        /// An xzip formatted file. <see cref="Extractors.XzExtractor"/>
-        /// </summary>
-        XZ,
-        /// <summary>
-        /// A gzip formatted file. <see cref="Extractors.GzipExtractor"/>
-        /// </summary>
-        GZIP,
-        /// <summary>
-        /// A bzip2 formatted file. <see cref="Extractors.BZip2Extractor"/>
-        /// </summary>
-        BZIP2,
-        /// <summary>
-        /// A Rar4 formatted file. <see cref="Extractors.RarExtractor"/>
-        /// </summary>
-        RAR,
-        /// <summary>
-        /// A Rar5 formatted file. <see cref="Extractors.RarExtractor"/>
-        /// </summary>
-        RAR5,
-        /// <summary>
-        /// An 7zip formatted file. <see cref="Extractors.SevenZipExtractor"/>
-        /// </summary>
-        P7ZIP,
-        /// <summary>
-        /// An deb formatted file. <see cref="Extractors.DebExtractor"/>
-        /// </summary>
-        DEB,
-        /// <summary>
-        /// An ar formatted file. <see cref="Extractors.GnuArExtractor"/>
-        /// </summary>
-        AR,
-        /// <summary>
-        /// An iso disc image. <see cref="Extractors.IsoExtractor"/>
-        /// </summary>
-        ISO_9660,
-        /// <summary>
-        /// An UDF disc image. <see cref="Extractors.UdfExtractor"/>
-        /// </summary>
-        UDF,
-        /// <summary>
-        /// A VHDX disc image. <see cref="Extractors.VhdxExtractor"/>
-        /// </summary>
-        VHDX,
-        /// <summary>
-        /// A VHD disc image. <see cref="Extractors.VhdExtractor"/>
-        /// </summary>
-        VHD,
-        /// <summary>
-        /// A wim disc image. <see cref="Extractors.WimExtractor"/>
-        /// </summary>
-        WIM,
-        /// <summary>
-        /// An vmdk disc image. <see cref="Extractors.VmdkExtractor"/>
-        /// </summary>
-        VMDK,
-        /// <summary>
-        /// A DMG disc image.
-        /// </summary>
-        DMG,
+        UNKNOWN = 0,
         /// <summary>
         /// Unused.
         /// </summary>
-        INVALID
+        INVALID = 18,
+        /// <summary>
+        /// A zip formatted file. <see cref="Extractors.ZipExtractor"/>
+        /// </summary>
+        ZIP = 1,
+        /// <summary>
+        /// A tar formatted file. <see cref="Extractors.TarExtractor"/>
+        /// </summary>
+        TAR = 2,
+        /// <summary>
+        /// An xzip formatted file. <see cref="Extractors.XzExtractor"/>
+        /// </summary>
+        XZ = 3,
+        /// <summary>
+        /// A gzip formatted file. <see cref="Extractors.GzipExtractor"/>
+        /// </summary>
+        GZIP = 4,
+        /// <summary>
+        /// A bzip2 formatted file. <see cref="Extractors.BZip2Extractor"/>
+        /// </summary>
+        BZIP2 = 5,
+        /// <summary>
+        /// A Rar4 formatted file. <see cref="Extractors.RarExtractor"/>
+        /// </summary>
+        RAR = 6,
+        /// <summary>
+        /// A Rar5 formatted file. <see cref="Extractors.RarExtractor"/>
+        /// </summary>
+        RAR5 = 7,
+        /// <summary>
+        /// An 7zip formatted file. <see cref="Extractors.SevenZipExtractor"/>
+        /// </summary>
+        P7ZIP = 8,
+        /// <summary>
+        /// An deb formatted file. <see cref="Extractors.DebExtractor"/>
+        /// </summary>
+        DEB = 9,
+        /// <summary>
+        /// An ar formatted file. <see cref="Extractors.GnuArExtractor"/>
+        /// </summary>
+        AR = 10,
+        /// <summary>
+        /// An iso disc image. <see cref="Extractors.IsoExtractor"/>
+        /// </summary>
+        ISO_9660 = 11,
+        /// <summary>
+        /// An UDF disc image. <see cref="Extractors.UdfExtractor"/>
+        /// </summary>
+        UDF = 12,
+        /// <summary>
+        /// A VHDX disc image. <see cref="Extractors.VhdxExtractor"/>
+        /// </summary>
+        VHDX = 13,
+        /// <summary>
+        /// A VHD disc image. <see cref="Extractors.VhdExtractor"/>
+        /// </summary>
+        VHD = 14,
+        /// <summary>
+        /// A wim disc image. <see cref="Extractors.WimExtractor"/>
+        /// </summary>
+        WIM = 15,
+        /// <summary>
+        /// An vmdk disc image. <see cref="Extractors.VmdkExtractor"/>
+        /// </summary>
+        VMDK = 16,
+        /// <summary>
+        /// A DMG disc image.
+        /// </summary>
+        DMG = 17,
+        /// <summary>
+        /// An ARJ compressed archive. <see cref="Extractors.ArjExtractor"/>
+        /// </summary>
+        ARJ = 19,
+        /// <summary>
+        /// An ARC compressed archive. <see cref="Extractors.ArcExtractor"/>
+        /// </summary>
+        ARC = 20,
+        /// <summary>
+        /// An ACE compressed archive. <see cref="Extractors.AceExtractor"/>
+        /// </summary>
+        ACE = 21,
     }
 
     /// <summary>
@@ -120,7 +132,7 @@ namespace Microsoft.CST.RecursiveExtractor
                 return ArchiveFileType.UNKNOWN;
             }
             var initialPosition = fileStream.Position;
-            var buffer = new byte[9];
+            var buffer = new byte[14];
             // DMG format uses the magic value 'koly' at the start of the 512 byte footer at the end of the file
             // Due to compression used, needs to be first or can be misidentified as other formats
             // https://newosxbook.com/DMG.html
@@ -137,41 +149,72 @@ namespace Microsoft.CST.RecursiveExtractor
                 }
             }
 
-            if (fileStream.Length >= 9)
+            var bytesRead = 0;
+            if (fileStream.Length >= 2)
             {
+                var toRead = (int)Math.Min(fileStream.Length, buffer.Length);
                 fileStream.Position = 0;
-                fileStream.ReadExactly(buffer, 0, 9);
+                fileStream.ReadExactly(buffer, 0, toRead);
                 fileStream.Position = initialPosition;
-
-                if (buffer[0] == 0x50 && buffer[1] == 0x4B && buffer[2] == 0x03 && buffer[3] == 0x04)
-                {
-                    return ArchiveFileType.ZIP;
-                }
+                bytesRead = toRead;
 
                 if (buffer[0] == 0x1F && buffer[1] == 0x8B)
                 {
                     return ArchiveFileType.GZIP;
                 }
-
-                if (buffer[0] == 0xFD && buffer[1] == 0x37 && buffer[2] == 0x7A && buffer[3] == 0x58 && buffer[4] == 0x5A && buffer[5] == 0x00)
+                // ARJ archive header starts with 0x60, 0xEA
+                if (buffer[0] == 0x60 && buffer[1] == 0xEA)
                 {
-                    return ArchiveFileType.XZ;
+                    return ArchiveFileType.ARJ;
                 }
+                // ARC archive: marker byte 0x1A, then compression method (valid: 0x01-0x09 or 0x7F)
+                if (buffer[0] == 0x1A && ((buffer[1] >= 0x01 && buffer[1] <= 0x09) || buffer[1] == 0x7F))
+                {
+                    return ArchiveFileType.ARC;
+                }
+            }
+
+            if (bytesRead >= 3)
+            {
                 if (buffer[0] == 0x42 && buffer[1] == 0x5A && buffer[2] == 0x68)
                 {
                     return ArchiveFileType.BZIP2;
                 }
-                if (buffer[0] == 0x52 && buffer[1] == 0x61 && buffer[2] == 0x72 && buffer[3] == 0x21 && buffer[4] == 0x1A && buffer[5] == 0x07 && buffer[6] == 0x00)
+            }
+
+            if (bytesRead >= 4)
+            {
+                if (buffer[0] == 0x50 && buffer[1] == 0x4B && buffer[2] == 0x03 && buffer[3] == 0x04)
                 {
-                    return ArchiveFileType.RAR;
+                    return ArchiveFileType.ZIP;
                 }
-                if (buffer[0] == 0x52 && buffer[1] == 0x61 && buffer[2] == 0x72 && buffer[3] == 0x21 && buffer[4] == 0x1A && buffer[5] == 0x07 && buffer[6] == 0x01 && buffer[7] == 0x00)
+            }
+
+            if (bytesRead >= 6)
+            {
+                if (buffer[0] == 0xFD && buffer[1] == 0x37 && buffer[2] == 0x7A && buffer[3] == 0x58 && buffer[4] == 0x5A && buffer[5] == 0x00)
                 {
-                    return ArchiveFileType.RAR5;
+                    return ArchiveFileType.XZ;
                 }
                 if (buffer[0] == 0x37 && buffer[1] == 0x7A && buffer[2] == 0xBC && buffer[3] == 0xAF && buffer[4] == 0x27 && buffer[5] == 0x1C)
                 {
                     return ArchiveFileType.P7ZIP;
+                }
+            }
+
+            if (bytesRead >= 7)
+            {
+                if (buffer[0] == 0x52 && buffer[1] == 0x61 && buffer[2] == 0x72 && buffer[3] == 0x21 && buffer[4] == 0x1A && buffer[5] == 0x07 && buffer[6] == 0x00)
+                {
+                    return ArchiveFileType.RAR;
+                }
+            }
+
+            if (bytesRead >= 8)
+            {
+                if (buffer[0] == 0x52 && buffer[1] == 0x61 && buffer[2] == 0x72 && buffer[3] == 0x21 && buffer[4] == 0x1A && buffer[5] == 0x07 && buffer[6] == 0x01 && buffer[7] == 0x00)
+                {
+                    return ArchiveFileType.RAR5;
                 }
                 if (Encoding.ASCII.GetString(buffer[0..8]) == "MSWIM\0\0\0" || Encoding.ASCII.GetString(buffer[0..8]) == "WLPWM\0\0\0")
                 {
@@ -227,6 +270,12 @@ namespace Microsoft.CST.RecursiveExtractor
                 {
                     return ArchiveFileType.VHDX;
                 }
+            }
+
+            // ACE archive: signature "**ACE**" at offset 7
+            if (bytesRead >= 14 && buffer[7] == 0x2A && buffer[8] == 0x2A && buffer[9] == 0x41 && buffer[10] == 0x43 && buffer[11] == 0x45 && buffer[12] == 0x2A && buffer[13] == 0x2A)
+            {
+                return ArchiveFileType.ACE;
             }
 
             if (fileStream.Length >= 262)

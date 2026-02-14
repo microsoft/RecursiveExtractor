@@ -1,5 +1,6 @@
 ﻿using Microsoft.CST.RecursiveExtractor;
 using System.IO;
+using System.Runtime.InteropServices;
 using Xunit;
 
 namespace RecursiveExtractor.Tests.ExtractorTests;
@@ -9,7 +10,7 @@ public class MiniMagicTests
     [Theory]
     [InlineData("TestData.zip", ArchiveFileType.ZIP)]
     [InlineData("TestData.7z", ArchiveFileType.P7ZIP)]
-    [InlineData("TestData.Tar", ArchiveFileType.TAR)]
+    [InlineData("TestData.tar", ArchiveFileType.TAR)]
     [InlineData("TestData.rar", ArchiveFileType.RAR5)]
     [InlineData("TestData.rar4", ArchiveFileType.RAR)]
     [InlineData("TestData.tar.bz2", ArchiveFileType.BZIP2)]
@@ -24,6 +25,9 @@ public class MiniMagicTests
     [InlineData("Empty.vmdk", ArchiveFileType.VMDK)]
     [InlineData("HfsSampleUDCO.dmg", ArchiveFileType.DMG)]
     [InlineData("EmptyFile.txt", ArchiveFileType.UNKNOWN)]
+    [InlineData("TestData.arj", ArchiveFileType.ARJ)]
+    [InlineData("TestData.arc", ArchiveFileType.ARC)]
+    [InlineData("TestData.ace", ArchiveFileType.ACE)]
     public void TestMiniMagic(string fileName, ArchiveFileType expectedArchiveFileType)
     {
         var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);

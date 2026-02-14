@@ -12,7 +12,7 @@ public class EncryptedArchiveTests
 {
     [Theory]
     [InlineData("TestDataEncryptedZipCrypto.zip")]
-    [InlineData("TestDataEncryptedAes.zip")]
+    [InlineData("TestDataEncryptedAES.zip")]
     [InlineData("TestDataEncrypted.7z")]
     [InlineData("TestDataEncrypted.rar4")]
     [InlineData("TestDataEncrypted.rar")]
@@ -27,7 +27,7 @@ public class EncryptedArchiveTests
 
     [Theory]
     [InlineData("TestDataEncryptedZipCrypto.zip")]
-    [InlineData("TestDataEncryptedAes.zip")]
+    [InlineData("TestDataEncryptedAES.zip")]
     [InlineData("TestDataEncrypted.7z")]
     [InlineData("TestDataEncrypted.rar4")]
     [InlineData("TestDataEncrypted.rar")]
@@ -47,7 +47,7 @@ public class EncryptedArchiveTests
 
     [Theory]
     [InlineData("TestDataEncryptedZipCrypto.zip")]
-    [InlineData("TestDataEncryptedAes.zip")]
+    [InlineData("TestDataEncryptedAES.zip")]
     [InlineData("TestDataEncrypted.7z")]
     [InlineData("TestDataEncrypted.rar4")]
     [InlineData("EncryptedWithPlainNames.7z")]
@@ -65,7 +65,7 @@ public class EncryptedArchiveTests
 
     [Theory]
     [InlineData("TestDataEncryptedZipCrypto.zip")]
-    [InlineData("TestDataEncryptedAes.zip")]
+    [InlineData("TestDataEncryptedAES.zip")]
     [InlineData("TestDataEncrypted.7z")]
     [InlineData("TestDataEncrypted.rar4")]
     [InlineData("EncryptedWithPlainNames.7z")]
@@ -101,7 +101,7 @@ public class EncryptedArchiveTests
             }
         },
         {
-            new Regex("EncryptedAes.zip"), new List<string>()
+            new Regex("EncryptedAES.zip"), new List<string>()
             {
                 "AnIncorrectPassword", "TestData" // AES Encrypted
             }

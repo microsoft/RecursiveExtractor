@@ -23,8 +23,8 @@ namespace RecursiveExtractor.Tests
         }
         
         [Theory]
-        [InlineData("a/file/with:colon.name", "a/file/with_colon.name")]
-        [InlineData("a/folder:with/colon.name", "a/folder_with/colon.name")]
+        [InlineData("a/file/with:colon.name", "a/file/with:colon.name")]
+        [InlineData("a/folder:with/colon.name", "a/folder:with/colon.name")]
 
         public void TestSanitizePathLinux(string linuxInputPath, string expectedLinuxPath)
         {

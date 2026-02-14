@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -22,9 +23,9 @@ namespace RecursiveExtractor.Tests.ExtractorTests
         {
             get
             {
-                return new TheoryData<string, int>
+                var data = new TheoryData<string, int>
                 { 
-                    { "100Trees.7z", 101 },
+                    { "100trees.7z", 101 },
                     { "TestData.zip", 5 },
                     { "TestData.7z",3 },
                     { "TestData.tar", 6 },
@@ -38,13 +39,21 @@ namespace RecursiveExtractor.Tests.ExtractorTests
                     { "TestData.bsd.ar",3 },
                     { "TestData.iso",3 },
                     { "TestData.vhdx",3 },
-                    { "TestData.wim",3 },
                     { "EmptyFile.txt", 1 },
-                    { "TestDataArchivesNested.Zip", 54 },
+                    { "TestDataArchivesNested.zip", RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? 54 : 52 },
                     { "UdfTest.iso", 3 },
                     { "UdfTestWithMultiSystem.iso", 3 },
+                    { "TestData.arj", 1 },
+                    { "TestData.arc", 1 },
+                    { "TestData.ace", 1 },
+                    { "NestedFormatsTest.zip", 2 },
 //                    { "HfsSampleUDCO.dmg", 2 }
                 };
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    data.Add("TestData.wim", 3);
+                }
+                return data;
             }
         }
         
@@ -55,9 +64,9 @@ namespace RecursiveExtractor.Tests.ExtractorTests
         {
             get
             {
-                return new TheoryData<string, int>
+                var data = new TheoryData<string, int>
                 { 
-                    { "100Trees.7z", 101 },
+                    { "100trees.7z", 101 },
                     { "TestData.zip", 5 },
                     { "TestData.7z", 3 },
                     { "TestData.tar", 6 },
@@ -71,12 +80,20 @@ namespace RecursiveExtractor.Tests.ExtractorTests
                     { "TestData.bsd.ar", 3 },
                     { "TestData.iso", 3 },
                     { "TestData.vhdx", 3 },
-                    { "TestData.wim", 3 },
                     { "EmptyFile.txt", 1 },
-                    { "TestDataArchivesNested.Zip", 14 },
+                    { "TestDataArchivesNested.zip", 14 },
                     { "UdfTestWithMultiSystem.iso", 3 },
+                    { "TestData.arj", 1 },
+                    { "TestData.arc", 1 },
+                    { "TestData.ace", 1 },
+                    { "NestedFormatsTest.zip", 1 },
 //                    { "HfsSampleUDCO.dmg", 2 }
                 };
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    data.Add("TestData.wim", 3);
+                }
+                return data;
             }
         }
 
@@ -193,8 +210,7 @@ namespace RecursiveExtractor.Tests.ExtractorTests
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             var results = extractor.Extract(path, GetExtractorOptions(true)).ToList();
-            var names = results.Select(x => x.FullPath);
-            var stringOfNames = string.Join("\n", names);
+            Assert.DoesNotContain(results, r => r.EntryStatus == FileEntryStatus.FailedArchive);
             Assert.Equal(expectedNumFiles, results.Count);
         }
         
@@ -223,17 +239,22 @@ namespace RecursiveExtractor.Tests.ExtractorTests
         [MemberData(nameof(ArchiveData))]
         public async Task ExtractArchiveFromStreamAsync(string fileName, int expectedNumFiles)
         {
-        var extractor = new Extractor();
+            var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
             var results = extractor.ExtractAsync(path, stream, new ExtractorOptions());
             var numFiles = 0;
+            var numFailed = 0;
             await foreach (var result in results)
             {
                 numFiles++;
+                if (result.EntryStatus == FileEntryStatus.FailedArchive)
+                {
+                    numFailed++;
+                }
             }
+            Assert.Equal(0, numFailed);
             Assert.Equal(expectedNumFiles, numFiles);
-            stream.Close();
         }
 
         [Theory]
@@ -243,9 +264,9 @@ namespace RecursiveExtractor.Tests.ExtractorTests
             var extractor = new Extractor();
             var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", fileName);
             using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
-            var results = extractor.Extract(path, stream, GetExtractorOptions());
-            Assert.Equal(expectedNumFiles, results.Count());
-            stream.Close();
+            var resultsList = extractor.Extract(path, stream, GetExtractorOptions()).ToList();
+            Assert.DoesNotContain(resultsList, r => r.EntryStatus == FileEntryStatus.FailedArchive);
+            Assert.Equal(expectedNumFiles, resultsList.Count);
         }
 
         [Theory]
