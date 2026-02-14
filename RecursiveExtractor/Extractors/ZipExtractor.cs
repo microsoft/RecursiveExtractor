@@ -141,11 +141,12 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     catch (Exception e)
                     {
                         Logger.Debug(Extractor.FAILED_PARSING_ERROR_MESSAGE_STRING, ArchiveFileType.ZIP, fileEntry.FullPath, zipEntry.Key, e.GetType());
+                        target?.Dispose();
+                        continue;
                     }
 
-                    target ??= new MemoryStream();
                     var name = zipEntry.Key?.Replace('/', Path.DirectorySeparatorChar) ?? "";
-                    var newFileEntry = new FileEntry(name, target, fileEntry, modifyTime: zipEntry.LastModifiedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
+                    var newFileEntry = new FileEntry(name, target, fileEntry, modifyTime: zipEntry.LastModifiedTime, memoryStreamCutoff: options.MemoryStreamCutoff, passthroughStream: true);
 
                     try
                     {
@@ -254,7 +255,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                     governor.CheckResourceGovernor(zipEntry.Size);
 
-                    using var fs = StreamFactory.GenerateAppropriateBackingStream(options, zipEntry.Size);
+                    var fs = StreamFactory.GenerateAppropriateBackingStream(options, zipEntry.Size);
 
                     try
                     {
@@ -264,10 +265,12 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     catch (Exception e)
                     {
                         Logger.Debug(Extractor.FAILED_PARSING_ERROR_MESSAGE_STRING, ArchiveFileType.ZIP, fileEntry.FullPath, zipEntry.Key, e.GetType());
+                        fs?.Dispose();
+                        continue;
                     }
 
                     var name = zipEntry.Key?.Replace('/', Path.DirectorySeparatorChar) ?? "";
-                    var newFileEntry = new FileEntry(name, fs, fileEntry, modifyTime: zipEntry.LastModifiedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
+                    var newFileEntry = new FileEntry(name, fs, fileEntry, passthroughStream: true, modifyTime: zipEntry.LastModifiedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
 
                     try
                     {
