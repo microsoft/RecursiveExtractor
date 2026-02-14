@@ -17,33 +17,71 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <summary>
         /// Tries to extract file metadata from a DiscUtils file system entry.
         /// For file systems implementing <see cref="IUnixFileSystem"/> (Ext, Xfs, Btrfs, HfsPlus),
-        /// returns permissions, UID, and GID. Returns null for unsupported file systems.
+        /// returns permissions, UID, and GID.
+        /// For file systems implementing <see cref="IDosFileSystem"/> (NTFS, FAT, WIM),
+        /// returns Windows file attributes.
+        /// For file systems implementing <see cref="IWindowsFileSystem"/> (NTFS, WIM),
+        /// also returns the security descriptor in SDDL format.
+        /// Returns null for file systems that support none of these interfaces.
         /// </summary>
         /// <param name="fs">The opened disc file system</param>
         /// <param name="filePath">Path of the file within the file system</param>
         /// <returns>Populated <see cref="FileEntryMetadata"/> or null when not available</returns>
         internal static FileEntryMetadata? TryGetFileMetadata(DiscFileSystem fs, string filePath)
         {
-            if (fs is not IUnixFileSystem unixFs)
+            FileEntryMetadata? metadata = null;
+
+            if (fs is IUnixFileSystem unixFs)
             {
-                return null;
+                try
+                {
+                    var info = unixFs.GetUnixFileInfo(filePath);
+                    metadata = new FileEntryMetadata
+                    {
+                        Mode = (long)info.Permissions,
+                        Uid = info.UserId,
+                        Gid = info.GroupId
+                    };
+                }
+                catch (Exception e)
+                {
+                    Logger.Debug(e, "Could not retrieve Unix metadata for {0}", filePath);
+                }
             }
 
-            try
+            if (fs is IDosFileSystem dosFs)
             {
-                var info = unixFs.GetUnixFileInfo(filePath);
-                return new FileEntryMetadata
+                try
                 {
-                    Mode = (long)info.Permissions,
-                    Uid = info.UserId,
-                    Gid = info.GroupId
-                };
+                    var winInfo = dosFs.GetFileStandardInformation(filePath);
+                    metadata ??= new FileEntryMetadata();
+                    metadata.FileAttributes = winInfo.FileAttributes;
+                }
+                catch (Exception e)
+                {
+                    Logger.Debug(e, "Could not retrieve DOS file attributes for {0}", filePath);
+                }
             }
-            catch (Exception e)
+
+            if (fs is IWindowsFileSystem windowsFs)
             {
-                Logger.Debug(e, "Could not retrieve Unix metadata for {0}", filePath);
-                return null;
+                try
+                {
+                    var securityDescriptor = windowsFs.GetSecurity(filePath);
+                    if (securityDescriptor != null)
+                    {
+                        metadata ??= new FileEntryMetadata();
+                        metadata.SecurityDescriptorSddl = securityDescriptor.GetSddlForm(
+                            DiscUtils.Core.WindowsSecurity.AccessControl.AccessControlSections.All);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logger.Debug(e, "Could not retrieve security descriptor for {0}", filePath);
+                }
             }
+
+            return metadata;
         }
 
         /// <summary>
@@ -55,7 +93,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <returns>A dictionary mapping file paths to metadata, or null if the file system does not support metadata</returns>
         internal static Dictionary<string, FileEntryMetadata>? CollectMetadata(DiscFileSystem fs, DiscFileInfo[] fileInfos)
         {
-            if (fs is not IUnixFileSystem)
+            if (fs is not IUnixFileSystem && fs is not IDosFileSystem && fs is not IWindowsFileSystem)
             {
                 return null;
             }

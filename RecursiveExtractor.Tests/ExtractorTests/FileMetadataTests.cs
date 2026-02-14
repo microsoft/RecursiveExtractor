@@ -101,6 +101,8 @@ public class FileMetadataTests
         Assert.Null(metadata.IsExecutable);
         Assert.Null(metadata.IsSetUid);
         Assert.Null(metadata.IsSetGid);
+        Assert.Null(metadata.FileAttributes);
+        Assert.Null(metadata.SecurityDescriptorSddl);
     }
 
     [Fact]
@@ -203,6 +205,47 @@ public class FileMetadataTests
             Assert.NotNull(entry.Metadata!.Mode);
             Assert.NotNull(entry.Metadata.Uid);
             Assert.NotNull(entry.Metadata.Gid);
+        }
+    }
+
+    [Fact]
+    public async Task VhdxNtfsEntries_HaveWindowsMetadata()
+    {
+        // TestData.vhdx contains an NTFS file system which implements IDosFileSystem and IWindowsFileSystem
+        var extractor = new Extractor();
+        var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", "TestData.vhdx");
+        var results = await extractor.ExtractAsync(path, new ExtractorOptions() { Recurse = false }).ToListAsync();
+
+        Assert.NotEmpty(results);
+        foreach (var entry in results)
+        {
+            Assert.NotNull(entry.Metadata);
+            // NTFS provides Windows file attributes
+            Assert.NotNull(entry.Metadata!.FileAttributes);
+            // NTFS provides security descriptors
+            Assert.NotNull(entry.Metadata.SecurityDescriptorSddl);
+            Assert.Contains("D:", entry.Metadata.SecurityDescriptorSddl); // DACL present
+            // NTFS does not provide Unix metadata
+            Assert.Null(entry.Metadata.Mode);
+            Assert.Null(entry.Metadata.Uid);
+            Assert.Null(entry.Metadata.Gid);
+        }
+    }
+
+    [Fact]
+    public void VhdxNtfsEntries_HaveWindowsMetadata_Sync()
+    {
+        var extractor = new Extractor();
+        var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", "TestData.vhdx");
+        var results = extractor.Extract(path, new ExtractorOptions() { Recurse = false }).ToList();
+
+        Assert.NotEmpty(results);
+        foreach (var entry in results)
+        {
+            Assert.NotNull(entry.Metadata);
+            Assert.NotNull(entry.Metadata!.FileAttributes);
+            Assert.NotNull(entry.Metadata.SecurityDescriptorSddl);
+            Assert.Null(entry.Metadata.Mode);
         }
     }
 }
