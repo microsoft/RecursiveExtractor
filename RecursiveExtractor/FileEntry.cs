@@ -297,23 +297,48 @@ namespace Microsoft.CST.RecursiveExtractor
         }
 
         /// <summary>
-        /// Replace .. for ZipSlip and remove any doubled up directory separators as a result - https://snyk.io/research/zip-slip-vulnerability
+        /// Sanitize paths to prevent ZipSlip (directory traversal) and absolute path traversal.
+        /// Strips leading directory separators and drive letter roots, removes ".." sequences,
+        /// and collapses resulting double separators. See https://snyk.io/research/zip-slip-vulnerability
         /// </summary>
         /// <param name="fullPath">The path to sanitize</param>
         /// <param name="replacement">The string to replace .. with</param>
-        /// <returns>A path without ZipSlip</returns>
+        /// <returns>A relative path safe from directory traversal</returns>
         [Pure]
-        private static string ZipSlipSanitize(string fullPath, string replacement = "")
+        internal static string ZipSlipSanitize(string fullPath, string replacement = "")
         {
+            // Normalize all separators to the OS-native separator
+            fullPath = fullPath.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
+
+            // Strip Windows drive letter roots (e.g., "C:\", "D:/")
+            if (fullPath.Length >= 2 && char.IsLetter(fullPath[0]) && fullPath[1] == ':')
+            {
+                fullPath = fullPath.Substring(2);
+            }
+
+            // Strip leading directory separators to prevent absolute path traversal
+            while (fullPath.Length > 0 && fullPath[0] == Path.DirectorySeparatorChar)
+            {
+                fullPath = fullPath.Substring(1);
+            }
+
             if (fullPath.Contains(".."))
             {
                 fullPath = fullPath.Replace("..", replacement);
-                var directorySeparator = Path.DirectorySeparatorChar.ToString();
-                var doubleSeparator = $"{directorySeparator},{directorySeparator}";
-                while (fullPath.Contains(doubleSeparator))
-                {
-                    fullPath = fullPath.Replace(doubleSeparator, $"{directorySeparator}");
-                }
+            }
+
+            // Strip leading separators again (removal of ".." can expose them, e.g. "../x" → "/x")
+            while (fullPath.Length > 0 && fullPath[0] == Path.DirectorySeparatorChar)
+            {
+                fullPath = fullPath.Substring(1);
+            }
+
+            // Collapse double separators (can result from .. removal or root stripping)
+            var directorySeparator = Path.DirectorySeparatorChar.ToString();
+            var doubleSeparator = $"{directorySeparator}{directorySeparator}";
+            while (fullPath.Contains(doubleSeparator))
+            {
+                fullPath = fullPath.Replace(doubleSeparator, directorySeparator);
             }
 
             return fullPath;

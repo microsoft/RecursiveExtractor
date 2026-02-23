@@ -495,9 +495,16 @@ namespace Microsoft.CST.RecursiveExtractor
             opts ??= new ExtractorOptions();
             if (!opts.Parallel)
             {
+                var fullOutputDir = Path.GetFullPath(outputDirectory) + Path.DirectorySeparatorChar;
                 foreach (var entry in Extract(fileEntry, opts))
                 {
                     var targetPath = Path.Combine(outputDirectory, entry.GetSanitizedPath());
+                    var fullTargetPath = Path.GetFullPath(targetPath);
+                    if (!fullTargetPath.StartsWith(fullOutputDir, StringComparison.Ordinal))
+                    {
+                        Logger.Warn("Skipping entry that would escape output directory: {0}", entry.FullPath);
+                        continue;
+                    }
                     if (Path.GetDirectoryName(targetPath) is { } directoryPathNotNull && targetPath is { } targetPathNotNull)
                     {
                         try
@@ -537,6 +544,7 @@ namespace Microsoft.CST.RecursiveExtractor
                     using var enumerator = extractedEnumeration.GetEnumerator();
                     // Move to the first element to prepare
                     ConcurrentBag<FileEntry> entryBatch = new();
+                    var parallelFullOutputDir = Path.GetFullPath(outputDirectory) + Path.DirectorySeparatorChar;
                     bool moreAvailable = enumerator.MoveNext();
                     while (moreAvailable)
                     {
@@ -559,6 +567,12 @@ namespace Microsoft.CST.RecursiveExtractor
                         Parallel.ForEach(entryBatch, new ParallelOptions() { CancellationToken = cts.Token }, entry =>
                         {
                             var targetPath = Path.Combine(outputDirectory, entry.GetSanitizedPath());
+                            var fullTargetPath = Path.GetFullPath(targetPath);
+                            if (!fullTargetPath.StartsWith(parallelFullOutputDir, StringComparison.Ordinal))
+                            {
+                                Logger.Warn("Skipping entry that would escape output directory: {0}", entry.FullPath);
+                                return;
+                            }
 
                             if (Path.GetDirectoryName(targetPath) is { } directoryPathNotNull && targetPath is { } targetPathNotNull)
                             {
@@ -645,11 +659,18 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="printNames">If we should print the filename when writing it out to disc.</param>
         public async Task<ExtractionStatusCode> ExtractToDirectoryAsync(string outputDirectory, FileEntry fileEntry, ExtractorOptions? opts = null, IEnumerable<Regex>? acceptFilters = null, IEnumerable<Regex>? denyFilters = null, bool printNames = false)
         {
+            var asyncFullOutputDir = Path.GetFullPath(outputDirectory) + Path.DirectorySeparatorChar;
             await foreach (var entry in ExtractAsync(fileEntry, opts))
             {
                 if (opts?.FileNamePasses(entry.FullPath) ?? true)
                 {
                     var targetPath = Path.Combine(outputDirectory, entry.GetSanitizedPath());
+                    var fullTargetPath = Path.GetFullPath(targetPath);
+                    if (!fullTargetPath.StartsWith(asyncFullOutputDir, StringComparison.Ordinal))
+                    {
+                        Logger.Warn("Skipping entry that would escape output directory: {0}", entry.FullPath);
+                        continue;
+                    }
 
                     if (Path.GetDirectoryName(targetPath) is { } directoryPathNotNull && targetPath is { } targetPathNotNull)
                     {
