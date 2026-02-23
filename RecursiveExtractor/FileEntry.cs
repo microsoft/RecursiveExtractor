@@ -310,8 +310,11 @@ namespace Microsoft.CST.RecursiveExtractor
             // Normalize all separators to the OS-native separator
             fullPath = fullPath.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
 
-            // Strip Windows drive letter roots (e.g., "C:\", "D:/")
-            if (fullPath.Length >= 2 && char.IsLetter(fullPath[0]) && fullPath[1] == ':')
+            // Strip Windows drive letter roots (e.g., "C:\", "D:/") but not relative names like "a:file.txt"
+            if (fullPath.Length >= 3
+                && char.IsLetter(fullPath[0])
+                && fullPath[1] == ':'
+                && fullPath[2] == Path.DirectorySeparatorChar)
             {
                 fullPath = fullPath.Substring(2);
             }

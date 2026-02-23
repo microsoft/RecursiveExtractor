@@ -60,6 +60,7 @@ namespace RecursiveExtractor.Tests
         [InlineData("D:/data/file.txt", "data/file.txt")]
         [InlineData("C:\\", "")]
         [InlineData("C:/", "")]
+        [InlineData("a:file.txt", "a:file.txt")]
         public void TestZipSlipSanitize_AbsoluteWindowsPaths(string input, string expected)
         {
             expected = expected.Replace('/', Path.DirectorySeparatorChar);
