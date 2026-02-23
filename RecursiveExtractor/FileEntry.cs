@@ -40,8 +40,10 @@ namespace Microsoft.CST.RecursiveExtractor
             ModifyTime = modifyTime ?? DateTime.MinValue;
             AccessTime = accessTime ?? DateTime.MinValue;
 
-            // Sanitize so its safe to use with Path APIs
-            string sanitizedName = SanitizePath(name);
+            // Sanitize traversal and absolute paths first while path structure is intact
+            string zipSlipSafeName = ZipSlipSanitize(name);
+            // Then replace any remaining OS-invalid characters
+            string sanitizedName = SanitizePath(zipSlipSafeName);
             Name = Path.GetFileName(sanitizedName);
 
             // If parent is null use the provided name as the FullPath

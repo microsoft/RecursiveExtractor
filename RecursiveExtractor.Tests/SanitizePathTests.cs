@@ -139,18 +139,18 @@ namespace RecursiveExtractor.Tests
             var child = new FileEntry("/etc/cron.d/evil", Stream.Null, parent);
             Assert.False(Path.IsPathRooted(child.FullPath),
                 $"FullPath should be relative but was: {child.FullPath}");
-            Assert.DoesNotContain("..", child.FullPath);
+            AssertNoTraversalSegments(child.FullPath);
         }
 
         /// <summary>
-        /// FileEntry.FullPath should not contain ".." even when the entry name has traversal.
+        /// FileEntry.FullPath should not contain ".." path segments even when the entry name has traversal.
         /// </summary>
         [Fact]
         public void TestFileEntry_TraversalEntryName_Sanitized()
         {
             var parent = new FileEntry("archive.tar", Stream.Null);
             var child = new FileEntry("../../../etc/passwd", Stream.Null, parent);
-            Assert.DoesNotContain("..", child.FullPath);
+            AssertNoTraversalSegments(child.FullPath);
         }
 
         /// <summary>
@@ -163,6 +163,15 @@ namespace RecursiveExtractor.Tests
             var child = new FileEntry("\\Windows\\System32\\evil.dll", Stream.Null, parent);
             Assert.False(Path.IsPathRooted(child.FullPath),
                 $"FullPath should be relative but was: {child.FullPath}");
+        }
+
+        /// <summary>
+        /// Assert that no path segment is exactly ".." (ignoring ".." as a substring in filenames like "file..txt").
+        /// </summary>
+        private static void AssertNoTraversalSegments(string path)
+        {
+            var segments = path.Split(Path.DirectorySeparatorChar);
+            Assert.DoesNotContain("..", segments);
         }
 
         protected static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
