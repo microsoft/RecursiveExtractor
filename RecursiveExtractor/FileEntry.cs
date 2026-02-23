@@ -312,20 +312,9 @@ namespace Microsoft.CST.RecursiveExtractor
             // Normalize all separators to the OS-native separator
             fullPath = fullPath.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
 
-            // Strip Windows drive letter roots (e.g., "C:\", "D:/") but not relative names like "a:file.txt"
-            if (fullPath.Length >= 3
-                && char.IsLetter(fullPath[0])
-                && fullPath[1] == ':'
-                && fullPath[2] == Path.DirectorySeparatorChar)
-            {
-                fullPath = fullPath.Substring(2);
-            }
-
-            // Strip leading directory separators to prevent absolute path traversal
-            while (fullPath.Length > 0 && fullPath[0] == Path.DirectorySeparatorChar)
-            {
-                fullPath = fullPath.Substring(1);
-            }
+            // Strip drive letter roots and leading separators. Must run before and after ".."
+            // removal because ".." removal can expose a new drive root (e.g. "../C:\file" → "C:\file").
+            fullPath = StripLeadingRootComponents(fullPath);
 
             if (fullPath.Length > 0)
             {
@@ -345,12 +334,41 @@ namespace Microsoft.CST.RecursiveExtractor
                 fullPath = string.Join(separator.ToString(), segments.Where(s => !string.IsNullOrEmpty(s)));
             }
 
-            // Strip leading separators again (removal of segments can expose them)
-            while (fullPath.Length > 0 && fullPath[0] == Path.DirectorySeparatorChar)
-            {
-                fullPath = fullPath.Substring(1);
-            }
+            fullPath = StripLeadingRootComponents(fullPath);
 
+            return fullPath;
+        }
+
+        /// <summary>
+        /// Repeatedly strips Windows drive letter roots (e.g. "C:\") and leading directory
+        /// separators until the path is stable. A single pass is insufficient for crafted paths
+        /// like "D:\C:\" where stripping "D:" exposes a new root "C:\".
+        /// </summary>
+        private static string StripLeadingRootComponents(string fullPath)
+        {
+            bool changed;
+            do
+            {
+                changed = false;
+
+                // Strip Windows drive letter roots (e.g., "C:\", "D:/") but not relative names like "a:file.txt"
+                if (fullPath.Length >= 3
+                    && char.IsLetter(fullPath[0])
+                    && fullPath[1] == ':'
+                    && fullPath[2] == Path.DirectorySeparatorChar)
+                {
+                    fullPath = fullPath.Substring(2);
+                    changed = true;
+                }
+
+                // Strip leading directory separators to prevent absolute path traversal
+                while (fullPath.Length > 0 && fullPath[0] == Path.DirectorySeparatorChar)
+                {
+                    fullPath = fullPath.Substring(1);
+                    changed = true;
+                }
+            }
+            while (changed);
             return fullPath;
         }
 

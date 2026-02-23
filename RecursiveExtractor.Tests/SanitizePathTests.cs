@@ -69,6 +69,25 @@ namespace RecursiveExtractor.Tests
         }
 
         /// <summary>
+        /// ZipSlipSanitize should recursively strip nested roots that are exposed after each strip.
+        /// A single pass is insufficient for crafted paths like "D:\C:\" (stripping D: exposes \C:\),
+        /// or paths starting with multiple separators like "\\C:\" (stripping both leading separators
+        /// exposes C:\), or "../C:\file" where removing ".." exposes C:\file.
+        /// </summary>
+        [Theory]
+        [InlineData("D:\\C:\\file.txt", "file.txt")]
+        [InlineData("\\\\C:\\file.txt", "file.txt")]
+        [InlineData("..\\C:\\file.txt", "file.txt")]
+        [InlineData("D:/C:/file.txt", "file.txt")]
+        [InlineData("D:\\C:\\D:\\file.txt", "file.txt")]
+        public void TestZipSlipSanitize_NestedRoots(string input, string expected)
+        {
+            expected = expected.Replace('/', Path.DirectorySeparatorChar);
+            var result = FileEntry.ZipSlipSanitize(input);
+            Assert.Equal(expected, result);
+        }
+
+        /// <summary>
         /// ZipSlipSanitize should strip ".." directory traversal components.
         /// </summary>
         [Theory]
