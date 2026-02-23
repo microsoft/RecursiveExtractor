@@ -121,6 +121,8 @@ namespace RecursiveExtractor.Tests
         [InlineData("file..txt", "file..txt")]
         [InlineData("my..archive/data..bin", "my..archive/data..bin")]
         [InlineData("a/./b", "a/b")]
+        [InlineData("a:file.txt", "a:file.txt")]
+        [InlineData("a:folder/file.txt", "a:folder/file.txt")]
         public void TestZipSlipSanitize_SafePathsUnchanged(string input, string expected)
         {
             expected = expected.Replace('/', Path.DirectorySeparatorChar);
