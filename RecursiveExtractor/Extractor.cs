@@ -495,7 +495,7 @@ namespace Microsoft.CST.RecursiveExtractor
             opts ??= new ExtractorOptions();
             if (!opts.Parallel)
             {
-                var fullOutputDir = Path.GetFullPath(outputDirectory) + Path.DirectorySeparatorChar;
+                var fullOutputDir = Path.GetFullPath(outputDirectory).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
                 foreach (var entry in Extract(fileEntry, opts))
                 {
                     var targetPath = Path.Combine(outputDirectory, entry.GetSanitizedPath());
@@ -544,7 +544,7 @@ namespace Microsoft.CST.RecursiveExtractor
                     using var enumerator = extractedEnumeration.GetEnumerator();
                     // Move to the first element to prepare
                     ConcurrentBag<FileEntry> entryBatch = new();
-                    var parallelFullOutputDir = Path.GetFullPath(outputDirectory) + Path.DirectorySeparatorChar;
+                    var parallelFullOutputDir = Path.GetFullPath(outputDirectory).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
                     bool moreAvailable = enumerator.MoveNext();
                     while (moreAvailable)
                     {
@@ -659,7 +659,7 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <param name="printNames">If we should print the filename when writing it out to disc.</param>
         public async Task<ExtractionStatusCode> ExtractToDirectoryAsync(string outputDirectory, FileEntry fileEntry, ExtractorOptions? opts = null, IEnumerable<Regex>? acceptFilters = null, IEnumerable<Regex>? denyFilters = null, bool printNames = false)
         {
-            var asyncFullOutputDir = Path.GetFullPath(outputDirectory) + Path.DirectorySeparatorChar;
+            var asyncFullOutputDir = Path.GetFullPath(outputDirectory).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
             await foreach (var entry in ExtractAsync(fileEntry, opts))
             {
                 if (opts?.FileNamePasses(entry.FullPath) ?? true)
