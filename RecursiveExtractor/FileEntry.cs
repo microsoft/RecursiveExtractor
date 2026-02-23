@@ -322,23 +322,28 @@ namespace Microsoft.CST.RecursiveExtractor
                 fullPath = fullPath.Substring(1);
             }
 
-            if (fullPath.Contains(".."))
+            if (fullPath.Length > 0)
             {
-                fullPath = fullPath.Replace("..", replacement);
+                var separator = Path.DirectorySeparatorChar;
+                var segments = fullPath.Split(separator);
+
+                for (var i = 0; i < segments.Length; i++)
+                {
+                    // Replace traversal segments (".." and ".") only when they are whole segments
+                    if (segments[i] == ".." || segments[i] == ".")
+                    {
+                        segments[i] = replacement;
+                    }
+                }
+
+                // Rebuild the path from non-empty segments
+                fullPath = string.Join(separator.ToString(), segments.Where(s => !string.IsNullOrEmpty(s)));
             }
 
-            // Strip leading separators again (removal of ".." can expose them, e.g. "../x" → "/x")
+            // Strip leading separators again (removal of segments can expose them)
             while (fullPath.Length > 0 && fullPath[0] == Path.DirectorySeparatorChar)
             {
                 fullPath = fullPath.Substring(1);
-            }
-
-            // Collapse double separators (can result from .. removal or root stripping)
-            var directorySeparator = Path.DirectorySeparatorChar.ToString();
-            var doubleSeparator = $"{directorySeparator}{directorySeparator}";
-            while (fullPath.Contains(doubleSeparator))
-            {
-                fullPath = fullPath.Replace(doubleSeparator, directorySeparator);
             }
 
             return fullPath;

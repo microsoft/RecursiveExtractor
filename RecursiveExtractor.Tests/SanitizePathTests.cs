@@ -111,11 +111,15 @@ namespace RecursiveExtractor.Tests
 
         /// <summary>
         /// Safe relative paths should pass through unmodified.
+        /// Filenames containing ".." as a substring (not a path segment) must be preserved.
         /// </summary>
         [Theory]
         [InlineData("normal/path/file.txt", "normal/path/file.txt")]
         [InlineData("file.txt", "file.txt")]
         [InlineData("a/b/c/d.txt", "a/b/c/d.txt")]
+        [InlineData("file..txt", "file..txt")]
+        [InlineData("my..archive/data..bin", "my..archive/data..bin")]
+        [InlineData("a/./b", "a/b")]
         public void TestZipSlipSanitize_SafePathsUnchanged(string input, string expected)
         {
             expected = expected.Replace('/', Path.DirectorySeparatorChar);
