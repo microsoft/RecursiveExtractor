@@ -29,11 +29,11 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         ///<inheritdoc />
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
-            ArcReader? arcReader = null;
+            IReader? arcReader = null;
             try
             {
                 fileEntry.Content.Position = 0;
-                arcReader = ArcReader.Open(fileEntry.Content, new ReaderOptions()
+                arcReader = ArcReader.OpenReader(fileEntry.Content, new ReaderOptions()
                 {
                     LeaveStreamOpen = true
                 });
@@ -103,11 +103,11 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         ///<inheritdoc />
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
-            ArcReader? arcReader = null;
+            IReader? arcReader = null;
             try
             {
                 fileEntry.Content.Position = 0;
-                arcReader = ArcReader.Open(fileEntry.Content, new ReaderOptions()
+                arcReader = ArcReader.OpenReader(fileEntry.Content, new ReaderOptions()
                 {
                     LeaveStreamOpen = true
                 });

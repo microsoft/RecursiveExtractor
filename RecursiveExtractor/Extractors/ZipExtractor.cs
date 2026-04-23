@@ -37,7 +37,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         // Create a new archive instance with the password to test it
                         fileEntry.Content.Position = 0;
-                        using var testArchive = ZipArchive.Open(fileEntry.Content, new ReaderOptions() 
+                        using var testArchive = (ZipArchive)ZipArchive.OpenArchive(fileEntry.Content, new ReaderOptions() 
                         { 
                             Password = password,
                             LeaveStreamOpen = true
@@ -73,7 +73,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             try
             {
                 fileEntry.Content.Position = 0;
-                zipArchive = ZipArchive.Open(fileEntry.Content, new ReaderOptions() 
+                zipArchive = (ZipArchive)ZipArchive.OpenArchive(fileEntry.Content, new ReaderOptions() 
                 { 
                     LeaveStreamOpen = true 
                 });
@@ -104,7 +104,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         // Recreate archive with password
                         zipArchive.Dispose();
                         fileEntry.Content.Position = 0;
-                        zipArchive = ZipArchive.Open(fileEntry.Content, new ReaderOptions() 
+                        zipArchive = (ZipArchive)ZipArchive.OpenArchive(fileEntry.Content, new ReaderOptions() 
                         { 
                             Password = foundPassword,
                             LeaveStreamOpen = true 
@@ -199,7 +199,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             try
             {
                 fileEntry.Content.Position = 0;
-                zipArchive = ZipArchive.Open(fileEntry.Content, new ReaderOptions() 
+                zipArchive = (ZipArchive)ZipArchive.OpenArchive(fileEntry.Content, new ReaderOptions() 
                 { 
                     LeaveStreamOpen = true 
                 });
@@ -230,7 +230,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         // Recreate archive with password
                         zipArchive.Dispose();
                         fileEntry.Content.Position = 0;
-                        zipArchive = ZipArchive.Open(fileEntry.Content, new ReaderOptions() 
+                        zipArchive = (ZipArchive)ZipArchive.OpenArchive(fileEntry.Content, new ReaderOptions() 
                         { 
                             Password = foundPassword,
                             LeaveStreamOpen = true 
@@ -329,7 +329,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             IReader? forwardReader = null;
             try
             {
-                forwardReader = ReaderFactory.Open(parentEntry.Content, new ReaderOptions { LeaveStreamOpen = true });
+                forwardReader = ReaderFactory.OpenReader(parentEntry.Content, new ReaderOptions { LeaveStreamOpen = true });
             }
             catch (Exception ex)
             {
@@ -413,7 +413,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             IReader? forwardReader = null;
             try
             {
-                forwardReader = ReaderFactory.Open(parentEntry.Content, new ReaderOptions { LeaveStreamOpen = true });
+                forwardReader = ReaderFactory.OpenReader(parentEntry.Content, new ReaderOptions { LeaveStreamOpen = true });
             }
             catch (Exception ex)
             {
