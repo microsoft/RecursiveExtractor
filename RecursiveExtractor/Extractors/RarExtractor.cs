@@ -31,7 +31,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
             try
             {
-                rarArchive = RarArchive.Open(fileEntry.Content);
+                rarArchive = (RarArchive)RarArchive.OpenArchive(fileEntry.Content, new SharpCompress.Readers.ReaderOptions() { LeaveStreamOpen = true });
                 // Test for invalid archives. This will throw invalidformatexception
                 var t = rarArchive.IsSolid;
                 if (rarArchive.Entries.Any(x => x.IsEncrypted))
@@ -66,7 +66,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         try
                         {
                             fileEntry.Content.Position = 0;
-                            rarArchive = RarArchive.Open(fileEntry.Content, new SharpCompress.Readers.ReaderOptions() { Password = password, LookForHeader = true });
+                            rarArchive = (RarArchive)RarArchive.OpenArchive(fileEntry.Content, new SharpCompress.Readers.ReaderOptions() { Password = password, LookForHeader = true, LeaveStreamOpen = true });
                             var byt = new byte[1];
                             var encryptedEntry = rarArchive.Entries.FirstOrDefault(x => x is { IsEncrypted: true, Size: > 0 });
                             // Justification for !: Because we use FirstOrDefault encryptedEntry may be null, but we have a catch below for it

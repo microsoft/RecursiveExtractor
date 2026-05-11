@@ -29,11 +29,11 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         ///<inheritdoc />
         public async IAsyncEnumerable<FileEntry> ExtractAsync(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
-            AceReader? aceReader = null;
+            IReader? aceReader = null;
             try
             {
                 fileEntry.Content.Position = 0;
-                aceReader = AceReader.Open(fileEntry.Content, new ReaderOptions()
+                aceReader = AceReader.OpenReader(fileEntry.Content, new ReaderOptions()
                 {
                     LeaveStreamOpen = true
                 });
@@ -100,11 +100,11 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         ///<inheritdoc />
         public IEnumerable<FileEntry> Extract(FileEntry fileEntry, ExtractorOptions options, ResourceGovernor governor, bool topLevel = true)
         {
-            AceReader? aceReader = null;
+            IReader? aceReader = null;
             try
             {
                 fileEntry.Content.Position = 0;
-                aceReader = AceReader.Open(fileEntry.Content, new ReaderOptions()
+                aceReader = AceReader.OpenReader(fileEntry.Content, new ReaderOptions()
                 {
                     LeaveStreamOpen = true
                 });

@@ -83,7 +83,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             var needsPassword = false;
             try
             {
-                sevenZipArchive = SevenZipArchive.Open(fileEntry.Content);
+                sevenZipArchive = (SevenZipArchive)SevenZipArchive.OpenArchive(fileEntry.Content, new SharpCompress.Readers.ReaderOptions() { LeaveStreamOpen = true });
                 if (sevenZipArchive.Entries.Where(x => !x.IsDirectory).Any(x => x.IsEncrypted))
                 {
                     needsPassword = true;
@@ -114,7 +114,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         try
                         {
                             fileEntry.Content.Position = 0;
-                            sevenZipArchive = SevenZipArchive.Open(fileEntry.Content, new SharpCompress.Readers.ReaderOptions() { Password = password });
+                            sevenZipArchive = (SevenZipArchive)SevenZipArchive.OpenArchive(fileEntry.Content, new SharpCompress.Readers.ReaderOptions() { Password = password, LeaveStreamOpen = true });
                             // When filenames are encrypted we can't access the size of individual files
                             // But if we can accesss the total uncompressed size we have the right password
                             try
