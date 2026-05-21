@@ -58,6 +58,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                         {
                             var name = file.Replace('\\', Path.DirectorySeparatorChar);
                             var newFileEntry = await FileEntry.FromStreamAsync($"{image.FriendlyName}{Path.DirectorySeparatorChar}{name}", stream, fileEntry, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
+                            newFileEntry.Metadata = DiscCommon.TryGetFileMetadata(image, file);
 
                             if (options.Recurse || topLevel)
                             {
@@ -128,6 +129,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                             var name = file.Replace('\\', Path.DirectorySeparatorChar);
 
                             var newFileEntry = new FileEntry($"{image.FriendlyName}{Path.DirectorySeparatorChar}{name}", stream, fileEntry, memoryStreamCutoff: options.MemoryStreamCutoff);
+                            newFileEntry.Metadata = DiscCommon.TryGetFileMetadata(image, file);
                             if (options.Recurse || topLevel)
                             {
                                 foreach (var extractedFile in Context.Extract(newFileEntry, options, governor, false))
