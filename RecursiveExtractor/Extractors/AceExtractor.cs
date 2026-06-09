@@ -33,7 +33,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             try
             {
                 fileEntry.Content.Position = 0;
-                aceReader = AceReader.Open(fileEntry.Content, new ReaderOptions()
+                aceReader = AceReader.OpenReader(fileEntry.Content, new ReaderOptions()
                 {
                     LeaveStreamOpen = true
                 });
@@ -104,7 +104,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             try
             {
                 fileEntry.Content.Position = 0;
-                aceReader = AceReader.Open(fileEntry.Content, new ReaderOptions()
+                aceReader = AceReader.OpenReader(fileEntry.Content, new ReaderOptions()
                 {
                     LeaveStreamOpen = true
                 });

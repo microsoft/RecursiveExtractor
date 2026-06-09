@@ -33,7 +33,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             try
             {
                 fileEntry.Content.Position = 0;
-                arcReader = ArcReader.Open(fileEntry.Content, new ReaderOptions()
+                arcReader = ArcReader.OpenReader(fileEntry.Content, new ReaderOptions()
                 {
                     LeaveStreamOpen = true
                 });
@@ -107,7 +107,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             try
             {
                 fileEntry.Content.Position = 0;
-                arcReader = ArcReader.Open(fileEntry.Content, new ReaderOptions()
+                arcReader = ArcReader.OpenReader(fileEntry.Content, new ReaderOptions()
                 {
                     LeaveStreamOpen = true
                 });

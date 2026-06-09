@@ -56,11 +56,11 @@ public class FilterTests
             {
                 { "TestData.zip", 4 },
                 { "TestData.7z", 2 },
-                { "TestData.tar", 5 },
+                { "TestData.tar", 4 },
                 { "TestData.rar", 2 },
                 { "TestData.rar4", 2 },
-                { "TestData.tar.bz2", 5 },
-                { "TestData.tar.gz", 5 },
+                { "TestData.tar.bz2", 4 },
+                { "TestData.tar.gz", 4 },
                 { "TestData.tar.xz", 2 },
                 { "sysvbanner_1.0-17fakesync1_amd64.deb", 8 },
                 { "TestData.a", 3 },
@@ -68,7 +68,7 @@ public class FilterTests
                 { "TestData.iso", 2 },
                 { "TestData.vhdx", 2 },
                 { "EmptyFile.txt", 1 },
-                { "TestDataArchivesNested.zip", RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? 45 : 44 },
+                { "TestDataArchivesNested.zip", RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? 42 : 41 },
             };
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {

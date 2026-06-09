@@ -23,11 +23,11 @@ public class DisposeBehaviorTests
             var data = new TheoryData<string, int, bool>
             {
                 { "TestData.7z", 3, false },
-                { "TestData.tar", 6, false },
+                { "TestData.tar", 5, false },
                 { "TestData.rar", 3, false },
                 { "TestData.rar4", 3, false },
-                { "TestData.tar.bz2", 6, false },
-                { "TestData.tar.gz", 6, false },
+                { "TestData.tar.bz2", 5, false },
+                { "TestData.tar.gz", 5, false },
                 { "TestData.tar.xz", 3, false },
                 { "sysvbanner_1.0-17fakesync1_amd64.deb", 8, false },
                 { "TestData.a", 3, false },
@@ -37,11 +37,11 @@ public class DisposeBehaviorTests
                 { "EmptyFile.txt", 1, false },
                 { "TestData.zip", 5, true },
                 { "TestData.7z", 3, true },
-                { "TestData.tar", 6, true },
+                { "TestData.tar", 5, true },
                 { "TestData.rar", 3, true },
                 { "TestData.rar4", 3, true },
-                { "TestData.tar.bz2", 6, true },
-                { "TestData.tar.gz", 6, true },
+                { "TestData.tar.bz2", 5, true },
+                { "TestData.tar.gz", 5, true },
                 { "TestData.tar.xz", 3, true },
                 { "sysvbanner_1.0-17fakesync1_amd64.deb", 8, true },
                 { "TestData.a", 3, true },
@@ -49,8 +49,8 @@ public class DisposeBehaviorTests
                 { "TestData.iso", 3, true },
                 { "TestData.vhdx", 3, true },
                 { "EmptyFile.txt", 1, true },
-                { "TestDataArchivesNested.zip", RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? 54 : 52, true },
-                { "TestDataArchivesNested.zip", RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? 54 : 52, false },
+                { "TestDataArchivesNested.zip", RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? 51 : 49, true },
+                { "TestDataArchivesNested.zip", RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? 51 : 49, false },
             };
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {

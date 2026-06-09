@@ -27,11 +27,11 @@ namespace RecursiveExtractor.Tests.CliTests
                 {
                     { "TestData.zip", 5 },
                     { "TestData.7z", 3 },
-                    { "TestData.tar", 6 },
+                    { "TestData.tar", 5 },
                     { "TestData.rar", 3 },
                     { "TestData.rar4", 3 },
-                    { "TestData.tar.bz2", 6 },
-                    { "TestData.tar.gz", 6 },
+                    { "TestData.tar.bz2", 5 },
+                    { "TestData.tar.gz", 5 },
                     { "TestData.tar.xz", 3 },
                     { "sysvbanner_1.0-17fakesync1_amd64.deb", 8 },
                     { "TestData.a", 3 },
@@ -39,7 +39,7 @@ namespace RecursiveExtractor.Tests.CliTests
                     { "TestData.iso", 3 },
                     { "TestData.vhdx", 3 },
                     { "EmptyFile.txt", 1 },
-                    { "TestDataArchivesNested.zip", RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? 54 : 52 },
+                    { "TestDataArchivesNested.zip", RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? 51 : 49 },
                 };
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
