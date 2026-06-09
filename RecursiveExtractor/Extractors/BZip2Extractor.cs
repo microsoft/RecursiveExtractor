@@ -40,7 +40,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         var failed = false;
         try
         {
-            using var bzipStream = BZip2Stream.Create(fileEntry.Content, CompressionMode.Decompress, false, leaveOpen: false);
+            using var bzipStream = new BZip2Stream(fileEntry.Content, CompressionMode.Decompress, false);
             await bzipStream.CopyToAsync(fs);
         }
             catch (Exception e)
@@ -99,7 +99,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
             try
             {
-                using var bzipStream = BZip2Stream.Create(fileEntry.Content, CompressionMode.Decompress, false, leaveOpen: false);
+                using var bzipStream = new BZip2Stream(fileEntry.Content, CompressionMode.Decompress, false);
                 bzipStream.CopyTo(fs);
             }
             catch (Exception e)
