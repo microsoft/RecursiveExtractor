@@ -48,15 +48,15 @@ namespace Microsoft.CST.RecursiveExtractor
 
         /// <summary>
         /// The Windows file attributes (e.g., ReadOnly, Hidden, System, Archive).
-        /// Available for NTFS, FAT, and WIM file systems.
+        /// Available for disc image file systems that expose DOS attributes, such as NTFS, FAT, WIM, and ISO 9660.
         /// Null if not available from the archive format.
         /// </summary>
         public FileAttributes? FileAttributes { get; set; }
 
         /// <summary>
-        /// The NTFS security descriptor in SDDL (Security Descriptor Definition Language) format.
-        /// Available for NTFS and WIM file systems that implement <c>IWindowsFileSystem</c>.
-        /// Null if not available from the archive format.
+        /// The Windows security descriptor in SDDL (Security Descriptor Definition Language) format.
+        /// Available for disc image file systems that expose Windows security descriptors, such as NTFS and WIM.
+        /// Null if not available from the archive format, or if the file system did not record one for this file.
         /// </summary>
         public string? SecurityDescriptorSddl { get; set; }
     }

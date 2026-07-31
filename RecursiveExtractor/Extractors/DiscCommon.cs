@@ -1,4 +1,5 @@
 ﻿using DiscUtils;
+using DiscUtils.Iso9660;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -16,12 +17,14 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
         /// <summary>
         /// Tries to extract file metadata from a DiscUtils file system entry.
-        /// For file systems implementing <see cref="IUnixFileSystem"/> (Ext, Xfs, Btrfs, HfsPlus),
+        /// For file systems implementing <see cref="IUnixFileSystem"/> (such as Ext, Xfs, Btrfs, HfsPlus,
+        /// and ISO 9660 images via <c>CDReader</c> when RockRidge extensions are present),
         /// returns permissions, UID, and GID.
-        /// For file systems implementing <see cref="IDosFileSystem"/> (NTFS, FAT, WIM),
+        /// For file systems implementing <see cref="IDosFileSystem"/> (such as NTFS, FAT, WIM, and ISO 9660),
         /// returns Windows file attributes.
-        /// For file systems implementing <see cref="IWindowsFileSystem"/> (NTFS, WIM),
-        /// also returns the security descriptor in SDDL format.
+        /// For file systems implementing <see cref="IWindowsFileSystem"/> (such as NTFS and WIM),
+        /// also returns the security descriptor in SDDL format when the file system provides one.
+        /// The lists above are not exhaustive; support is determined by the interfaces the file system implements.
         /// Returns null for file systems that support none of these interfaces.
         /// </summary>
         /// <param name="fs">The opened disc file system</param>
@@ -31,7 +34,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         {
             FileEntryMetadata? metadata = null;
 
-            if (fs is IUnixFileSystem unixFs)
+            if (fs is IUnixFileSystem unixFs && SupportsUnixMetadata(fs))
             {
                 try
                 {
@@ -68,11 +71,12 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 try
                 {
                     var securityDescriptor = windowsFs.GetSecurity(filePath);
-                    if (securityDescriptor != null)
+                    var sddl = securityDescriptor?.GetSddlForm(
+                        DiscUtils.Core.WindowsSecurity.AccessControl.AccessControlSections.All);
+                    if (!string.IsNullOrEmpty(sddl))
                     {
                         metadata ??= new FileEntryMetadata();
-                        metadata.SecurityDescriptorSddl = securityDescriptor.GetSddlForm(
-                            DiscUtils.Core.WindowsSecurity.AccessControl.AccessControlSections.All);
+                        metadata.SecurityDescriptorSddl = sddl;
                     }
                 }
                 catch (Exception e)
@@ -83,6 +87,15 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
             return metadata;
         }
+
+        /// <summary>
+        /// Determines whether a file system that implements <see cref="IUnixFileSystem"/> can actually
+        /// return Unix metadata. <c>CDReader</c> implements the interface unconditionally but only exposes
+        /// Unix information when the active ISO 9660 variant is RockRidge, and throws for every other
+        /// variant. Checking up front avoids throwing and catching an exception for every file in an image.
+        /// </summary>
+        private static bool SupportsUnixMetadata(DiscFileSystem fs)
+            => fs is not CDReader cdReader || cdReader.ActiveVariant == Iso9660Variant.RockRidge;
 
         /// <summary>
         /// Pre-collects metadata for all files while the file system is still open.
