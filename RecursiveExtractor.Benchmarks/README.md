@@ -69,3 +69,12 @@ Measured on a 1000 entry x 4 KiB deflate zip, ShortRun, net8.0:
   `zipEntry.Size` and by making the unknown-length fallback a `SpillOverStream` that only moves to
   disk if the content actually exceeds `MemoryStreamCutoff`. Async is now within ~15% of sync, and
   7z (which hits the same fallback through `FileEntry`) got ~6x faster.
+- **7z and rar used to allocate ~26x the baseline.** `SevenZipExtractor` and `RarExtractor` never
+  disposed the stream returned by `entry.OpenEntryStream()`. Because 7z is a solid format,
+  SharpCompress builds a fresh decoder chain per entry, and each one holds a 1 MiB LZMA dictionary
+  plus a 128 KiB read cache. At 200 entries that is ~230 MiB retained, nearly all of it on the large
+  object heap. The equivalent baseline in `ArchiveFormatBenchmarks.ReadWithArchiveApi` used `using`,
+  which is what made the gap visible. `FileEntry` copies the content into its own backing stream, so
+  the source can be disposed before yielding. 7z is now 1.10x the baseline on both time and
+  allocations, down from 26.35x: 320 ms -> 31 ms and 240 MB -> 10 MB.
+  `EntryStreamDisposalTests` guards against a regression.

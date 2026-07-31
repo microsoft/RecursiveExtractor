@@ -42,7 +42,14 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 {
                     governor.CheckResourceGovernor(entry.Size);
                     var name = (entry.Key ?? string.Empty).Replace('/', Path.DirectorySeparatorChar);
-                    var newFileEntry = await FileEntry.FromStreamAsync(name, entry.OpenEntryStream(), fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
+                    FileEntry newFileEntry;
+                    // Dispose the entry stream before yielding. SharpCompress keeps a decoder and
+                    // its dictionary buffer alive per open entry stream, and FileEntry has already
+                    // taken its own copy of the content by this point.
+                    using (var entryStream = entry.OpenEntryStream())
+                    {
+                        newFileEntry = await FileEntry.FromStreamAsync(name, entryStream, fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
+                    }
 
                     if (newFileEntry != null)
                     {
@@ -164,7 +171,14 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 {
                     governor.CheckResourceGovernor(entry.Size);
                     var name = (entry.Key ?? string.Empty).Replace('/', Path.DirectorySeparatorChar);
-                    var newFileEntry = new FileEntry(name, entry.OpenEntryStream(), fileEntry, createTime: entry.CreatedTime, modifyTime: entry.LastModifiedTime, accessTime: entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
+                    FileEntry newFileEntry;
+                    // Dispose the entry stream before yielding. SharpCompress keeps a decoder and
+                    // its dictionary buffer alive per open entry stream, and FileEntry has already
+                    // taken its own copy of the content by this point.
+                    using (var entryStream = entry.OpenEntryStream())
+                    {
+                        newFileEntry = new FileEntry(name, entryStream, fileEntry, createTime: entry.CreatedTime, modifyTime: entry.LastModifiedTime, accessTime: entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
+                    }
 
                     try
                     {

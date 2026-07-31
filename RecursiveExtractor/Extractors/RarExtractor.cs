@@ -105,7 +105,14 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                 {
                     governor.CheckResourceGovernor(entry.Size);
                     var name = (entry.Key ?? string.Empty).Replace('/', Path.DirectorySeparatorChar);
-                    var newFileEntry = await FileEntry.FromStreamAsync(name, entry.OpenEntryStream(), fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
+                    FileEntry newFileEntry;
+                    // Dispose the entry stream before yielding. SharpCompress keeps a decoder and
+                    // its dictionary buffer alive per open entry stream, and FileEntry has already
+                    // taken its own copy of the content by this point.
+                    using (var entryStream = entry.OpenEntryStream())
+                    {
+                        newFileEntry = await FileEntry.FromStreamAsync(name, entryStream, fileEntry, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff).ConfigureAwait(false);
+                    }
                     if (newFileEntry != null)
                     {
                         try
@@ -156,7 +163,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     FileEntry? newFileEntry = null;
                     try
                     {
-                        var stream = entry.OpenEntryStream();
+                        using var stream = entry.OpenEntryStream();
                         var name = (entry.Key ?? string.Empty).Replace('/', Path.DirectorySeparatorChar);
                         newFileEntry = new FileEntry(name, stream, fileEntry, false, entry.CreatedTime, entry.LastModifiedTime, entry.LastAccessedTime, memoryStreamCutoff: options.MemoryStreamCutoff);
                     }
