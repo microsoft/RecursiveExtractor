@@ -18,7 +18,8 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// <summary>
         /// Tries to extract file metadata from a DiscUtils file system entry.
         /// For file systems implementing <see cref="IUnixFileSystem"/> (such as Ext, Xfs, Btrfs, HfsPlus,
-        /// and ISO 9660 images via <c>CDReader</c> when RockRidge extensions are present),
+        /// and ISO 9660 images via <c>CDReader</c> when RockRidge is the active variant; see
+        /// <see cref="CollectIsoMetadata"/> for images that also carry Joliet),
         /// returns permissions, UID, and GID.
         /// For file systems implementing <see cref="IDosFileSystem"/> (such as NTFS, FAT, WIM, and ISO 9660),
         /// returns Windows file attributes.
@@ -36,20 +37,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
             if (fs is IUnixFileSystem unixFs && SupportsUnixMetadata(fs))
             {
-                try
-                {
-                    var info = unixFs.GetUnixFileInfo(filePath);
-                    metadata = new FileEntryMetadata
-                    {
-                        Mode = (long)info.Permissions,
-                        Uid = info.UserId,
-                        Gid = info.GroupId
-                    };
-                }
-                catch (Exception e)
-                {
-                    Logger.Debug(e, "Could not retrieve Unix metadata for {0}", filePath);
-                }
+                metadata = ApplyUnixMetadata(unixFs, filePath, metadata);
             }
 
             if (fs is IDosFileSystem dosFs)
@@ -89,6 +77,32 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         }
 
         /// <summary>
+        /// Reads the Unix mode, UID and GID for a file and applies them to <paramref name="metadata"/>,
+        /// creating it when the caller does not have one yet.
+        /// </summary>
+        /// <param name="fs">The opened Unix file system</param>
+        /// <param name="filePath">Path of the file within the file system</param>
+        /// <param name="metadata">The metadata to populate, or null to create one on demand</param>
+        /// <returns>The populated metadata, or the value passed in when the read failed</returns>
+        private static FileEntryMetadata? ApplyUnixMetadata(IUnixFileSystem fs, string filePath, FileEntryMetadata? metadata)
+        {
+            try
+            {
+                var info = fs.GetUnixFileInfo(filePath);
+                metadata ??= new FileEntryMetadata();
+                metadata.Mode = (long)info.Permissions;
+                metadata.Uid = info.UserId;
+                metadata.Gid = info.GroupId;
+            }
+            catch (Exception e)
+            {
+                Logger.Debug(e, "Could not retrieve Unix metadata for {0}", filePath);
+            }
+
+            return metadata;
+        }
+
+        /// <summary>
         /// Determines whether a file system that implements <see cref="IUnixFileSystem"/> can actually
         /// return Unix metadata. <c>CDReader</c> implements the interface unconditionally but only exposes
         /// Unix information when the active ISO 9660 variant is RockRidge, and throws for every other
@@ -101,6 +115,10 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
         /// Pre-collects metadata for all files while the file system is still open.
         /// Used by extractors (e.g., ISO) where the file system is disposed before files are processed.
         /// </summary>
+        /// <remarks>
+        /// This does not throw. An entry whose metadata cannot be read is logged and skipped, so a problem
+        /// reading metadata never causes the archive itself to be reported as unreadable.
+        /// </remarks>
         /// <param name="fs">The opened disc file system</param>
         /// <param name="fileInfos">The file entries to collect metadata for</param>
         /// <returns>A dictionary mapping file paths to metadata, or null if the file system does not support metadata</returns>
@@ -114,13 +132,80 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             var result = new Dictionary<string, FileEntryMetadata>();
             foreach (var fi in fileInfos)
             {
-                var metadata = TryGetFileMetadata(fs, fi.FullName);
-                if (metadata != null)
+                string? fullName = null;
+                try
                 {
-                    result[fi.FullName] = metadata;
+                    fullName = fi.FullName;
+                    var metadata = TryGetFileMetadata(fs, fullName);
+                    if (metadata != null)
+                    {
+                        result[fullName] = metadata;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logger.Debug(e, "Could not collect metadata for {0}", fullName ?? "an unnamed entry");
                 }
             }
             return result;
+        }
+
+        /// <summary>
+        /// Pre-collects metadata for the files of an ISO 9660 image while the reader is still open.
+        /// </summary>
+        /// <remarks>
+        /// <c>CDReader</c> is opened with Joliet given priority over RockRidge, and DiscUtils only parses
+        /// SUSP records for the variant it activates. On an image built with both extensions (for example
+        /// <c>mkisofs -J -R</c>) the Joliet tree wins, and the RockRidge mode, UID and GID would be lost.
+        /// When the active variant is not RockRidge, a second reader that skips Joliet is opened to recover
+        /// them. Entries are matched by path; the two directory trees normally agree on names, and an entry
+        /// that does not match simply keeps whatever the active tree provided.
+        /// Like <see cref="CollectMetadata"/>, this does not throw.
+        /// </remarks>
+        /// <param name="cd">The opened ISO 9660 reader</param>
+        /// <param name="fileInfos">The file entries to collect metadata for</param>
+        /// <param name="isoStream">The stream the reader was opened over, used for the RockRidge fallback</param>
+        /// <returns>A dictionary mapping file paths to metadata</returns>
+        internal static Dictionary<string, FileEntryMetadata>? CollectIsoMetadata(CDReader cd, DiscFileInfo[] fileInfos, Stream isoStream)
+        {
+            var metadataByPath = CollectMetadata(cd, fileInfos);
+
+            if (metadataByPath == null || cd.ActiveVariant == Iso9660Variant.RockRidge)
+            {
+                return metadataByPath;
+            }
+
+            try
+            {
+                using var rockRidgeReader = new CDReader(isoStream, false);
+                if (rockRidgeReader.ActiveVariant != Iso9660Variant.RockRidge)
+                {
+                    return metadataByPath;
+                }
+
+                foreach (var fi in rockRidgeReader.Root.GetFiles("*.*", SearchOption.AllDirectories))
+                {
+                    string? fullName = null;
+                    try
+                    {
+                        fullName = fi.FullName;
+                        if (metadataByPath.TryGetValue(fullName, out var metadata))
+                        {
+                            ApplyUnixMetadata(rockRidgeReader, fullName, metadata);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Debug(e, "Could not collect RockRidge metadata for {0}", fullName ?? "an unnamed entry");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Debug(e, "Could not read RockRidge metadata from an ISO with active variant {0}", cd.ActiveVariant);
+            }
+
+            return metadataByPath;
         }
 
         /// <summary>

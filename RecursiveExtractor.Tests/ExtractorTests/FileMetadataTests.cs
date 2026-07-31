@@ -228,6 +228,52 @@ public class FileMetadataTests
     }
 
     [Fact]
+    public async Task IsoJolietRockRidgeEntries_HaveUnixMetadata()
+    {
+        // TestDataJolietRockRidge.iso carries both a Joliet supplementary volume descriptor and RockRidge
+        // SUSP records. DiscUtils gives Joliet priority and only parses SUSP records for the variant it
+        // activates, so the Unix metadata is only reachable through a second reader that skips Joliet.
+        var extractor = new Extractor();
+        var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", "TestDataJolietRockRidge.iso");
+        var results = await extractor.ExtractAsync(path, new ExtractorOptions() { Recurse = false }).ToListAsync();
+
+        AssertJolietRockRidgeMetadata(results);
+    }
+
+    [Fact]
+    public void IsoJolietRockRidgeEntries_HaveUnixMetadata_Sync()
+    {
+        var extractor = new Extractor();
+        var path = Path.Combine(Directory.GetCurrentDirectory(), "TestData", "TestDataArchives", "TestDataJolietRockRidge.iso");
+        var results = extractor.Extract(path, new ExtractorOptions() { Recurse = false }).ToList();
+
+        AssertJolietRockRidgeMetadata(results);
+    }
+
+    private static void AssertJolietRockRidgeMetadata(IList<FileEntry> results)
+    {
+        Assert.Equal(2, results.Count);
+        foreach (var entry in results)
+        {
+            Assert.NotNull(entry.Metadata);
+            Assert.Equal(0, entry.Metadata!.Uid);
+            Assert.Equal(0, entry.Metadata.Gid);
+            // File attributes still come from the Joliet tree the entries were enumerated from
+            Assert.Equal(FileAttributes.ReadOnly, entry.Metadata.FileAttributes);
+            Assert.Null(entry.Metadata.SecurityDescriptorSddl);
+        }
+
+        // testfile.txt is 0755 (493 decimal), subdir/nested.txt is 0644 (420 decimal)
+        var topLevel = results.Single(x => x.Name == "testfile.txt");
+        Assert.Equal(493, topLevel.Metadata!.Mode);
+        Assert.True(topLevel.Metadata.IsExecutable);
+
+        var nested = results.Single(x => x.Name == "nested.txt");
+        Assert.Equal(420, nested.Metadata!.Mode);
+        Assert.False(nested.Metadata.IsExecutable);
+    }
+
+    [Fact]
     public async Task UdfEntries_HaveNoMetadata()
     {
         // UdfReader implements none of the Unix/DOS/Windows file system interfaces,

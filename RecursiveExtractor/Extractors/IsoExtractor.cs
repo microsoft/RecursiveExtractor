@@ -37,7 +37,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             {
                 using var cd = new CDReader(fileEntry.Content, true);
                 entries = cd.Root.GetFiles("*.*", SearchOption.AllDirectories).ToArray();
-                metadataByPath = DiscCommon.CollectMetadata(cd, entries);
+                metadataByPath = DiscCommon.CollectIsoMetadata(cd, entries, fileEntry.Content);
             }
             catch (Exception e)
             {
@@ -104,7 +104,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
             {
                 using var cd = new CDReader(fileEntry.Content, true);
                 entries = cd.Root.GetFiles("*.*", SearchOption.AllDirectories).ToArray();
-                metadataByPath = DiscCommon.CollectMetadata(cd, entries);
+                metadataByPath = DiscCommon.CollectIsoMetadata(cd, entries, fileEntry.Content);
             }
             catch(Exception e)
             {

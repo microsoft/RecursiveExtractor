@@ -152,6 +152,8 @@ Which properties are populated depends on the format:
 | Source | Populated |
 | --- | --- |
 | TAR, AR/DEB | `Mode`, `Uid`, `Gid` |
+| ZIP | `Mode`, when the entry records Unix permissions in its external attributes |
+| RAR, 7z | `Mode`, taken from the raw attribute field the archive records: a Unix mode for archives created on Unix, DOS attributes otherwise |
 | Ext, XFS, Btrfs, HFS+ (inside VHD/VHDX/VMDK/DMG) | `Mode`, `Uid`, `Gid` |
 | ISO 9660 with RockRidge extensions | `Mode`, `Uid`, `Gid`, `FileAttributes` |
 | ISO 9660 without RockRidge extensions | `FileAttributes` |
