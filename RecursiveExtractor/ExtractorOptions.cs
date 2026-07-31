@@ -19,6 +19,16 @@ namespace Microsoft.CST.RecursiveExtractor
         /// <summary>
         ///     Maximum number of bytes before using a FileStream. Default 100MB
         /// </summary>
+        /// <remarks>
+        ///     When the size of an entry is known up front the backing store is chosen before the
+        ///     copy. When it is not — which is the normal case for archive libraries that expose
+        ///     non-seekable entry streams — the content is buffered in memory and moved to a
+        ///     temporary file only once it grows past this value, so a single entry never occupies
+        ///     more than the cutoff in memory. Note that entries are held concurrently when
+        ///     <see cref="Parallel"/> is set, so the peak is bounded by
+        ///     <see cref="BatchSize"/> * <see cref="MemoryStreamCutoff"/>; lower this value if you
+        ///     are extracting in a memory constrained environment.
+        /// </remarks>
         public int MemoryStreamCutoff { get; set; } = 1024 * 1024 * 100;
 
         /// <summary>

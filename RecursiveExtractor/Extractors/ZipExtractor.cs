@@ -135,6 +135,8 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     try
                     {
                         using var zipStream = zipEntry.OpenEntryStream();
+                        // Opened first so Size reflects the local file header, which SharpCompress
+                        // refreshes on open and which a tampered central directory cannot fake.
                         target = StreamFactory.GenerateAppropriateBackingStream(options, zipEntry.Size);
                         await zipStream.CopyToAsync(target);
                     }
@@ -255,11 +257,14 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
 
                     governor.CheckResourceGovernor(zipEntry.Size);
 
-                    var fs = StreamFactory.GenerateAppropriateBackingStream(options, zipEntry.Size);
+                    Stream? fs = null;
 
                     try
                     {
                         using var zipStream = zipEntry.OpenEntryStream();
+                        // Opened first so Size reflects the local file header, which SharpCompress
+                        // refreshes on open and which a tampered central directory cannot fake.
+                        fs = StreamFactory.GenerateAppropriateBackingStream(options, zipEntry.Size);
                         zipStream.CopyTo(fs);
                     }
                     catch (Exception e)
@@ -369,7 +374,11 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         using var readerStream = forwardReader.OpenEntryStream();
                         governor.CheckResourceGovernor(forwardReader.Entry.Size);
-                        payload = StreamFactory.GenerateAppropriateBackingStream(options, forwardReader.Entry.Size);
+                        // Deliberately size the backing store from the stream rather than
+                        // Entry.Size: a forward-only reader sees only the local file header, which
+                        // reports 0 for entries written with a data descriptor. Trusting it would
+                        // buffer arbitrarily large content in memory regardless of MemoryStreamCutoff.
+                        payload = StreamFactory.GenerateAppropriateBackingStream(options, readerStream);
                         await readerStream.CopyToAsync(payload);
                     }
                     catch (Exception ex)
@@ -452,7 +461,9 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         using var readerStream = forwardReader.OpenEntryStream();
                         governor.CheckResourceGovernor(forwardReader.Entry.Size);
-                        payload = StreamFactory.GenerateAppropriateBackingStream(options, forwardReader.Entry.Size);
+                        // See the note in YieldNonIndexedEntriesAsync: Entry.Size is not trustworthy
+                        // for a forward-only reader, so let the stream drive the backing decision.
+                        payload = StreamFactory.GenerateAppropriateBackingStream(options, readerStream);
                         readerStream.CopyTo(payload);
                     }
                     catch (Exception ex)

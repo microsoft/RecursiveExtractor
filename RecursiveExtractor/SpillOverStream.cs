@@ -107,6 +107,29 @@ internal sealed class SpillOverStream : Stream
         _backingStream.WriteByte(value);
     }
 
+#if !NETSTANDARD2_0
+    /// <inheritdoc />
+    public override int Read(Span<byte> buffer) => _backingStream.Read(buffer);
+
+    /// <inheritdoc />
+    public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default) =>
+        _backingStream.ReadAsync(buffer, cancellationToken);
+
+    /// <inheritdoc />
+    public override void Write(ReadOnlySpan<byte> buffer)
+    {
+        SpillIfNeeded(_backingStream.Position + buffer.Length);
+        _backingStream.Write(buffer);
+    }
+
+    /// <inheritdoc />
+    public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+    {
+        SpillIfNeeded(_backingStream.Position + buffer.Length);
+        await _backingStream.WriteAsync(buffer, cancellationToken).ConfigureAwait(false);
+    }
+#endif
+
     /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
@@ -125,13 +148,21 @@ internal sealed class SpillOverStream : Stream
             return;
         }
 
-        var memoryStream = _backingStream;
+        // Only reachable while the backing store is still the MemoryStream created in the
+        // constructor, since HasSpilledToDisk flips at the same time the field is replaced.
+        var memoryStream = (MemoryStream)_backingStream;
         var fileStream = StreamFactory.GenerateDeleteOnCloseFileStream(_fileStreamBufferSize);
 
-        var position = memoryStream.Position;
-        memoryStream.Position = 0;
-        memoryStream.CopyTo(fileStream);
-        fileStream.Position = position;
+        try
+        {
+            memoryStream.WriteTo(fileStream);
+            fileStream.Position = memoryStream.Position;
+        }
+        catch
+        {
+            fileStream.Dispose();
+            throw;
+        }
 
         _backingStream = fileStream;
         HasSpilledToDisk = true;

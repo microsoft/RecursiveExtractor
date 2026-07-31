@@ -170,4 +170,73 @@ public class StreamFactoryTests
         using var backing = StreamFactory.GenerateAppropriateBackingStream(null, source, 4096);
         Assert.IsType<MemoryStream>(backing);
     }
+
+#if !NETFRAMEWORK
+    /// <summary>
+    /// The span and memory overloads are what <see cref="Stream.CopyToAsync(Stream)"/> actually
+    /// calls on modern targets, so the spill decision has to be made there too.
+    /// </summary>
+    [Fact]
+    public void SpillOverStreamSpillsWhenWrittenThroughSpanOverload()
+    {
+        var content = Payload(Cutoff * 4);
+        using var spillOver = new SpillOverStream(Cutoff, 4096);
+
+        spillOver.Write(new ReadOnlySpan<byte>(content));
+
+        Assert.True(spillOver.HasSpilledToDisk);
+        Assert.Equal(content.Length, spillOver.Length);
+
+        spillOver.Position = 0;
+        var readBack = new byte[content.Length];
+        Assert.Equal(content.Length, spillOver.Read(new Span<byte>(readBack)));
+        Assert.Equal(content, readBack);
+    }
+
+    [Fact]
+    public async Task SpillOverStreamSpillsWhenWrittenThroughMemoryOverload()
+    {
+        var content = Payload(Cutoff * 4);
+        using var spillOver = new SpillOverStream(Cutoff, 4096);
+
+        await spillOver.WriteAsync(new ReadOnlyMemory<byte>(content));
+
+        Assert.True(spillOver.HasSpilledToDisk);
+
+        spillOver.Position = 0;
+        var readBack = new byte[content.Length];
+        Assert.Equal(content.Length, await spillOver.ReadAsync(new Memory<byte>(readBack)));
+        Assert.Equal(content, readBack);
+    }
+#endif
+
+    /// <summary>
+    /// Content written before the spill has to survive it, including bytes that were overwritten
+    /// in place while the stream was still in memory.
+    /// </summary>
+    [Fact]
+    public void SpillOverStreamPreservesRewrittenContentAcrossTheSpill()
+    {
+        var content = Payload(Cutoff / 2);
+        using var spillOver = new SpillOverStream(Cutoff, 4096);
+
+        spillOver.Write(content, 0, content.Length);
+        spillOver.Position = 4;
+        spillOver.Write(new byte[] { 1, 2, 3 }, 0, 3);
+        Assert.False(spillOver.HasSpilledToDisk);
+
+        spillOver.Position = spillOver.Length;
+        var tail = Payload(Cutoff * 2);
+        spillOver.Write(tail, 0, tail.Length);
+        Assert.True(spillOver.HasSpilledToDisk);
+
+        content[4] = 1;
+        content[5] = 2;
+        content[6] = 3;
+
+        spillOver.Position = 0;
+        using var readBack = new MemoryStream();
+        spillOver.CopyTo(readBack);
+        Assert.Equal(content.Concat(tail).ToArray(), readBack.ToArray());
+    }
 }

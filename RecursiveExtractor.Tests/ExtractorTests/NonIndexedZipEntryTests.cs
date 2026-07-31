@@ -189,4 +189,120 @@ public class NonIndexedZipEntryTests
         Assert.True(results.Count > 0, "Expected at least one entry from TestData.zip");
         Assert.DoesNotContain(results, r => r.EntryStatus == FileEntryStatus.NonIndexedEntry);
     }
+
+    /// <summary>
+    /// Builds a tampered ZIP whose hidden entry mimics one written to a non-seekable stream: the
+    /// local file header declares an uncompressed size of 0 and the real size would trail the
+    /// payload in a data descriptor. The forward-only reader used by the non-indexed scan only
+    /// ever sees that local header.
+    /// </summary>
+    private static byte[] CraftZipWithLargeStreamingHiddenEntry(int hiddenSize)
+    {
+        byte[] zipWithVisible;
+        using (var ms = new MemoryStream())
+        {
+            using (var arc = new ZipArchive(ms, ZipArchiveMode.Create, leaveOpen: true))
+            {
+                var ve = arc.CreateEntry("visible.txt", CompressionLevel.NoCompression);
+                using var vw = new StreamWriter(ve.Open());
+                vw.Write("VISIBLE_PAYLOAD");
+            }
+            zipWithVisible = ms.ToArray();
+        }
+
+        byte[] zipWithHidden;
+        using (var ms = new MemoryStream())
+        {
+            using (var arc = new ZipArchive(ms, ZipArchiveMode.Create, leaveOpen: true))
+            {
+                var he = arc.CreateEntry("hidden.bin", CompressionLevel.Optimal);
+                using var hs = he.Open();
+                hs.Write(new byte[hiddenSize], 0, hiddenSize);
+            }
+            zipWithHidden = ms.ToArray();
+        }
+
+        // hidden.bin's local file header sits at offset 0; its uncompressed size field is at +22.
+        Assert.True(zipWithHidden[0] == 0x50 && zipWithHidden[1] == 0x4B && zipWithHidden[2] == 0x03 && zipWithHidden[3] == 0x04,
+            "Expected a local file header at the start of the hidden ZIP");
+        Array.Clear(zipWithHidden, 22, 4);
+
+        int eocdVisible = ScanBackwardsForEocd(zipWithVisible);
+        int eocdHidden = ScanBackwardsForEocd(zipWithHidden);
+        uint cdOffsetVisible = BitConverter.ToUInt32(zipWithVisible, eocdVisible + 16);
+        uint cdOffsetHidden = BitConverter.ToUInt32(zipWithHidden, eocdHidden + 16);
+
+        using var output = new MemoryStream();
+        output.Write(zipWithVisible, 0, (int)cdOffsetVisible);
+        output.Write(zipWithHidden, 0, (int)cdOffsetHidden);
+
+        int tailLength = zipWithVisible.Length - (int)cdOffsetVisible;
+        var tail = new byte[tailLength];
+        Array.Copy(zipWithVisible, (int)cdOffsetVisible, tail, 0, tailLength);
+        BitConverter.GetBytes(cdOffsetVisible + cdOffsetHidden).CopyTo(tail, eocdVisible - (int)cdOffsetVisible + 16);
+        output.Write(tail, 0, tail.Length);
+
+        return output.ToArray();
+    }
+
+    private static void AssertNotHeldEntirelyInMemory(Stream content)
+    {
+        if (content is SpillOverStream spillOver)
+        {
+            Assert.True(spillOver.HasSpilledToDisk, "Content exceeding the cutoff should have spilled to disk.");
+            return;
+        }
+
+        Assert.IsType<FileStream>(content);
+    }
+
+    /// <summary>
+    /// Regression guard: the non-indexed scan must not size its backing store from the declared
+    /// entry size. A forward-only reader reports 0 for streaming entries, which would silently
+    /// buffer arbitrarily large hidden content in memory regardless of MemoryStreamCutoff.
+    /// </summary>
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task LargeStreamingHiddenEntry_RespectsMemoryStreamCutoff(bool useAsync)
+    {
+        const int hiddenSize = 4 * 1024 * 1024;
+        var tamperedBytes = CraftZipWithLargeStreamingHiddenEntry(hiddenSize);
+
+        var options = new ExtractorOptions
+        {
+            ExtractNonIndexedEntries = true,
+            Recurse = false,
+            MemoryStreamCutoff = 64 * 1024,
+            // Isolate the backing store decision from the zip bomb guard.
+            MaxExtractedBytesRatio = 0,
+            MaxExtractedBytes = long.MaxValue,
+        };
+
+        var extractor = new Extractor();
+        var fe = new FileEntry("tampered.zip", new MemoryStream(tamperedBytes), passthroughStream: true);
+
+        var results = new List<FileEntry>();
+        if (useAsync)
+        {
+            await foreach (var entry in extractor.ExtractAsync(fe, options))
+            {
+                results.Add(entry);
+            }
+        }
+        else
+        {
+            results.AddRange(extractor.Extract(fe, options));
+        }
+
+        var hiddenResult = results.First(r => r.Name == "hidden.bin");
+        Assert.Equal(FileEntryStatus.NonIndexedEntry, hiddenResult.EntryStatus);
+        Assert.Equal(hiddenSize, hiddenResult.Content.Length);
+        AssertNotHeldEntirelyInMemory(hiddenResult.Content);
+
+        foreach (var result in results)
+        {
+            result.Content.Dispose();
+        }
+    }
 }

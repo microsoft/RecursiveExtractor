@@ -303,6 +303,11 @@ foreach(var file in results)
 } 
 ```
 
+### Controlling Memory Usage
+The `Content` stream of each `FileEntry` is held in memory while it is smaller than `ExtractorOptions.MemoryStreamCutoff` (100MB by default) and backed by a temporary file once it grows past it. Entries whose size is not known before extraction begins start in memory and move to disk only if they actually exceed the cutoff.
+
+Because entries are held concurrently when `ExtractorOptions.Parallel` is set, peak memory is bounded by `BatchSize * MemoryStreamCutoff`. Lower `MemoryStreamCutoff` if you are extracting in a memory constrained environment, or raise it to trade memory for fewer temporary files.
+
 # Feedback
 
 If you have any issues or feature requests (for example, supporting other formats) you can open a new [Issue](https://github.com/microsoft/RecursiveExtractor/issues/new).  
