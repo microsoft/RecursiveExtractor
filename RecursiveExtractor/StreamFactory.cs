@@ -39,9 +39,14 @@ public static class StreamFactory
     /// <returns></returns>
     internal static Stream GenerateAppropriateBackingStream(int? memoryStreamCutoff, Stream targetStream, int fileStreamBufferSize)
     {
+        if (memoryStreamCutoff is not int cutoff)
+        {
+            return new MemoryStream();
+        }
+
         try
         {
-            if (targetStream.Length > memoryStreamCutoff)
+            if (targetStream.Length > cutoff)
             {
                 return GenerateDeleteOnCloseFileStream(fileStreamBufferSize);
             }
@@ -49,7 +54,11 @@ public static class StreamFactory
         }
         catch (Exception)
         {
-            return GenerateDeleteOnCloseFileStream(fileStreamBufferSize);
+            // The length isn't knowable without draining the stream, which is the normal case for
+            // archive entry streams. Rather than assume the content is large and pay for a
+            // temporary file on every entry, buffer in memory and move to disk only if the content
+            // turns out to exceed the cutoff.
+            return new SpillOverStream(cutoff, fileStreamBufferSize);
         }
     }
     

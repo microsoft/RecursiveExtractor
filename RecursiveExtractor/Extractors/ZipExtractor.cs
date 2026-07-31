@@ -135,7 +135,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     try
                     {
                         using var zipStream = zipEntry.OpenEntryStream();
-                        target = StreamFactory.GenerateAppropriateBackingStream(options, zipStream);
+                        target = StreamFactory.GenerateAppropriateBackingStream(options, zipEntry.Size);
                         await zipStream.CopyToAsync(target);
                     }
                     catch (Exception e)
@@ -369,7 +369,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         using var readerStream = forwardReader.OpenEntryStream();
                         governor.CheckResourceGovernor(forwardReader.Entry.Size);
-                        payload = StreamFactory.GenerateAppropriateBackingStream(options, readerStream);
+                        payload = StreamFactory.GenerateAppropriateBackingStream(options, forwardReader.Entry.Size);
                         await readerStream.CopyToAsync(payload);
                     }
                     catch (Exception ex)
@@ -452,7 +452,7 @@ namespace Microsoft.CST.RecursiveExtractor.Extractors
                     {
                         using var readerStream = forwardReader.OpenEntryStream();
                         governor.CheckResourceGovernor(forwardReader.Entry.Size);
-                        payload = StreamFactory.GenerateAppropriateBackingStream(options, readerStream);
+                        payload = StreamFactory.GenerateAppropriateBackingStream(options, forwardReader.Entry.Size);
                         readerStream.CopyTo(payload);
                     }
                     catch (Exception ex)
