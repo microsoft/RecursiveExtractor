@@ -1,5 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 
+using System.IO;
+
 namespace Microsoft.CST.RecursiveExtractor
 {
     /// <summary>
@@ -43,5 +45,19 @@ namespace Microsoft.CST.RecursiveExtractor
         /// Null if not available from the archive format.
         /// </summary>
         public long? Gid { get; set; }
+
+        /// <summary>
+        /// The Windows file attributes (e.g., ReadOnly, Hidden, System, Archive).
+        /// Available for disc image file systems that expose DOS attributes, such as NTFS, FAT, WIM, and ISO 9660.
+        /// Null if not available from the archive format.
+        /// </summary>
+        public FileAttributes? FileAttributes { get; set; }
+
+        /// <summary>
+        /// The Windows security descriptor in SDDL (Security Descriptor Definition Language) format.
+        /// Available for disc image file systems that expose Windows security descriptors, such as NTFS and WIM.
+        /// Null if not available from the archive format, or if the file system did not record one for this file.
+        /// </summary>
+        public string? SecurityDescriptorSddl { get; set; }
     }
 }

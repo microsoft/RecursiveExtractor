@@ -127,6 +127,49 @@ public string? ParentPath { get; }
 public DateTime CreateTime { get; }
 public DateTime ModifyTime { get; }
 public DateTime AccessTime { get; }
+public FileEntryMetadata? Metadata { get; set; }
+```
+</details>
+
+<details>
+<summary>File Metadata</summary>
+<br/>
+When the source archive or disc image records it, `FileEntry.Metadata` holds additional attributes for the entry. Every property is nullable, and `Metadata` itself is `null` when the format carries no metadata at all, so you can distinguish "not recorded" from a real value.
+
+```csharp
+public long? Mode { get; set; }                     // Unix permission bits
+public bool? IsExecutable { get; }                  // Derived from Mode
+public bool? IsSetUid { get; }                      // Derived from Mode
+public bool? IsSetGid { get; }                      // Derived from Mode
+public long? Uid { get; set; }                      // Unix owner id
+public long? Gid { get; set; }                      // Unix group id
+public FileAttributes? FileAttributes { get; set; } // Windows/DOS file attributes
+public string? SecurityDescriptorSddl { get; set; } // Windows security descriptor, SDDL form
+```
+
+Which properties are populated depends on the format:
+
+| Source | Populated |
+| --- | --- |
+| TAR, AR/DEB | `Mode`, `Uid`, `Gid` |
+| ZIP | `Mode`, when the entry records Unix permissions in its external attributes |
+| RAR, 7z | `Mode`, taken from the raw attribute field the archive records: a Unix mode for archives created on Unix, DOS attributes otherwise |
+| Ext, XFS, Btrfs, HFS+ (inside VHD/VHDX/VMDK/DMG) | `Mode`, `Uid`, `Gid` |
+| ISO 9660 with RockRidge extensions | `Mode`, `Uid`, `Gid`, `FileAttributes` |
+| ISO 9660 without RockRidge extensions | `FileAttributes` |
+| FAT (inside a disc image) | `FileAttributes` |
+| NTFS (inside a disc image) | `FileAttributes`, `SecurityDescriptorSddl` |
+| WIM | `FileAttributes`, and `SecurityDescriptorSddl` when the image records one |
+| UDF | None; `Metadata` is `null` |
+
+```csharp
+foreach (var file in extractor.Extract("path/to/image.vhdx"))
+{
+    if (file.Metadata?.SecurityDescriptorSddl is { } sddl)
+    {
+        Console.WriteLine($"{file.FullPath}: {sddl}");
+    }
+}
 ```
 </details>
 
