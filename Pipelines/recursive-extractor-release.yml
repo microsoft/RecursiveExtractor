@@ -166,6 +166,7 @@ extends:
             AuthSignCertName: 'oss-recursive-signing-cert'
             useMsiAuthentication: true
             esrpClientId: 'caf746ee-b288-4155-8cc0-0bedca65f230'
+            ServiceEndpointUrl: 'https://api.esrp.microsoft.com/api/v2'
             FolderPath: '$(Build.BinariesDirectory)'
             Pattern: '*.nupkg, *.snupkg'
             signConfigType: 'inlineSignParams'
