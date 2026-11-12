@@ -155,15 +155,18 @@ extends:
             destinationFolder: '$(Build.BinariesDirectory)'
             cleanDestinationFolder: false
             overwriteExistingFiles: true
-        - task: EsrpCodeSigning@5
+        - task: EsrpCodeSigning@6
           displayName: Code Sign Nuget Packages
           inputs:
-            ConnectedServiceName: 'oss-esrp-signing-recext-v5-connection'
-            AppRegistrationClientId: 'caf746ee-b288-4155-8cc0-0bedca65f230'
+            ConnectedServiceName: 'oss-signing-v6-recext'
+            AppRegistrationClientId: '208b296a-b9a5-4253-a293-6c9f73393b4e'
             AppRegistrationTenantId: '33e01921-4d64-4f8c-a055-5bdaffd5e33d'
             AuthAKVName: 'oss-signing-vault'
             AuthCertName: 'oss-recursive-auth-cert'
             AuthSignCertName: 'oss-recursive-signing-cert'
+            useMsiAuthentication: true
+            esrpClientId: 'caf746ee-b288-4155-8cc0-0bedca65f230'
+            ServiceEndpointUrl: 'https://api.esrp.microsoft.com/api/v2'
             FolderPath: '$(Build.BinariesDirectory)'
             Pattern: '*.nupkg, *.snupkg'
             signConfigType: 'inlineSignParams'
